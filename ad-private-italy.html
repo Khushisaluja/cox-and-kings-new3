@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Private Ad + Landing — Romance of Italy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F1E8;--paper:#FBF8F1;--ink:#15233F;--ink2:#1E3157;--clay:#C15F3C;--clay2:#D97757;--line:#D8CFBC;--lineink:rgba(245,241,232,.18);--ok:#3E6B4F;}
+*{box-sizing:border-box}body{margin:0;background:#E7E2D6;font-family:"Inter",sans-serif;color:#1A1A1A;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Fraunces",serif;font-weight:400;margin:0;line-height:1.1}
+p{margin:0}a{text-decoration:none;color:inherit}
+.col{max-width:440px;margin:0 auto;padding:22px 14px 90px}
+.lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:#7a7264;text-align:center;margin:26px 0 10px}
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:var(--clay)}
+.eyebrow.on{color:var(--clay2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14.5px;padding:13px 20px;border-radius:3px;border:none;cursor:pointer;width:100%}
+.clay{background:var(--clay);color:#fff}.ink{background:var(--ink);color:var(--cream)}
+.ghost{border:1px solid var(--ink);color:var(--ink);background:none}
+.seal{width:var(--d,70px);height:var(--d,70px);border-radius:50%;display:grid;place-items:center;position:relative;border:1px solid var(--clay2);color:var(--clay2);flex:none}
+.seal::before{content:"";position:absolute;inset:4px;border-radius:50%;border:1px solid rgba(217,119,87,.45)}
+.seal b{font-family:"Fraunces";font-size:18px;line-height:1}
+.seal small{position:absolute;font-size:6px;letter-spacing:.16em;font-weight:700}
+.seal .t{top:9px}.seal .bm{bottom:9px}
+
+.feed{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+.feed-top{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.fav{width:40px;height:40px;border-radius:50%;background:var(--ink);display:grid;place-items:center;flex:none}
+.fav span{font-family:"Fraunces";color:var(--cream);font-size:19px}
+.feed-top .nm{font-size:14px;font-weight:600}.feed-top .sp{font-size:12px;color:#65676b}
+.feed-top .more{margin-left:auto;color:#65676b;font-size:20px}
+.feed-txt{padding:0 14px 12px;font-size:14px;line-height:1.45}
+.creative{position:relative;aspect-ratio:4/5;background:var(--ink);overflow:hidden;color:var(--cream)}
+.creative svg.eng{position:absolute;inset:0;width:100%;height:100%}
+.cr-in{position:absolute;inset:0;padding:30px 26px;display:flex;flex-direction:column}
+.cr-top{display:flex;justify-content:space-between;align-items:flex-start}
+.cr-chip{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;background:var(--ink2);color:#fff;padding:5px 10px;border-radius:2px;align-self:flex-start;margin-top:auto;border:1px solid var(--clay2)}
+.cr-h{font-size:34px;font-weight:300;color:var(--cream);line-height:1.05;margin:10px 0}
+.cr-h em{font-style:italic;color:var(--clay2)}
+.cr-sub{font-size:13px;color:rgba(245,241,232,.82);letter-spacing:.02em}
+.cr-price{font-family:"Fraunces";font-size:21px;color:var(--cream);margin-top:14px}
+.cr-price small{font-family:"Inter";font-size:12px;color:rgba(245,241,232,.7)}
+.link-card{display:flex;align-items:center;gap:12px;background:#f0f2f5;padding:12px 14px}
+.link-card .lc-t{flex:1;min-width:0}
+.link-card .dom{font-size:12px;color:#65676b;text-transform:uppercase;letter-spacing:.02em}
+.link-card .hd{font-size:15px;font-weight:700;color:#1c1e21;margin-top:2px}
+.link-card .ds{font-size:12.5px;color:#65676b;margin-top:1px}
+.link-card .cta{background:#e4e6eb;color:#1c1e21;font-weight:600;font-size:13px;padding:9px 14px;border-radius:5px;white-space:nowrap}
+.feed-act{display:flex;border-top:1px solid #eee;padding:6px 0}
+.feed-act div{flex:1;text-align:center;font-size:13px;color:#65676b;padding:7px;font-weight:600}
+
+.copy{background:#fff;border-radius:10px;padding:18px;margin-top:14px;font-size:13.5px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.copy h4{font-family:"Inter";font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#7a7264;margin:14px 0 5px;font-weight:700}
+.copy h4:first-child{margin-top:0}
+.copy .v{background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:7px;line-height:1.45}
+.copy .pill{display:inline-block;font-size:12px;font-weight:600;color:var(--ink)}
+
+.arrow{text-align:center;margin:30px 0 6px}.arrow .a{font-size:26px;color:var(--clay)}
+.arrow p{font-size:12px;color:#7a7264;font-weight:600;letter-spacing:.04em;margin-top:2px}
+
+.lp{background:var(--cream);border-radius:14px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+.lp-hero{background:var(--ink);color:var(--cream);position:relative;overflow:hidden;padding:26px 22px 28px}
+.lp-hero svg.eng{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+.lp-hero .in{position:relative}
+.lp-hero h1{font-size:30px;font-weight:300;color:var(--cream);margin:10px 0}
+.lp-hero h1 em{font-style:italic;color:var(--clay2)}
+.lp-hero .sub{font-size:14px;color:rgba(245,241,232,.82);line-height:1.5}
+.lp-hero .stat{display:flex;gap:18px;margin-top:18px}
+.lp-hero .stat b{font-family:"Fraunces";font-size:18px;color:var(--clay2);display:block;line-height:1}
+.lp-hero .stat small{font-size:11px;color:rgba(245,241,232,.7)}
+.tstrip{display:flex;background:var(--paper);border-bottom:1px solid var(--line)}
+.tstrip div{flex:1;padding:12px 8px;text-align:center;border-right:1px solid var(--line);font-size:11px;color:#5a5446}
+.tstrip div:last-child{border:none}.tstrip b{display:block;font-family:"Fraunces";font-size:16px;color:var(--ink)}
+.sec{padding:24px 22px}.sec h2{font-size:21px;color:var(--ink);margin-bottom:14px}
+.incl{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
+.incl li{list-style:none;font-size:13px;color:var(--ink);display:flex;gap:8px;padding:5px 0}.incl .ck{color:var(--clay);font-weight:700}
+.excl li{list-style:none;font-size:13px;color:#5a5446;display:flex;gap:8px;padding:5px 0}.excl .xk{color:#b04a3a;font-weight:700}
+.hl{display:grid;grid-template-columns:1fr;gap:2px}
+.hl li{list-style:none;font-size:13.5px;color:var(--ink);display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.hl li:last-child{border:none}.hl .hk{color:var(--clay);font-weight:700;flex:none}
+.route{display:flex;flex-direction:column;gap:0}
+.stop{display:flex;align-items:flex-start;gap:14px;position:relative;padding-bottom:16px}
+.stop:last-child{padding-bottom:0}
+.stop .pin{flex:none;width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--cream);display:grid;place-items:center;font-family:"Fraunces";font-size:13px;z-index:1}
+.stop::before{content:"";position:absolute;left:16px;top:34px;bottom:-2px;width:2px;background:var(--line)}
+.stop:last-child::before{display:none}
+.stop .sc{flex:1;padding-top:6px}
+.stop .sc .cn{font-size:15px;font-weight:600;color:var(--ink)}
+.stop .sc .nn{font-size:12px;color:var(--clay);font-weight:600}
+.stop .sc .sd{font-size:12.5px;color:#7a7264;margin-top:2px}
+.itin{border-top:1px solid var(--line)}
+.id{border-bottom:1px solid var(--line)}
+.iq{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 2px;background:none;border:none;cursor:pointer}
+.iq .dn{font-family:"Fraunces";font-size:12px;color:var(--clay);width:48px;flex:none}
+.iq .dt2{font-size:14px;font-weight:500;color:var(--ink);flex:1}
+.iq .pl{font-size:20px;color:#7a7264;transition:.2s;flex:none}
+.id.open .pl{transform:rotate(45deg)}
+.ia{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.ia .iin{padding:0 2px 14px 60px;font-size:13px;color:#5a5446;line-height:1.5}
+.expect{display:grid;gap:8px}
+.expect .ex{display:flex;gap:11px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.expect .ex .exi{font-size:17px;flex:none}
+.expect .ex b{font-size:13px;color:var(--ink);display:block}.expect .ex span{font-size:12.5px;color:#7a7264}
+.awards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.aw{display:flex;gap:10px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px}
+.aw .as{width:30px;height:30px;border-radius:50%;border:1px solid var(--clay);color:var(--clay);display:grid;place-items:center;font-size:13px;flex:none}
+.aw b{font-size:11.5px;color:var(--ink);display:block;line-height:1.25}.aw small{font-size:10px;color:#7a7264;letter-spacing:.1em}
+.secure{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-top:10px;display:flex;gap:12px;align-items:flex-start}
+.secure .lk{font-size:18px;color:var(--ok);flex:none}
+.secure b{font-size:12.5px;color:var(--ink)}.secure p{font-size:11.5px;color:#7a7264;margin-top:2px;line-height:1.45}
+.secbar{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:8px;font-size:11px;color:#7a7264;font-weight:600}
+.secbar .lk{color:var(--ok)}
+.cta-fixed{position:fixed;left:50%;bottom:0;width:100%;max-width:440px;transform:translate(-50%,120%);
+  display:grid;grid-template-columns:1fr 48px 48px;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(21,35,63,.97);backdrop-filter:blur(6px);border-top:1px solid var(--lineink);transition:transform .32s cubic-bezier(.4,0,.2,1);z-index:60}
+.cta-fixed.show{transform:translate(-50%,0)}
+.cf-main{background:var(--clay);color:#fff;font-weight:600;font-size:14.5px;border:none;border-radius:6px;padding:13px;cursor:pointer}
+.cf-ic{border-radius:6px;display:grid;place-items:center;color:#fff;font-size:16px;text-decoration:none}
+.cf-ic.c{background:rgba(245,241,232,.16)}.cf-ic.w{background:#1faa55}
+.fld{margin-bottom:12px}.fld label{font-size:12px;font-weight:600;color:var(--ink);display:block;margin-bottom:5px}
+.fld input,.fld select{width:100%;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);font-family:inherit;font-size:14px;color:var(--ink)}
+.qty{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--paper)}
+.qty button{width:44px;height:44px;font-size:20px;background:var(--paper);border:none;cursor:pointer;color:var(--ink)}
+.qty input{flex:1;border:none;text-align:center;background:none;font-weight:600;font-size:15px}
+.ftog{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--paper);margin-bottom:12px}
+.sw{width:42px;height:24px;border-radius:30px;background:var(--line);position:relative;flex:none;cursor:pointer;transition:.2s}
+.sw.on{background:var(--clay)}.sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}.sw.on::after{left:20px}
+.ftog .ft{font-size:13px;font-weight:600;color:var(--ink)}.ftog .fs{font-size:11px;color:#7a7264}
+.live{font-size:11px;color:var(--ok);font-weight:600;display:flex;gap:6px;align-items:center;margin-top:-4px;margin-bottom:12px}.live .d{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.pay{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.po{border:1px solid var(--line);border-radius:6px;padding:11px;cursor:pointer;background:var(--paper)}
+.po.sel{border-color:var(--clay);box-shadow:0 0 0 1px var(--clay)}
+.po .pt{font-size:12px;font-weight:600;color:var(--ink)}.po .pa{font-family:"Fraunces";font-size:16px;color:var(--ink);margin-top:2px}.po .ps{font-size:10.5px;color:#7a7264}
+.sum{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+.sum .r{display:flex;justify-content:space-between;font-size:13px;color:#5a5446;padding:3px 0}
+.sum .r.t{font-size:15px;color:var(--ink);font-weight:600;border-top:1px solid var(--line);margin-top:6px;padding-top:10px}.sum .r.t b{font-family:"Fraunces";font-size:19px}
+.curbox{background:var(--ink);color:var(--cream);border-radius:10px;padding:18px;text-align:center;margin-top:8px}
+.curbox .av{width:60px;height:60px;border-radius:50%;background:var(--ink2);border:1px solid var(--clay2);display:grid;place-items:center;font-family:"Fraunces";color:var(--cream);font-size:22px;margin:0 auto 10px}
+.curbox h4{color:var(--cream);font-size:16px}.curbox .rr{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--clay2);margin:3px 0 12px;font-weight:600}
+.curbox .acts{display:grid;gap:7px}
+.hours{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#fff;background:var(--ok);padding:4px 10px;border-radius:20px;font-weight:600}.hours .d{width:6px;height:6px;border-radius:50%;background:#fff}
+.quote{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px}
+.quote .st{color:var(--clay);letter-spacing:2px;font-size:13px}.quote p{font-family:"Fraunces";font-size:15px;color:var(--ink);margin:8px 0}.quote small{color:#7a7264;font-size:12px}
+.lp-foot{background:var(--ink);color:rgba(245,241,232,.7);padding:18px 22px;font-size:11px;text-align:center;border-top:3px solid var(--clay)}
+.lp-foot b{font-family:"Fraunces";color:var(--cream);font-size:18px;display:block;margin-bottom:6px}
+.sticky{position:sticky;bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;background:rgba(21,35,63,.96);border-radius:10px;margin:14px 8px 0}
+.sticky a{padding:11px;border-radius:6px;text-align:center;font-size:13px;font-weight:600;color:#fff}.sticky .c{background:var(--clay)}.sticky .w{background:#1faa55}
+.mbg{position:fixed;inset:0;background:rgba(13,21,38,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.mbg.open{display:flex}.modal{background:var(--cream);border-radius:12px;max-width:420px;width:100%;padding:24px}
+.modal h3{font-size:22px;color:var(--ink);margin-bottom:6px}.modal p{font-size:13.5px;color:#5a5446}
+.fr{margin:12px 0}.fr label{font-size:12px;font-weight:600;color:var(--ink);display:block;margin-bottom:5px}
+.fr input,.fr select{width:100%;padding:11px;border:1px solid var(--line);border-radius:6px;background:var(--paper);font-family:inherit;font-size:14px}
+.mx{float:right;font-size:24px;color:#7a7264;cursor:pointer;line-height:1}
+.note{font-size:11px;color:#8a8270;text-align:center;margin-top:18px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="col">
+
+  <div class="lbl">Meta feed ad · Private tour</div>
+
+  <!-- ===== FEED AD ===== -->
+  <div class="feed">
+    <div class="feed-top">
+      <div class="fav"><span>M</span></div>
+      <div><div class="nm">Meridian Travel House</div><div class="sp">Sponsored · ✦</div></div>
+      <div class="more">⋯</div>
+    </div>
+    <div class="feed-txt">Italy — just the two of you, on your own dates. A private driver-guide, a Tuscan villa, the Amalfi coast by boat. Flights from your city, everything taken care of. A travel house since 1766.</div>
+    <div class="creative">
+      <svg class="eng" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+        <rect width="400" height="500" fill="#15233F"/>
+        <g stroke="hsla(28,55%,72%,.3)" fill="none" stroke-width="1">
+          <path d="M-20 130 Q 120 100 260 130 T 540 130"/><path d="M-20 175 Q 140 150 280 180 T 560 175"/>
+          <path d="M-20 225 Q 120 200 260 230 T 540 225"/><path d="M-20 370 Q 140 340 280 370 T 560 370"/>
+          <path d="M-20 415 Q 120 390 260 420 T 540 415"/></g>
+        <g transform="translate(320,95)" opacity=".5" stroke="hsla(36,60%,70%,.5)" fill="none" stroke-width="1">
+          <circle r="24"/><circle r="15"/><path d="M0 -28 L4 0 L0 28 L-4 0Z" fill="hsla(36,60%,70%,.4)" stroke="none"/></g>
+      </svg>
+      <div class="cr-in">
+        <div class="cr-top"><span class="eyebrow on">Private journeys since 1766</span>
+          <div class="seal" style="--d:54px"><small class="t">EST</small><b>1766</b><small class="bm">260 YRS</small></div></div>
+        <span class="cr-chip">Just the two of you</span>
+        <h1 class="cr-h">Italy — <em>yours alone</em>, on your dates.</h1>
+        <div class="cr-sub">11 days private · driver-guide · flights from your city</div>
+        <div class="cr-price">from ₹2,95,000 <small>/ person</small></div>
+      </div>
+    </div>
+    <div class="link-card">
+      <div class="lc-t"><div class="dom">meridiantravel.com</div><div class="hd">Romance of Italy, Privately</div><div class="ds">Your dates · private guide · all-inclusive</div></div>
+      <div class="cta">Learn More</div>
+    </div>
+    <div class="feed-act"><div>👍 Like</div><div>💬 Comment</div><div>↪ Share</div></div>
+  </div>
+
+  <!-- ===== AD COPY ===== -->
+  <div class="copy">
+    <h4>Primary text — variant A (romance)</h4>
+    <div class="v">Italy, just the two of you — on your own dates, at your own pace. A private driver-guide, a Tuscan villa, the Amalfi coast by boat. Flights from your city, everything taken care of. 🇮🇹</div>
+    <h4>Primary text — variant B (occasion)</h4>
+    <div class="v">Anniversary? Honeymoon? Travel Italy privately, designed around just the two of you. Any departure date, flights from your city, and a curator who handles every detail. Since 1766.</div>
+    <h4>Headline</h4><div class="v">Romance of Italy, Privately</div>
+    <h4>Description</h4><div class="v">Your dates · private guide · all-inclusive</div>
+    <h4>Button</h4><span class="pill">Learn More</span>
+    <h4>Suggested audience</h4>
+    <div class="v">India · 28–55 · interests: luxury/honeymoon travel, Italy, fine dining, couples travel. Strong for newly-engaged &amp; anniversary life-events. Retarget honeymoon-page visitors. A = cold, B = life-event &amp; retarget.</div>
+  </div>
+
+  <div class="arrow"><div class="a">↓</div><p>WHERE THE CLICK LANDS — MESSAGE-MATCHED</p></div>
+
+  <!-- ===== LANDING PAGE ===== -->
+  <div class="lp">
+    <div class="lp-hero">
+      <svg class="eng" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="#15233F"/>
+        <g stroke="hsla(28,55%,72%,.28)" fill="none" stroke-width="1"><path d="M-20 80 Q 120 55 260 85 T 540 80"/><path d="M-20 130 Q 140 105 280 135 T 560 130"/><path d="M-20 220 Q 120 195 260 225 T 540 220"/></g></svg>
+      <div class="in">
+        <span class="eyebrow on">Private · any date · flights from your city</span>
+        <h1>Italy — <em>yours alone</em>, on your dates.</h1>
+        <p class="sub">The journey from the ad: 11 private days, Rome to the Amalfi coast, a driver-guide throughout — designed around just the two of you.</p>
+        <div class="stat">
+          <div><b>11 days</b><small>private &amp; guided</small></div>
+          <div><b>₹2,95,000</b><small>from · land only</small></div>
+          <div><b>Any date</b><small>your party only</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="tstrip"><div><b>1766</b>260 years</div><div><b>★4.9</b>Trustpilot</div><div><b>All-incl.</b>visa→meals</div></div>
+
+    <div class="sec">
+      <h2>Tour highlights</h2>
+      <ul class="hl">
+        <li><span class="hk">✦</span>A private driver-guide for the two of you, throughout</li>
+        <li><span class="hk">✦</span>An after-hours Vatican option, away from the crowds</li>
+        <li><span class="hk">✦</span>Two nights in a Tuscan villa, with nowhere to be</li>
+        <li><span class="hk">✦</span>The Amalfi coast by private boat</li>
+        <li><span class="hk">✦</span>A long lunch at a family wine estate</li>
+        <li><span class="hk">✦</span>Romantic dinners booked and quietly arranged</li>
+      </ul>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+      <h2>Your route · 10 nights</h2>
+      <div class="route">
+        <div class="stop"><div class="pin">3</div><div class="sc"><div class="cn">Rome <span class="nn">· 3 nights</span></div><div class="sd">The eternal city, the Vatican, and the back streets few see</div></div></div>
+        <div class="stop"><div class="pin">2</div><div class="sc"><div class="cn">Florence <span class="nn">· 2 nights</span></div><div class="sd">Renaissance mornings, leather &amp; gelato afternoons</div></div></div>
+        <div class="stop"><div class="pin">2</div><div class="sc"><div class="cn">Tuscany <span class="nn">· 2 nights</span></div><div class="sd">A villa, a vineyard, and the slow life</div></div></div>
+        <div class="stop"><div class="pin">3</div><div class="sc"><div class="cn">Amalfi Coast <span class="nn">· 3 nights</span></div><div class="sd">Positano, Ravello, and the sea by private boat</div></div></div>
+      </div>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+      <h2>Day by day</h2>
+      <div class="itin" id="itin">
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 01</span><span class="dt2">Arrive Rome</span><span class="pl">+</span></button><div class="ia"><div class="iin">Private transfer to your hotel. An evening walk to the Trevi Fountain as the city lights come on.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 02</span><span class="dt2">Rome, privately guided</span><span class="pl">+</span></button><div class="ia"><div class="iin">The Colosseum and Forum with your guide, then the back-street trattorias only locals know.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 03</span><span class="dt2">The Vatican</span><span class="pl">+</span></button><div class="ia"><div class="iin">St. Peter's and the Sistine Chapel — with an after-hours option to have it almost to yourselves.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 04</span><span class="dt2">Rome → Florence</span><span class="pl">+</span></button><div class="ia"><div class="iin">A scenic drive north into Tuscany; settle into Florence by evening.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 05</span><span class="dt2">Florence</span><span class="pl">+</span></button><div class="ia"><div class="iin">The Uffizi and the Duomo, then time to wander the Oltrarno's workshops.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 06</span><span class="dt2">Into Tuscany</span><span class="pl">+</span></button><div class="ia"><div class="iin">To your villa among the vines; a long lunch at a family wine estate.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 07</span><span class="dt2">Tuscany at leisure</span><span class="pl">+</span></button><div class="ia"><div class="iin">A day with nowhere to be — hill towns, a cooking lesson, or simply the pool.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 08</span><span class="dt2">Tuscany → Amalfi</span><span class="pl">+</span></button><div class="ia"><div class="iin">South to the coast, where the road curls above the sea to your cliffside hotel.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 09</span><span class="dt2">Amalfi by private boat</span><span class="pl">+</span></button><div class="ia"><div class="iin">Positano, Ravello and hidden coves — the coast the way it's meant to be seen.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 10</span><span class="dt2">Amalfi at leisure</span><span class="pl">+</span></button><div class="ia"><div class="iin">A last slow day by the sea. A farewell dinner quietly arranged.</div></div></div>
+        <div class="id"><button class="iq" onclick="tg(this)"><span class="dn">Day 11</span><span class="dt2">Depart for home</span><span class="pl">+</span></button><div class="ia"><div class="iin">Private transfer to Naples or Rome for your flight, with a curator a message away.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="book">
+      <h2>Plan your private journey</h2>
+      <div class="fld"><label>Choose your departure date — any day you like</label><input type="date" id="dt" onchange="upd()"/></div>
+      <div class="fld"><label>Travellers</label>
+        <div class="qty"><button onclick="bump(-1)">−</button><input id="pax" value="2" readonly/><button onclick="bump(1)">+</button></div>
+      </div>
+      <div class="ftog"><div class="sw" id="sw" onclick="tog()"></div>
+        <div style="flex:1"><div class="ft">Add flights from your city</div><div class="fs">Live return fares, added to the package</div></div></div>
+      <div class="fld" id="cityf" style="display:none"><label>Departure city</label>
+        <select id="city" onchange="upd()"><option>New Delhi</option><option>Mumbai</option><option>Bengaluru</option><option>Chennai</option><option>Hyderabad</option><option>Kolkata</option><option>Ahmedabad</option></select>
+      </div>
+      <div class="live" id="live" style="display:none"><span class="d"></span> Live fare loaded · confirmed at checkout</div>
+
+      <div class="pay">
+        <div class="po sel" id="pd" onclick="setPay('d')"><div class="pt">Pay a deposit</div><div class="pa" id="pda">—</div><div class="ps">20% to confirm</div></div>
+        <div class="po" id="pf" onclick="setPay('f')"><div class="pt">Pay in full</div><div class="pa" id="pfa">—</div><div class="ps">settle today</div></div>
+      </div>
+      <div class="sum" id="sum"></div>
+      <button class="btn clay" style="margin-top:12px" onclick="reserve()" id="rb">Choose a date to continue</button>
+      <div class="secbar"><span class="lk">🔒</span> Secure 256-bit checkout · deposit protected · or talk to a curator first, free</div>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+      <h2>Included, privately</h2>
+      <ul class="incl">
+        <li><span class="ck">✦</span>Private driver-guide</li><li><span class="ck">✦</span>Visa &amp; assistance</li>
+        <li><span class="ck">✦</span>Travel insurance</li><li><span class="ck">✦</span>A Tuscan villa stay</li>
+        <li><span class="ck">✦</span>Amalfi by private boat</li><li><span class="ck">✦</span>All meals &amp; transfers</li>
+      </ul>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+      <h2>What's not included</h2>
+      <ul class="excl">
+        <li><span class="xk">✕</span>International airfare (add it above — live fares from your city)</li>
+        <li><span class="xk">✕</span>Personal expenses &amp; shopping</li>
+        <li><span class="xk">✕</span>Optional experiences beyond the itinerary</li>
+        <li><span class="xk">✕</span>Gratuities for your guide and drivers</li>
+      </ul>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+      <h2>What to expect</h2>
+      <div class="expect">
+        <div class="ex"><span class="exi">♡</span><div><b>Just the two of you</b><span>No group, no fixed pace — the journey is entirely yours</span></div></div>
+        <div class="ex"><span class="exi">🗓️</span><div><b>Your dates, your rhythm</b><span>Start any day; lie-ins and long lunches encouraged</span></div></div>
+        <div class="ex"><span class="exi">🚗</span><div><b>A few driving days</b><span>Scenic transfers between regions, all privately chauffeured</span></div></div>
+        <div class="ex"><span class="exi">☀️</span><div><b>Best from May to October</b><span>Warm, long evenings — ideal for the coast and Tuscany</span></div></div>
+      </div>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+      <div class="curbox">
+        <div class="av">DM</div><h4>David Menezes</h4><div class="rr">Your Italy Curator</div>
+        <div class="hours" style="margin-bottom:12px"><span class="d"></span> Available now · 9am–9pm</div>
+        <div class="acts">
+          <a class="btn clay" href="tel:+910000000000">☎ Call David</a>
+          <a class="btn" style="background:#1faa55;color:#fff" href="https://wa.me/910000000000">WhatsApp</a>
+          <button class="btn ghost" style="border-color:var(--lineink);color:var(--cream)" onclick="cb()">Request a callback</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+      <h2>Trusted for 260 years</h2>
+      <div class="awards">
+        <div class="aw"><div class="as">★</div><div><b>World's Most Awarded Travel House</b><small>2024</small></div></div>
+        <div class="aw"><div class="as">★</div><div><b>Best for Service &amp; Trust</b><small>2023</small></div></div>
+        <div class="aw"><div class="as">★</div><div><b>Experiential Operator of the Year</b><small>2023</small></div></div>
+        <div class="aw"><div class="as">★</div><div><b>Heritage Brand of the Decade</b><small>2022</small></div></div>
+      </div>
+      <div class="secure" style="margin-top:14px"><span class="lk">⚓</span><div><b>Since 1766 — and never a traveller left stranded.</b><p>The same house that has looked after travellers for over two and a half centuries, from Mahatma Gandhi to Sir Winston Churchill.</p></div></div>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+      <h2>What couples say</h2>
+      <div class="quote" style="margin-bottom:10px"><div class="st">★★★★★</div><p>"They designed it around us — our pace, our dates. The most romantic trip of our lives."</p><small>Aditi &amp; Karan · Italy, privately, 2025</small></div>
+      <div class="quote" style="margin-bottom:10px"><div class="st">★★★★★</div><p>"The villa, the private boat, the dinners we'd never have found — every detail was thought of."</p><small>Sneha &amp; Vikram · Italy, 2025</small></div>
+      <div class="quote"><div class="st">★★★★★</div><p>"We just lived it. Everything else was quietly handled. Worth every rupee."</p><small>P. &amp; A. Mehta · Italy, 2024</small></div>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+      <div class="secure"><span class="lk">🔒</span><div><b>Your payment is secure</b><p>256-bit encrypted checkout through a PCI-compliant gateway. Pay a 20% deposit to confirm, with the balance due later — your deposit is protected.</p></div></div>
+    </div>
+
+    <div class="cta-fixed" id="ctabar">
+      <button class="cf-main" onclick="goBook()">Plan &amp; book</button>
+      <a class="cf-ic c" href="tel:+910000000000" aria-label="Call">☎</a>
+      <a class="cf-ic w" href="https://wa.me/910000000000" aria-label="WhatsApp">✆</a>
+    </div>
+
+    <div class="lp-foot"><b>Meridian</b>Travel House · Est. 1766 · The most awarded in the world<br><em style="opacity:.7">Placeholder brand &amp; contacts — replace with yours.</em></div>
+  </div>
+
+  <p class="note">Message-matched to the ad's promise: any date, flights from your city, just the two of you. Wire the date/city/flight fields to your live flight API and payment gateway; connect the call/WhatsApp to real numbers.</p>
+</div>
+
+<div class="mbg" id="mbg" onclick="if(event.target===this)close_()"><div class="modal" id="mc"></div></div>
+
+<script>
+const BASE=295000, FLIGHT=54000; // land per-person + live flight per-person (Europe)
+let pax=2, pay='d', flight=false;
+function inr(n){return '₹'+n.toLocaleString('en-IN');}
+function bump(n){pax=Math.max(1,pax+n);document.getElementById('pax').value=pax;upd();}
+function tog(){flight=!flight;document.getElementById('sw').classList.toggle('on',flight);
+  document.getElementById('cityf').style.display=flight?'block':'none';
+  document.getElementById('live').style.display=flight?'flex':'none';upd();}
+function setPay(p){pay=p;document.getElementById('pd').classList.toggle('sel',p==='d');document.getElementById('pf').classList.toggle('sel',p==='f');upd();}
+function upd(){
+  const pp=BASE+(flight?FLIGHT:0), sub=pp*pax, dep=Math.round(sub*0.2);
+  document.getElementById('pda').textContent=inr(dep);
+  document.getElementById('pfa').textContent=inr(sub);
+  const hasDate=!!document.getElementById('dt').value;
+  const sum=document.getElementById('sum'), rb=document.getElementById('rb');
+  sum.innerHTML=`<div class="r"><span>Journey ×${pax}</span><span>${inr(BASE*pax)}</span></div>`+
+    (flight?`<div class="r"><span>Flights ×${pax} (${document.getElementById('city').value}, live)</span><span>${inr(FLIGHT*pax)}</span></div>`:'')+
+    `<div class="r"><span>All-inclusive · taxes</span><span>Included</span></div>`+
+    `<div class="r t"><span>${pay==='d'?'Due today (deposit)':'Total today'}</span><b>${pay==='d'?inr(dep):inr(sub)}</b></div>`+
+    (pay==='d'?`<div class="r"><span>Balance later</span><span>${inr(sub-dep)}</span></div>`:'');
+  rb.textContent = !hasDate ? 'Choose a date to continue' : (pay==='d'?('Pay deposit · '+inr(dep)):('Pay in full · '+inr(sub)));
+}
+function reserve(){
+  if(!document.getElementById('dt').value){open_('<span class="mx" onclick="close_()">×</span><h3>Choose a date</h3><p>Pick any departure date to continue.</p>');return;}
+  const pp=BASE+(flight?FLIGHT:0), sub=pp*pax, amt=pay==='d'?Math.round(sub*0.2):sub;
+  open_('<span class="mx" onclick="close_()">×</span><h3>Secure checkout</h3><p>Romance of Italy, Privately · '+document.getElementById('dt').value+'</p>'+
+    (flight?'<p style="margin-top:4px;font-size:12px">Incl. flights from '+document.getElementById('city').value+'</p>':'')+
+    '<div class="fr"><label>Lead traveller</label><input placeholder="Full name"/></div>'+
+    '<div class="fr"><label>Phone</label><input placeholder="+91…"/></div>'+
+    '<div class="fr"><label>Card</label><input placeholder="Card number"/></div>'+
+    '<button class="btn clay" onclick="done()">Pay '+inr(amt)+' securely</button>'+
+    '<p style="font-size:11px;color:#8a8270;text-align:center;margin-top:10px">Demo only — no payment taken.</p>');
+}
+function cb(){
+  open_('<span class="mx" onclick="close_()">×</span><h3>Request a callback</h3><p>David or an Italy curator will call — 9am to 9pm.</p>'+
+    '<div class="fr"><label>Name</label><input placeholder="Full name"/></div>'+
+    '<div class="fr"><label>Phone</label><input placeholder="+91…"/></div>'+
+    '<div class="fr"><label>Rough dates &amp; party (optional)</label><input placeholder="e.g. Sep 2026, 2 travellers"/></div>'+
+    '<button class="btn clay" onclick="done(true)">Request my callback</button>');
+}
+function done(isCb){
+  open_('<div style="text-align:center"><div class="seal" style="--d:60px;margin:0 auto 12px;border-color:var(--clay);color:var(--clay)"><small class="t" style="color:var(--clay)">EST</small><b>1766</b><small class="bm" style="color:var(--clay)">260</small></div>'+
+    '<h3>'+(isCb?'A curator will call you shortly.':"You're booked.")+'</h3>'+
+    '<p style="margin-top:6px">'+(isCb?'David will be in touch within the hour to design it with you.':'A confirmation is on its way, and David will call to begin shaping your journey.')+'</p>'+
+    '<button class="btn ink" style="margin-top:16px" onclick="close_()">Done</button></div>');
+}
+function open_(h){document.getElementById('mc').innerHTML=h;document.getElementById('mbg').classList.add('open');}
+function close_(){document.getElementById('mbg').classList.remove('open');}
+function tg(btn){const d=btn.closest('.id');const a=d.querySelector('.ia');const open=d.classList.toggle('open');a.style.maxHeight=open?a.scrollHeight+'px':'0';}
+function goBook(){document.getElementById('book').scrollIntoView({behavior:'smooth',block:'start'});}
+(function(){const lp=document.querySelector('.lp'),bar=document.getElementById('ctabar');let t;
+ function s(){const r=lp.getBoundingClientRect();bar.classList.toggle('show',r.top<window.innerHeight*0.8 && r.bottom>140);}
+ window.addEventListener('scroll',()=>{cancelAnimationFrame(t);t=requestAnimationFrame(s);},{passive:true});window.addEventListener('resize',s);s();})();
+upd();
+</script>
+</body>
+</html>

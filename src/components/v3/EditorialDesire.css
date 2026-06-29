@@ -1,0 +1,267 @@
+/* ============================================================
+   EditorialDesire.css — layout-only CSS for the Journeys
+   editorial module. All colour, type, and spacing tokens
+   come from v3-theme.css. Never hardcode brand values here.
+   ============================================================ */
+
+/* ── Section override: slightly less top-pad so it breathes with cream bg ── */
+.v3journeys__section {
+  /* inherits v3-section padding — no override needed */
+}
+
+/* ── Head row: text left, CTA right ── */
+.v3journeys__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.v3journeys__head-text {
+  flex: 1 1 auto;
+}
+
+/* Pull the sub slightly closer to the h2 */
+.v3journeys__head-text .v3-sub {
+  margin-top: 10px;
+}
+
+.v3journeys__all-link {
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 4px; /* align optical baseline with sub */
+}
+
+/* ── Lead feature spread ── */
+.v3journeys__lead {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(28px, 4vw, 56px);
+  align-items: center;
+  margin-bottom: clamp(48px, 7vw, 88px);
+  text-decoration: none;
+  color: inherit;
+}
+
+.v3journeys__lead-imglink {
+  display: block;
+}
+
+.v3journeys__lead-img {
+  border-radius: var(--v3-radius);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  box-shadow: var(--v3-shadow-lg);
+}
+
+.v3journeys__lead-img img {
+  transition: transform 0.7s var(--v3-ease);
+}
+
+.v3journeys__lead:hover .v3journeys__lead-img img,
+.v3journeys__lead-imglink:focus-visible .v3journeys__lead-img img {
+  transform: scale(1.04);
+}
+
+.v3journeys__lead-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.v3journeys__lead-title {
+  font-family: var(--v3-serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 3.8vw, 3.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--v3-ink);
+  margin: 0;
+}
+
+.v3journeys__lead-blurb {
+  font-family: var(--v3-body);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--v3-muted);
+  max-width: 46ch;
+  margin: 0;
+}
+
+/* ── Season chip (shared by lead and cards) ── */
+.v3journeys__season {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ── Gallery ── */
+.v3journeys__gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(16px, 2.5vw, 28px);
+  margin-bottom: clamp(40px, 6vw, 64px);
+}
+
+/* ── Gallery card ── */
+.v3journeys__card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--v3-radius);
+  overflow: hidden;
+  background: var(--v3-white);
+  box-shadow: var(--v3-shadow);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.35s var(--v3-ease), box-shadow 0.35s var(--v3-ease);
+  cursor: pointer;
+}
+
+.v3journeys__card:hover,
+.v3journeys__card:focus-visible {
+  transform: translateY(-5px);
+  box-shadow: var(--v3-shadow-lg);
+  outline-offset: 3px;
+}
+
+.v3journeys__card-img {
+  aspect-ratio: 3 / 2;
+  flex-shrink: 0;
+}
+
+.v3journeys__card-img img {
+  transition: transform 0.65s var(--v3-ease);
+}
+
+.v3journeys__card:hover .v3journeys__card-img img,
+.v3journeys__card:focus-visible .v3journeys__card-img img {
+  transform: scale(1.06);
+}
+
+.v3journeys__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: clamp(16px, 2.2vw, 24px);
+  flex: 1;
+}
+
+.v3journeys__card-title {
+  font-family: var(--v3-serif);
+  font-weight: 400;
+  font-size: clamp(1.1rem, 1.6vw, 1.3rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--v3-ink);
+  margin: 0;
+}
+
+.v3journeys__card-blurb {
+  font-family: var(--v3-body);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--v3-muted);
+  margin: 0;
+  flex: 1;
+}
+
+.v3journeys__read-link {
+  /* inherits .v3-link — no colour override needed */
+  margin-top: auto;
+}
+
+/* ── Bottom CTA row ── */
+.v3journeys__footer {
+  display: flex;
+  justify-content: center;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* ── Tablet (≤ 900px): lead stacks, gallery 2-col ── */
+@media (max-width: 900px) {
+  .v3journeys__lead {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .v3journeys__lead-img {
+    aspect-ratio: 16 / 9;
+  }
+
+  .v3journeys__lead-title {
+    font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+  }
+
+  .v3journeys__gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Mobile (≤ 600px): lead stacks, gallery → horizontal scroll rail ── */
+@media (max-width: 600px) {
+  .v3journeys__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .v3journeys__all-link {
+    align-self: flex-start;
+    margin-bottom: 0;
+  }
+
+  .v3journeys__lead {
+    gap: 20px;
+  }
+
+  .v3journeys__lead-img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .v3journeys__gallery {
+    /* Horizontal scroll snap rail */
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 16px;
+    padding-bottom: 8px;
+    /* Bleed out the container gutter for edge-to-edge feel */
+    margin-inline: calc(-1 * var(--v3-gutter));
+    padding-inline: var(--v3-gutter);
+    /* Hide scrollbar but keep scroll */
+    scrollbar-width: none;
+  }
+
+  .v3journeys__gallery::-webkit-scrollbar {
+    display: none;
+  }
+
+  .v3journeys__card {
+    flex: 0 0 78vw;
+    max-width: 320px;
+    scroll-snap-align: start;
+  }
+}
+
+/* ── Very small (≤ 380px): card width bump ── */
+@media (max-width: 380px) {
+  .v3journeys__card {
+    flex: 0 0 88vw;
+  }
+}
+
+/* ── Motion safety ── */
+@media (prefers-reduced-motion: reduce) {
+  .v3journeys__lead-img img,
+  .v3journeys__card-img img,
+  .v3journeys__card {
+    transition: none;
+  }
+}

@@ -1,0 +1,97 @@
+/* ============================================================
+   TrustBar.css — slim trust/proof band (blue full-bleed)
+   Block prefix: .v3trust
+   ============================================================ */
+
+/* Override the generous default section padding to keep this band slim */
+.v3trust {
+  padding-block: clamp(40px, 5vw, 64px);
+}
+
+/* ---- Eyebrow override: centered on dark ---- */
+.v3trust .v3-eyebrow {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* ---- Stats row ---- */
+.v3trust__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--v3-radius);
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .v3trust__stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---- Individual stat tile ---- */
+.v3trust__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(20px, 3vw, 36px) clamp(16px, 2vw, 24px);
+  position: relative;
+}
+
+/* Hairline dividers between tiles */
+.v3trust__tile + .v3trust__tile::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 16%;
+  height: 68%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 640px) {
+  /* On 2x2 grid, remove dividers on tiles 1 and 3 (left column),
+     add horizontal divider between rows */
+  .v3trust__tile:nth-child(3)::before {
+    display: none;
+  }
+  .v3trust__tile:nth-child(3),
+  .v3trust__tile:nth-child(4) {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Stat numeral — large, Zodiak */
+.v3trust__value {
+  font-family: var(--v3-serif);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+  line-height: 1.05;
+  color: var(--v3-white);
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+
+/* Stat label — small, muted */
+.v3trust__label {
+  font-family: var(--v3-body);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.62);
+  margin: 0;
+  max-width: 18ch;
+}
+
+/* ---- Associations / press row ---- */
+.v3trust__meta {
+  text-align: center;
+  font-family: var(--v3-body);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.42);
+  letter-spacing: 0.01em;
+  margin: 0;
+}

@@ -1,0 +1,349 @@
+/* Supplemental styles for the IMPROVED homepage (/improved).
+   Reuses Home2026.css tokens & classes; adds only improved-only components.
+   Persona-driven: clarity, trust, no-overlap craft, bespoke flow. */
+
+/* Hide the page scrollbar + reclaim its gutter so sections are truly
+   full-bleed. Scoped to this page only via a class toggled on <html>
+   while Home2026Improved is mounted, so other routes keep their scrollbar.
+   Scrolling still works (wheel / trackpad / keyboard). */
+html.h26-noscroll { scrollbar-width: none; -ms-overflow-style: none; }
+html.h26-noscroll,
+html.h26-noscroll body { overflow-x: hidden; }
+html.h26-noscroll::-webkit-scrollbar,
+html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+.hi-center { margin-left: auto; margin-right: auto; text-align: center; max-width: 720px; }
+
+/* ---------------- Path fork (Escorted vs Bespoke) ---------------- */
+.hi-fork-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+/* Four ways in — 4-up on wide screens, 2-up on tablets */
+.hi-fork-grid--four { grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.hi-fork-grid--four .hi-lane-media { height: 168px; }
+.hi-fork-grid--four .hi-lane-body { padding: 22px 22px 24px; }
+.hi-fork-grid--four .hi-lane-body h3 { font-size: 1.35rem; }
+.hi-fork-grid--four .hi-lane-body p { font-size: 0.95rem; }
+@media (max-width: 1080px) { .hi-fork-grid--four { grid-template-columns: 1fr 1fr; } }
+.hi-lane {
+  display: flex; flex-direction: column;
+  background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+  transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+}
+.hi-lane:hover { transform: translateY(-5px); box-shadow: 0 26px 54px rgba(2,19,48,0.14); }
+.hi-lane.is-bespoke { border-color: var(--blue); box-shadow: 0 12px 30px rgba(11,90,177,0.12); }
+/* Featured / recommended path — gently highlighted + pre-selected look */
+.hi-lane.is-featured {
+  position: relative;
+  border-color: var(--blue); border-width: 2px;
+  box-shadow: 0 18px 40px rgba(11,90,177,0.18);
+  transform: translateY(-6px);
+}
+.hi-lane.is-featured:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(11,90,177,0.24); }
+.hi-lane.is-featured .hi-lane-tag { color: var(--blue); }
+.hi-lane-badge {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  background: var(--blue); color: #fff;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 6px 12px; border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(11,90,177,0.35);
+}
+.hi-lane-media { height: 200px; overflow: hidden; }
+.hi-lane-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s cubic-bezier(.16,1,.3,1); }
+.hi-lane:hover .hi-lane-media img { transform: scale(1.06); }
+.hi-lane-body { padding: 24px 26px 26px; display: flex; flex-direction: column; flex: 1; align-items: flex-start; }
+.hi-lane-tag { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; color: var(--sienna); margin-bottom: 10px; }
+.hi-lane.is-bespoke .hi-lane-tag { color: var(--blue); }
+.hi-lane-body h3 { font-family: var(--serif); font-weight: 400; font-size: 1.55rem; color: var(--ink); margin: 0 0 10px; }
+.hi-lane-body p { font-size: 1rem; line-height: 1.55; color: var(--muted); margin: 0 0 22px; }
+.hi-lane-body .h26-btn { margin-top: auto; }
+.hi-fork-foot { display: flex; gap: 26px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+.hi-textlink {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--sans); font-size: 0.95rem; font-weight: 500; color: var(--blue);
+  border-bottom: 1px solid transparent; padding: 0 0 2px; transition: border-color .25s;
+}
+.hi-textlink:hover { border-color: var(--blue); }
+.hi-textlink-light { color: #bcdcff; }
+
+/* ---------------- Intro v2 — deterministic two-column (no overlap) ---------------- */
+.hi-intro2-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(36px, 5vw, 72px); align-items: center; }
+.hi-intro2-text .h26-h2 { margin-bottom: 18px; }
+/* Accent words ("Specialists," / "handled.") default to a pale-coral tuned for the
+   dark hero; on the light paper intro that's invisible. Use sienna for real contrast. */
+.hi-intro2 .wr-accent { color: var(--sienna); font-style: italic; text-shadow: none; }
+.hi-intro2-lead { font-family: var(--serif); font-size: 1.3rem; line-height: 1.5; color: var(--ink); margin: 0 0 16px; }
+.hi-intro2-body { font-size: 1.02rem; line-height: 1.7; color: var(--muted); margin: 0; max-width: 50ch; }
+.hi-intro2-media { display: flex; flex-direction: column; gap: 12px; }
+.hi-intro2-main { width: 100%; height: 300px; object-fit: cover; border-radius: 16px; display: block; }
+.hi-intro2-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.hi-intro2-strip img { width: 100%; height: 110px; object-fit: cover; border-radius: 10px; display: block; }
+
+/* ---------------- Cox & Kings today (we're back + booking safety) ---------------- */
+.hi-today { background: #03203F; color: var(--paper); padding: clamp(56px, 7vw, 100px) clamp(22px, 5vw, 90px); }
+.hi-today-inner { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(36px, 5vw, 80px); align-items: center; }
+.hi-today-main .h26-h2-light { margin: 6px 0 16px; }
+.hi-today-lead { font-size: 1.08rem; line-height: 1.7; color: rgba(255,255,255,0.88); margin: 0 0 22px; max-width: 52ch; }
+.hi-today-facts { display: flex; flex-direction: column; gap: 12px; }
+.hi-today-facts span { display: inline-flex; align-items: center; gap: 10px; font-size: 1rem; color: rgba(255,255,255,0.9); }
+.hi-today-facts svg { color: #9ec3ef; flex-shrink: 0; }
+.hi-safety { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16); border-radius: 16px; padding: 26px 28px; }
+.hi-safety h3 { font-family: var(--serif); font-weight: 400; font-size: 1.35rem; color: #fff; margin: 0 0 18px; }
+.hi-safety ul { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 15px; }
+.hi-safety li { display: flex; gap: 13px; align-items: flex-start; }
+.hi-safety-ic { width: 38px; height: 38px; flex-shrink: 0; border-radius: 8px; background: rgba(158,195,239,0.16); color: #9ec3ef; display: grid; place-items: center; }
+.hi-safety li strong { display: block; font-size: 0.98rem; color: #fff; }
+.hi-safety li em { font-style: normal; font-size: 0.86rem; color: rgba(255,255,255,0.72); line-height: 1.45; }
+
+/* ---------------- Inclusions / exclusions / why-we-cost-more ---------------- */
+.hi-includes { background: var(--paper-2); border: 1px solid var(--border); border-radius: 18px; padding: 26px clamp(22px, 3vw, 36px); margin-bottom: 28px; }
+.hi-includes-spec { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid var(--border); }
+.hi-spec { display: flex; gap: 12px; align-items: center; }
+.hi-spec-ic { width: 42px; height: 42px; flex-shrink: 0; border-radius: 10px; background: #fff; border: 1px solid var(--border); color: var(--blue); display: grid; place-items: center; }
+.hi-spec strong { display: block; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted-2); }
+.hi-spec em { font-style: normal; font-size: 0.95rem; font-weight: 500; color: var(--ink); line-height: 1.3; }
+.hi-includes-lists { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 26px; }
+.hi-inc h4 { font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-deep); margin: 0 0 12px; }
+.hi-inc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.hi-inc li { display: flex; gap: 9px; align-items: flex-start; font-size: 0.92rem; line-height: 1.45; color: var(--ink); }
+.hi-check { color: var(--blue); flex-shrink: 0; margin-top: 3px; }
+.hi-dash { color: var(--muted-2); flex-shrink: 0; font-weight: 700; width: 14px; text-align: center; }
+.hi-exc li { color: var(--muted); }
+.hi-spark { color: var(--sienna); flex-shrink: 0; margin-top: 3px; }
+.hi-jrn-cap { display: inline-flex; align-items: center; gap: 5px; font-size: 0.74rem; color: rgba(255,255,255,0.9); }
+.h26-jrn-price small { font-weight: 400; font-size: 0.72rem; opacity: 0.85; }
+
+/* ---------------- Plan safety microline ---------------- */
+.hi-plan-safe { display: inline-flex; align-items: center; gap: 9px; margin: 20px auto 0; font-size: 0.92rem; color: rgba(255,255,255,0.9); }
+.hi-plan-safe svg { color: #9ec3ef; }
+
+/* ---------------- Bespoke "Design it around you" flow ---------------- */
+.bf { position: fixed; inset: 0; z-index: 130; background: rgba(2,19,48,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.bf-panel { position: relative; width: min(560px, 100%); max-height: 92vh; overflow-y: auto; background: var(--paper); border-radius: 20px; box-shadow: 0 40px 90px rgba(0,0,0,0.45); padding: clamp(26px, 4vw, 40px); }
+.bf-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: #fff; cursor: pointer; display: grid; place-items: center; color: var(--ink); }
+.bf-eyebrow { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; color: var(--sienna); }
+.bf-bar { height: 4px; background: var(--border); border-radius: 999px; margin: 14px 0 26px; overflow: hidden; }
+.bf-bar span { display: block; height: 100%; background: var(--blue); border-radius: 999px; transition: width .4s cubic-bezier(.16,1,.3,1); }
+.bf-q { font-family: var(--serif); font-weight: 400; font-size: 1.7rem; line-height: 1.2; color: var(--ink); margin: 0 0 20px; }
+.bf-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.bf-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 11px 18px; border: 1px solid var(--border); border-radius: 999px; background: #fff;
+  font-family: var(--sans); font-size: 0.95rem; color: var(--ink); cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s; min-height: 44px;
+}
+.bf-chip:hover { border-color: var(--blue); }
+.bf-chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.bf-chip-tick { display: inline-flex; }
+.bf-sublabel { font-size: 0.9rem; color: var(--muted); margin: 22px 0 12px; }
+.bf-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 30px; }
+.bf-back { background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 0.95rem; font-weight: 500; color: var(--muted); }
+.bf-back:hover { color: var(--ink); }
+.bf-next:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Bespoke result — specialist match + sample */
+.bf-result { display: flex; flex-direction: column; }
+.bf-match { display: flex; gap: 16px; align-items: center; margin: 16px 0 22px; }
+.bf-match img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.bf-match h3 { font-family: var(--serif); font-weight: 400; font-size: 1.4rem; color: var(--ink); margin: 0 0 3px; }
+.bf-match p { font-size: 0.9rem; color: var(--muted); margin: 0; }
+.bf-match-cred { color: var(--blue) !important; font-weight: 500; margin-top: 4px !important; }
+.bf-sample { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; }
+.bf-sample-tag { display: inline-block; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; color: var(--sienna); margin-bottom: 10px; }
+.bf-sample h4 { font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--ink); margin: 0 0 14px; }
+.bf-sample ul { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.bf-sample li { display: flex; gap: 10px; align-items: flex-start; font-size: 0.95rem; line-height: 1.45; color: var(--ink); }
+.bf-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); flex-shrink: 0; margin-top: 7px; }
+.bf-sample-from { font-size: 0.95rem; color: var(--muted); margin: 0; }
+.bf-sample-from strong { color: var(--ink); }
+.bf-recap { font-size: 0.9rem; color: var(--muted); margin: 18px 0 18px; font-style: italic; }
+.bf-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.bf-restart { align-self: flex-start; margin-top: 16px; background: none; border: none; cursor: pointer; font-size: 0.88rem; color: var(--muted); text-decoration: underline; }
+
+/* Full-bleed sections — the content "sheet" spans edge to edge (no side inset,
+   no backdrop gap), keeping only the rounded top where it rises over the hero.
+   On the host app this stays a floating card; here every section is full width. */
+.h26-sheet {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  border-radius: 40px 40px 0 0;
+}
+
+/* Hero — a touch more breathing room above the search dock (/improved only) */
+.h26-search { margin-top: clamp(54px, 6vw, 76px); }
+
+/* View all reviews — centered button under the marquee */
+.h26-reviews-more { display: flex; justify-content: center; margin-top: 40px; }
+
+/* Review-trust strip — overall score beside independent-platform ratings */
+.hi-rtrust {
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: clamp(14px, 2.4vw, 26px);
+  margin: 26px auto 34px; padding: 16px 24px;
+  width: fit-content; max-width: calc(100% - 32px);
+  background: #fff; border: 1px solid var(--border); border-radius: 16px;
+  box-shadow: 0 14px 34px rgba(2,19,48,0.07);
+}
+.hi-rtrust-overall { display: flex; align-items: center; gap: 14px; }
+.hi-rtrust-overall > strong {
+  font-family: var(--serif); font-weight: 400; font-size: 2.4rem;
+  line-height: 1; color: var(--ink);
+}
+.hi-rtrust-overall-meta { display: flex; flex-direction: column; gap: 3px; }
+.hi-rtrust-stars { display: inline-flex; gap: 2px; color: #E8A13C; }
+.hi-rtrust-sub { font-size: 0.82rem; color: var(--muted); }
+.hi-rtrust-div { width: 1px; align-self: stretch; background: var(--border); }
+.hi-rtrust-platforms { display: flex; flex-wrap: wrap; gap: 12px; }
+.hi-rtrust-plat {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 9px 15px; border: 1px solid var(--border); border-radius: 999px;
+  font-size: 0.9rem; color: var(--muted); background: #fcfbf9;
+}
+.hi-rtrust-plat svg { flex: none; }
+.hi-rtrust-plat strong { color: var(--ink); font-weight: 700; }
+.hi-rtrust-plat b { color: var(--ink); font-weight: 600; }
+@media (max-width: 560px) {
+  .hi-rtrust-div { display: none; }
+  .hi-rtrust { gap: 18px; }
+}
+
+/* Heritage section — shorter overall: smaller heading, capped photo,
+   tighter rhythm so the whole block takes less vertical space (/improved only) */
+.h26-trust { padding-top: clamp(40px, 4.4vw, 66px); padding-bottom: clamp(40px, 4.4vw, 66px); }
+.h26-trust .h26-h2-light {
+  font-size: clamp(1.5rem, 2.6vw, 2.15rem);
+  line-height: 1.18;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+/* The 4/5 portrait photo was the tallest thing here — cap it. */
+.h26-trust .h26-heritage-photo { aspect-ratio: auto; height: clamp(300px, 30vw, 410px); }
+.h26-trust .h26-trust-text { font-size: 0.98rem; line-height: 1.55; margin: 12px 0 18px; }
+.h26-trust .h26-statband { margin: 18px 0 18px; gap: clamp(18px, 2.4vw, 32px); }
+.h26-trust .h26-assure { gap: 8px; }
+.h26-trust .h26-statband-item strong { font-size: clamp(1.5rem, 2.1vw, 1.9rem); }
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 900px) {
+  .hi-fork-grid { grid-template-columns: 1fr; }
+  .hi-intro2-grid { grid-template-columns: 1fr; }
+  .hi-intro2-media { order: -1; }
+  .hi-today-inner { grid-template-columns: 1fr; }
+  .hi-includes-lists { grid-template-columns: 1fr; gap: 20px; }
+  .hi-includes-spec { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .hi-includes-spec { grid-template-columns: 1fr; }
+  .bf-q { font-size: 1.4rem; }
+}
+
+/* ============================================================
+   MOBILE REWORK (/improved) — overrides Home2026.css mobile rules
+   (this file loads after it). Horizontal scroll carousels, a clean
+   Specialists block, photoless heritage, and a self-playing reels row.
+   ============================================================ */
+@media (max-width: 680px) {
+
+  /* --- Specialists / intro: drop the absolutely-positioned floating
+     thumbnails (they overlapped the copy on small screens) and present
+     a clean, centered statement. --- */
+  .h26-intro { min-height: auto; padding: clamp(52px, 14vw, 84px) 22px; }
+  .h26-intro .h26-scatter { display: none !important; }
+  .h26-intro-copy { max-width: 100%; }
+
+  /* --- Shared horizontal-carousel behaviour for the card rows ---
+     "Where will you go", "Begin with a little desire", "Ready when you are".
+     Convert the grids to a snapping, swipeable horizontal scroller. The
+     small right padding lets the next card peek so it reads as scrollable. --- */
+  .h26-dest-grid,
+  .h26-journeys,
+  .h26-cur {
+    display: flex;
+    grid-template-columns: none;
+    grid-auto-rows: auto;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 14px;
+    padding-bottom: 14px;
+    scrollbar-width: none;
+  }
+  .h26-dest-grid::-webkit-scrollbar,
+  .h26-journeys::-webkit-scrollbar,
+  .h26-cur::-webkit-scrollbar { display: none; }
+
+  /* Where will you go */
+  .h26-dest {
+    flex: 0 0 76%;
+    height: 340px;
+    scroll-snap-align: start;
+  }
+  .h26-dest-tall, .h26-dest-wide, .h26-dest-normal { grid-row: auto; grid-column: auto; }
+
+  /* Begin with a little desire */
+  .h26-jrn {
+    flex: 0 0 78%;
+    height: 380px;
+    scroll-snap-align: start;
+  }
+  .h26-jrn.is-lead { flex: 0 0 86%; grid-row: auto; grid-column: auto; }
+  .h26-jrn.is-lead .h26-jrn-body h3 { font-size: 1.7rem; }
+
+  /* Ready when you are */
+  .h26-cur-card {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
+  }
+
+  /* --- Our heritage: drop the photo entirely, tighten + center the text. --- */
+  .h26-trust { padding: clamp(40px, 11vw, 64px) 22px; }
+  .h26-heritage-media { display: none !important; }
+  .h26-trust-inner { grid-template-columns: 1fr; gap: 0; }
+  .h26-heritage-text { max-width: 100%; }
+  .h26-trust .h26-statband { gap: 18px 28px; margin: 18px 0 22px; }
+  .h26-trust .h26-trust-text { margin: 10px 0 18px; }
+
+  /* --- Cox & Kings today: tighter, more scannable. --- */
+  .hi-today { padding: clamp(44px, 11vw, 72px) 22px; }
+  .hi-today-lead { font-size: 1rem; margin-bottom: 18px; }
+  .hi-today-facts { gap: 10px; }
+  .hi-today-facts span { font-size: 0.92rem; align-items: flex-start; }
+
+  /* --- Real moments: a self-playing horizontal reels carousel. Override the
+     full-screen vertical feed from Home2026.css; add a slow Ken Burns drift
+     so each poster feels like it's playing. --- */
+  .h26-reels {
+    flex-direction: row;
+    align-items: stretch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    max-height: none;
+    gap: 14px;
+    padding: 4px 4px 16px;
+  }
+  .h26-reel {
+    width: min(72vw, 290px);
+    aspect-ratio: 9 / 16;
+    max-height: none;
+    scroll-snap-align: center;
+  }
+  .h26-reel-link > img { animation: h26-reel-kb 9s ease-in-out infinite alternate; transform-origin: 50% 40%; }
+  .h26-reel-play { width: 56px; height: 56px; }
+
+  /* --- Review star-rating card: narrower + compact on phones. --- */
+  .hi-rtrust { width: auto; margin-inline: 16px; padding: 14px 16px; gap: 14px; }
+  .hi-rtrust-overall > strong { font-size: 2rem; }
+  .hi-rtrust-sub { font-size: 0.76rem; }
+  .hi-rtrust-plat { padding: 8px 12px; font-size: 0.84rem; }
+}
+
+@keyframes h26-reel-kb {
+  from { transform: scale(1); }
+  to   { transform: scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hi-lane, .hi-lane-media img { transition: none; }
+  .h26-reel-link > img { animation: none; }
+}

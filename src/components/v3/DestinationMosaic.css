@@ -1,0 +1,246 @@
+/* ============================================================
+   DestinationMosaic.css
+   Section-specific layout only. All colour, type, and spacing
+   come from v3-theme.css tokens. Classes prefixed .v3dest__.
+   ============================================================ */
+
+/* ── Section wrapper ── */
+.v3dest__section {
+  overflow: hidden;
+}
+
+/* ── Head: copy left, CTA right ── */
+.v3dest__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: clamp(32px, 5vw, 56px);
+}
+
+.v3dest__head-copy {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.v3dest__see-all {
+  flex-shrink: 0;
+  /* Nudge it to align with the baseline of the sub text */
+  padding-bottom: 4px;
+}
+
+/* ── Desktop mosaic grid ── */
+.v3dest__mosaic {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 120px;
+  grid-auto-flow: dense;
+  gap: 12px;
+}
+
+/* Default tile = 4 cols × 3 rows */
+.v3dest__tile {
+  display: block;
+  text-decoration: none;
+  border-radius: var(--v3-radius);
+  overflow: hidden;
+  grid-column: span 4;
+  grid-row: span 3;
+  position: relative;
+  outline-offset: 3px;
+}
+
+.v3dest__tile--tall {
+  grid-column: span 4;
+  grid-row: span 5;
+}
+
+.v3dest__tile--wide {
+  grid-column: span 8;
+  grid-row: span 3;
+}
+
+/* ── Shared image wrapper ── */
+.v3dest__imgwrap {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.v3dest__imgwrap img {
+  transition: transform 0.65s var(--v3-ease);
+}
+
+.v3dest__tile:hover .v3dest__imgwrap img,
+.v3dest__tile:focus-visible .v3dest__imgwrap img {
+  transform: scale(1.06);
+}
+
+/* ── Bottom gradient scrim ── */
+.v3dest__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(4, 36, 71, 0.78) 0%,
+    rgba(4, 36, 71, 0.30) 42%,
+    transparent 68%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ── Caption over image ── */
+.v3dest__caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.v3dest__name {
+  font-family: var(--v3-serif);
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--v3-white);
+  letter-spacing: -0.01em;
+}
+
+.v3dest__hook {
+  font-family: var(--v3-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.80);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  /* always visible on mobile; emphasised on desktop hover */
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s var(--v3-ease), color 0.3s;
+}
+
+/* On desktop, slightly dim until hover for polish */
+@media (hover: hover) {
+  .v3dest__hook {
+    opacity: 0.72;
+  }
+  .v3dest__tile:hover .v3dest__hook,
+  .v3dest__tile:focus-visible .v3dest__hook {
+    opacity: 1;
+    color: var(--v3-gold);
+  }
+}
+
+/* ── Focus ring on tiles ── */
+.v3dest__tile:focus-visible {
+  outline: 2px solid var(--v3-blue-500);
+  outline-offset: 3px;
+  border-radius: var(--v3-radius);
+}
+
+/* ── Mobile rail (hidden on desktop) ── */
+.v3dest__rail {
+  display: none;
+}
+
+.v3dest__mobile-cta {
+  display: none;
+}
+
+/* ── Responsive ── */
+
+/* ≤ 900px — mosaic becomes 6-col, tiles tighten */
+@media (max-width: 900px) {
+  .v3dest__mosaic {
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 110px;
+  }
+
+  .v3dest__tile {
+    grid-column: span 3;
+    grid-row: span 3;
+  }
+
+  .v3dest__tile--wide {
+    grid-column: span 6;
+    grid-row: span 3;
+  }
+
+  .v3dest__tile--tall {
+    grid-column: span 3;
+    grid-row: span 4;
+  }
+}
+
+/* ≤ 640px — hide mosaic, show scroll-snap rail */
+@media (max-width: 640px) {
+  /* Head: stack on mobile */
+  .v3dest__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .v3dest__see-all {
+    display: none; /* shown below rail instead */
+  }
+
+  /* Hide desktop mosaic */
+  .v3dest__mosaic {
+    display: none;
+  }
+
+  /* Show rail */
+  .v3dest__rail {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    /* Pull to edge of container for full-bleed rail */
+    margin-inline: calc(var(--v3-gutter) * -1);
+    padding-inline: var(--v3-gutter);
+    padding-bottom: 12px;
+    /* Hide scrollbar but keep it functional */
+    scrollbar-width: none;
+  }
+  .v3dest__rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .v3dest__rail-card {
+    display: block;
+    flex: 0 0 72vw;
+    max-width: 280px;
+    scroll-snap-align: start;
+    text-decoration: none;
+    border-radius: var(--v3-radius);
+    overflow: hidden;
+    outline-offset: 3px;
+  }
+
+  .v3dest__rail-card:focus-visible {
+    outline: 2px solid var(--v3-blue-500);
+    outline-offset: 3px;
+  }
+
+  .v3dest__rail-imgwrap {
+    width: 100%;
+    height: 240px;
+    border-radius: inherit;
+    position: relative;
+  }
+
+  /* Mobile CTA */
+  .v3dest__mobile-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+  }
+}

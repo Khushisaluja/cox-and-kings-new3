@@ -1,0 +1,46 @@
+/* ============================================================
+   Final page — composite of the NEW and CLASSIC homepages.
+
+   The whole page is namespaced under .nh so the new-site navbar
+   (position: sticky), heritage band, testimonials, insights,
+   "AS SEEN IN", curations and footer keep their original styles.
+
+   Classic sections (Hero, Search, Popular Destinations, Ways to
+   Experience, Handpicked Tours) are wrapped in .final-classic,
+   which restores the classic font / colour tokens that the .nh
+   namespace overrides (it repoints --font-sans to Cormorant).
+   ============================================================ */
+
+.final-classic {
+  --font-sans: 'Mozaic HUM', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* Hero — on Final the new navbar (≈132px) sits above the hero in normal
+   flow, unlike the classic site where the header overlaps it. Trim the hero
+   by the navbar height so navbar + hero ≈ one viewport, keeping the classic
+   single-screen feel. */
+.final-classic .hero {
+  height: calc(100vh - 132px);
+  min-height: 460px;
+  max-height: 760px;
+}
+@media (max-width: 768px) {
+  /* Mobile navbar is shorter (64px + 48px) */
+  .final-classic .hero {
+    height: calc(100vh - 112px);
+  }
+}
+
+/* Popular Destinations — recolour the goldenish text + button to #BD4011
+   (scoped to the Final page so the classic site keeps its gold accents). */
+.final-classic .featured-dest .dest-card__region {
+  color: #BD4011;
+}
+.final-classic .featured-dest .dest-card:hover .dest-card__arrow {
+  background: #BD4011;
+  color: #fff;
+}

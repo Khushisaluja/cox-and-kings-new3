@@ -1,0 +1,251 @@
+/* ============================================================
+   Proof.css — layout only for the Proof (traveller stories)
+   section. All colour, type, and spacing tokens come from
+   v3-theme.css. Classes prefixed .v3proof__.
+   ============================================================ */
+
+/* ── Repeat-customer banner ── */
+.v3proof__banner {
+  border-bottom: 1px solid var(--v3-line);
+  background: rgba(201, 168, 106, 0.08);
+  padding: 11px 0;
+  text-align: center;
+}
+
+.v3proof__banner-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--v3-body);
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--v3-ink);
+  letter-spacing: 0.01em;
+}
+
+.v3proof__banner-icon {
+  color: var(--v3-gold);
+  flex-shrink: 0;
+}
+
+/* ── Section head ── */
+.v3proof__head {
+  max-width: 640px;
+}
+
+.v3proof__rating-chip {
+  margin-top: 18px;
+  background: rgba(201, 168, 106, 0.1);
+  border: 1px solid rgba(201, 168, 106, 0.35);
+  padding: 7px 14px;
+  border-radius: 999px;
+  gap: 7px;
+}
+
+.v3proof__rating-count {
+  color: var(--v3-muted);
+  font-size: 0.83rem;
+}
+
+/* ── Review grid ── */
+.v3proof__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: clamp(16px, 2.5vw, 28px);
+}
+
+/* ── Individual card ── */
+.v3proof__card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Photo button */
+.v3proof__photo-btn {
+  all: unset;
+  display: block;
+  cursor: zoom-in;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.v3proof__photo-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s var(--v3-ease);
+  display: block;
+}
+
+.v3proof__photo-btn:hover img,
+.v3proof__photo-btn:focus-visible img {
+  transform: scale(1.04);
+}
+
+.v3proof__photo-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 14px;
+  font-family: var(--v3-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(to top, rgba(4, 36, 71, 0.5) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.v3proof__photo-btn:hover .v3proof__photo-overlay,
+.v3proof__photo-btn:focus-visible .v3proof__photo-overlay {
+  opacity: 1;
+}
+
+/* Card body */
+.v3proof__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 22px 22px;
+  flex: 1;
+}
+
+.v3proof__stars {
+  color: var(--v3-gold);
+}
+
+.v3proof__quote {
+  margin: 0;
+  flex: 1;
+}
+
+.v3proof__quote p {
+  font-family: var(--v3-serif);
+  font-size: 1rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--v3-ink);
+  margin: 0;
+}
+
+/* Meta row */
+.v3proof__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--v3-body);
+  font-size: 0.82rem;
+}
+
+.v3proof__name {
+  font-weight: 600;
+  color: var(--v3-ink);
+}
+
+.v3proof__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--v3-muted);
+  opacity: 0.5;
+}
+
+.v3proof__loc {
+  color: var(--v3-muted);
+}
+
+.v3proof__tour {
+  color: var(--v3-blue-500);
+  font-weight: 500;
+}
+
+/* ── CTA row ── */
+.v3proof__cta {
+  margin-top: clamp(28px, 4vw, 44px);
+  text-align: center;
+}
+
+/* ── Lightbox ── */
+.v3proof__lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(4, 36, 71, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: v3-rise 0.25s var(--v3-ease) both;
+}
+
+.v3proof__lightbox-inner {
+  position: relative;
+  max-width: min(880px, 100%);
+  max-height: calc(100vh - 64px);
+  border-radius: var(--v3-radius);
+  overflow: hidden;
+  box-shadow: var(--v3-shadow-lg);
+}
+
+.v3proof__lightbox-inner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: calc(100vh - 64px);
+  object-fit: contain;
+}
+
+.v3proof__lightbox-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(4, 36, 71, 0.7);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.v3proof__lightbox-close:hover {
+  background: var(--v3-blue-500);
+  border-color: var(--v3-blue-500);
+  transform: scale(1.08);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .v3proof__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 900px) {
+  .v3proof__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .v3proof__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

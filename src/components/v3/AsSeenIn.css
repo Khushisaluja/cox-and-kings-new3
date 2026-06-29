@@ -1,0 +1,88 @@
+/* ============================================================
+   AsSeenIn.css — layout only for the AsSeenIn (media &
+   associations) section. All colour and type tokens from
+   v3-theme.css. Classes prefixed .v3press__.
+   ============================================================ */
+
+.v3press {
+  /* Override section padding — this section lives quiet */
+  padding-block: clamp(40px, 6vw, 72px);
+}
+
+.v3press__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Eyebrow ── */
+.v3press__eyebrow {
+  text-align: center;
+  opacity: 0.55;
+  margin-bottom: 24px;
+}
+
+/* ── Press names row ── */
+.v3press__logos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px clamp(20px, 4vw, 52px);
+}
+
+.v3press__name {
+  font-family: var(--v3-serif);
+  font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  color: var(--v3-ink);
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+  cursor: default;
+  user-select: none;
+  white-space: nowrap;
+  padding: 4px 2px;
+}
+
+.v3press__name:hover {
+  opacity: 0.75;
+}
+
+/* ── Rule ── */
+.v3press__rule {
+  width: 48px;
+  height: 1px;
+  border: none;
+  background: var(--v3-line);
+  margin: 28px 0 22px;
+}
+
+/* ── Associations line ── */
+.v3press__assoc {
+  font-family: var(--v3-body);
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--v3-muted);
+  opacity: 0.7;
+  text-align: center;
+  margin: 0;
+}
+
+.v3press__assoc-name {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.v3press__assoc-sep {
+  color: var(--v3-gold);
+  opacity: 0.6;
+}

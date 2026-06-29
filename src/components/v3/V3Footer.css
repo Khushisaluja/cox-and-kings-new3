@@ -1,0 +1,62 @@
+/* V3Footer — deep navy footer with contact + trust reinforcement */
+.v3ftr { background: var(--v3-blue-800); color: rgba(255,255,255,0.78); }
+.v3ftr__top {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, 1fr);
+  gap: 44px;
+  padding-block: clamp(54px, 7vw, 84px) 44px;
+}
+.v3ftr__logo { height: 40px; width: auto; margin-bottom: 14px; filter: brightness(0) invert(1); }
+.v3ftr__heritage { margin-bottom: 16px; }
+.v3ftr__tag { font-family: var(--v3-serif); font-size: 1.2rem; line-height: 1.4; color: #fff; margin: 0 0 22px; max-width: 26ch; }
+.v3ftr__contact { display: flex; flex-direction: column; gap: 11px; }
+.v3ftr__contact a { display: inline-flex; align-items: center; gap: 9px; color: rgba(255,255,255,0.82); text-decoration: none; font-size: 0.92rem; }
+.v3ftr__contact a:hover { color: var(--v3-gold); }
+
+.v3ftr__col h4 {
+  font-family: var(--v3-body);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--v3-gold);
+  margin: 0 0 16px;
+}
+.v3ftr__col a { display: block; padding: 7px 0; color: rgba(255,255,255,0.76); text-decoration: none; font-size: 0.92rem; }
+.v3ftr__col a:hover { color: #fff; }
+
+.v3ftr__trust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 24px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+.v3ftr__trust .v3-rating { color: #fff; }
+.v3ftr__trust strong { font-weight: 700; }
+.v3ftr__assoc { font-size: 0.86rem; letter-spacing: 0.04em; color: rgba(255,255,255,0.7); }
+
+.v3ftr__legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 22px;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.6);
+}
+.v3ftr__legal-links { display: flex; gap: 20px; }
+.v3ftr__legal-links a { color: rgba(255,255,255,0.6); text-decoration: none; }
+.v3ftr__legal-links a:hover { color: #fff; }
+
+@media (max-width: 860px) {
+  .v3ftr__top { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .v3ftr__brand { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .v3ftr__top { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,20 @@
+# dependencies & build output
+node_modules
+dist
+.vercel
+
+# OS / editor
+.DS_Store
+
+# large media (exceed GitHub limits / not needed for the app build)
+*.mov
+*.mp4
+
+# heavy deliverables (decks, reports, exports) — not part of the app
+*.pptx
+*.docx
+*.pdf
+reports/
+presentation/
+Home2026-Improved-Deck/
+Luxe2-Improved-Deck/

@@ -1,0 +1,179 @@
+/* ============================================================
+   Final2a — Design-language pass (scoped to .f2a-ds)
+   Applies the Cox & Kings design system from design.md across the
+   whole page so the "stack" version is fully on-brand:
+
+     • Headings  → Zodiak LIGHT (300), never bold
+     • Body/UI   → Work Sans (light), warm-neutral text
+     • Surfaces  → warm paper neutral scale (not cold grey/cream)
+     • Colour    → Voyager Blue #0B5AB1 primary · Sienna #BD4011 secondary
+     • Buttons   → 4px radius, Work Sans Medium UPPERCASE labels
+     • Labels    → uppercase, wide tracking
+     • No gold   → the concierge button becomes Primary (blue)
+
+   Imported after Final2.css + Final2aVariants.css so it wins on the
+   shared selectors; everything is gated to the .f2a-ds root so the
+   other variants are untouched.
+   ============================================================ */
+
+/* ---------- 1. Tokens ---------- */
+.f2a-ds {
+  /* classic (.container / .section-title / .hero) token scale → warm paper */
+  --color-navy: #1F2A36;        /* Neutrals/900 — headings */
+  --color-text: #484844;        /* Neutrals/800 — strong body */
+  --color-text-light: #797871;  /* Neutrals/600 — secondary text */
+  --color-border: #D9D7CB;      /* Neutrals/200 */
+  --color-cream: #F8F7F1;       /* Neutrals/50  — page surface */
+  --color-cream-dark: #F1EFE2;  /* Neutrals/100 */
+  --radius-sm: 4px;
+  --radius-md: 4px;             /* 4px is the system default for controls */
+}
+
+.f2a-ds .nh.final2 {
+  --blue: #0B5AB1;              /* Voyager Blue/500 — primary */
+  --blue-bright: #0B5AB1;
+  --blue-nav: #07366A;          /* Voyager Blue/700 */
+  --navy: #021330;             /* Neutrals-Dark/900 — dark sections */
+  --accent: #BD4011;           /* Sienna Flame/500 — secondary */
+  --accent-dark: #97330E;
+  --ink: #1F2A36;              /* Neutrals/900 */
+  --muted: #797871;            /* Neutrals/600 */
+  --line: #D9D7CB;             /* Neutrals/200 */
+  --cream: #F1EFE2;            /* Neutrals/100 */
+  /* Body & UI in Work Sans; headings keep Zodiak via --font-serif */
+  --font-sans: 'Work Sans', 'Helvetica Neue', Arial, sans-serif;
+  background: #F8F7F1;
+  font-weight: 300;
+}
+
+/* ---------- 2. Headings — Zodiak Light (300) ---------- */
+.f2a-ds .nh.final2 :is(
+  h1, h2, h3, h4, h5, h6,
+  .nh-h2, .nh-hero__title, .section-title, .home__exp-title,
+  .nh-tl__year, .nh-rev__text, .dest-card__name, .search-widget__title,
+  .nh-cur__title, .nh-insp__title, .nh-promo__title, .nh-press__title
+) {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  letter-spacing: 0;
+}
+.f2a-ds .nh.final2 .nh-hero__title { line-height: 1.18; }
+.f2a-ds .nh.final2 .nh-h2 { line-height: 1.28; }
+.f2a-ds .nh.final2 .section-title { line-height: 1.3; }
+
+/* ---------- 3. Body — Work Sans Light ---------- */
+.f2a-ds .nh.final2 .final-classic { font-weight: 300; }
+.f2a-ds .nh.final2 :is(.nh-sub, p, li, .home__exp-desc, .dest-card__desc) {
+  font-weight: 300;
+}
+
+/* ---------- 4. Labels / eyebrows — uppercase, wide tracking ---------- */
+.f2a-ds .nh.final2 :is(
+  .nh-eyebrow, .home__exp-eyebrow, .featured-dest__eyebrow,
+  .search-widget__eyebrow, .nh-tl__lbl
+) {
+  font-family: var(--font-label);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #797871;
+}
+.f2a-ds .nh.final2 .nh-eyebrow--light { color: rgba(241, 239, 226, 0.88); }
+/* The brand-bar tagline sits on the deep-blue utility bar — keep it light */
+.f2a-ds .nh.final2 .nh-utility__tag {
+  font-family: var(--font-label);
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.85);
+}
+
+/* ---------- 5. Buttons — 4px, Work Sans Medium UPPERCASE ---------- */
+.f2a-ds .nh.final2 :is(.nh-btn, .nh-sbtn, .nh-mobnav__cta) {
+  border-radius: 4px;
+  font-family: var(--font-label);
+  font-weight: 500;
+  letter-spacing: 0.56px;
+  text-transform: uppercase;
+}
+/* Primary (Voyager Blue) */
+.f2a-ds .nh.final2 .nh-btn--blue,
+.f2a-ds .nh.final2 .nh-sbtn {
+  background: #0B5AB1; color: #F1EFE2;
+}
+.f2a-ds .nh.final2 .nh-btn--blue:hover,
+.f2a-ds .nh.final2 .nh-sbtn:hover {
+  background: #09488E; color: #F1EFE2;
+}
+/* Secondary (Sienna Flame) */
+.f2a-ds .nh.final2 .nh-btn--orange {
+  background: #BD4011; color: #F1EFE2;
+}
+.f2a-ds .nh.final2 .nh-btn--orange:hover {
+  background: #97330E; color: #F1EFE2;
+}
+/* Outline / ghost — white surface, blue label, neutral hairline */
+.f2a-ds .nh.final2 .nh-btn--ghost {
+  border: 1px solid rgba(241, 239, 226, 0.8); color: #F1EFE2; border-radius: 4px;
+}
+
+/* Classic "Popular Destinations" accent → Sienna (design secondary) */
+.f2a-ds .nh.final2 .final-classic .featured-dest .dest-card__region { color: #BD4011; }
+
+/* Gold is not in the palette — the divider becomes the Sienna accent */
+.f2a-ds .gold-divider { background: #BD4011; }
+
+/* Region filter chips → 4px radius, Primary-blue active state */
+.f2a-ds .featured-dest__tab {
+  border-radius: 4px;
+  font-family: var(--font-label);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.f2a-ds .featured-dest__tab--active,
+.f2a-ds .featured-dest__tab--active:hover,
+.f2a-ds .featured-dest__tab:hover {
+  background: #0B5AB1;
+  color: #F1EFE2;
+  border-color: #0B5AB1;
+}
+
+/* ---------- 6. Concierge dock — on-brand Primary (no gold) ---------- */
+@media (max-width: 980px) {
+  /* NB: .f2a-ds and .f2a-var--stack sit on the SAME root element, so this
+     must be a compound selector (no space) to match. */
+  .f2a-ds.f2a-var--stack .f2a-var__dock {
+    background: #0B5AB1;
+    border: none;
+    border-radius: 4px;
+    color: #F1EFE2;
+    font-family: 'Work Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.56px;
+    box-shadow:
+      0 10px 28px rgba(11, 90, 177, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  }
+  .f2a-ds.f2a-var--stack .f2a-var__dock svg { color: #F1EFE2; }
+  .f2a-ds.f2a-var--stack .f2a-var__dock:hover {
+    background: #09488E;
+    border: none;
+    box-shadow: 0 14px 34px rgba(11, 90, 177, 0.52);
+  }
+  .f2a-ds.f2a-var--stack .f2a-var__dock:focus-visible {
+    outline: 2px solid #0B5AB1; outline-offset: 3px;
+  }
+}
+
+/* ---------- 7. Mobile drawer — align to the system ---------- */
+.f2a-ds .nh.final2 .nh-mobnav__acc {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  color: #1F2A36;
+}
+.f2a-ds .nh.final2 .nh-mobnav__acc-caret { color: #BD4011; }
+.f2a-ds .nh.final2 .nh-mobnav__sublink {
+  font-family: var(--font-label);
+  font-weight: 300;
+  color: #60605A;
+}
+.f2a-ds .nh.final2 .nh-mobnav__cta { background: #BD4011; color: #F1EFE2; }
+.f2a-ds .nh.final2 .nh-mobnav__cta:hover { background: #97330E; }
