@@ -189,8 +189,17 @@ function ChatTourCard({ tour, onSelect, expanded }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function ChatBot() {
-  const [open, setOpen]               = useState(false);
+export default function ChatBot({ open: openProp, onOpenChange, hideFab = false, name = 'Cox & Kings Concierge' } = {}) {
+  // Optional controlled-open: when `open`/`onOpenChange` are passed (e.g. a host
+  // page with its own launcher), the parent drives visibility and `hideFab` can
+  // suppress the built-in launcher. With no props it behaves exactly as before.
+  const [openState, setOpenState] = useState(false);
+  const open = openProp !== undefined ? openProp : openState;
+  const setOpen = (v) => {
+    const next = typeof v === 'function' ? v(open) : v;
+    if (openProp === undefined) setOpenState(next);
+    if (onOpenChange) onOpenChange(next);
+  };
   const [expanded, setExpanded]       = useState(false);
   const [stage, setStage]             = useState(STAGES.WELCOME);
   const [profile, setProfile]         = useState(EMPTY_PROFILE);
@@ -381,18 +390,20 @@ export default function ChatBot() {
         <div className="chatbot-backdrop" onClick={() => setExpanded(false)} aria-hidden="true" />
       )}
 
-      {/* FAB */}
-      <button
-        className={`chatbot-fab ${open ? 'chatbot-fab--open' : ''}`}
-        onClick={() => setOpen(o => !o)}
-        aria-label={open ? 'Close concierge' : 'Plan your trip with our concierge'}
-      >
-        <div className="chatbot-fab__icon">
-          {open ? <X size={20} /> : <Sparkles size={20} />}
-        </div>
-        {!open && <span className="chatbot-fab__label">Plan My Trip</span>}
-        {!open && <span className="chatbot-fab__pulse" />}
-      </button>
+      {/* FAB (suppressed when the host page supplies its own launcher) */}
+      {!hideFab && (
+        <button
+          className={`chatbot-fab ${open ? 'chatbot-fab--open' : ''}`}
+          onClick={() => setOpen(o => !o)}
+          aria-label={open ? 'Close concierge' : 'Plan your trip with our concierge'}
+        >
+          <div className="chatbot-fab__icon">
+            {open ? <X size={20} /> : <Sparkles size={20} />}
+          </div>
+          {!open && <span className="chatbot-fab__label">Plan My Trip</span>}
+          {!open && <span className="chatbot-fab__pulse" />}
+        </button>
+      )}
 
       {/* Chat window */}
       <div
@@ -407,7 +418,7 @@ export default function ChatBot() {
             <Sparkles size={16} />
           </div>
           <div className="chatbot__header-info">
-            <h3 className="chatbot__header-title">Cox & Kings Concierge</h3>
+            <h3 className="chatbot__header-title">{name}</h3>
             <p className="chatbot__header-status">
               <span className="chatbot__online-dot" />
               {stage === STAGES.DONE ? 'Enquiry sent — we\'ll call you soon' : 'Personalising your journey'}

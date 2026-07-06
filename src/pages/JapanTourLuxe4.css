@@ -1,0 +1,90 @@
+/* ============================================================
+   Cox & Kings — "Essence Japan with Hakone", VARIANT 4.
+   The split day-by-day: the right column is a SHORTER picture card
+   plus a separate details card (one-line description, hotel + star
+   rating, room type, transfers, meals) that follows the active day.
+   On mobile those details live inside the day accordion instead.
+   Scoped to .lxjt4; inherits the split layout from JapanTourLuxe2.css.
+   ============================================================ */
+
+/* ---- Desktop: undo the fixed-height / internal-scroll split so the
+        right column can be a short sticky stack of two cards ---- */
+@media (min-width: 901px) {
+  /* both columns share one height (the taller itinerary defines it) */
+  .lxjt4 .lxjt2-split { height: auto; align-items: stretch; }
+  .lxjt4 .lxjt2-days {
+    height: auto; overflow: visible; padding: 0;
+    -webkit-mask-image: none; mask-image: none;
+  }
+  .lxjt4 .lxjt2-media { height: 100%; }
+  .lxjt4 .lxjt4-sticky { position: static; display: flex; flex-direction: column; height: 100%; }
+  /* the picture grows to fill whatever's left after the details card + dots,
+     so picture + details card together match the itinerary's height */
+  .lxjt4 .lxjt2-media__frame.lxjt4-imgcard { flex: 1 1 auto; height: auto; min-height: 300px; }
+  .lxjt4 .lxjt4-detail { flex: none; }
+  .lxjt4 .lxjt2-media__dots { flex: none; }
+}
+
+/* ============ PICTURE CARD ============ */
+/* softer, tighter shadow — the base frame's big downward drop landed on the
+   details card stacked right below it */
+.lxjt4-imgcard { border-radius: 20px; box-shadow: 0 16px 40px -30px rgba(2,19,48,0.5); }
+.lxjt4 .lxjt2-media__veil {
+  background: linear-gradient(180deg, rgba(2,19,48,0) 30%, rgba(2,19,48,0.3) 62%, rgba(2,19,48,0.86) 100%);
+}
+.lxjt4-imgcap {
+  position: absolute; left: 20px; right: 20px; bottom: 18px; z-index: 3; color: #fff;
+  animation: lxjt2-metain 0.5s var(--ease);
+}
+.lxjt4-imgcap h3 {
+  font-family: var(--serif); font-weight: 400; line-height: 1.1; margin: 0;
+  font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.8rem); text-shadow: 0 2px 20px rgba(2,19,48,0.6);
+}
+
+/* ============ DETAILS CARD ============ */
+.lxjt4-detail {
+  margin-top: 12px; padding: 18px 18px 16px; background: #fff;
+  border: 1px solid var(--paper-200); border-radius: 18px;
+  box-shadow: 0 26px 60px -46px rgba(2,19,48,0.5);
+  animation: lxjt2-metain 0.45s var(--ease);
+}
+.lxjt4-detail__desc { margin: 0 0 14px; font-size: 14px; line-height: 1.55; color: var(--ink-800); }
+.lxjt4-detail__rows {
+  display: flex; flex-direction: column; gap: 12px;
+  padding-top: 14px; border-top: 1px solid var(--paper-150);
+}
+.lxjt4-drow { display: flex; align-items: flex-start; gap: 12px; }
+.lxjt4-drow__ic {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(11,90,177,0.08); color: var(--blue-500); border: 1px solid rgba(11,90,177,0.14);
+}
+.lxjt4-drow__tx { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.lxjt4-drow__lbl { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--ink-600); }
+.lxjt4-drow__val {
+  font-size: 13.5px; line-height: 1.4; color: var(--ink-900); font-weight: 500;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+}
+.lxjt4-stars { display: inline-flex; align-items: center; gap: 1px; color: #D9962B; }
+.lxjt4-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--sienna); background: rgba(189,64,17,0.1); border: 1px solid rgba(189,64,17,0.2);
+  padding: 2px 7px; border-radius: 999px;
+}
+
+/* ============ MOBILE — the same details inside the day accordion ============ */
+.lxjt4-mdetails { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.lxjt4-mfact { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.4; color: var(--ink-800); }
+.lxjt4-mfact svg { color: var(--blue-500); flex-shrink: 0; margin-top: 2px; }
+.lxjt4-mfact > span { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.lxjt4-mstars { color: #D9962B; letter-spacing: 1px; }
+.lxjt4-macts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+.lxjt4-mact {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--ink-800);
+  padding: 5px 10px; border-radius: 999px; background: var(--paper-100); border: 1px solid var(--paper-200);
+}
+.lxjt4-mact svg { color: var(--sienna); flex-shrink: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lxjt4-imgcap, .lxjt4-detail { animation: none; }
+}

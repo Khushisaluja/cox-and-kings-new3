@@ -1,0 +1,116 @@
+/* ============================================================
+   Cox & Kings — "Splendours of Japan" tour-detail, VARIANT 3.
+   The policies section keeps the ORIGINAL terms layout (left head +
+   compact 2-column summary cards + "read full" modal) and adds a
+   3-category toggle: Booking Terms · Cancellation Policy · Terms &
+   Conditions. The full detail (points / charge-tiers / caveats)
+   renders inside the modal. Scoped to .lxjt3; inherits the rest from
+   JapanTourLuxe*.css → Luxe2Improved.css.
+   ============================================================ */
+
+/* ---- tier colours (cancellation charges, by severity) ---- */
+.lxjt3-tier--l1 { --tier: #2E7D5B; }
+.lxjt3-tier--l2 { --tier: #B98418; }
+.lxjt3-tier--l3 { --tier: #C0632A; }
+.lxjt3-tier--l4 { --tier: #B23A26; }
+
+/* ============ CATEGORY TOGGLE (segmented control) ============ */
+.lxjt3-tabs {
+  display: inline-flex; gap: 5px; padding: 6px; flex-wrap: wrap;
+  margin: clamp(24px, 3vw, 34px) 0 0;
+  background: var(--paper-100); border: 1px solid var(--paper-200); border-radius: 15px;
+}
+.lxjt3-tab {
+  display: inline-flex; align-items: center; gap: 9px; padding: 10px 16px; border-radius: 11px;
+  border: none; background: transparent; cursor: pointer; font-family: var(--sans);
+  font-size: 14px; font-weight: 600; color: var(--ink-800); white-space: nowrap;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.lxjt3-tab svg { color: var(--blue-500); transition: color 0.25s var(--ease); }
+.lxjt3-tab:hover { color: var(--blue-700); }
+.lxjt3-tab small {
+  font-size: 11px; font-weight: 700; line-height: 1; padding: 3px 7px; border-radius: 999px;
+  background: var(--paper-200); color: var(--ink-700); font-variant-numeric: tabular-nums;
+}
+.lxjt3-tab.is-on {
+  background: #fff; color: var(--blue-700);
+  box-shadow: 0 10px 22px -14px rgba(2,19,48,0.5); border: 1px solid var(--paper-200);
+  padding: 9px 15px;   /* offset the 1px border so it doesn't jump */
+}
+.lxjt3-tab.is-on svg { color: var(--sienna); }
+.lxjt3-tab.is-on small { background: var(--blue-500); color: #fff; }
+
+/* headline-point grid — reuses .lxjt-term cards (JapanTourLuxe.css).
+   3 points sit in one row; 4 points wrap to a 2×2. Fades in on tab change. */
+.lxjt3-hgrid {
+  display: grid; gap: 16px; margin-top: clamp(22px, 2.6vw, 30px);
+  animation: lxjt3-swap 0.35s var(--ease);
+}
+.lxjt3-hgrid--n3 { grid-template-columns: repeat(3, 1fr); }
+.lxjt3-hgrid--n4 { grid-template-columns: repeat(2, 1fr); }
+@keyframes lxjt3-swap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 860px) {
+  .lxjt3-hgrid--n3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .lxjt3-hgrid--n4 { grid-template-columns: 1fr; }
+}
+
+/* ============ POINTS (tone-driven icons) — used inside the modal ============ */
+.lxjt3-pts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+.lxjt3-pt { display: flex; align-items: flex-start; gap: 12px; }
+.lxjt3-pt__ic {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+}
+.lxjt3-pt__tx { font-size: 14px; line-height: 1.55; color: var(--ink-800); }
+.lxjt3-pt--do   .lxjt3-pt__ic { background: rgba(46,125,91,0.15); color: #2E7D5B; }
+.lxjt3-pt--dont .lxjt3-pt__ic { background: rgba(178,58,38,0.13); color: #B23A26; }
+.lxjt3-pt--warn .lxjt3-pt__ic { background: rgba(185,132,24,0.18); color: #9A6B12; }
+.lxjt3-pt--dont .lxjt3-pt__tx { color: var(--ink-900); }
+.lxjt3-pt--plain .lxjt3-pt__ic { background: transparent; }
+.lxjt3-pt__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sienna); }
+
+/* important note / caveat callout */
+.lxjt3-note2 {
+  display: flex; align-items: flex-start; gap: 10px; margin: 12px 0 0; padding: 11px 14px;
+  border-radius: 11px; background: rgba(185,132,24,0.09); border: 1px solid rgba(185,132,24,0.24);
+  font-size: 13.5px; line-height: 1.5; color: var(--ink-800);
+}
+.lxjt3-note2 svg { color: #9A6B12; flex-shrink: 0; margin-top: 2px; }
+
+/* ============ CANCELLATION TIER SCALE ============ */
+.lxjt3-tiers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.lxjt3-tier {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 12px 16px; border-radius: 12px; background: var(--paper-50); border: 1px solid var(--paper-200);
+}
+.lxjt3-tier__when { flex: 0 0 34%; min-width: 130px; font-size: 14px; font-weight: 600; color: var(--ink-900); }
+.lxjt3-tier__meter { flex: 1; min-width: 60px; height: 7px; border-radius: 999px; background: var(--paper-200); overflow: hidden; }
+.lxjt3-tier__meter > span { display: block; height: 100%; border-radius: 999px; background: var(--tier); }
+.lxjt3-tier__charge { font-family: var(--serif); font-size: 19px; font-weight: 500; color: var(--tier); min-width: 50px; text-align: right; }
+.lxjt3-tier__refund { font-size: 12px; color: var(--ink-700); min-width: 104px; text-align: right; }
+
+/* ============ MODAL DETAIL — full content for the active category ============ */
+.lxjt3-tcbody .lxjt-tc__sec { margin-bottom: 24px; }
+.lxjt3-tcbody .lxjt-tc__sec h4 { margin-bottom: 12px; }
+.lxjt3-tcbody .lxjt3-note2 { margin-top: 12px; }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 640px) {
+  .lxjt3-tabs {
+    display: flex; flex-wrap: nowrap; overflow-x: auto; width: 100%;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .lxjt3-tabs::-webkit-scrollbar { display: none; }
+  .lxjt3-tab { flex: 0 0 auto; }
+}
+@media (max-width: 520px) {
+  .lxjt3-tier__when { flex-basis: 100%; min-width: 0; }
+  .lxjt3-tier__refund { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lxjt3-hgrid { animation: none; }
+  .lxjt3-tab { transition: none; }
+}

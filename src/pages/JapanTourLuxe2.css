@@ -1,0 +1,312 @@
+/* ============================================================
+   Cox & Kings — "Splendours of Japan" tour-detail, VARIANT 2.
+   Only the redesigned "Day by day" section lives here. Everything
+   else (header, hero, route, booking, reviews, footer, modals) is
+   inherited from JapanTourLuxe.css → Luxe2Improved.css, imported
+   before this file. Scoped to .lxjt2.
+   ============================================================ */
+
+.lxjt2-itin {
+  background:
+    radial-gradient(120% 60% at 85% 0%, rgba(11,90,177,0.05), transparent 60%),
+    linear-gradient(180deg, var(--paper-50), var(--paper-100));
+}
+
+/* ---- Split layout: itinerary (left) + sticky picture (right) ---- */
+.lxjt2-split {
+  display: grid;
+  grid-template-columns: 1fr 1.04fr;
+  gap: clamp(28px, 4vw, 60px);
+  align-items: stretch;              /* both columns share one height → no empty gap */
+  height: clamp(520px, 72vh, 680px); /* keep the section to ~one screen */
+  margin-top: clamp(32px, 3.6vw, 48px);
+}
+
+/* ============ LEFT — the itinerary timeline (scrolls within its column) ============ */
+.lxjt2-days {
+  list-style: none; margin: 0; padding: 2px 12px 2px 8px;  /* left room so the node isn't clipped when it scales */
+  height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  /* soft fade top & bottom to hint there's more to scroll */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 22px), transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 22px), transparent 100%);
+}
+.lxjt2-days::-webkit-scrollbar { width: 6px; }
+.lxjt2-days::-webkit-scrollbar-thumb { background: var(--paper-200); border-radius: 999px; }
+.lxjt2-days::-webkit-scrollbar-thumb:hover { background: var(--blue-300); }
+.lxjt2-day { position: relative; }
+
+/* Continuous connector running through the number nodes */
+.lxjt2-day::before {
+  content: ''; position: absolute; left: 23px; top: 0; bottom: 0; width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, var(--paper-200), var(--paper-200));
+  z-index: 0;
+}
+.lxjt2-day:first-child::before { top: 34px; }
+.lxjt2-day:last-child::before  { bottom: calc(100% - 34px); }
+/* the active node's spine lights up in sienna */
+.lxjt2-day.is-active::before { background: linear-gradient(180deg, var(--sienna), rgba(189,64,17,0.28)); }
+
+.lxjt2-day__btn {
+  position: relative; z-index: 1;
+  width: 100%; display: flex; align-items: center; gap: 16px;
+  padding: 7px 0; background: none; border: none; cursor: pointer;
+  text-align: left; font-family: var(--sans); color: inherit;
+}
+
+/* number node */
+.lxjt2-day__rail { position: relative; flex-shrink: 0; width: 46px; }
+.lxjt2-day__node {
+  display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px; border-radius: 50%;
+  font-family: var(--serif); font-size: 16px; font-weight: 500;
+  color: var(--ink-700); background: #fff;
+  border: 1.5px solid var(--paper-200); box-shadow: 0 6px 16px -12px rgba(2,19,48,0.5);
+  transition: transform 0.4s var(--ease), color 0.3s var(--ease),
+              background 0.3s var(--ease), border-color 0.3s var(--ease), box-shadow 0.4s var(--ease);
+}
+.lxjt2-day.is-active .lxjt2-day__node {
+  color: #fff; border-color: transparent; transform: scale(1.12);
+  background: linear-gradient(150deg, #D9612F, var(--sienna));
+  box-shadow: 0 14px 30px -12px rgba(189,64,17,0.7);
+}
+
+/* the text column — a soft card that lifts on the active day */
+.lxjt2-day__content {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  padding: 12px 16px; margin: 2px 0;
+  border: 1px solid transparent; border-radius: 13px;
+  transition: background 0.35s var(--ease), border-color 0.35s var(--ease),
+              box-shadow 0.4s var(--ease), transform 0.4s var(--ease);
+}
+.lxjt2-day:hover .lxjt2-day__content { border-color: var(--paper-200); }
+.lxjt2-day.is-active .lxjt2-day__content {
+  background: #fff; border-color: var(--paper-200);
+  box-shadow: 0 24px 50px -34px rgba(2,19,48,0.5);
+  transform: translateX(2px);
+}
+
+/* trailing arrow, quiet until the row is active/hovered */
+.lxjt2-day__go {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; margin-right: 2px; border-radius: 50%;
+  color: var(--blue-500); opacity: 0; transform: translateX(-6px);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), background 0.3s var(--ease);
+}
+.lxjt2-day:hover .lxjt2-day__go { opacity: 0.6; transform: translateX(0); }
+.lxjt2-day.is-active .lxjt2-day__go { opacity: 1; transform: translateX(0); color: var(--sienna); background: rgba(189,64,17,0.1); }
+
+.lxjt2-day__kicker {
+  display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
+  color: var(--blue-500);
+}
+.lxjt2-day.is-active .lxjt2-day__kicker { color: var(--sienna); }
+.lxjt2-day__place {
+  display: inline-flex; align-items: center; gap: 4px;
+  letter-spacing: 0.06em; color: var(--ink-600); font-weight: 600;
+}
+.lxjt2-day__place svg { opacity: 0.8; }
+
+.lxjt2-day__title {
+  font-family: var(--serif); font-weight: 400; line-height: 1.18;
+  font-size: clamp(1.08rem, 1rem + 0.4vw, 1.3rem); color: var(--ink-900);
+  margin-top: 5px;
+  transition: color 0.3s var(--ease);
+}
+.lxjt2-day.is-active .lxjt2-day__title { color: var(--blue-700); }
+
+/* inline day description — desktop shows it on the picture instead, so hide it here */
+.lxjt2-day__body { display: none; }
+
+/* mobile accordion chevron + horizontal carousel — hidden on desktop */
+.lxjt2-day__chev { display: none; }
+.lxjt2-rail { display: none; }
+
+/* footnote under the split */
+.lxjt2-note {
+  display: inline-flex; align-items: center; gap: 9px;
+  margin: clamp(28px, 3.5vw, 44px) 0 0;
+  padding: 12px 20px; border-radius: 999px;
+  background: rgba(11,90,177,0.06); border: 1px solid rgba(11,90,177,0.16);
+  font-size: 14px; color: var(--ink-800);
+}
+.lxjt2-note svg { color: var(--blue-500); flex-shrink: 0; }
+
+/* ============ RIGHT — picture that follows the active day, fills the column ============ */
+.lxjt2-media { position: relative; height: 100%; }
+.lxjt2-media__sticky { display: flex; flex-direction: column; height: 100%; }
+
+.lxjt2-media__frame {
+  position: relative; overflow: hidden; border-radius: 24px;
+  flex: 1; min-height: 380px;        /* grows to match the itinerary; never collapses */
+  border: 1px solid var(--paper-200);
+  box-shadow: 0 46px 90px -46px rgba(2,19,48,0.62);
+}
+
+/* cross-fading day images, stacked */
+.lxjt2-media__img {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: 0; transform: scale(1.06);
+  transition: opacity 0.7s var(--ease), transform 1.4s var(--ease);
+  will-change: opacity, transform;
+}
+.lxjt2-media__img.is-on { opacity: 1; transform: scale(1); }
+
+.lxjt2-media__veil {
+  position: absolute; inset: 0; z-index: 2;
+  background: linear-gradient(180deg, rgba(2,19,48,0) 24%, rgba(2,19,48,0.32) 52%, rgba(2,19,48,0.9) 100%);
+}
+
+.lxjt2-media__count {
+  position: absolute; top: 16px; right: 16px; z-index: 3;
+  display: inline-flex; align-items: baseline; gap: 2px;
+  padding: 7px 13px; border-radius: 999px;
+  background: rgba(2,19,48,0.42); backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.24);
+  font-family: var(--serif); font-size: 17px; color: #fff; font-variant-numeric: tabular-nums;
+}
+.lxjt2-media__count i { font-family: var(--sans); font-style: normal; font-size: 12px; color: rgba(255,255,255,0.66); }
+
+.lxjt2-media__meta {
+  position: absolute; left: 26px; right: 26px; bottom: 24px; z-index: 3;
+  max-width: 480px; color: #fff; animation: lxjt2-metain 0.5s var(--ease);
+}
+.lxjt2-media__daylbl {
+  display: inline-block; margin-bottom: 12px; padding: 6px 12px; border-radius: 999px;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: #fff;
+  background: rgba(189,64,17,0.9); box-shadow: 0 8px 20px -10px rgba(189,64,17,0.8);
+}
+.lxjt2-media__meta h3 {
+  font-family: var(--serif); font-weight: 400; line-height: 1.1;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); margin: 0;
+  text-shadow: 0 2px 20px rgba(2,19,48,0.6);
+}
+.lxjt2-media__body {
+  margin: 12px 0 0; font-size: 14px; line-height: 1.58; font-weight: 300;
+  color: rgba(255,255,255,0.92); text-shadow: 0 1px 12px rgba(2,19,48,0.55);
+}
+.lxjt2-media__cap {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+  font-size: 12px; letter-spacing: 0.02em; color: rgba(255,255,255,0.78);
+}
+.lxjt2-media__cap svg { color: #E6A98F; flex-shrink: 0; }
+@keyframes lxjt2-metain { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* dot rail under the picture — a quick jump to any day */
+.lxjt2-media__dots {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 9px;
+  margin-top: 18px;
+}
+.lxjt2-media__dot {
+  width: 9px; height: 9px; border-radius: 50%; padding: 0; border: none; cursor: pointer;
+  background: var(--paper-200); transition: background 0.3s var(--ease), transform 0.3s var(--ease);
+}
+.lxjt2-media__dot:hover { background: var(--blue-300); }
+.lxjt2-media__dot.is-on { background: var(--sienna); transform: scale(1.45); }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 900px) {
+  /* Mobile: no hover, no photo-swap. Static itinerary (same look), full text inline,
+     and the pictures become a horizontal city carousel below the list. */
+  .lxjt2-split { display: block; height: auto; margin-top: 28px; }
+  .lxjt2-media { display: none; }               /* drop the hover-driven picture panel */
+
+  .lxjt2-days {
+    height: auto; overflow: visible; padding: 0;
+    -webkit-mask-image: none; mask-image: none;
+  }
+
+  /* rows anchor to the top so the timeline line stays aligned when a day expands */
+  .lxjt2-day__btn { align-items: flex-start; }
+
+  /* tap-to-expand accordion — description collapses/opens (no hover, no photo swap) */
+  .lxjt2-day__go { display: none; }
+  .lxjt2-day__chev {
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    width: 32px; height: 32px; margin-top: 3px; border-radius: 50%;
+    color: var(--blue-500); background: rgba(11,90,177,0.09);
+    transition: transform 0.32s var(--ease), background 0.3s var(--ease), color 0.3s var(--ease);
+  }
+  .lxjt2-day.is-open .lxjt2-day__chev { transform: rotate(180deg); background: var(--blue-500); color: #fff; }
+
+  .lxjt2-day__body {
+    display: grid; grid-template-rows: 0fr; opacity: 0; margin-top: 0;
+    transition: grid-template-rows 0.4s var(--ease), opacity 0.32s var(--ease), margin-top 0.4s var(--ease);
+  }
+  .lxjt2-day.is-open .lxjt2-day__body { grid-template-rows: 1fr; opacity: 1; margin-top: 8px; }
+  .lxjt2-day__bodyin {
+    min-height: 0; overflow: hidden;
+    font-size: 14px; line-height: 1.6; color: var(--ink-800);
+  }
+
+  /* static rows — keep the design, drop the desktop hover/active emphasis */
+  .lxjt2-day__content,
+  .lxjt2-day.is-active .lxjt2-day__content {
+    background: transparent; border-color: transparent; box-shadow: none; transform: none;
+    padding: 4px 0 4px 16px;
+  }
+  .lxjt2-day.is-active .lxjt2-day__node { transform: none; }
+  .lxjt2-day.is-active .lxjt2-day__title { color: var(--ink-900); }
+  .lxjt2-day.is-active .lxjt2-day__kicker { color: var(--blue-500); }
+  .lxjt2-day.is-active::before { background: linear-gradient(180deg, var(--paper-200), var(--paper-200)); }
+  /* the open day gets the accent instead */
+  .lxjt2-day.is-open .lxjt2-day__title { color: var(--blue-700); }
+  .lxjt2-day.is-open .lxjt2-day__node {
+    color: #fff; border-color: transparent;
+    background: linear-gradient(150deg, #D9612F, var(--sienna));
+    box-shadow: 0 12px 26px -12px rgba(189,64,17,0.7);
+  }
+  .lxjt2-day.is-open::before { background: linear-gradient(180deg, var(--sienna), rgba(189,64,17,0.28)); }
+
+  /* the carousel */
+  .lxjt2-rail {
+    display: flex; gap: 12px; margin-top: 30px; padding-bottom: 12px;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .lxjt2-rail::-webkit-scrollbar { display: none; }
+  .lxjt2-railcard {
+    position: relative; flex: 0 0 76%; max-width: 300px; aspect-ratio: 4 / 3;
+    scroll-snap-align: start; border-radius: 16px; overflow: hidden;
+    background-size: cover; background-position: center;
+    box-shadow: 0 22px 50px -34px rgba(2,19,48,0.55);
+  }
+  .lxjt2-railcard::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(2,19,48,0) 40%, rgba(2,19,48,0.78) 100%);
+  }
+  .lxjt2-railcard__day {
+    position: absolute; top: 12px; left: 12px; z-index: 2;
+    padding: 5px 11px; border-radius: 999px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; color: #fff;
+    background: rgba(2,19,48,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .lxjt2-railcard__city {
+    position: absolute; left: 14px; bottom: 13px; z-index: 2;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--serif); font-size: 1.2rem; color: #fff;
+    text-shadow: 0 2px 14px rgba(2,19,48,0.6);
+  }
+  .lxjt2-railcard__city svg { color: #E6A98F; flex-shrink: 0; }
+}
+
+@media (max-width: 560px) {
+  .lxjt2-day__btn { gap: 13px; }
+  .lxjt2-day::before { left: 20px; }
+  .lxjt2-day:first-child::before { top: 32px; }
+  .lxjt2-day:last-child::before  { bottom: calc(100% - 32px); }
+  .lxjt2-day__rail { width: 40px; }
+  .lxjt2-day__node { width: 40px; height: 40px; font-size: 14px; }
+  .lxjt2-day__content { padding: 3px 0 3px 14px; }
+  .lxjt2-railcard { flex-basis: 82%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lxjt2-media__img { transition: opacity 0.3s linear; transform: none; }
+  .lxjt2-media__img.is-on { transform: none; }
+  .lxjt2-media__meta { animation: none; }
+}

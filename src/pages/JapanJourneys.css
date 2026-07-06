@@ -1,0 +1,517 @@
+/* ============================================================
+   Japan Journeys — country-specific listing page. Layers the
+   "about Japan", "the journeys" and "food" sections on top of the
+   shared /improved chrome (Home2026.css + Home2026Improved.css) and
+   the /journeys hero/card/lightbox styles (Journeys.css).
+
+   Tokens (--paper, --paper-2, --blue, --sienna, --sienna-d, --ink,
+   --muted, --muted-2, --serif, --sans, --border) come from the .h26
+   scope; design.md is the source of truth.
+   ============================================================ */
+
+/* Shared inner width — matches the hero, rails and food section so
+   every section's content left-edge lines up on the same gutter. */
+.jp .jp-wrap {
+  max-width: var(--jl-cap);
+  margin: 0 auto;
+  padding-inline: var(--jl-pad);
+}
+/* Keep the intro prose readable at the wider cap. */
+.jp-about-body { max-width: 1100px; }
+.jp-about-head, .jp-lede { max-width: 60ch; }
+
+/* Left-weighted hero veil (page-scoped) — darkens only the left half,
+   behind the copy, and fades to transparent on the right so the photo
+   stays visible. Keeps strong text contrast without flattening the image. */
+.jp .jl-hero-veil {
+  background:
+    linear-gradient(90deg,
+      rgba(2,19,48,0.92) 0%,
+      rgba(2,19,48,0.84) 30%,
+      rgba(2,19,48,0.58) 50%,
+      rgba(2,19,48,0.22) 68%,
+      transparent 84%);
+}
+
+/* Hero CTA row (Japan-specific addition under the sub) */
+.jp-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+.jp-hero-actions .h26-btn { transition: background .3s ease, transform .35s cubic-bezier(0.16,1,0.3,1), box-shadow .35s ease; }
+.jp-hero-actions .h26-btn-accent:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -12px rgba(189,64,17,0.6); }
+.jp-hero-actions .h26-btn-glass:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -12px rgba(0,0,0,0.35); }
+
+/* ---- Shared section rhythm & headings ---- */
+.jp-eyebrow { color: var(--sienna); margin: 0 0 14px; }
+.jp-eyebrow-warm {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.jp-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+.jp-section-head { max-width: 62ch; margin-bottom: clamp(28px, 4vw, 46px); }
+.jp-section-sub {
+  font-family: var(--sans);
+  font-size: clamp(0.98rem, 1.3vw, 1.1rem);
+  font-weight: 300;
+  line-height: 1.62;
+  color: var(--muted);
+  margin: 16px 0 0;
+}
+
+/* ============================================================
+   1 · A LITTLE ABOUT JAPAN — editorial intro + facts panel +
+       overlay-caption highlight cards.
+   ============================================================ */
+.jp-about {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--paper);
+  padding: clamp(58px, 8vw, 108px) 0 clamp(48px, 6vw, 80px);
+}
+/* Soft brand glow for depth (calm, not busy). */
+.jp-about::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(58% 46% at 88% 4%, rgba(11,90,177,0.06), transparent 68%);
+}
+/* Oversized, barely-there kanji watermark — a quiet cultural anchor. */
+.jp-about-glyph {
+  position: absolute;
+  top: clamp(-18px, -1vw, -8px);
+  right: clamp(-8px, 2vw, 40px);
+  z-index: -1;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(9rem, 24vw, 22rem);
+  line-height: 0.8;
+  color: var(--blue);
+  opacity: 0.04;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---- Editorial intro row ---- */
+.jp-about-top {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: start;
+  gap: clamp(32px, 5vw, 78px);
+  margin-bottom: clamp(48px, 6.5vw, 92px);
+}
+.jp-title em {
+  font-style: italic;
+  color: var(--sienna);
+}
+/* Bigger, more display-scaled headline for this hero section. */
+.jp-about-top .jp-title {
+  font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+  line-height: 1.08;
+  margin: 0 0 clamp(20px, 2.4vw, 30px);
+}
+.jp-lede {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.14rem, 1.6vw, 1.36rem);
+  line-height: 1.62;
+  color: var(--ink);
+  margin: 0;
+  max-width: 46ch;
+}
+.jp-lede em { font-style: italic; color: var(--blue); }
+
+/* ---- "Good to know" facts panel ---- */
+.jp-facts {
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(13px, 1.3vw, 17px);
+  padding: clamp(22px, 2.3vw, 30px);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 24px 50px -34px rgba(2,19,48,0.45);
+}
+.jp-facts-title {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin: 0 0 2px;
+}
+.jp-fact {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.jp-fact + .jp-fact { border-top: 1px solid var(--border); padding-top: clamp(13px, 1.3vw, 17px); }
+.jp-fact-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px; height: 42px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #EAF1FA;
+  color: var(--blue);
+}
+.jp-fact-txt { min-width: 0; }
+.jp-fact-label {
+  display: block;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  margin-bottom: 3px;
+}
+.jp-fact-value {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+/* ---- Highlights: label + refined overlay-caption cards ---- */
+.jp-hl-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: clamp(18px, 2.4vw, 28px);
+}
+.jp-hl-head .jp-eyebrow { margin: 0; }
+.jp-hl-sub {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  line-height: 1.3;
+  color: var(--ink);
+  margin: 0;
+}
+.jp-highlights {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(14px, 1.8vw, 22px);
+}
+.jp-hl {
+  transition: transform .4s cubic-bezier(0.16,1,0.3,1);
+}
+.jp-hl:hover { transform: translateY(-5px); }
+.jp-hl-link {
+  display: block;
+  color: inherit;
+  border-radius: 16px;
+  outline-offset: 3px;
+}
+.jp-hl-link:focus-visible { outline: 2px solid var(--blue); }
+.jp-hl-media {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 14px 34px -20px rgba(2,19,48,0.5);
+}
+.jp-hl-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .7s cubic-bezier(0.16,1,0.3,1);
+}
+.jp-hl:hover .jp-hl-media img { transform: scale(1.07); }
+.jp-hl-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(2,19,48,0.9) 0%, rgba(2,19,48,0.42) 32%, transparent 60%);
+}
+.jp-hl-cap {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: clamp(15px, 1.5vw, 20px);
+  color: #fff;
+}
+.jp-hl-idx {
+  display: block;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.92rem;
+  color: #F6A07E; /* salmon accent, echoes the hero */
+  margin-bottom: 5px;
+}
+.jp-hl-name {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.18rem, 1.6vw, 1.42rem);
+  line-height: 1.14;
+  color: #fff;
+  margin: 0 0 7px;
+}
+.jp-hl-note {
+  font-family: var(--sans);
+  font-size: 0.83rem;
+  font-weight: 300;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.88);
+  margin: 0;
+}
+/* "Explore" affordance — signals the whole card is clickable. Visible on
+   hover/focus; the card itself remains the tap target on touch. */
+.jp-hl-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #F6A07E;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .32s ease, transform .32s ease;
+}
+.jp-hl-cta svg { transition: transform .3s ease; }
+.jp-hl:hover .jp-hl-cta,
+.jp-hl-link:focus-visible .jp-hl-cta { opacity: 1; transform: translateY(0); }
+.jp-hl:hover .jp-hl-cta svg { transform: translateX(3px); }
+@media (hover: none) {
+  /* Touch devices can't hover — keep the cue visible. */
+  .jp-hl-cta { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-hl:hover { transform: none; }
+  .jp-hl:hover .jp-hl-media img { transform: none; }
+  .jp-hl-cta { transition: opacity .2s ease; transform: none; }
+}
+
+/* ============================================================
+   2 · THE JAPAN JOURNEYS — two full-bleed carousels
+   The rails reuse the /journeys shelf + card chrome verbatim
+   (jl-shelf / jl-rail / jl-card from Journeys.css); we only set
+   the section background so it stays uniform with the page.
+   ============================================================ */
+.jp-tours { background: var(--paper); }
+
+/* The rails clip on both axes (overflow-x:auto forces overflow-y to clip),
+   and the card hover shadow reaches well past the shared 22px bottom
+   padding — so it was being cut off. Give every rail on this page enough
+   bottom room to contain the lift + shadow. */
+.jp .jl-rail { padding-bottom: 40px; }
+
+/* ============================================================
+   3 · THE FOOD PEOPLE EAT IN JAPAN — a matching carousel
+   ============================================================ */
+.jp-food {
+  background: #F7F5FD; /* Cloudstone (design.md 2.2) — gentle section break */
+  padding: clamp(48px, 7vw, 92px) 0;
+}
+
+/* Dish tiles as rail items — same sizing rhythm as the tour cards. */
+.jl-rail-food > .jp-dish {
+  flex: 0 0 clamp(258px, 76vw, 330px);
+  scroll-snap-align: start;
+}
+.jp-dish {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(2,19,48,0.04);
+  transition: transform .35s cubic-bezier(0.16,1,0.3,1), box-shadow .35s ease;
+}
+.jp-dish:hover { transform: translateY(-5px); box-shadow: 0 20px 44px rgba(2,19,48,0.14); }
+.jp-dish-media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+.jp-dish-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .6s cubic-bezier(0.16,1,0.3,1);
+}
+.jp-dish:hover .jp-dish-media img { transform: scale(1.06); }
+.jp-dish-tag {
+  position: absolute;
+  top: 12px; left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(189,64,17,0.92); /* Sienna Flame / 500 */
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+}
+.jp-dish-body { padding: 18px 18px 20px; }
+.jp-dish-name {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.jp-dish-desc {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Restaurant recommendations — compact tiles in a carousel. */
+.jl-rail-resto > .jp-resto-card {
+  flex: 0 0 clamp(212px, 70vw, 250px);
+  scroll-snap-align: start;
+}
+.jp-resto-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff; /* white cards on the Cloudstone food section */
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.jp-resto-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(2,19,48,0.1); }
+/* Restaurant photo with a price badge overlaid. */
+.jp-resto-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.jp-resto-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .6s cubic-bezier(0.16,1,0.3,1);
+}
+.jp-resto-card:hover .jp-resto-media img { transform: scale(1.06); }
+.jp-resto-media .jp-resto-price {
+  position: absolute;
+  top: 10px; right: 10px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(189,64,17,0.92); /* Sienna Flame / 500 */
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(6px);
+}
+.jp-resto-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 5px;
+  padding: 12px 14px 14px;
+}
+.jp-resto-name {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.02rem;
+  line-height: 1.22;
+  color: var(--ink);
+  margin: 0;
+}
+.jp-resto-city {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  font-weight: 400;
+  color: var(--blue);
+}
+.jp-resto-note {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 1px 0 12px;
+}
+/* Book a table — design.md Primary button (Voyager Blue, 4px, Work Sans
+   Medium uppercase). Sits at the card foot, pushed down to align. */
+.jp-resto-book {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: auto;
+  padding: 9px 12px;
+  border-radius: 4px;
+  background: var(--blue);
+  color: var(--paper-2, #F1EFE2);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.44px;
+  text-transform: uppercase;
+  transition: background .2s ease;
+}
+.jp-resto-book:hover { background: #09488E; } /* Primary hover (design.md 4.3) */
+.jp-resto-book svg { flex-shrink: 0; }
+.jp-resto-footwrap {
+  max-width: var(--jl-cap);
+  margin: 0 auto;
+  padding-inline: var(--jl-pad);
+}
+.jp-resto-foot {
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--muted-2);
+  margin: 0;
+  padding: 16px 18px;
+  background: #EAF1FA;
+  border-radius: 10px;
+}
+
+/* Trust strip sits on paper on this page */
+.jp-trust { background: var(--paper); margin-top: 0; }
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width: 1080px) {
+  .jp-highlights { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  /* Stack the lede over the facts panel. */
+  .jp-about-top { grid-template-columns: 1fr; gap: clamp(26px, 5vw, 40px); }
+}
+@media (max-width: 620px) {
+  .jp-highlights { grid-template-columns: 1fr; }
+  .jp-hl-media { aspect-ratio: 16 / 11; }
+}

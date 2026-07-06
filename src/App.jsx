@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
@@ -20,6 +21,17 @@ import ModernVariant2 from './pages/ModernVariant2';
 import ModernVariant3 from './pages/ModernVariant3';
 import PrivateItaly from './pages/PrivateItaly';
 import GroupJapan from './pages/GroupJapan';
+import JapanTour from './pages/JapanTour';
+import JapanTourLuxe from './pages/JapanTourLuxe';
+import JapanTourLuxe2 from './pages/JapanTourLuxe2';
+import JapanTourLuxe3 from './pages/JapanTourLuxe3';
+import JapanTourLuxe4 from './pages/JapanTourLuxe4';
+import EssenceJapan from './pages/EssenceJapan';
+import EssenceJapan2 from './pages/EssenceJapan2';
+import Journeys from './pages/Journeys';
+import Journeys2 from './pages/Journeys2';
+import JapanJourneys from './pages/JapanJourneys';
+import CityJourneys from './pages/CityJourneys';
 import Home from './pages/Home';
 import Tours from './pages/Tours';
 import TourDetail from './pages/TourDetail';
@@ -28,9 +40,10 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 
 function ScrollToTop() {
-  if (typeof window !== 'undefined') {
+  const { pathname } = useLocation();
+  useEffect(() => {
     window.scrollTo(0, 0);
-  }
+  }, [pathname]);
   return null;
 }
 
@@ -61,12 +74,48 @@ function ClassicLayout() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Fresh scroll-activated homepage — self-contained design */}
         <Route path="/" element={<Home2026 />} />
 
         {/* Improved homepage — persona-driven UX revamp (keeps "/" intact) */}
         <Route path="/improved" element={<Home2026Improved />} />
+
+        {/* Journeys — tour LISTING page (design language shared with /improved).
+            Opened by clicking a destination or searching on /improved.
+            Filterable via ?where= (destination) and ?style= (trip style). */}
+        <Route path="/journeys" element={<Journeys />} />
+
+        {/* Journeys2 — sidebar variant: always-open LEFT filter rail
+            (destination, budget, style, duration, pace) + results grid. */}
+        <Route path="/journeys2" element={<Journeys2 />} />
+
+        {/* Japan Journeys — country-specific listing page (Japan only):
+            about Japan → the Japan tours → "food people eat in Japan".
+            Shares the /improved chrome + design.md tokens. */}
+        <Route path="/journeys/japan" element={<JapanJourneys />} />
+
+        {/* City pages — one level below the country page (Tokyo, Kyoto,
+            Hakone, Osaka). Reached from the city cards on /journeys/japan.
+            Same design language; data-driven by the :city param. */}
+        <Route path="/journeys/japan/:city" element={<CityJourneys />} />
+
+        {/* Tour / product detail — escorted Japan cherry-blossom journey.
+            Opens from the Japan package card on the improved homepage. */}
+        <Route path="/tours/japan" element={<JapanTour />} />
+        <Route path="/japan" element={<JapanTour />} />
+
+        {/* Essence Japan with Hakone — fresh product / tour-detail page,
+            self-contained, navbar consistent with /improved. Mirrors the
+            live URL path so it reads like the real site. */}
+        <Route path="/group-tours/essence-japan-with-hakone" element={<EssenceJapan />} />
+        <Route path="/essence-japan" element={<EssenceJapan />} />
+
+        {/* Essence Japan 2 — alternate layout: itinerary + pictures fused
+            into one synced section (timeline left, sticky photo right),
+            standalone gallery removed. */}
+        <Route path="/essence-japan-2" element={<EssenceJapan2 />} />
 
         {/* Previous homepage, preserved */}
         <Route path="/newhome" element={<NewHome />} />
@@ -97,6 +146,25 @@ export default function App() {
 
         {/* Luxe2-improved — persona-driven revamp of /luxe2 (price clarity, group/bespoke split, trust, human contact) */}
         <Route path="/luxe2-improved" element={<Luxe2Improved />} />
+
+        {/* Splendours of Japan — product / tour-detail page in the luxe2-improved
+            design language. Opens from the Japan package card on /luxe2-improved. */}
+        <Route path="/tour-detail-japan" element={<JapanTourLuxe />} />
+
+        {/* Splendours of Japan — VARIANT 2: the day-by-day itinerary sits on the
+            left with a sticky picture that follows the active day on the right;
+            the standalone photo gallery is removed. */}
+        <Route path="/tour-detail-japan-2" element={<JapanTourLuxe2 />} />
+
+        {/* Splendours of Japan — VARIANT 3: the terms section becomes "The policies",
+            three filterable categories (Booking Terms, Cancellation Policy, Terms &
+            Conditions) with summaries, expand-on-demand detail, and a policy search. */}
+        <Route path="/tour-detail-japan-3" element={<JapanTourLuxe3 />} />
+
+        {/* Splendours of Japan — VARIANT 4: "Essence Japan with Hakone" real product
+            content. The day-by-day carries per-day hotel/meals/sights, shown on a
+            shorter picture on hover (desktop) or in the day accordion (mobile). */}
+        <Route path="/tour-detail-japan-4" element={<JapanTourLuxe4 />} />
 
         {/* Modern variant — vaulk.com-style single-page layout, CK content + design.md tokens */}
         <Route path="/modern" element={<Modern />} />

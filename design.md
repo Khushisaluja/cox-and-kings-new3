@@ -84,6 +84,7 @@ The primary surface and text scale. Warm-toned rather than pure grey.
 | Neutrals / 0 | `#FFFFFF` | Base surface / white |
 | Neutrals / 50 | `#F8F7F1` | Page background (off-white) |
 | Neutrals / 100 | `#F1EFE2` | Cards, on-dark text, button labels |
+| Neutrals / 150 | `#E5E3D7` | Subtle raised / secondary card fill (half-step below 200) |
 | Neutrals / 200 | `#D9D7CB` | Borders, dividers, disabled text |
 | Neutrals / 300 | `#C1BFB5` | Disabled borders |
 | Neutrals / 400 | `#A9A79E` | Muted icons |
@@ -102,6 +103,14 @@ The primary surface and text scale. Warm-toned rather than pure grey.
 | Neutrals-Mid / 500 | `#7A869A` | Cool mid-grey (secondary UI) |
 | OnSurface / Primary | `#000000` | Pure-black text where required |
 | OnSurface / PrimaryInverse | `#FFFFFF` | Text on dark/brand surfaces |
+
+### 2.9 Accent — Rating Gold
+A single warm gold reserved **exclusively** for rating stars. It is not part of the core
+brand palette and must never be used decoratively elsewhere — filled review/rating stars only.
+
+| Token | Hex | Usage |
+|-------|-----|-------|
+| Rating Gold | `#F4B73F` | Filled rating / review stars only |
 
 ---
 

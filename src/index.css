@@ -1,74 +1,48 @@
 /* ============================================================
-   Brand fonts from the original coxandkings.com:
-   Ivy Mode (primary / headings + body) and Mosaic (secondary).
-   Self-hosted from /public/fonts.
+   Brand display serif — ZODIAK (per design.md §3: headings are
+   always Zodiak, Light 300; accent words use the italic).
+   Self-hosted from /public/fonts/zodiak. This is the family the
+   `--serif` token points to across every page; Georgia is only an
+   ultimate fallback. Body/UI use Work Sans (loaded in index.html).
    ============================================================ */
 @font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-Thin.woff2') format('woff2');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-ThinItalic.woff2') format('woff2');
-  font-weight: 100;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-Light.woff2') format('woff2');
+  font-family: 'Zodiak';
+  src: url('/fonts/zodiak/Zodiak-Light.otf') format('opentype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-LightItalic.woff2') format('woff2');
+  font-family: 'Zodiak';
+  src: url('/fonts/zodiak/Zodiak-LightItalic.otf') format('opentype');
   font-weight: 300;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-Regular.woff2') format('woff2');
+  font-family: 'Zodiak';
+  src: url('/fonts/zodiak/Zodiak-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-Italic.woff2') format('woff2');
+  font-family: 'Zodiak';
+  src: url('/fonts/zodiak/Zodiak-Italic.otf') format('opentype');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-SemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-SemiBoldItalic.woff2') format('woff2');
-  font-weight: 600;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-Bold.woff2') format('woff2');
+  font-family: 'Zodiak';
+  src: url('/fonts/zodiak/Zodiak-Bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Ivy Mode';
-  src: url('/fonts/ivy-mode/IvyMode-BoldItalic.woff2') format('woff2');
+  font-family: 'Zodiak';
+  src: url('/fonts/zodiak/Zodiak-BoldItalic.otf') format('opentype');
   font-weight: 700;
   font-style: italic;
   font-display: swap;
@@ -151,7 +125,9 @@ body {
   color: var(--color-text);
   background: var(--color-white);
   line-height: 1.6;
-  overflow-x: hidden;
+  /* clip (not hidden) prevents horizontal scroll WITHOUT creating a
+     scroll container — so descendant `position: sticky` keeps working. */
+  overflow-x: clip;
 }
 
 a {

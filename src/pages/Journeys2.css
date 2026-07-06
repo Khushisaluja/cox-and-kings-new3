@@ -1,0 +1,719 @@
+/* ============================================================
+   Journeys2 — layout-specific styles for the sidebar (open-filter)
+   listing variant. Layers on top of Journeys.css, which supplies the
+   hero, card, lightbox, sort dropdown and trust-strip styles. Tokens
+   (--paper, --blue, --sienna, --ink, --serif, --sans, --border) come
+   from the .h26 scope; design.md is the source of truth.
+   ============================================================ */
+
+/* Override .jl's `overflow-x: hidden` with `clip`: still no horizontal
+   scroll, but it no longer traps the sticky filter sidebar. */
+.jl2 { overflow-x: clip; }
+
+/* Compact the shared hero — this page leads with filters, not a banner. */
+.jl2-hero {
+  padding-bottom: clamp(34px, 4vw, 52px);
+}
+
+/* ---------------- TWO-COLUMN SHELL ---------------- */
+.jl2-shell {
+  max-width: var(--jl-cap);
+  margin: 0 auto;
+  padding: clamp(24px, 3.5vw, 44px) var(--jl-pad) clamp(30px, 4vw, 54px);
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr);
+  gap: clamp(22px, 3vw, 40px);
+  align-items: start;
+}
+
+/* ---------------- LEFT SIDEBAR ---------------- */
+.jl2-sidebar-panel {
+  display: flex;
+  flex-direction: column;
+}
+/* On desktop the sidebar sticks below the nav as the results scroll. */
+@media (min-width: 921px) {
+  .jl2-sidebar {
+    position: sticky;
+    top: 84px;
+    align-self: start;
+    max-height: calc(100vh - 104px);
+  }
+  .jl2-sidebar-panel {
+    max-height: calc(100vh - 104px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(2,19,48,0.04);
+    overflow: hidden;
+  }
+  .jl2-sidebar-scrim { display: none; }
+  .jl2-sidebar-close { display: none; }
+  .jl2-sidebar-foot { display: none; }
+}
+
+.jl2-sidebar-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.jl2-sidebar-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.14rem;
+  color: var(--ink);
+  margin: 0;
+}
+.jl2-sidebar-title svg { color: var(--blue); }
+.jl2-clear {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--sienna);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 4px 2px;
+}
+.jl2-clear:hover { color: var(--sienna-d); }
+.jl2-sidebar-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--paper-2);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .2s;
+}
+.jl2-sidebar-close:hover { background: var(--border); }
+
+.jl2-sidebar-body {
+  padding: 2px 16px 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ---- One open filter group ----
+   Rhythm (Law of Proximity): the eyebrow hugs its OWN options (8px),
+   while a divider + 18px of air clearly separates one group from the
+   next. Plain div + role="group" — no fieldset/legend spacing quirks. */
+.j2-group {
+  padding-block: 18px;
+  border-top: 1px solid var(--border);
+}
+.j2-group:first-child { border-top: 0; padding-top: 14px; }
+.j2-group-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 8px;
+  padding: 0 2px;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.j2-group-title svg { color: var(--blue); flex-shrink: 0; }
+.j2-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Checkbox row — the native input is hidden; .j2-check is the visual box.
+   ~40px tall for a comfortable target; bleeds to the panel edge on hover. */
+.j2-option {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 40px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.j2-option:hover { background: var(--paper); }
+.j2-option input {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+  pointer-events: none;
+}
+.j2-check {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px; height: 19px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  color: #fff;
+  transition: background .18s, border-color .18s;
+}
+.j2-option.is-on .j2-check {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+.j2-option-label {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.j2-option.is-on .j2-option-label { font-weight: 500; }
+.j2-option-count {
+  flex-shrink: 0;
+  min-width: 22px;
+  text-align: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--paper-2);
+  color: var(--muted-2);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  transition: background .18s, color .18s;
+}
+.j2-option.is-on .j2-option-count { background: #EAF1FA; color: var(--blue); }
+/* Options that would yield nothing (given the other active filters) dim,
+   but stay clickable. */
+.j2-option.is-empty { opacity: 0.42; }
+
+.jl2-sidebar-foot {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.jl2-apply { width: 100%; justify-content: center; border: 0; cursor: pointer; }
+
+/* ---- Focus visibility (a11y — inputs are visually hidden) ---- */
+.j2-option input:focus-visible + .j2-check {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* A small right-aligned note in a group title (e.g. "per person"). */
+.j2-group-aside { margin-left: auto; text-transform: none; letter-spacing: 0; }
+.j2-per {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+/* ---------------- DESTINATION SEARCH (combobox) ---------------- */
+.j2-dest { position: relative; }
+.j2-dest-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: #fff;
+  transition: border-color .18s, box-shadow .18s;
+}
+.j2-dest-field:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(21,86,158,0.1);
+}
+.j2-dest-field svg { color: var(--blue); flex-shrink: 0; }
+.j2-dest-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.j2-dest-field input::placeholder { color: var(--muted-2); }
+
+.j2-dest-pop {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 264px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(2,19,48,0.14);
+}
+.j2-dest-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--ink);
+  text-align: left;
+}
+.j2-dest-opt svg { color: var(--muted-2); flex-shrink: 0; }
+.j2-dest-opt.is-active { background: var(--paper); }
+.j2-dest-opt.is-active svg { color: var(--blue); }
+.j2-dest-opt-label { flex: 1; }
+
+.j2-dest-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 11px;
+}
+.j2-dest-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #EAF1FA;
+  color: var(--blue);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .16s;
+}
+.j2-dest-chip:hover { background: #DBE8F6; }
+.j2-dest-chip svg { opacity: 0.8; }
+
+/* ---------------- BUDGET: histogram + single-thumb slider ---------------- */
+.j2-budget { padding-top: 4px; }
+.j2-budget-slider { padding: 0 2px; }
+
+/* Chunky, easy-to-grab track. */
+.j2-budget-track {
+  position: relative;
+  height: 26px;
+  display: flex;
+  align-items: center;
+}
+.j2-budget-track::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--paper-2);
+}
+.j2-budget-fill {
+  position: absolute;
+  left: 0;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blue), #2E6FB0);
+}
+.j2-budget-input {
+  position: absolute;
+  left: 0; right: 0;
+  width: 100%;
+  height: 26px;
+  margin: 0;
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.j2-budget-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--blue);
+  box-shadow: 0 2px 8px rgba(2,19,48,0.28);
+  cursor: grab;
+  transition: transform .12s, box-shadow .12s;
+}
+.j2-budget-input::-webkit-slider-thumb:hover { box-shadow: 0 3px 12px rgba(2,19,48,0.34); }
+.j2-budget-input:active::-webkit-slider-thumb { transform: scale(1.1); cursor: grabbing; }
+.j2-budget-input::-moz-range-thumb {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--blue);
+  box-shadow: 0 2px 8px rgba(2,19,48,0.28);
+  cursor: grab;
+}
+.j2-budget-input:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--sienna); outline-offset: 2px; }
+.j2-budget-input:focus-visible::-moz-range-thumb { outline: 2px solid var(--sienna); outline-offset: 2px; }
+.j2-budget-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  color: var(--muted-2);
+}
+
+/* One-tap ceiling presets. */
+.j2-budget-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 13px;
+}
+.j2-preset {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .16s, border-color .16s, color .16s;
+}
+.j2-preset:hover { border-color: var(--blue); }
+.j2-preset.is-on {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+/* ---------------- TRAVELLERS STEPPER ---------------- */
+.j2-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 6px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: #fff;
+}
+.j2-step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--paper);
+  color: var(--blue);
+  cursor: pointer;
+  transition: background .16s, border-color .16s, opacity .16s;
+}
+.j2-step-btn:hover:not(:disabled) { background: #EAF1FA; border-color: var(--blue); }
+.j2-step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.j2-step-val {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.j2-step-val small { font-size: 0.82rem; font-weight: 400; color: var(--muted); }
+
+/* ---------------- TRAVEL-DATE CALENDAR ---------------- */
+.j2-cal { position: relative; }
+.j2-cal-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: #fff;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .18s, box-shadow .18s;
+}
+.j2-cal-trigger:hover { border-color: var(--blue); }
+.j2-cal-trigger.has-date { color: var(--ink); font-weight: 500; }
+.j2-cal-trigger > svg:first-child { color: var(--blue); flex-shrink: 0; }
+.j2-cal-trigger > span:nth-child(2) { flex: 1; text-align: left; }
+.j2-cal-caret { color: var(--muted-2); flex-shrink: 0; }
+.j2-cal-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  background: var(--paper-2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .16s, color .16s;
+}
+.j2-cal-clear:hover { background: var(--border); color: var(--ink); }
+
+.j2-cal-pop {
+  position: absolute;
+  z-index: 45;
+  top: calc(100% + 8px);
+  left: 0; right: 0;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 18px 44px rgba(2,19,48,0.16);
+}
+.j2-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.j2-cal-month {
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--ink);
+}
+.j2-cal-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .16s, opacity .16s;
+}
+.j2-cal-nav:hover:not(:disabled) { background: var(--paper); }
+.j2-cal-nav:disabled { opacity: 0.32; cursor: not-allowed; }
+
+.j2-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.j2-cal-dow { margin-bottom: 4px; }
+.j2-cal-wd {
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  padding: 4px 0;
+}
+.j2-cal-blank { aspect-ratio: 1; }
+.j2-cal-day {
+  aspect-ratio: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .14s, color .14s;
+}
+.j2-cal-day:hover:not(:disabled) { background: var(--paper-2); }
+.j2-cal-day.is-today { font-weight: 700; color: var(--blue); }
+.j2-cal-day.is-sel {
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+}
+.j2-cal-day:disabled { color: var(--muted-2); opacity: 0.4; cursor: not-allowed; }
+
+.j2-cal-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--border);
+}
+.j2-cal-flex-label {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.j2-cal-flex-chips { display: flex; gap: 5px; }
+.j2-flexchip {
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .14s, border-color .14s, color .14s;
+}
+.j2-flexchip:hover { border-color: var(--blue); }
+.j2-flexchip.is-on { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+/* Total-for-N-travellers line under the per-person price on each card. */
+.jl2-card-total {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* ---------------- RIGHT: RESULTS ---------------- */
+.jl2-results { min-width: 0; }
+.jl2-results-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.jl2-active {
+  margin-bottom: clamp(18px, 2.4vw, 26px);
+}
+/* Roomier grid — the sidebar already narrows the column, so 2-up reads
+   better than the 3-up on /journeys until we hit very wide viewports. */
+.jl2-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 1320px) {
+  .jl2-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Trust strip already styled in Journeys.css; just give it the shell cap. */
+.jl2-trust { max-width: var(--jl-cap); }
+
+/* ---------------- MOBILE FILTER BAR + DRAWER ---------------- */
+.jl2-mobilebar { display: none; }
+
+@media (max-width: 920px) {
+  .jl2-shell {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* Sticky "Filters (N)" + count bar sits above the grid. */
+  .jl2-mobilebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    margin: 0 calc(var(--jl-pad) * -1) 18px;
+    padding: 11px var(--jl-pad);
+    background: rgba(248,247,241,0.94);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border-bottom: 1px solid var(--border);
+  }
+  .jl2-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--blue);
+    background: #fff;
+    color: var(--blue);
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .jl2-filter-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px; height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--blue);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .jl2-mobile-count {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--muted);
+  }
+  .jl2-mobile-count strong { font-weight: 600; color: var(--ink); }
+
+  /* Drawer — off-canvas until .is-open. */
+  .jl2-sidebar {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    pointer-events: none;
+  }
+  .jl2-sidebar-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(2,10,26,0.5);
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+  .jl2-sidebar-panel {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: min(90vw, 360px);
+    background: var(--paper);
+    box-shadow: 0 0 60px rgba(2,19,48,0.3);
+    transform: translateX(-100%);
+    transition: transform .34s cubic-bezier(0.16,1,0.3,1);
+    height: 100%;
+  }
+  .jl2-sidebar.is-open { pointer-events: auto; }
+  .jl2-sidebar.is-open .jl2-sidebar-scrim { opacity: 1; }
+  .jl2-sidebar.is-open .jl2-sidebar-panel { transform: translateX(0); }
+
+  .jl2-sidebar-body { background: var(--paper); }
+  .j2-option:hover { background: #fff; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jl2-sidebar-panel, .jl2-sidebar-scrim { transition: none; }
+}
+
+@media (max-width: 560px) {
+  .jl2-grid { grid-template-columns: 1fr; }
+}

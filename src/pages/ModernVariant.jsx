@@ -168,9 +168,60 @@ export default function ModernVariant() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  /* Cursor-aware layer: a soft trailing cursor that lerps toward the pointer,
+     swells over interactive elements; cards get a light that tracks the cursor.
+     Fine-pointer + motion-safe only — never on touch. */
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    root.classList.add('mv--cursor');
+    const cur = root.querySelector('.mv-cursor');
+    const ring = root.querySelector('.mv-cursor__ring');
+    const label = root.querySelector('.mv-cursor__label');
+    let tx = window.innerWidth / 2, ty = window.innerHeight / 2;
+    let rx = tx, ry = ty, raf;
+
+    const onMove = (e) => {
+      tx = e.clientX; ty = e.clientY;
+      const dot = cur; if (dot) { dot.style.left = `${tx}px`; dot.style.top = `${ty}px`; }
+      // local light for hovered cards / tiles
+      const host = e.target.closest?.('[data-cursor], .mv-tile, .mv-people__card');
+      if (host) {
+        const r = host.getBoundingClientRect();
+        host.style.setProperty('--cx', `${((e.clientX - r.left) / r.width) * 100}%`);
+        host.style.setProperty('--cy', `${((e.clientY - r.top) / r.height) * 100}%`);
+      }
+    };
+    const tick = () => {
+      rx += (tx - rx) * 0.16; ry += (ty - ry) * 0.16;
+      if (ring) { ring.style.left = `${rx}px`; ring.style.top = `${ry}px`; }
+      raf = requestAnimationFrame(tick);
+    };
+    const over = (e) => {
+      const t = e.target.closest?.('a, button, [data-cursor]');
+      root.classList.toggle('mv--cursor-active', !!t);
+      if (label) label.textContent = t?.getAttribute('data-cursor') === 'view' ? 'View' : '';
+      root.classList.toggle('mv--cursor-view', t?.getAttribute('data-cursor') === 'view');
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseover', over);
+    document.addEventListener('mouseleave', () => root.classList.remove('mv--cursor-active'));
+    tick();
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseover', over);
+      cancelAnimationFrame(raf);
+      root.classList.remove('mv--cursor');
+    };
+  }, []);
+
   return (
     <div className="mv" ref={rootRef}>
       <a className="mv-skip" href="#mv-main">Skip to content</a>
+      <div className="mv-cursor" aria-hidden="true"><span className="mv-cursor__label" /></div>
+      <div className="mv-cursor__ring" aria-hidden="true" />
       <div className="mv-topstrip" />
       <div className="mv-progress" aria-hidden="true" />
 
@@ -213,6 +264,7 @@ export default function ModernVariant() {
         aria-label="Menu"
         hidden={!menuOpen}
       >
+        <img className="mv-menu__logo" src="/cox-logo-new.png" alt="Cox &amp; Kings" />
         <nav className="mv-menu__nav" aria-label="Mobile">
           {NAV.map(([label, href], i) => (
             <a key={label} href={href} onClick={() => setMenuOpen(false)} style={{ transitionDelay: `${0.06 * i + 0.1}s` }}>
@@ -395,13 +447,13 @@ export default function ModernVariant() {
         </div>
         <div className="mv-people__row">
           {[
-            ['1500648767791-00dcc994a43e', 'Vikram Mehta', 'Lead Tour Manager · Europe'],
-            ['1494790108377-be9c29b29330', 'Ananya Rao', 'Destination Expert · Japan'],
-            ['1507003211169-0a1dd7228f2d', 'David Fernandes', 'Escorted Tours · The Americas'],
-            ['1438761681033-6461ffad8d80', 'Leila Haddad', 'Bespoke Journeys · Middle East'],
+            ['1637589274892-9bc2d5200eab', 'Rohan Kapoor', 'Senior Tour Manager · Europe'],
+            ['1637589267610-6c66fc2a086b', 'Neha Sharma', 'Lead Tour Manager · India & the Himalaya'],
+            ['1758518729466-827cd8293992', 'Ananya Iyer', 'Destination Expert · Japan & the Far East'],
+            ['1768221677463-191fc4e15690', 'Priya Menon', 'Bespoke Journeys · The Mediterranean'],
           ].map(([id, name, role], i) => (
-            <figure className="mv-people__card mv-reveal" key={name} style={{ transitionDelay: `${i * 90}ms` }}>
-              <img src={img(id, 520)} alt={name} loading="lazy" />
+            <figure className="mv-people__card mv-reveal" key={name} style={{ transitionDelay: `${i * 90}ms` }} data-cursor="view">
+              <img src={img(id, 520)} alt={`${name}, ${role}`} loading="lazy" />
               <figcaption>
                 <span className="mv-people__name">{name}</span>
                 <span className="mv-people__role">{role}</span>
@@ -515,7 +567,7 @@ export default function ModernVariant() {
       <footer className="mv-foot">
         <div className="mv-foot__top">
           <div className="mv-foot__brand">
-            <span className="mv-foot__word">Cox &amp; Kings</span>
+            <img className="mv-foot__logo" src="/cox-logo-new.png" alt="Cox &amp; Kings — Over 260 years of discovery, Estd 1758" />
             <span className="mv-foot__est">Established 1758 · The world&apos;s oldest travel company</span>
           </div>
           <div className="mv-foot__cols">

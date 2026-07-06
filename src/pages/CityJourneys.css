@@ -1,0 +1,35 @@
+/* ============================================================
+   City Journeys — thin layer over JapanJourneys.css. Only the
+   breadcrumb and the 3-up "areas" grid are city-specific; every
+   other style is inherited (jp-* / jl-* / h26-*).
+   ============================================================ */
+
+/* Hero breadcrumb — country → city hierarchy, on the dark veil. */
+.jc .jc-crumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.jc .jc-crumb a {
+  color: rgba(255,255,255,0.72);
+  transition: color .2s;
+}
+.jc .jc-crumb a:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.jc .jc-crumb svg { color: rgba(255,255,255,0.5); }
+.jc .jc-crumb span[aria-current] { color: #F6A07E; }
+
+/* City "areas" run three-up (there are three per city). */
+.jc-areas { grid-template-columns: repeat(3, 1fr); }
+
+@media (max-width: 1080px) {
+  .jc-areas { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  .jc-areas { grid-template-columns: 1fr; }
+}

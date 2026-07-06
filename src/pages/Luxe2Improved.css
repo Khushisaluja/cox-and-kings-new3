@@ -32,6 +32,12 @@ html.lx2i-noscroll body { overflow-x: hidden; }
 html.lx2i-noscroll::-webkit-scrollbar,
 html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
+/* Reset the UA body margin so the page is edge-to-edge (full width).
+   Harmless in the monorepo (already reset globally); essential for the
+   standalone build, which loads no global stylesheet. */
+html, body { margin: 0; padding: 0; }
+#root { width: 100%; }
+
 .lx2i {
   /* ---- Palette (design.md) ---- */
   --blue-500: #0B5AB1;
@@ -49,8 +55,9 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
   --paper-100: #F1EFE2;  /* cards / on-dark text */
   --paper-200: #D9D7CB;  /* borders */
   --ink-900:  #1F2A36;   /* headings */
-  --ink-700:  #60605A;   /* body muted */
-  --ink-600:  #797871;
+  --ink-800:  #3D3D38;   /* strong body */
+  --ink-700:  #4E4E48;   /* body muted (darkened for legibility / WCAG AA) */
+  --ink-600:  #5C5C55;   /* small labels (darkened for legibility) */
 
   /* ---- Type ---- */
   --serif: 'Zodiak', Georgia, 'Times New Roman', serif;
@@ -182,6 +189,34 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 .lx2i-nav__link:hover { color: #fff; }
 .lx2i-nav__link:hover span::after { transform: scaleX(1); }
 
+/* ---- Nav hover dropdowns ---- */
+.lx2i-nav__item { position: relative; display: flex; align-items: center; }
+.lx2i-nav__link { display: inline-flex; align-items: center; gap: 5px; }
+.lx2i-nav__caret { opacity: 0.7; transition: transform 0.3s var(--ease); }
+.lx2i-nav__item:hover .lx2i-nav__caret { transform: rotate(180deg); opacity: 1; }
+.lx2i-nav__item:hover .lx2i-nav__link { color: #fff; }
+.lx2i-nav__item:hover .lx2i-nav__link span::after { transform: scaleX(1); }
+.lx2i-nav__drop {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(6px);
+  padding-top: 16px; /* invisible hover-bridge so the menu doesn't drop on the gap */
+  opacity: 0; visibility: hidden; pointer-events: none; z-index: 80;
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+}
+.lx2i-nav__item:hover .lx2i-nav__drop,
+.lx2i-nav__drop:hover { opacity: 1; visibility: visible; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+.lx2i-nav__dropcard {
+  min-width: 242px; background: #FBFAF5; border: 1px solid var(--paper-200); border-radius: 14px;
+  padding: 8px; box-shadow: 0 26px 60px -22px rgba(2,19,48,0.4); display: flex; flex-direction: column;
+}
+.lx2i-nav__dropitem {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  padding: 10px 13px; border-radius: 9px; color: var(--ink-900); text-decoration: none;
+  font-size: 14px; transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.lx2i-nav__dropitem svg { color: var(--blue-500); opacity: 0; transform: translateX(-5px); transition: opacity 0.2s var(--ease), transform 0.2s var(--ease); }
+.lx2i-nav__dropitem:hover { background: rgba(11,90,177,0.08); color: var(--blue-500); }
+.lx2i-nav__dropitem:hover svg { opacity: 1; transform: translateX(0); }
+
 .lx2i-header__right { display: flex; align-items: center; gap: 14px; }
 .lx2i-burger { display: none; background: var(--glass-dark); border: 1px solid var(--glass-dark-brd); color: #fff; width: 44px; height: 44px; border-radius: var(--radius); align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(14px); }
 
@@ -216,6 +251,12 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 .lx2i-menu__secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; }
 .lx2i-menu__secondary a { display: inline-flex; align-items: center; gap: 5px; font-size: 14px; color: var(--ink-700); text-decoration: none; transition: color 0.25s; }
 .lx2i-menu__secondary a:hover { color: var(--sienna); }
+.lx2i-menu__office { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--paper-200); }
+.lx2i-menu__office .lx2i-eyebrow { display: block; margin-bottom: 8px; }
+.lx2i-menu__addr { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.5; color: var(--ink-800); margin: 0 0 8px; }
+.lx2i-menu__addr svg { color: var(--blue-500); flex-shrink: 0; margin-top: 2px; }
+.lx2i-menu__addrphone { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--blue-700); text-decoration: none; }
+.lx2i-menu__addrphone svg { color: var(--blue-500); }
 .lx2i-menu__foot { margin-top: auto; padding-top: 26px; }
 .lx2i-menu__social { display: flex; gap: 10px; margin-top: 12px; }
 .lx2i-menu__social a { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--paper-200); background: #fff; display: flex; align-items: center; justify-content: center; color: var(--ink-900); transition: all 0.3s var(--ease); }
@@ -224,9 +265,12 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 /* ============ HERO ============ */
 .lx2i-hero {
   position: relative; min-height: 100svh; display: flex; flex-direction: column;
-  justify-content: flex-end; overflow: hidden; padding: 104px 0 56px;
+  justify-content: flex-end; overflow: visible; z-index: 5; padding: 104px 0 56px;
   background: var(--ink-950);
 }
+/* clips the ken-burns background only, so search dropdowns can overflow the
+   hero (and paint above the next section) without being cut off */
+.lx2i-hero__bgwrap { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
 .lx2i-hero__bg {
   position: absolute; inset: -8% 0 0; background-size: cover; background-position: center;
   transform: translateY(var(--py, 0)); will-change: transform; z-index: 0;
@@ -262,13 +306,48 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 
 /* glass search */
 .lx2i-search {
+  position: relative; z-index: 30; /* lift the whole bar (its backdrop-filter
+     traps a stacking context) so dropdowns paint above the rating stars below */
   display: flex; align-items: stretch; gap: 0; margin-top: 30px;
   background: var(--glass-dark); backdrop-filter: blur(22px) saturate(150%); -webkit-backdrop-filter: blur(22px) saturate(150%);
   border: 1px solid var(--glass-dark-brd); border-radius: 8px; padding: 7px;
   box-shadow: 0 24px 60px -24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.18);
   width: min(740px, calc(100vw - 40px)); max-width: none;
 }
-.lx2i-search__field { flex: 1; display: flex; align-items: center; gap: 7px; padding: 9px 9px; color: rgba(255,255,255,0.7); min-width: 0; }
+.lx2i-search__field { position: relative; flex: 1; display: flex; align-items: center; gap: 7px; padding: 9px 9px; color: rgba(255,255,255,0.85); min-width: 0; }
+
+/* ---- Search field custom dropdowns (Where to / How many / When) ---- */
+.lx2i-search__trigger {
+  flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 7px;
+  background: transparent; border: none; cursor: pointer; color: #fff; padding: 0; min-width: 0;
+  font-family: var(--sans); font-size: 14px; font-weight: 500; text-align: left;
+}
+.lx2i-search__trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lx2i-search__ph { color: rgba(255,255,255,0.85); font-weight: 500; }
+.lx2i-search__chev { flex-shrink: 0; opacity: 0.8; transition: transform 0.3s var(--ease); }
+.lx2i-search__field.is-open .lx2i-search__chev { transform: rotate(180deg); }
+.lx2i-search__drop {
+  position: absolute; top: calc(100% + 12px); left: -6px; z-index: 90;
+  min-width: 244px; max-width: min(320px, calc(100vw - 56px));
+  background: #FBFAF5; border: 1px solid var(--paper-200); border-radius: 14px; padding: 8px;
+  box-shadow: 0 28px 64px -22px rgba(2,19,48,0.5); display: flex; flex-direction: column; gap: 2px;
+  max-height: min(340px, 56vh); overflow-y: auto; overscroll-behavior: contain;
+  animation: lx2i-drop-in 0.22s var(--ease);
+}
+.lx2i-search__drop::-webkit-scrollbar { width: 8px; }
+.lx2i-search__drop::-webkit-scrollbar-thumb { background: var(--paper-200); border-radius: 8px; }
+.lx2i-search__field--trip .lx2i-search__drop { min-width: 280px; }
+.lx2i-search__droplabel { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-700); padding: 8px 12px 6px; }
+.lx2i-search__opt {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 9px;
+  background: transparent; border: none; cursor: pointer; text-align: left;
+  font-family: var(--sans); font-size: 14px; color: var(--ink-900);
+  transition: background 0.18s var(--ease), color 0.18s var(--ease);
+}
+.lx2i-search__opt svg { color: var(--blue-500); flex-shrink: 0; }
+.lx2i-search__opt:hover { background: rgba(11,90,177,0.08); color: var(--blue-500); }
+.lx2i-search__opt.is-on { background: rgba(11,90,177,0.12); color: var(--blue-500); font-weight: 500; }
+@keyframes lx2i-drop-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 .lx2i-search__field--when { flex: 0 0 auto; }
 .lx2i-search__field--trip { flex: 1.55; gap: 7px; }
 .lx2i-search__field--who { flex: 1.15; }
@@ -278,12 +357,12 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 .lx2i-search__field.lx2i-search__field--who select, .lx2i-search__field.lx2i-search__field--when select { font-weight: 500; }
 /* animated suggestion = a lighter guide hint, clearly secondary to the fixed label */
 .lx2i-search__field.lx2i-search__field--trip .lx2i-search__typein { font-weight: 300; flex: 1 1 auto; min-width: 0; text-overflow: clip; }
-.lx2i-search__field.lx2i-search__field--trip .lx2i-search__typein::placeholder { color: rgba(255,255,255,0.55); opacity: 1; }
+.lx2i-search__field.lx2i-search__field--trip .lx2i-search__typein::placeholder { color: rgba(255,255,255,0.74); opacity: 1; }
 .lx2i-search__field input, .lx2i-search__field select {
   background: transparent; border: none; outline: none; color: #fff; font-family: var(--sans);
   font-size: 14px; font-weight: 300; width: 100%; min-width: 0;
 }
-.lx2i-search__field input::placeholder { color: rgba(255,255,255,0.6); }
+.lx2i-search__field input::placeholder { color: rgba(255,255,255,0.74); }
 .lx2i-search__field select { cursor: pointer; }
 .lx2i-search__field select option { color: var(--ink-900); }
 .lx2i-search__div { width: 1px; background: rgba(255,255,255,0.16); margin: 8px 0; }
@@ -298,7 +377,7 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 .lx2i-hero__rating { display: inline-flex; align-items: center; gap: 10px; margin-top: 24px; color: rgba(255,255,255,0.9); text-decoration: none; font-size: 14px; transition: gap 0.3s var(--ease); }
 .lx2i-hero__rating strong { color: #fff; }
 .lx2i-hero__rating:hover { gap: 14px; }
-.lx2i-hero__rating > span:last-of-type { color: rgba(255,255,255,0.66); }
+.lx2i-hero__rating > span:last-of-type { color: rgba(255,255,255,0.86); }
 /* keep the rating stars golden — beats the generic `> span` colour above */
 .lx2i-hero__rating .lx2i-stars { color: var(--star); }
 
@@ -370,11 +449,11 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 /* Inclusions wrap the price inside one unified, scannable block */
 .lx2i-stay__deal { display: flex; flex-direction: column; gap: 11px; padding: 12px 14px; border: 1px solid var(--paper-200); border-radius: 8px; background: #fff; }
 .lx2i-stay__price { display: flex; align-items: baseline; gap: 7px; padding-bottom: 10px; border-bottom: 1px solid var(--paper-200); }
-.lx2i-stay__price span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-600); }
+.lx2i-stay__price span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-600); }
 .lx2i-stay__price strong { font-family: var(--serif); font-weight: 400; font-size: 21px; color: var(--blue-700); line-height: 1; }
 .lx2i-stay__price small { margin-left: auto; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-600); }
 .lx2i-stay__inc { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
-.lx2i-stay__inc li { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-700); line-height: 1.18; }
+.lx2i-stay__inc li { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-700); line-height: 1.18; }
 .lx2i-stay__inc li svg { color: var(--blue-500); flex-shrink: 0; }
 
 /* Explicit, always-visible CTAs — removes the "where do I tap?" problem on mobile */
@@ -475,9 +554,18 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 .lx2i-reviews { padding: clamp(80px, 10vw, 140px) 0; background: linear-gradient(180deg, var(--blue-800) 0%, var(--blue-700) 100%); position: relative; }
 .lx2i-reviews .lx2i-h2 { color: #fff; }
 .lx2i-reviews__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; margin-bottom: 48px; flex-wrap: wrap; }
-.lx2i-reviews__agg { padding: 18px 24px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px; }
+/* Solid surface (not translucent glass) so the rating + platform marks are
+   high-contrast and clearly legible against the dark blue section (WCAG AA). */
+.lx2i-reviews__agg { padding: 18px 24px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px;
+  background: #FBFAF5; border: 1px solid rgba(255,255,255,0.6); backdrop-filter: none; -webkit-backdrop-filter: none;
+  box-shadow: 0 22px 48px -22px rgba(0,0,0,0.6); }
 .lx2i-reviews__agg strong { font-family: var(--serif); font-size: 24px; color: var(--ink-900); font-weight: 400; }
-.lx2i-reviews__agg > span:last-child { font-size: 13px; color: var(--ink-700); }
+.lx2i-reviews__agg > span:not(.lx2i-stars) { font-size: 13px; color: var(--ink-700); }
+/* third-party credibility: Google + Tripadvisor marks under the aggregate */
+.lx2i-reviews__plats { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--paper-200); }
+.lx2i-revplat { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-700); white-space: nowrap; }
+.lx2i-revplat b { color: var(--ink-900); font-weight: 600; }
+.lx2i-revplat svg { flex-shrink: 0; }
 
 .lx2i-wall { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 230px; gap: 22px; }
 .lx2i-rcard { position: relative; margin: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0,0,0,0.6); }
@@ -502,7 +590,7 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 .lx2i-rcard:hover .lx2i-rcard__glass, .lx2i-rcard:focus-within .lx2i-rcard__glass { transform: translateY(0); }
 .lx2i-rcard__meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 32px; }
 .lx2i-rcard__meta strong { display: block; font-size: 14px; color: var(--ink-900); font-weight: 500; }
-.lx2i-rcard__meta span { font-size: 11.5px; color: var(--ink-600); }
+.lx2i-rcard__meta span { font-size: 12px; color: var(--ink-700); }
 .lx2i-rcard__meta .lx2i-stars { color: var(--star); flex-shrink: 0; }
 .lx2i-rcard__text {
   font-size: 13.5px; line-height: 1.55; color: var(--ink-800); margin: 12px 0 0; font-weight: 400;
@@ -518,7 +606,7 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 @keyframes lx2i-marquee { to { transform: translateX(-50%); } }
 /* real publication logos, rendered as a uniform editorial monochrome on the dark strip */
 .lx2i-press__logo { height: 30px; width: auto; flex-shrink: 0; object-fit: contain; background: transparent;
-  filter: brightness(0) invert(1); opacity: 0.5; transition: opacity 0.3s var(--ease); }
+  filter: brightness(0) invert(1); opacity: 0.78; transition: opacity 0.3s var(--ease); }
 .lx2i-press__logo:hover { opacity: 0.92; }
 
 /* ============ FINAL CTA ============ */
@@ -611,7 +699,7 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
   color: var(--blue-500); background: rgba(11,90,177,0.08); border: 1px solid rgba(11,90,177,0.18); }
 .lx2i-trust__body { display: flex; flex-direction: column; line-height: 1.2; }
 .lx2i-trust__body strong { font-family: var(--sans); font-weight: 600; font-size: 15px; color: var(--ink-900); }
-.lx2i-trust__body small { font-size: 12px; color: var(--ink-600); margin-top: 2px; }
+.lx2i-trust__body small { font-size: 12.5px; color: var(--ink-700); margin-top: 2px; }
 
 /* ============ DISCOVER MY MOOD (blue-forward, luxury) ============ */
 .lx2i-mood { padding: clamp(86px, 10vw, 140px) 0; color: #fff; position: relative; overflow: hidden;
@@ -632,7 +720,7 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 
 /* picker */
 .lx2i-mood__picker { display: flex; flex-direction: column; gap: 10px; }
-.lx2i-mood__hint { display: none; align-items: center; gap: 7px; margin: 10px 2px 0; font-size: 12.5px; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
+.lx2i-mood__hint { display: none; align-items: center; gap: 7px; margin: 10px 2px 0; font-size: 12.5px; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(255,255,255,0.82); }
 .lx2i-mood__hint svg { color: var(--gold-soft); animation: lx2i-moodnudge 1.5s var(--ease) infinite; }
 @keyframes lx2i-moodnudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
 @media (prefers-reduced-motion: reduce) { .lx2i-mood__hint svg { animation: none; } }
@@ -672,11 +760,16 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 .lx2i-dest__facts { display: flex; flex-direction: column; gap: 9px; margin: 0 0 26px; }
 .lx2i-dest__fact { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-700); }
 .lx2i-dest__fact svg { color: var(--blue-500); flex-shrink: 0; }
-.lx2i-arch__swipe { position: absolute; top: 42%; z-index: 3; width: 44px; height: 44px; border-radius: 50%; display: none; align-items: center; justify-content: center;
-  background: rgba(2,19,48,0.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.32); color: #fff; cursor: pointer; }
-.lx2i-arch__swipe--prev { left: 10px; }
-.lx2i-arch__swipe--next { right: 10px; }
-.lx2i-arch__swipe:active { background: var(--blue-500); }
+/* On-image prev/next arrows: shown on every screen so the carousel control
+   sits right on the photo (instantly recognisable), not detached on the side. */
+.lx2i-arch__swipe { position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: rgba(2,19,48,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.4); color: #fff; cursor: pointer; box-shadow: 0 8px 24px -8px rgba(0,0,0,0.5); transition: background 0.25s var(--ease), transform 0.25s var(--ease); }
+.lx2i-arch__swipe--prev { left: 8px; }
+.lx2i-arch__swipe--next { right: 8px; }
+.lx2i-arch__swipe:hover { background: var(--blue-500); transform: translateY(-50%) scale(1.08); }
+.lx2i-arch__swipe:active { background: var(--blue-700); }
+/* the on-image arrows replace the detached desktop arrows; keep the counter */
+.lx2i-dest__nav button { display: none; }
 .lx2i-dest__more { display: flex; justify-content: center; margin-top: 40px; }
 .lx2i-reviews__more { display: flex; justify-content: center; margin-top: 44px; }
 
@@ -733,6 +826,8 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 .lx2i-util__tag { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 400; color: rgba(255,255,255,0.82); }
 .lx2i-util__tag svg { color: var(--gold-soft); }
 .lx2i-util__links { display: flex; align-items: center; gap: 6px; }
+.lx2i-util__addr { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: rgba(255,255,255,0.82); padding: 0 6px; }
+.lx2i-util__addr svg { color: var(--gold-soft); flex-shrink: 0; }
 .lx2i-util__link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 100px;
   font-size: 13px; font-weight: 500; color: #fff; text-decoration: none; transition: background 0.25s; }
 .lx2i-util__link:hover { background: rgba(255,255,255,0.12); }
@@ -757,12 +852,21 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
   padding: 18px 20px; border-radius: 14px; background: #fff; border: 1px solid var(--paper-200);
   transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), transform 0.3s var(--ease); }
 .lx2i-mode__card:hover { border-color: var(--blue-300); transform: translateY(-3px); box-shadow: 0 18px 40px -24px rgba(2,19,48,0.3); }
-.lx2i-mode__card.is-on { border-color: var(--blue-500); box-shadow: 0 0 0 1px var(--blue-500), 0 20px 44px -24px rgba(11,90,177,0.4); }
+.lx2i-mode__card { position: relative; }
+.lx2i-mode__card.is-on { border-color: var(--blue-500); border-width: 1px; box-shadow: 0 16px 36px -22px rgba(11,90,177,0.4); transform: translateY(-2px); }
 .lx2i-mode__ic { flex-shrink: 0; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
   color: var(--blue-500); background: rgba(11,90,177,0.08); border: 1px solid rgba(11,90,177,0.18); }
 .lx2i-mode__card.is-on .lx2i-mode__ic { background: var(--blue-500); color: #fff; border-color: var(--blue-500); }
 .lx2i-mode__txt strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 19px; color: var(--ink-900); margin-bottom: 4px; }
-.lx2i-mode__txt small { font-size: 12.5px; line-height: 1.45; color: var(--ink-700); }
+.lx2i-mode__txt small { font-size: 13px; line-height: 1.5; color: var(--ink-800); }
+/* badge on the highlighted (escorted) card */
+.lx2i-mode__badge { position: absolute; top: -11px; left: 18px; display: inline-flex; align-items: center; gap: 5px;
+  background: var(--blue-500); color: #fff; font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  padding: 4px 11px; border-radius: 999px; box-shadow: 0 6px 16px -6px rgba(11,90,177,0.55); }
+/* "coming soon" placeholder card (private/bespoke) — visibly secondary */
+.lx2i-mode__card--soon { background: var(--paper-50, #FBFAF5); cursor: default; opacity: 0.78; }
+.lx2i-mode__card--soon:hover { transform: none; border-color: var(--paper-200); box-shadow: none; }
+.lx2i-mode__badge--soon { background: var(--ink-700); box-shadow: none; }
 
 /* ============ STAY PRICE CLARITY ============ */
 .lx2i-stay__price { flex-wrap: wrap; }
@@ -995,6 +1099,8 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
   .lx2i-reviews__head { flex-direction: column; align-items: flex-start; }
 
   /* thumb-reach bar replaces desktop FAB on mobile */
+  /* clearance so the fixed thumb-bar never permanently covers page content */
+  .lx2i-footer { padding-bottom: 104px; }
   .lx2i-thumbbar {
     display: flex; align-items: center; gap: 10px; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 150;
     padding: 10px; border-radius: 16px;
@@ -1051,6 +1157,7 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 }
 @media (max-width: 860px) {
   .lx2i-util__tag { display: none; }
+  .lx2i-util__addr { display: none; }   /* address moves into the drawer on mobile */
   .lx2i-util__inner { justify-content: center; }
   .lx2i-util__links { width: 100%; justify-content: space-between; gap: 4px; }
   .lx2i-util__link { padding: 6px 8px; font-size: 12.5px; }
@@ -1081,6 +1188,27 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
 @media (max-width: 700px) {
   /* Centre the hero search bar */
   .lx2i-hero .lx2i-search { width: 100%; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+  /* Smaller hero headline + eyebrow, with breathing room below the navbar */
+  .lx2i-hero { padding-top: 132px; }
+  .lx2i-hero .lx2i-eyebrow--light { font-size: 10px; letter-spacing: 0.14em; line-height: 1.5; }
+  .lx2i-hero__title { font-size: clamp(1.85rem, 1rem + 3.6vw, 2.6rem); margin-top: 16px; line-height: 1.12; }
+
+  /* Cards in a horizontal rail must NOT also slide vertically (the reveal
+     animation re-fires as each card scrolls into view). Pin them visible. */
+  .lx2i-stays .lx2i-reveal,
+  .lx2i-wall .lx2i-reveal,
+  .lx2i-tours .lx2i-reveal,
+  .lx2i-dest__rail.lx2i-reveal,
+  .lx2i-trust .lx2i-reveal {
+    opacity: 1 !important; transform: none !important; transition: none !important;
+  }
+
+  /* Easier photo browsing on review cards: tappable image + bigger dots */
+  .lx2i-rcard__slides { cursor: pointer; }
+  .lx2i-rcard__dots { top: 10px; right: 10px; gap: 10px; padding: 9px 12px; }
+  .lx2i-rcard__dot { width: 10px; height: 10px; }
+  .lx2i-rcard__dot.is-on { transform: scale(1.3); }
 
   /* Shared horizontal-scroller behaviour (overrides the grids above) */
   .lx2i-stays,
@@ -1125,6 +1253,14 @@ html.lx2i-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none;
   /* trust sits inside a grid cell; cap to the viewport so it scrolls
      internally instead of stretching its ancestors */
   .lx2i-trust { max-width: calc(100vw - 40px); }
+}
+
+/* Short mobile viewports: the hero is bottom-aligned, so on limited height
+   the text rides up under the fixed navbar. Top-align it instead, so the top
+   padding (gap below the navbar) is always preserved; the hero grows and the
+   page scrolls if the content is taller than the viewport. */
+@media (max-width: 700px) and (max-height: 820px) {
+  .lx2i-hero { justify-content: flex-start; min-height: auto; padding-top: 168px; padding-bottom: 120px; }
 }
 
 /* ============ MOTION PREFERENCES ============ */

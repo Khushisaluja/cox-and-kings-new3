@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Menu, X, ArrowRight, ArrowLeft, ArrowUpRight, Star, MapPin, Compass,
   Calendar, Search, Phone, Sparkles, Send, ChevronDown, Quote,
@@ -10,6 +11,7 @@ import {
   PhoneCall, PenTool, Headset, CheckCircle2, Gauge,
 } from 'lucide-react';
 import { GlyphHeart, GlyphMountain, GlyphRipple, GlyphMonument, GlyphDeer, GlyphDiamond } from './MoodIcons';
+import ChatBot from '../components/ChatBot';
 import './Luxe2Improved.css';
 
 /* ============================================================
@@ -26,16 +28,53 @@ const sizedUnsplash = (id, w = 1200) =>
 /* ---------- Human contact (one number, reused everywhere) ---------- */
 const PHONE_DISPLAY = '+91 85560 01700';
 const PHONE_TEL = 'tel:+918556001700';
+const OFFICE_SHORT = 'Fort, Mumbai 400001';
+const OFFICE_FULL = 'Turner Morrison House, 16 Bank Street, Fort, Mumbai 400001';
 const WHATSAPP = 'https://wa.me/918556001700?text=Hi%20Cox%20%26%20Kings%2C%20I%27d%20like%20to%20plan%20a%20trip.';
 
-/* ---------- Nav ---------- */
+/* ---------- Nav (each item reveals a matching dropdown on hover) ---------- */
 const NAV = [
-  { label: 'Heritage', href: '#heritage' },
-  { label: 'Journeys', href: '#curated' },
-  { label: 'Discover', href: '#destinations' },
-  { label: 'Reviews', href: '#reviews' },
-  { label: 'Moods', href: '#mood' },
+  { label: 'Heritage', href: '#heritage', menu: [
+    { label: 'Our story since 1758', href: '#heritage' },
+    { label: 'Why Cox & Kings', href: '#curated' },
+    { label: 'Press & awards', href: '#press' },
+    { label: 'Traveller reviews', href: '#reviews' },
+  ] },
+  { label: 'Journeys', href: '#curated', menu: [
+    { label: 'Tailor-made trips', href: '#curated' },
+    { label: 'Escorted group tours', href: '#curated' },
+    { label: 'Luxury rail', href: '#curated' },
+    { label: 'Private villas', href: '#curated' },
+    { label: 'Honeymoons & milestones', href: '#curated' },
+  ] },
+  { label: 'Discover', href: '#destinations', menu: [
+    { label: 'Santorini, Greece', href: '#destinations' },
+    { label: 'Kyoto, Japan', href: '#destinations' },
+    { label: 'The Maldives', href: '#destinations' },
+    { label: 'Rajasthan, India', href: '#destinations' },
+    { label: 'Travel clips', href: '#destinations' },
+  ] },
+  { label: 'Reviews', href: '#reviews', menu: [
+    { label: 'Traveller stories', href: '#reviews' },
+    { label: 'Google reviews', href: '#reviews' },
+    { label: 'Tripadvisor', href: '#reviews' },
+    { label: 'Press coverage', href: '#press' },
+  ] },
+  { label: 'Moods', href: '#mood', menu: [
+    { label: 'Romance & honeymoon', href: '#mood' },
+    { label: 'Adventure', href: '#mood' },
+    { label: 'Culture & heritage', href: '#mood' },
+    { label: 'Wellness & escape', href: '#mood' },
+  ] },
 ];
+
+/* ---------- Search dropdown options ---------- */
+const POPULAR_DEST = [
+  'Santorini, Greece', 'Kyoto, Japan', 'The Maldives', 'Rajasthan, India',
+  'Swiss Alps', 'Amalfi Coast, Italy', 'African Safari', 'Iceland',
+];
+const WHO_OPTS = ['Just the two of us', 'Family with kids', '3 – 4 travellers', 'A larger group', 'Travelling solo'];
+const WHEN_OPTS = ['Next 3 months', 'Later in 2026', '2027 & beyond', "I'm flexible"];
 const NAV_SECONDARY = [
   'Tailor-Made', 'Escorted Tours', 'Luxury Rail', 'Private Villas',
   'Honeymoons', 'Group Departures', 'Press Room', 'Contact',
@@ -90,36 +129,33 @@ const STAYS = [
 const GROUP_TOURS = [
   { name: 'Grand European Sojourn', route: 'London · Paris · Lucerne · Venice · Rome',
     days: 13, nights: 12, price: '₹2,85,000', departures: 'Apr · Jun · Sep · Oct 2026',
-    cap: 'Max 24 guests', seats: '6 seats left · 14 Sep departure', pace: 'Balanced',
+    cap: 'Max 24 guests', tagMonths: 'Apr · Jun (6 left) · Sep', pace: 'Balanced',
     rating: 4.8, reviews: 1180, id: '1502602898657-3e91760cbb34',
     comfort: [
-      { icon: Plane, label: 'Return flights included' },
-      { icon: Utensils, label: 'Veg & Jain meals arranged' },
-      { icon: Accessibility, label: 'Senior-friendly pace' },
+      { icon: Globe2, label: '5 countries, one trip' },
+      { icon: Compass, label: 'High-speed trains between cities' },
       { icon: Hotel, label: 'Central 4★ / 5★ hotels' },
       { icon: Users, label: 'Dedicated tour manager' },
     ] },
   { name: 'Splendours of Japan', route: 'Tokyo · Hakone · Kyoto · Nara · Osaka',
     days: 12, nights: 11, price: '₹2,95,000', departures: 'Mar · Apr · Oct · Nov 2026',
-    cap: 'Max 20 guests', seats: 'Filling fast for cherry-blossom', pace: 'Relaxed',
-    rating: 4.9, reviews: 640, id: '1493976040374-85c8e12f0c0e',
+    cap: 'Max 20 guests', tagMonths: 'Mar · Apr (filling fast) · Oct', pace: 'Relaxed',
+    rating: 4.9, reviews: 640, id: '1493976040374-85c8e12f0c0e', detail: '/tour-detail-japan',
     comfort: [
-      { icon: Plane, label: 'Return flights included' },
+      { icon: Compass, label: 'Local English-speaking guide' },
       { icon: Utensils, label: 'Veg & Jain meals arranged' },
+      { icon: Hotel, label: 'Ryokan + city hotel stays' },
       { icon: Accessibility, label: 'Gentle, relaxed pace' },
-      { icon: Hotel, label: 'Central 4★ / 5★ hotels' },
-      { icon: Users, label: 'Dedicated tour manager' },
     ] },
   { name: 'Switzerland & the Alps', route: 'Zurich · Interlaken · Zermatt · Geneva',
     days: 12, nights: 11, price: '₹2,55,000', departures: 'May · Jul · Aug · Sep 2026',
-    cap: 'Max 24 guests', seats: '9 seats left · 06 Jul departure', pace: 'Relaxed',
+    cap: 'Max 24 guests', tagMonths: 'May · Jul (9 left) · Sep', pace: 'Relaxed',
     rating: 4.8, reviews: 520, id: '1530841377377-3ff06c0ca713',
     comfort: [
-      { icon: Plane, label: 'Return flights included' },
-      { icon: Utensils, label: 'Veg & Jain meals arranged' },
+      { icon: Mountain, label: 'Glacier Express scenic rail' },
+      { icon: Waves, label: 'Lakes & peaks by cable car' },
       { icon: Accessibility, label: 'Senior-friendly pace' },
       { icon: Hotel, label: 'Central 4★ / 5★ hotels' },
-      { icon: Users, label: 'Dedicated tour manager' },
     ] },
 ];
 
@@ -158,7 +194,7 @@ const QUICK_PICKS = ['Japan', 'Europe', 'Maldives', 'Safari', 'Rajasthan'];
 
 /* ---------- Sourced, specific trust credentials (Heritage section) ---------- */
 const TRUST_BADGES = [
-  { icon: Star, stat: '4.8★', label: 'from 14,200 verified travellers' },
+  { icon: Star, stat: '4.9★', label: 'from 2,400+ verified reviews' },
   { icon: Award, stat: 'Condé Nast 2024', label: 'Readers’ Choice Award, India' },
   { icon: ShieldCheck, stat: 'Since 1758', label: '267 years · financially protected' },
   { icon: Globe2, stat: '100+ countries', label: 'on all seven continents' },
@@ -257,6 +293,27 @@ const REVIEWS = [
 
 /* One review card: a small photo gallery that auto-slides through the
    traveller's photos on hover/focus, with dots showing how many. */
+/* Brand marks for the review-credibility strip (inline, no asset deps). */
+const GoogleG = () => (
+  <svg viewBox="0 0 48 48" width="16" height="16" aria-hidden="true">
+    <path fill="#4285F4" d="M47.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h13.2c-.6 3-2.3 5.6-4.9 7.3v6h7.9c4.6-4.3 7.3-10.5 7.3-17.8z" />
+    <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.2 1.5-5 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.6H2.6v6.2C6.6 42.6 14.6 48 24 48z" />
+    <path fill="#FBBC05" d="M10.8 28.9c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6v-6.2H2.6C.9 16.1 0 19.9 0 24s.9 7.9 2.6 11.1l8.2-6.2z" />
+    <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.5 0 24 0 14.6 0 6.6 5.4 2.6 13.4l8.2 6.2C12.7 13.6 17.9 9.5 24 9.5z" />
+  </svg>
+);
+const TripAdvisorOwl = () => (
+  <svg viewBox="0 0 132 80" width="24" height="15" aria-hidden="true">
+    <circle cx="38" cy="42" r="32" fill="#34E0A1" />
+    <circle cx="94" cy="42" r="32" fill="#34E0A1" />
+    <circle cx="38" cy="42" r="18" fill="#fff" />
+    <circle cx="94" cy="42" r="18" fill="#fff" />
+    <circle cx="38" cy="42" r="9" fill="#000" />
+    <circle cx="94" cy="42" r="9" fill="#000" />
+    <path d="M52 2 Q66 14 80 2 L66 22 Z" fill="#000" />
+  </svg>
+);
+
 function ReviewCard({ r, i }) {
   const ids = r.ids && r.ids.length ? r.ids : (r.id ? [r.id] : []);
   const [idx, setIdx] = useState(0);
@@ -281,7 +338,13 @@ function ReviewCard({ r, i }) {
       onMouseEnter={start}
       onMouseLeave={stop}
     >
-      <div className="lx2i-rcard__slides" style={{ transform: `translateX(-${idx * 100}%)` }}>
+      <div
+        className="lx2i-rcard__slides"
+        style={{ transform: `translateX(-${idx * 100}%)` }}
+        onClick={ids.length > 1 ? () => setIdx((n) => (n + 1) % ids.length) : undefined}
+        role={ids.length > 1 ? 'button' : undefined}
+        aria-label={ids.length > 1 ? 'Next photo' : undefined}
+      >
         {ids.map((id, k) => (
           <div
             key={id + k}
@@ -397,7 +460,7 @@ export default function Luxe2Improved() {
   const [scrolled, setScrolled] = useState(false);
   const [statIdx, setStatIdx] = useState(0);
   const [filter, setFilter] = useState('All');
-  const [travelMode, setTravelMode] = useState('bespoke'); // 'bespoke' | 'group'
+  const [travelMode, setTravelMode] = useState('group'); // 'group' (escorted, fixed price) leads; 'bespoke' is a placeholder for now
   const [callbackOpen, setCallbackOpen] = useState(false);
   const [callbackSent, setCallbackSent] = useState(false);
   const [destIdx, setDestIdx] = useState(0);
@@ -409,8 +472,24 @@ export default function Luxe2Improved() {
   const [tripCaret, setTripCaret] = useState(true);
   const [tripActive, setTripActive] = useState(false); // focused or has a value → pause animation
   const [statsRun, setStatsRun] = useState(false);
+  // Custom search dropdowns (Where to / How many / When)
+  const [openField, setOpenField] = useState(null); // 'trip' | 'who' | 'when' | null
+  const [tripValue, setTripValue] = useState('');
+  const [whoValue, setWhoValue] = useState('');
+  const [whenValue, setWhenValue] = useState('');
+  const searchRef = useRef(null);
   const heroRef = useRef(null);
   const statsRef = useRef(null);
+
+  // Close any open search dropdown on outside click / Escape
+  useEffect(() => {
+    if (!openField) return;
+    const onDown = (e) => { if (searchRef.current && !searchRef.current.contains(e.target)) setOpenField(null); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpenField(null); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [openField]);
 
   // Hide the page scrollbar + go full-bleed, only while this page is mounted
   useEffect(() => {
@@ -550,6 +629,7 @@ export default function Luxe2Improved() {
   }, [tripActive]);
 
   return (
+    <>
     <div className="lx2i">
       <div className="lx2i-grain" aria-hidden="true" />
 
@@ -560,6 +640,7 @@ export default function Luxe2Improved() {
           <div className="lx2i-util__inner">
             <span className="lx2i-util__tag"><Headset size={14} /> Speak to a real travel expert, not a bot</span>
             <div className="lx2i-util__links">
+              <span className="lx2i-util__addr"><MapPin size={14} /> {OFFICE_SHORT}</span>
               <a href={PHONE_TEL} className="lx2i-util__link"><Phone size={14} /> {PHONE_DISPLAY}</a>
               <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="lx2i-util__link lx2i-util__link--wa"><MessageCircle size={14} /> WhatsApp</a>
             </div>
@@ -571,9 +652,24 @@ export default function Luxe2Improved() {
           </a>
           <nav className="lx2i-nav" aria-label="Primary">
             {NAV.map((n) => (
-              <a key={n.label} href={n.href} onClick={go(n.href)} className="lx2i-nav__link">
-                <span>{n.label}</span>
-              </a>
+              <div key={n.label} className="lx2i-nav__item">
+                <a href={n.href} onClick={go(n.href)} className="lx2i-nav__link">
+                  <span>{n.label}</span>
+                  {n.menu && <ChevronDown size={14} className="lx2i-nav__caret" aria-hidden="true" />}
+                </a>
+                {n.menu && (
+                  <div className="lx2i-nav__drop" role="menu" aria-label={n.label}>
+                    <div className="lx2i-nav__dropcard">
+                      {n.menu.map((m) => (
+                        <a key={m.label} href={m.href} onClick={go(m.href)} className="lx2i-nav__dropitem" role="menuitem">
+                          <span>{m.label}</span>
+                          <ArrowRight size={14} />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </nav>
           <div className="lx2i-header__right">
@@ -609,6 +705,11 @@ export default function Luxe2Improved() {
               <a key={l} href="#curated" onClick={go('#curated')}>{l} <ArrowUpRight size={13} /></a>
             ))}
           </div>
+          <div className="lx2i-menu__office">
+            <span className="lx2i-eyebrow">OUR OFFICE</span>
+            <p className="lx2i-menu__addr"><MapPin size={15} /> {OFFICE_FULL}</p>
+            <a href={PHONE_TEL} className="lx2i-menu__addrphone"><Phone size={14} /> {PHONE_DISPLAY}</a>
+          </div>
           <div className="lx2i-menu__foot">
             <span className="lx2i-eyebrow">FOLLOW THE JOURNEY</span>
             <div className="lx2i-menu__social">
@@ -623,8 +724,10 @@ export default function Luxe2Improved() {
 
       {/* ============ HERO ============ */}
       <section className="lx2i-hero" id="top" ref={heroRef}>
-        <div className="lx2i-hero__bg" style={{ backgroundImage: `url(${sizedUnsplash('1527668752968-14dc70a27c95', 2000)})` }} />
-        <div className="lx2i-hero__veil" />
+        <div className="lx2i-hero__bgwrap" aria-hidden="true">
+          <div className="lx2i-hero__bg" style={{ backgroundImage: `url(${sizedUnsplash('1527668752968-14dc70a27c95', 2000)})` }} />
+          <div className="lx2i-hero__veil" />
+        </div>
 
         <div className="lx2i-hero__inner">
           <div className="lx2i-hero__left">
@@ -634,51 +737,74 @@ export default function Luxe2Improved() {
               <em className="lx2i-fade" style={{ '--d': '.36s' }}>in Luxury &amp; Style.</em>
             </h1>
             {/* Glass search */}
-            <form className="lx2i-search lx2i-fade" style={{ '--d': '.76s' }} onSubmit={(e) => e.preventDefault()} role="search">
-              <label className="lx2i-search__field lx2i-search__field--trip">
+            <form ref={searchRef} className="lx2i-search lx2i-fade" style={{ '--d': '.76s' }} onSubmit={(e) => e.preventDefault()} role="search">
+              <div className={`lx2i-search__field lx2i-search__field--trip ${openField === 'trip' ? 'is-open' : ''}`}>
                 <MapPin size={17} />
                 <span className="lx2i-search__fixed" aria-hidden="true">Where to?</span>
                 <input
                   type="text"
                   aria-label="Where to"
                   className="lx2i-search__typein"
-                  placeholder={tripActive ? '' : `${tripTyped}${tripCaret ? '▍' : ' '}`}
-                  onFocus={() => setTripActive(true)}
-                  onBlur={(e) => setTripActive(e.target.value.length > 0)}
-                  onChange={(e) => setTripActive(e.target.value.length > 0 || document.activeElement === e.target)}
+                  value={tripValue}
+                  placeholder={tripActive || tripValue ? '' : `${tripTyped}${tripCaret ? '▍' : ' '}`}
+                  onFocus={() => { setTripActive(true); setOpenField('trip'); }}
+                  onChange={(e) => { setTripValue(e.target.value); setTripActive(true); setOpenField('trip'); }}
                 />
-              </label>
+                {openField === 'trip' && (
+                  <div className="lx2i-search__drop" role="listbox" aria-label="Popular destinations">
+                    <span className="lx2i-search__droplabel">Popular destinations</span>
+                    {POPULAR_DEST
+                      .filter((d) => d.toLowerCase().includes(tripValue.toLowerCase()))
+                      .map((d) => (
+                        <button key={d} type="button" className={`lx2i-search__opt ${tripValue === d ? 'is-on' : ''}`} role="option" aria-selected={tripValue === d} onClick={() => { setTripValue(d); setOpenField(null); }}>
+                          <MapPin size={15} /> <span>{d}</span>
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
               <span className="lx2i-search__div" />
-              <label className="lx2i-search__field lx2i-search__field--who">
+              <div className={`lx2i-search__field lx2i-search__field--who ${openField === 'who' ? 'is-open' : ''}`}>
                 <Users size={17} />
-                <select defaultValue="" aria-label="How many people">
-                  <option value="" disabled hidden>How many people?</option>
-                  <option>Just the two of us</option>
-                  <option>Family with kids</option>
-                  <option>3 – 4 travellers</option>
-                  <option>A larger group</option>
-                  <option>Travelling solo</option>
-                </select>
-              </label>
+                <button type="button" className="lx2i-search__trigger" aria-haspopup="listbox" aria-expanded={openField === 'who'} onClick={() => setOpenField(openField === 'who' ? null : 'who')}>
+                  <span className={whoValue ? '' : 'lx2i-search__ph'}>{whoValue || 'How many people?'}</span>
+                  <ChevronDown size={15} className="lx2i-search__chev" />
+                </button>
+                {openField === 'who' && (
+                  <div className="lx2i-search__drop" role="listbox" aria-label="How many people">
+                    {WHO_OPTS.map((o) => (
+                      <button key={o} type="button" className={`lx2i-search__opt ${whoValue === o ? 'is-on' : ''}`} role="option" aria-selected={whoValue === o} onClick={() => { setWhoValue(o); setOpenField(null); }}>
+                        <Users size={15} /> <span>{o}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <span className="lx2i-search__div" />
-              <label className="lx2i-search__field lx2i-search__field--when">
+              <div className={`lx2i-search__field lx2i-search__field--when ${openField === 'when' ? 'is-open' : ''}`}>
                 <Calendar size={17} />
-                <select defaultValue="" aria-label="When">
-                  <option value="" disabled hidden>When?</option>
-                  <option>Next 3 months</option>
-                  <option>Later in 2026</option>
-                  <option>2027 &amp; beyond</option>
-                  <option>I'm flexible</option>
-                </select>
-              </label>
+                <button type="button" className="lx2i-search__trigger" aria-haspopup="listbox" aria-expanded={openField === 'when'} onClick={() => setOpenField(openField === 'when' ? null : 'when')}>
+                  <span className={whenValue ? '' : 'lx2i-search__ph'}>{whenValue || 'When?'}</span>
+                  <ChevronDown size={15} className="lx2i-search__chev" />
+                </button>
+                {openField === 'when' && (
+                  <div className="lx2i-search__drop" role="listbox" aria-label="When">
+                    {WHEN_OPTS.map((o) => (
+                      <button key={o} type="button" className={`lx2i-search__opt ${whenValue === o ? 'is-on' : ''}`} role="option" aria-selected={whenValue === o} onClick={() => { setWhenValue(o); setOpenField(null); }}>
+                        <Calendar size={15} /> <span>{o}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button type="submit" className="lx2i-search__btn" aria-label="Search journeys"><Search size={17} /><span>Search</span></button>
             </form>
 
             <div className="lx2i-hero__trust lx2i-fade" style={{ '--d': '.88s' }}>
               <a href="#reviews" onClick={go('#reviews')} className="lx2i-hero__rating">
                 <span className="lx2i-stars">{[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}</span>
-                <strong>4.8</strong>
-                <span>from 14,200 verified travellers</span>
+                <strong>4.9</strong>
+                <span>from 2,400+ verified reviews</span>
                 <ArrowRight size={15} />
               </a>
             </div>
@@ -766,20 +892,21 @@ export default function Luxe2Improved() {
             <p className="lx2i-sec-head__sub">Whether you want a trip designed around just you, or the ease of a fully-escorted group departure with flights and a tour manager - start here. Every price is clearly per person.</p>
           </div>
 
-          {/* TWO WAYS TO TRAVEL - bespoke vs escorted group */}
+          {/* TWO WAYS TO TRAVEL - escorted (fixed price) leads & is highlighted;
+              private is a placeholder for now (no fixed pricing yet) */}
           <div className="lx2i-mode lx2i-reveal" role="tablist" aria-label="Choose how you want to travel">
-            <button role="tab" aria-selected={travelMode === 'bespoke'} className={`lx2i-mode__card ${travelMode === 'bespoke' ? 'is-on' : ''}`} onClick={() => setTravelMode('bespoke')}>
-              <span className="lx2i-mode__ic"><Gem size={20} strokeWidth={1.6} /></span>
-              <span className="lx2i-mode__txt">
-                <strong>Private &amp; Bespoke</strong>
-                <small>Just your party. Your dates, your pace - designed around you.</small>
-              </span>
-            </button>
             <button role="tab" aria-selected={travelMode === 'group'} className={`lx2i-mode__card ${travelMode === 'group' ? 'is-on' : ''}`} onClick={() => setTravelMode('group')}>
               <span className="lx2i-mode__ic"><Users size={20} strokeWidth={1.6} /></span>
               <span className="lx2i-mode__txt">
                 <strong>Escorted Group Tours</strong>
                 <small>Fixed departures, flights included, a tour manager throughout. Great for families &amp; seniors.</small>
+              </span>
+            </button>
+            <button type="button" className="lx2i-mode__card" onClick={(e) => e.preventDefault()}>
+              <span className="lx2i-mode__ic"><Gem size={20} strokeWidth={1.6} /></span>
+              <span className="lx2i-mode__txt">
+                <strong>Private &amp; Bespoke</strong>
+                <small>Just your party. Your dates, your pace - designed around you.</small>
               </span>
             </button>
           </div>
@@ -834,7 +961,7 @@ export default function Luxe2Improved() {
                 <article key={t.name} className="lx2i-tour lx2i-reveal" style={{ '--d': `${i * 0.08}s` }}>
                   <div className="lx2i-tour__img" style={{ backgroundImage: `url(${sizedUnsplash(t.id, 900)})` }}>
                     <span className="lx2i-tour__rating"><Star size={12} fill="currentColor" /> {t.rating} · {t.reviews.toLocaleString('en-IN')} reviews</span>
-                    <span className="lx2i-tour__seats"><Sparkles size={12} /> {t.seats}</span>
+                    <span className="lx2i-tour__seats"><Calendar size={12} /> {t.tagMonths}</span>
                   </div>
                   <div className="lx2i-tour__body">
                     <span className="lx2i-tour__badge"><Plane size={12} /> Escorted · Return flights included</span>
@@ -842,10 +969,8 @@ export default function Luxe2Improved() {
                     <p className="lx2i-tour__route"><MapPin size={13} /> {t.route}</p>
                     <div className="lx2i-tour__facts">
                       <span><Calendar size={13} /> {t.days} days · {t.nights} nights</span>
-                      <span><Gauge size={13} /> {t.pace} pace</span>
                       <span><Users size={13} /> {t.cap}</span>
                     </div>
-                    <p className="lx2i-tour__dep"><Calendar size={12} /> Fixed departures · {t.departures}</p>
                     <ul className="lx2i-tour__comfort" aria-label={`Comfort and inclusions for ${t.name}`}>
                       {t.comfort.map(({ icon: Icon, label }) => (
                         <li key={label}><Icon size={12} strokeWidth={1.8} /> {label}</li>
@@ -856,12 +981,19 @@ export default function Luxe2Improved() {
                         <span className="lx2i-stay__from">from</span>
                         <strong>{t.price}</strong>
                         <span className="lx2i-stay__pp">pp</span>
-                        <span className="lx2i-stay__dur"><Calendar size={12} /> {t.days} days, flights incl.</span>
                       </div>
                     </div>
                     <div className="lx2i-stay__cta">
-                      <a href="#contact" onClick={go('#contact')} className="lx2i-btn lx2i-btn--outline lx2i-stay__view">View itinerary <ArrowRight size={15} /></a>
-                      <a href="#contact" onClick={go('#contact')} className="lx2i-btn lx2i-btn--primary lx2i-stay__enq"><Phone size={14} /> Reserve a seat</a>
+                      {t.detail ? (
+                        <Link to={t.detail} className="lx2i-btn lx2i-btn--outline lx2i-stay__view">View itinerary <ArrowRight size={15} /></Link>
+                      ) : (
+                        <a href="#contact" onClick={go('#contact')} className="lx2i-btn lx2i-btn--outline lx2i-stay__view">View itinerary <ArrowRight size={15} /></a>
+                      )}
+                      {t.detail ? (
+                        <Link to={t.detail} className="lx2i-btn lx2i-btn--primary lx2i-stay__enq"><ArrowRight size={14} /> View tour</Link>
+                      ) : (
+                        <a href="#contact" onClick={go('#contact')} className="lx2i-btn lx2i-btn--primary lx2i-stay__enq"><Phone size={14} /> Reserve a seat</a>
+                      )}
                     </div>
                     <button type="button" className="lx2i-stay__cb" onClick={openCallback}><PhoneCall size={13} /> Or request a callback</button>
                   </div>
@@ -1045,6 +1177,10 @@ export default function Luxe2Improved() {
               <span className="lx2i-stars lx2i-stars--lg">{[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}</span>
               <strong>4.9 / 5</strong>
               <span>from 2,400+ verified reviews</span>
+              <div className="lx2i-reviews__plats">
+                <span className="lx2i-revplat"><GoogleG /> <b>4.8</b> on Google</span>
+                <span className="lx2i-revplat"><TripAdvisorOwl /> <b>4.9</b> on Tripadvisor</span>
+              </div>
             </div>
           </div>
 
@@ -1210,35 +1346,6 @@ export default function Luxe2Improved() {
         <span>Ask Enaya</span>
       </button>
 
-      {/* ============ AI CHAT DRAWER ============ */}
-      <div className={`lx2i-chat ${chatOpen ? 'open' : ''}`} aria-hidden={!chatOpen}>
-        <div className="lx2i-chat__panel lx2i-glass" role="dialog" aria-modal="true" aria-label="AI travel assistant">
-          <div className="lx2i-chat__head">
-            <div className="lx2i-chat__id">
-              <span className="lx2i-chat__avatar"><Sparkles size={16} /></span>
-              <div>
-                <strong>Enaya - AI Travel Designer</strong>
-                <span className="lx2i-chat__status"><i /> Online · replies instantly</span>
-              </div>
-            </div>
-            <button className="lx2i-chat__close" aria-label="Close assistant" onClick={() => setChatOpen(false)}><X size={18} /></button>
-          </div>
-          <div className="lx2i-chat__body">
-            <div className="lx2i-chat__msg lx2i-chat__msg--bot">
-              Namaste 👋 I'm Enaya, your AI travel designer. Tell me where you'd love to go, and I'll sketch a tailor-made journey - or connect you to a human expert.
-            </div>
-            <div className="lx2i-chat__chips">
-              <button>Honeymoon in the Maldives</button>
-              <button>Family trip to Japan</button>
-              <button>Safari in Kenya</button>
-            </div>
-          </div>
-          <form className="lx2i-chat__input" onSubmit={(e) => e.preventDefault()}>
-            <input type="text" placeholder="Ask anything about your trip…" aria-label="Message" />
-            <button type="submit" aria-label="Send"><Send size={16} /></button>
-          </form>
-        </div>
-      </div>
 
       {/* ============ FULL-SCREEN CLIP VIEWER ============ */}
       {clip && (
@@ -1285,7 +1392,7 @@ export default function Luxe2Improved() {
                   onClick={(e) => { e.preventDefault(); closeClip(); const el = document.querySelector('#contact'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
                   className="lx2i-btn lx2i-btn--primary"
                 >
-                  Design this trip <ArrowRight size={15} />
+                  View this trip <ArrowRight size={15} />
                 </a>
               </div>
             </div>
@@ -1344,5 +1451,11 @@ export default function Luxe2Improved() {
         </div>
       )}
     </div>
+
+    {/* AI chat (Enaya) — rendered OUTSIDE .lx2i so the page's scoped colour/
+        font styles can't bleed into the widget. Same working concierge as
+        /final2a-stack-ds; launched by this page's "Ask Enaya" buttons. */}
+    <ChatBot open={chatOpen} onOpenChange={setChatOpen} hideFab name="Enaya" />
+    </>
   );
 }

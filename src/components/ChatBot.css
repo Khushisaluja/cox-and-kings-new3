@@ -1,3 +1,26 @@
+/* ─── Self-contained theme tokens ──────────────────────────────────────────────
+   ChatBot was built for the classic site and relied on its global theme vars.
+   Define them here (scoped to the widget) so it renders with correct colours and
+   readable text on ANY host page (luxe2, standalone, etc.), not just the classic
+   site. Values mirror the classic theme; fonts fall back gracefully. */
+.chatbot, .chatbot-fab, .chatbot-backdrop {
+  --color-burgundy: #BD4011;
+  --color-burgundy-dark: #97330E;
+  --color-gold: #C9A84C;
+  --color-gold-light: #E2C87A;
+  --color-navy: #0F1F3D;
+  --color-cream: #FAF6F0;
+  --color-text: #2C2C2C;
+  --color-text-light: #6B6B6B;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Work Sans', 'Helvetica Neue', Arial, sans-serif;
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+  --transition: 0.3s ease;
+}
+/* base text colour so messages are always on-theme & legible, even on a host
+   page that sets no global text colour (e.g. the standalone build) */
+.chatbot { color: var(--color-text); }
+
 /* ─── FAB ────────────────────────────────────────────────────────────────────*/
 .chatbot-fab {
   position: fixed;

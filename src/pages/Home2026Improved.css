@@ -29,6 +29,7 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
   transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
 }
 .hi-lane:hover { transform: translateY(-5px); box-shadow: 0 26px 54px rgba(2,19,48,0.14); }
+.hi-lane-link { display: flex; flex-direction: column; flex: 1; text-decoration: none; color: inherit; }
 .hi-lane.is-bespoke { border-color: var(--blue); box-shadow: 0 12px 30px rgba(11,90,177,0.12); }
 /* Featured / recommended path — gently highlighted + pre-selected look */
 .hi-lane.is-featured {
@@ -172,6 +173,482 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
 /* Hero — a touch more breathing room above the search dock (/improved only) */
 .h26-search { margin-top: clamp(54px, 6vw, 76px); }
 
+/* "Where to?" — typeable combobox with a site-styled suggestion dropdown.
+   The field itself reads like the other glassy search segments (white text on
+   the hero); the popover is a light "paper" card so it matches the rest of
+   the website's surfaces rather than a raw browser menu. */
+.hi-where { position: relative; }
+.hi-where .hi-where-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 0 22px 0 0;
+  width: 100%;
+}
+.hi-where .hi-where-input::placeholder { color: rgba(255,255,255,0.72); font-weight: 500; }
+.hi-where .hi-where-input:focus { outline: none; }
+
+/* Style / When triggers reuse the glassy segment look — a button, not a select,
+   so they can open the same paper popovers as "Where to?". */
+.hi-seg-btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+.hi-seg-val {
+  display: block;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  padding-right: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hi-seg-val.is-placeholder { color: rgba(255,255,255,0.72); font-weight: 500; }
+.hi-opt-check { margin-left: auto; color: var(--blue) !important; }
+
+/* Swipe-dot indicators for the mobile carousels (hidden on desktop, where the
+   rows are static grids). The active dot stretches into a pill. */
+.hi-dots { display: none; }
+
+/* The hero-search dropdowns render in a <body> portal (fixed-positioned), so
+   no hero/sheet z-index juggling is needed — which is what used to make the
+   section below flicker when a dropdown opened. */
+
+.hi-where-pop {
+  /* Portaled to <body>, i.e. outside the .h26 wrapper where the design
+     tokens are declared — so re-declare the ones this subtree needs, or
+     var(--paper) et al. resolve to nothing and the card turns invisible. */
+  --ink: #1F2A36;
+  --paper: #F8F7F1;
+  --paper-2: #F1EFE2;
+  --blue: #0B5AB1;
+  --blue-d: #07366A;
+  --muted: #4A4A45;
+  --border: #D9D7CB;
+  --serif: 'Zodiak', Georgia, 'Times New Roman', serif;
+  --sans: 'Work Sans', system-ui, sans-serif;
+  font-family: var(--sans);
+  color: var(--ink);
+
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  z-index: 80;
+  width: min(320px, 78vw);
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 24px 56px rgba(2,19,48,0.28);
+}
+/* Little notch tying the card to the field, in the site's paper tone. */
+.hi-where-pop::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 26px;
+  width: 12px;
+  height: 12px;
+  background: var(--paper);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  transform: rotate(45deg);
+}
+.hi-where-pop-label {
+  margin: 2px 4px 8px;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hi-where-list { display: flex; flex-direction: column; gap: 2px; }
+.hi-where-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: left;
+  transition: background .16s ease, color .16s ease;
+}
+.hi-where-opt svg { color: var(--blue); flex: none; }
+.hi-where-opt:hover,
+.hi-where-opt:focus-visible { background: rgba(11,90,177,0.08); color: var(--blue-d); outline: none; }
+.hi-where-opt[aria-selected="true"] { background: rgba(11,90,177,0.12); color: var(--blue-d); }
+.hi-where-empty {
+  margin: 2px 4px;
+  padding: 6px 6px 4px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  color: var(--muted);
+}
+
+/* ---------- "When" calendar popover ---------- */
+/* Portaled & right-anchored (placement="right" adds .hi-pop--right) so the
+   notch sits on the right and it never overflows the search bar's right edge. */
+.hi-cal-pop { width: min(320px, 86vw); }
+.hi-pop--right::before { left: auto; right: 26px; }
+.hi-cal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 2px 2px 10px;
+}
+.hi-cal-title { font-family: var(--serif); font-size: 1rem; color: var(--ink); }
+.hi-cal-nav {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: grid; place-items: center;
+  color: var(--blue-d); background: rgba(11,90,177,0.07);
+  transition: background .16s ease;
+}
+.hi-cal-nav:hover:not(:disabled) { background: rgba(11,90,177,0.14); }
+.hi-cal-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+.hi-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.hi-cal-dow { margin-bottom: 2px; }
+.hi-cal-dowcell {
+  text-align: center; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.04em; color: var(--muted); padding: 2px 0;
+}
+.hi-cal-cell {
+  aspect-ratio: 1 / 1;
+  display: grid; place-items: center;
+  border-radius: 8px;
+  font-family: var(--sans); font-size: 13px; color: var(--ink);
+  transition: background .14s ease, color .14s ease;
+}
+.hi-cal-cell:hover:not(.is-empty):not(.is-past) { background: rgba(11,90,177,0.1); }
+.hi-cal-cell.is-empty { pointer-events: none; }
+.hi-cal-cell.is-past { color: var(--border); cursor: not-allowed; }
+.hi-cal-cell.is-sel { background: var(--blue); color: #fff; font-weight: 600; }
+.hi-cal-flexlabel { margin-top: 12px; }
+.hi-cal-flex { display: flex; flex-wrap: wrap; gap: 6px; }
+.hi-cal-flexchip {
+  padding: 6px 11px; border-radius: 999px;
+  border: 1px solid var(--border); background: #fff;
+  font-family: var(--sans); font-size: 12.5px; color: var(--ink);
+  transition: all .14s ease;
+}
+.hi-cal-flexchip:hover { border-color: var(--blue); }
+.hi-cal-flexchip.is-on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.hi-cal-actions {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.hi-cal-clear { font-family: var(--sans); font-size: 13px; color: var(--muted); }
+.hi-cal-clear:hover { color: var(--ink); }
+.hi-cal-done {
+  padding: 8px 18px; border-radius: 999px;
+  background: var(--blue); color: #fff;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  transition: background .16s ease;
+}
+.hi-cal-done:hover { background: var(--blue-d); }
+
+/* ---------- Specialists section — scannable assurance points ---------- */
+/* Moved here from the heritage block, where they read as out-of-place tags. */
+.hi-spec-points {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 22px;
+  max-width: 540px;
+  margin: 22px auto 0;
+  text-align: left;
+}
+.hi-spec-points li {
+  display: flex; align-items: flex-start; gap: 9px;
+  font-family: var(--sans); font-size: 0.92rem; line-height: 1.35;
+  color: var(--ink);
+}
+.hi-spec-points-ic {
+  flex: none; margin-top: 2px;
+  color: var(--blue);
+}
+
+/* ---------- Curations — duration with a clock icon ---------- */
+/* Stack the duration above the price (the side-by-side baseline alignment
+   read awkwardly), keeping the divider rule below. */
+.h26-cur .h26-cur-meta {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.hi-cur-dur { display: inline-flex; align-items: center; gap: 5px; }
+.hi-cur-dur svg { color: var(--blue); flex: none; }
+
+/* Pace rating pill on the curation media (proof for high-ticket buyers). */
+.hi-cur-pace {
+  position: absolute; top: 14px; right: 14px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 999px;
+  font-family: var(--sans); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.04em; color: #fff;
+  background: rgba(2,19,48,0.62); backdrop-filter: blur(4px);
+}
+.hi-cur-pace svg { flex: none; }
+.hi-cur-pace--relaxed { background: rgba(17,110,70,0.86); }
+.hi-cur-pace--balanced { background: rgba(11,90,177,0.86); }
+.hi-cur-pace--active { background: rgba(189,64,17,0.86); }
+
+/* Named example stays — concrete proof of the actual hotels. */
+.hi-cur-stays {
+  display: flex; align-items: flex-start; gap: 7px;
+  margin: 0 0 12px; font-family: var(--sans); font-size: 0.8rem;
+  line-height: 1.4; color: var(--muted);
+}
+.hi-cur-stays svg { color: var(--blue); flex: none; margin-top: 2px; }
+.hi-cur-stays strong { color: var(--ink); font-weight: 600; }
+
+/* Senior-comfort promise under the curations heading. */
+.hi-cur-promise {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin: 12px 0 0; max-width: 720px;
+  font-family: var(--sans); font-size: 0.92rem; line-height: 1.45; color: var(--ink);
+}
+.hi-cur-promise svg { color: var(--blue); flex: none; margin-top: 3px; }
+
+/* Inclusive subtitle under the reviews heading. */
+.hi-rev-sub { margin: 8px 0 0; font-family: var(--sans); font-size: 0.95rem; color: var(--muted); }
+
+/* ---------- WCAG AA: stronger scrims behind white text on photos ---------- */
+/* The base veils faded to ~0.78 navy, which can drop below AA 4.5:1 over the
+   brightest photos. Deepen the bottom band (where titles/prices sit) so white
+   text stays legible on any image. (/improved only.) */
+.h26-dest-veil {
+  background: linear-gradient(180deg, rgba(2,19,48,0.12) 0%, rgba(2,19,48,0) 30%, rgba(2,19,48,0.55) 62%, rgba(2,19,48,0.92) 100%);
+}
+.h26-jrn-veil {
+  background: linear-gradient(180deg, rgba(2,19,48,0.12) 0%, rgba(2,19,48,0) 26%, rgba(2,19,48,0.5) 58%, rgba(2,19,48,0.93) 100%);
+}
+.h26-reel-veil {
+  background: linear-gradient(180deg, rgba(2,19,48,0.10) 0%, rgba(2,19,48,0) 34%, rgba(2,19,48,0.5) 64%, rgba(2,19,48,0.92) 100%);
+}
+/* The destination "/ person" sub-label was a touch low-contrast; lift it. */
+.h26-dest-price small { color: rgba(255,255,255,0.9); }
+
+/* ---------- Sticky bars must not overlap the footer ---------- */
+/* Reserve space so the fixed desktop "Ask Enaya" fab and the mobile thumb-bar
+   float over empty padding, not over the copyright row. */
+.h26-footer { padding-bottom: clamp(56px, 6vw, 84px); }
+
+/* Hide the fixed mobile thumb-bar while the clips player is open, so its CTA
+   doesn't sit beneath the player's own CTA. */
+.h26-thumbbar.is-hidden { display: none; }
+
+/* ---------- Reels: Shorts-style player rebuild ---------- */
+/* Two-column shell on desktop: the 9:16 clip + an always-open reviews panel. */
+.h26-reelplayer-shell {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px;
+}
+.h26-reelplayer-col { position: relative; display: flex; }
+/* Vertical action rail on the clip's right edge (save / reviews / share). */
+.h26-reelrail {
+  position: absolute; right: 12px; bottom: 120px; z-index: 4;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.h26-reelrail-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  color: #fff; font-family: var(--sans); font-size: 11px; font-weight: 500;
+  text-shadow: 0 1px 8px rgba(2,19,48,0.5);
+  transition: transform .16s ease;
+}
+/* Circular chip wraps the icon — the icon itself stays at its natural size so
+   it can never be squeezed or clipped by padding on the <svg>. */
+.h26-reelrail-ic {
+  display: grid; place-items: center;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(2,19,48,0.4); border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  transition: background .16s ease, border-color .16s ease;
+}
+.h26-reelrail-ic svg { display: block; }
+.h26-reelrail-btn:hover { transform: translateY(-2px); }
+.h26-reelrail-btn:hover .h26-reelrail-ic { background: rgba(2,19,48,0.6); }
+.h26-reelrail-btn.is-on { color: var(--sienna); }
+.h26-reelrail-btn.is-on .h26-reelrail-ic { background: rgba(189,64,17,0.22); border-color: rgba(232,108,58,0.6); }
+/* Keep the info copy clear of the rail. */
+.h26-reelplayer-info { right: 78px; }
+
+/* Swipe / scroll hint on open */
+.h26-reelhint {
+  position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%);
+  z-index: 5;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  pointer-events: none;
+}
+.h26-reelhint-ic {
+  display: grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(248,247,241,0.9); color: var(--ink);
+  box-shadow: 0 8px 22px rgba(2,19,48,0.4);
+}
+.h26-reelhint-txt {
+  font-family: var(--sans); font-size: 12px; font-weight: 500; color: #fff;
+  background: rgba(2,19,48,0.55); padding: 4px 11px; border-radius: 999px;
+  text-shadow: none;
+}
+.hi-desk-only { display: inline; }
+.hi-mob-only { display: none; }
+
+/* Desktop reviews/comments panel — docked open beside the clip. */
+.h26-reelpanel {
+  width: 340px; max-height: 92vh;
+  display: flex; flex-direction: column;
+  background: var(--paper); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 40px 90px rgba(0,0,0,0.4);
+}
+.h26-reelpanel-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 18px 20px 14px; border-bottom: 1px solid var(--border);
+}
+.h26-reelpanel-head strong { font-family: var(--serif); font-size: 1.15rem; color: var(--ink); }
+.h26-reelpanel-head span { font-size: 12px; color: var(--muted); }
+.h26-rcom-list { flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 16px; }
+.h26-rcom { display: flex; gap: 11px; }
+.h26-rcom img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex: none; }
+.h26-rcom strong { font-family: var(--sans); font-size: 13px; color: var(--ink); }
+.h26-rcom p { font-size: 13.5px; line-height: 1.4; color: var(--ink); margin: 2px 0 4px; }
+.h26-rcom-like { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--muted); }
+.h26-rcom-like svg { color: var(--sienna); }
+.h26-reelpanel-foot {
+  display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border);
+}
+.h26-reelpanel-foot input {
+  flex: 1; border: 1px solid var(--border); border-radius: 999px;
+  padding: 9px 15px; font-family: var(--sans); font-size: 13px; background: #fff;
+}
+.h26-reelpanel-foot input:focus { outline: none; border-color: var(--blue); }
+.h26-reelpanel-foot button {
+  width: 38px; height: 38px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; background: var(--blue); color: #fff;
+  transition: background .16s ease;
+}
+.h26-reelpanel-foot button:hover { background: var(--blue-d); }
+
+/* Mobile comments bottom-sheet (hidden on desktop) */
+.h26-rsheet { display: none; }
+
+/* ---------- Desktop nav megamenu (hover-expand) ---------- */
+/* Each top-level link is wrapped in a group that reveals a paper flyout on
+   hover/focus. Pure-CSS so it never interferes with the mobile burger menu,
+   which keeps its own markup below the 1080px breakpoint. */
+.hi-nav { gap: 30px; align-items: center; }
+.hi-nav-group { position: relative; display: flex; align-items: center; }
+.hi-nav-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.82);
+  transition: color .25s;
+}
+.hi-nav-group:hover .hi-nav-top,
+.hi-nav-group:focus-within .hi-nav-top { color: #fff; }
+.hi-nav-caret { transition: transform .25s ease; opacity: 0.8; }
+.hi-nav-group:hover .hi-nav-caret,
+.hi-nav-group:focus-within .hi-nav-caret { transform: rotate(180deg); }
+/* The top link keeps its own underline animation; suppress the inherited one. */
+.hi-nav-top::after { display: none; }
+
+.hi-nav-flyout {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Transparent bridge so the cursor can travel from link to panel. */
+  padding-top: 16px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  transform: translate(-50%, 6px);
+}
+.hi-nav-group:hover .hi-nav-flyout,
+.hi-nav-group:focus-within .hi-nav-flyout {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+.hi-nav-flyout-inner {
+  position: relative;
+  width: 280px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 26px 60px rgba(2,19,48,0.26);
+}
+.hi-nav-flyout-inner::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  margin-left: -6px;
+  width: 12px;
+  height: 12px;
+  background: var(--paper);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  transform: rotate(45deg);
+}
+.hi-nav-blurb {
+  margin: 0 4px 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.hi-nav-list { display: flex; flex-direction: column; gap: 1px; }
+.hi-nav-item {
+  display: block;
+  padding: 9px 10px;
+  border-radius: 8px;
+  transition: background .16s ease;
+}
+.hi-nav-item::after { display: none; }
+.hi-nav-item:hover,
+.hi-nav-item:focus-visible { background: rgba(11,90,177,0.08); outline: none; }
+.hi-nav-item-label {
+  display: block;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--ink);
+  transition: color .16s ease;
+}
+.hi-nav-item:hover .hi-nav-item-label,
+.hi-nav-item:focus-visible .hi-nav-item-label { color: var(--blue-d); }
+.hi-nav-item-desc {
+  display: block;
+  margin-top: 1px;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
 /* View all reviews — centered button under the marquee */
 .h26-reviews-more { display: flex; justify-content: center; margin-top: 40px; }
 
@@ -223,6 +700,29 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
 .h26-trust .h26-assure { gap: 8px; }
 .h26-trust .h26-statband-item strong { font-size: clamp(1.5rem, 2.1vw, 1.9rem); }
 
+/* Journey-card meta — even spacing for nights / guests / price; the guest
+   chip's icon is baseline-aligned and the row wraps cleanly when it's tight. */
+.h26-jrn-meta { flex-wrap: wrap; row-gap: 6px; }
+.h26-jrn .hi-jrn-cap { line-height: 1; gap: 4px; }
+.h26-jrn .hi-jrn-cap svg { flex-shrink: 0; }
+/* Price drops to its own full-width line and loses the leading divider so it
+   never reads as a stray "|" when the row wraps. */
+.h26-jrn-meta .h26-jrn-price { flex-basis: 100%; padding-left: 0; border-left: none; margin-top: 1px; }
+.h26-jrn-price small { display: inline-block; }
+
+/* Curations card — more scannable: blurb clamped to 2 lines, the departure
+   window reads as a pill, and the facts / specialist / CTA get clearer gaps. */
+.h26-cur-note {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; margin-bottom: 14px;
+}
+.h26-cur-departs {
+  margin: 0 0 16px;
+  padding: 5px 11px; border-radius: 999px;
+  background: rgba(11,90,177,0.08);
+}
+.h26-cur-expert { gap: 11px; }
+
 /* ---------------- Responsive ---------------- */
 @media (max-width: 900px) {
   .hi-fork-grid { grid-template-columns: 1fr; }
@@ -243,6 +743,69 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
    Specialists block, photoless heritage, and a self-playing reels row.
    ============================================================ */
 @media (max-width: 680px) {
+
+  /* --- Swipe-dot indicators (mobile only) --- */
+  .hi-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    margin-top: 14px;
+  }
+  .hi-dot {
+    width: 7px; height: 7px; padding: 0;
+    border-radius: 999px;
+    background: var(--border);
+    transition: width .25s ease, background .25s ease;
+  }
+  .hi-dot.is-active { width: 22px; background: var(--blue); }
+
+  /* --- Hero CTA: use primary brand blue on mobile (not the sienna accent). --- */
+  .h26-search-go { background: var(--blue); }
+  .h26-search-go:hover,
+  .h26-search-go:active { background: var(--blue-d); }
+
+  /* --- Clear the fixed bottom thumb-bar so it doesn't cover the footer. --- */
+  .h26-footer { padding-bottom: 104px; }
+  .hi-cur-promise { font-size: 0.86rem; }
+
+  /* --- Popular tags: the wrapped second row collided with the centered
+     "Scroll" cue. Hide that desktop-only cue on mobile, and lay the tags out
+     as a single tidy horizontal scroller so they never pile into the cue. --- */
+  .h26-scrollcue { display: none; }
+  .h26-search-quick {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 8px;
+    margin-top: 14px;
+    padding-bottom: 2px;
+  }
+  .h26-search-quick::-webkit-scrollbar { display: none; }
+  .h26-search-quick > span { flex: none; }
+  .h26-chip { flex: none; white-space: nowrap; }
+
+  /* --- Compress vertical rhythm: trim every section's top/bottom padding so
+     the whole page scrolls less. --- */
+  .h26-section { padding-top: clamp(34px, 8vw, 52px); padding-bottom: clamp(34px, 8vw, 52px); }
+  .h26-head { margin-bottom: 18px; }
+
+  /* --- How would you like to travel: 4 stacked cards were the single biggest
+     vertical block — turn them into a swipeable horizontal carousel. --- */
+  .hi-fork-grid--four {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 14px;
+    padding-bottom: 14px;
+    scrollbar-width: none;
+  }
+  .hi-fork-grid--four::-webkit-scrollbar { display: none; }
+  .hi-fork-grid--four .hi-lane { flex: 0 0 78%; scroll-snap-align: start; }
+  .hi-fork-grid--four .hi-lane.is-featured { transform: none; }
 
   /* --- Specialists / intro: drop the absolutely-positioned floating
      thumbnails (they overlapped the copy on small screens) and present
@@ -295,13 +858,47 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
     scroll-snap-align: start;
   }
 
-  /* --- Our heritage: drop the photo entirely, tighten + center the text. --- */
-  .h26-trust { padding: clamp(40px, 11vw, 64px) 22px; }
+  /* --- Our heritage: no photo, smaller type, tighter spacing on mobile. --- */
+  .h26-trust { padding: clamp(36px, 9vw, 52px) 22px; }
   .h26-heritage-media { display: none !important; }
   .h26-trust-inner { grid-template-columns: 1fr; gap: 0; }
   .h26-heritage-text { max-width: 100%; }
-  .h26-trust .h26-statband { gap: 18px 28px; margin: 18px 0 22px; }
-  .h26-trust .h26-trust-text { margin: 10px 0 18px; }
+  .h26-trust .h26-label { margin-bottom: 4px; }
+  .h26-trust .h26-h2-light { font-size: 1.3rem; line-height: 1.22; }
+  .h26-trust .h26-trust-text { font-size: 0.85rem; line-height: 1.5; margin: 8px 0 16px; }
+  .h26-trust .h26-assure { gap: 7px; }
+  .h26-trust .h26-assure-chip { padding: 6px 12px; font-size: 11.5px; }
+  .h26-trust .h26-statband { gap: 14px 22px; margin: 16px 0 18px; }
+  .h26-trust .h26-statband-item strong { font-size: 1.35rem; }
+  .h26-trust .h26-statband-item span { font-size: 0.74rem; max-width: 120px; }
+  .h26-trust .h26-award { margin-top: 28px; padding: 14px 16px; gap: 12px; }
+
+  /* --- Escorted-journey includes: redesigned for mobile. Spec stays 2-up;
+     the three long lists (included / not included / why) become a compact
+     swipeable card row instead of one very tall stack. --- */
+  .hi-includes { padding: 18px 16px; margin-bottom: 20px; }
+  .hi-includes-spec { grid-template-columns: 1fr 1fr; gap: 14px 16px; padding-bottom: 16px; margin-bottom: 16px; }
+  .hi-includes-lists {
+    display: flex;
+    align-items: flex-start;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    scrollbar-width: none;
+  }
+  .hi-includes-lists::-webkit-scrollbar { display: none; }
+  .hi-inc {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px 16px;
+  }
+  .hi-inc h4 { margin-bottom: 10px; }
+  .hi-inc li { font-size: 0.86rem; }
 
   /* --- Cox & Kings today: tighter, more scannable. --- */
   .hi-today { padding: clamp(44px, 11vw, 72px) 22px; }
@@ -336,6 +933,46 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
   .hi-rtrust-overall > strong { font-size: 2rem; }
   .hi-rtrust-sub { font-size: 0.76rem; }
   .hi-rtrust-plat { padding: 8px 12px; font-size: 0.84rem; }
+
+  /* --- Reviews: swap the auto-running marquee for a manual horizontal
+     swipe-scroller so visitors can browse reviews at their own pace. --- */
+  .h26-marquee { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; -webkit-mask-image: none; mask-image: none; scrollbar-width: none; }
+  .h26-marquee::-webkit-scrollbar { display: none; }
+  .h26-marquee-track { animation: none; width: max-content; gap: 14px; }
+  .h26-rev { flex: 0 0 84vw; width: 84vw; max-width: 340px; scroll-snap-align: center; }
+
+  /* --- Specialists scannable points: single column on phones. --- */
+  .hi-spec-points { grid-template-columns: 1fr; gap: 9px; margin-top: 18px; }
+
+  /* --- Reels player: full-screen vertical feed. Hide the desktop side panel
+     and arrows; reviews open as a bottom-sheet via the action rail. --- */
+  .h26-reelplayer-shell { width: 100%; height: 100%; gap: 0; }
+  .h26-reelplayer-nav { display: none; }
+  .h26-reelpanel { display: none; }
+  .h26-reelplayer-col { width: 100%; height: 100%; }
+  .h26-reelplayer-stage {
+    width: 100vw; height: 100dvh; max-height: none;
+    aspect-ratio: auto; border-radius: 0;
+  }
+  .h26-reelrail { bottom: 150px; right: 10px; }
+  .h26-reelplayer-info { left: 16px; right: 80px; bottom: 30px; }
+  .hi-desk-only { display: none; }
+  .hi-mob-only { display: inline; }
+
+  /* Comments bottom-sheet */
+  .h26-rsheet {
+    display: flex !important; flex-direction: column;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
+    max-height: 72dvh;
+    background: var(--paper);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -16px 50px rgba(0,0,0,0.4);
+  }
+  .h26-rsheet-grab { width: 40px; height: 4px; border-radius: 999px; background: var(--border); margin: 10px auto 4px; }
+  .h26-rsheet-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 18px 12px; border-bottom: 1px solid var(--border); }
+  .h26-rsheet-head strong { font-family: var(--serif); font-size: 1.15rem; color: var(--ink); }
+  .h26-rsheet-head button { color: var(--muted); }
+  .h26-rsheet .h26-rcom-list { padding: 14px 18px; }
 }
 
 @keyframes h26-reel-kb {
