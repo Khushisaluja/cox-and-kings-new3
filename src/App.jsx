@@ -7,6 +7,7 @@ import BackToTop from './components/BackToTop';
 import NewHome from './pages/NewHome';
 import Home2026 from './pages/Home2026';
 import Home2026Improved from './pages/Home2026Improved';
+import Home2026Improved2 from './pages/Home2026Improved2';
 import Final from './pages/Final';
 import Final2 from './pages/Final2';
 import Final2a from './pages/Final2a';
@@ -26,12 +27,21 @@ import JapanTourLuxe from './pages/JapanTourLuxe';
 import JapanTourLuxe2 from './pages/JapanTourLuxe2';
 import JapanTourLuxe3 from './pages/JapanTourLuxe3';
 import JapanTourLuxe4 from './pages/JapanTourLuxe4';
+import JapanTourLuxe5 from './pages/JapanTourLuxe5';
+import JapanTourLuxe6 from './pages/JapanTourLuxe6';
+import ThailandEscape from './pages/ThailandEscape';
+import ThailandEscape2 from './pages/ThailandEscape2';
 import EssenceJapan from './pages/EssenceJapan';
 import EssenceJapan2 from './pages/EssenceJapan2';
 import Journeys from './pages/Journeys';
 import Journeys2 from './pages/Journeys2';
+import Journeys3 from './pages/Journeys3';
+import Journeys4 from './pages/Journeys4';
 import JapanJourneys from './pages/JapanJourneys';
+import JapanJourneys2 from './pages/JapanJourneys2';
 import CityJourneys from './pages/CityJourneys';
+import New from './pages/New';
+import New2 from './pages/New2';
 import Home from './pages/Home';
 import Tours from './pages/Tours';
 import TourDetail from './pages/TourDetail';
@@ -82,6 +92,21 @@ export default function App() {
         {/* Improved homepage — persona-driven UX revamp (keeps "/" intact) */}
         <Route path="/improved" element={<Home2026Improved />} />
 
+        {/* Improved v2 — identical to /improved but the hero backdrop is
+            static & in-flow (no fixed parallax), so the hero image renders in
+            a full-page screenshot capture. */}
+        <Route path="/improved2" element={<Home2026Improved2 />} />
+
+        {/* New — composite page: /improved nav + hero + specialists + fork +
+            destinations + clips, /luxe2-improved Enaya + heritage + reviews +
+            press, and the /journeys "Relaxed pace" shelf. */}
+        <Route path="/new-homepage" element={<New />} />
+
+        {/* New2 — second version of /new: redesigned intro assurance cards
+            + an "Accolades & Achievements" award band in the heritage
+            section. The original /new is untouched. */}
+        <Route path="/new2" element={<New2 />} />
+
         {/* Journeys — tour LISTING page (design language shared with /improved).
             Opened by clicking a destination or searching on /improved.
             Filterable via ?where= (destination) and ?style= (trip style). */}
@@ -91,10 +116,25 @@ export default function App() {
             (destination, budget, style, duration, pace) + results grid. */}
         <Route path="/journeys2" element={<Journeys2 />} />
 
+        {/* Journeys3 — Journeys2 with a bold "Private Tour" / "Group Tour"
+            badge on every card, and a squarer radius language (≤4px). */}
+        <Route path="/journeys3" element={<Journeys3 />} />
+
+        {/* Journeys4 — Journeys2 with ONLY a "Private Tour" / "Group Tour"
+            badge added on every card; everything else identical. */}
+        <Route path="/journeys4" element={<Journeys4 />} />
+
         {/* Japan Journeys — country-specific listing page (Japan only):
             about Japan → the Japan tours → "food people eat in Japan".
             Shares the /improved chrome + design.md tokens. */}
         <Route path="/journeys/japan" element={<JapanJourneys />} />
+
+        {/* Japan Journeys 2 — new version: hero + about kept, then a
+            filterable/sortable grid of ALL Japan tours with a left rail
+            (like /journeys2), the food & reservations section on a beige
+            surface, a standalone "Where you'll go" section, traveller
+            testimonials and a "people also view" shelf, then the CTA. */}
+        <Route path="/journeys/japan-2" element={<JapanJourneys2 />} />
 
         {/* City pages — one level below the country page (Tokyo, Kyoto,
             Hakone, Osaka). Reached from the city cards on /journeys/japan.
@@ -165,6 +205,32 @@ export default function App() {
             content. The day-by-day carries per-day hotel/meals/sights, shown on a
             shorter picture on hover (desktop) or in the day accordion (mobile). */}
         <Route path="/tour-detail-japan-4" element={<JapanTourLuxe4 />} />
+
+        {/* Splendours of Japan — VARIANT 5: identical to VARIANT 4, but the hero
+            carries a near-constant overlay. On desktop it eases only slightly
+            lighter towards the right; on mobile it is fully uniform. */}
+        <Route path="/tour-detail-japan-5" element={<JapanTourLuxe5 />} />
+
+        {/* Splendours of Japan — VARIANT 6: a paid-AD LANDING page. Built from
+            VARIANT 5 but pared to lead capture — a hero lead form, an urgency /
+            scarcity strip, loud "seats left" tags, and a closing enquiry block.
+            The deep-info sections (day-by-day, inclusions, policies, similar
+            tours) are removed so there's far less to read. */}
+        <Route path="/tour-detail-japan-6" element={<JapanTourLuxe6 />} />
+
+        {/* Pattaya & Bangkok Escape — Thailand tour-detail page, built on the
+            same design language as /tour-detail-japan-5 but tuned to CONVERT /
+            book (loud "Book now" hero CTA, high-demand urgency strip + scarcity
+            ribbon on the booking card, seats-left tags on every date, and trust
+            badges beside checkout). Content from coxandkings.com. */}
+        <Route path="/tour-detail-thailand" element={<ThailandEscape />} />
+
+        {/* Pattaya & Bangkok Escape — VERSION 2. Identical to the above, but the
+            booking/payment section is redesigned to a single centred column: a
+            "Book with confidence" card + a white booking card with a simplified
+            departure list, two payment-choice cards and a solid sienna
+            "Pay now and secure seat" CTA (matches the supplied reference). */}
+        <Route path="/tour-detail-thailand-2" element={<ThailandEscape2 />} />
 
         {/* Modern variant — vaulk.com-style single-page layout, CK content + design.md tokens */}
         <Route path="/modern" element={<Modern />} />

@@ -1,0 +1,526 @@
+/* ============================================================
+   Cox & Kings — "Pattaya & Bangkok Escape" tour-detail page.
+   Route: /tour-detail-thailand.
+
+   Booking-focused additions layered on the shared JapanTourLuxe*
+   design language. These express urgency/scarcity WITHIN the existing
+   design system — no new CTA colours or radii are invented:
+     · CTAs stay on the system blue (--blue-500); we never recolour them
+     · urgency / scarcity accents use the brand warm colour, sienna
+       (--sienna #BD4011) — deliberately the brand's "attention" hue
+     · radii use the token scale only (--radius 4px / --radius-md 8px /
+       --radius-lg 16px); the mobile thumb bar matches the existing
+       .lxjt-thumbbar buttons (11px)
+   Scoped under .tha so nothing leaks.
+   ============================================================ */
+
+/* ---------- Hero: keep "Book now" the system primary (blue) ---------- */
+.tha .lxjt-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+/* ---------- Hero: stronger overlay for text contrast ----------
+   Deepens the variant-5 veil using design.md's hero-overlay colour
+   (Neutrals-Dark/900 #021330). Left is heavily tinted where the copy
+   sits; the right eases lighter so the photo still breathes. A second
+   bottom-up wash keeps the facts & rating legible over bright water. */
+.tha.lxjt5 .lxjt-hero__veil {
+  background:
+    linear-gradient(90deg,
+      rgba(2, 19, 48, 0.82) 0%,
+      rgba(2, 19, 48, 0.74) 42%,
+      rgba(2, 19, 48, 0.62) 72%,
+      rgba(2, 19, 48, 0.50) 100%),
+    linear-gradient(to top,
+      rgba(2, 19, 48, 0.58) 0%,
+      rgba(2, 19, 48, 0) 46%);
+}
+@media (max-width: 768px) {
+  .tha.lxjt5 .lxjt-hero__veil {
+    background:
+      linear-gradient(180deg, rgba(2, 19, 48, 0.74), rgba(2, 19, 48, 0.74)),
+      linear-gradient(to top, rgba(2, 19, 48, 0.55), rgba(2, 19, 48, 0) 55%);
+  }
+}
+
+/* ---------- Buttons — exact design.md §4 spec (this page only) ----------
+   Colours, 4px radius, Work Sans Medium UPPERCASE, and the Large/Small
+   padding + label metrics from the spec. Scoped to .tha so the shared
+   button component elsewhere is untouched. */
+.tha .lx2i-btn {
+  font-family: var(--sans);
+  font-weight: 500;                 /* Work Sans Medium */
+  text-transform: uppercase;
+  border-radius: 4px;               /* system default */
+  padding: 8px 12px;                /* Small */
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.48px;
+}
+.tha .lx2i-btn--lg {
+  padding: 12px 24px;               /* Large */
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.56px;
+}
+/* Primary — Voyager Blue/500 */
+.tha .lx2i-btn--primary { background: #0B5AB1; color: #F1EFE2; border: 1px solid transparent; }
+.tha .lx2i-btn--primary:hover { background: #09488E; color: #F1EFE2; }
+/* Secondary — Sienna Flame/500 */
+.tha .lx2i-btn--secondary { background: #BD4011; color: #F1EFE2; border: 1px solid transparent; }
+.tha .lx2i-btn--secondary:hover { background: #97330E; color: #F1EFE2; }
+/* Outline (Secondary-Grey) — white fill, blue label, neutral border */
+.tha .lx2i-btn--outline { background: #FFFFFF; color: #0B5AB1; border: 1px solid #D9D7CB; }
+.tha .lx2i-btn--outline:hover { background: #F1EFE2; color: #0B5AB1; }
+/* mobile thumb-bar CTAs → 4px radius to match the system default */
+.tha .lxjt-thumbbar__book,
+.tha .lxjt-thumbbar__ico { border-radius: 4px; }
+
+/* Other interactive controls in the booking section → 4px too (§6 default):
+   the travellers stepper, its +/- buttons, and the payment toggle all
+   shipped at 8–10px in the shared component. */
+.tha .lxjt-stepper,
+.tha .lxjt-stepper button,
+.tha .lxjt-pay__opt { border-radius: 4px; }
+
+/* ---------- Urgency / high-demand strip (above the booking card) ----------
+   Brand sienna as the "attention" accent, on a pale sienna tint. */
+.tha-urgency {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 26px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(189, 64, 17, 0.06);
+  border: 1px solid rgba(189, 64, 17, 0.22);
+  color: var(--sienna, #BD4011);
+}
+.tha-urgency__ic {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--sienna, #BD4011);
+  box-shadow: 0 4px 12px -4px rgba(189, 64, 17, 0.28);
+}
+.tha-urgency__tx { display: flex; flex-direction: column; gap: 2px; line-height: 1.3; }
+.tha-urgency__tx strong { font-size: 0.98rem; color: var(--sienna-700, #97330E); font-family: var(--sans); }
+.tha-urgency__tx span { font-size: 0.82rem; color: rgba(189, 64, 17, 0.85); }
+.tha-urgency__live {
+  margin-left: auto;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--sienna, #BD4011);
+  white-space: nowrap;
+}
+.tha-urgency__pulse {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--sienna, #BD4011);
+  box-shadow: 0 0 0 0 rgba(189, 64, 17, 0.55);
+  animation: tha-pulse 1.8s infinite;
+}
+@keyframes tha-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(189, 64, 17, 0.5); }
+  70%  { box-shadow: 0 0 0 9px rgba(189, 64, 17, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(189, 64, 17, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .tha-urgency__pulse { animation: none; } }
+
+/* ============================================================
+   BOOKING SECTION — redesigned (selection LEFT, reassurance RIGHT).
+   Group-tour departures shown as a real list, not a dropdown.
+   Semantic status colours are taken straight from design.md (§2.4–2.6):
+   Success / Warning / Error — used ONLY for the seats-left status.
+   ============================================================ */
+.tha {
+  --tha-err: #E23822;  --tha-err-bg: #F9D7D3;  --tha-err-ink: #A21117;
+  --tha-warn: #E27004; --tha-warn-bg: #FDEECB; --tha-warn-ink: #A23F02;
+  --tha-ok: #337D64;   --tha-ok-bg: #D6E5E0;   --tha-ok-ink: #1F4B3C;
+}
+
+/* wide-tracked uppercase field label (design.md Label/Large) */
+.tha-lbl {
+  display: block;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-600, #5C5C55);
+}
+
+/* Booking section head → give it a gap below (the shared .lxjt-head has no
+   margin-bottom; it relied on the now-removed lead paragraph for separation). */
+.tha-book-section .lxjt-head { margin-bottom: 34px; }
+
+.tha-book2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 34px;
+  align-items: start;
+  /* Base UI font for the whole billing block = Work Sans (design.md §3).
+     Elements that need the serif (headings, dates, money amounts) set
+     var(--serif) explicitly and are unaffected. This stops reused checkout
+     bits (stepper value, pay titles, "Due today") from inheriting the app's
+     base 'Mozaic HUM'. */
+  font-family: var(--sans);
+}
+
+/* ---- LEFT — the selection panel ---- */
+.tha-book2__main {
+  background: #FFFFFF;
+  border: 1px solid var(--paper-200, #D9D7CB);
+  border-radius: var(--radius-lg, 16px);
+  padding: 30px 32px 32px;
+}
+.tha-book2__mainhead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--paper-200, #D9D7CB);
+}
+.tha-book2__h3 {
+  font-family: var(--serif, Georgia, serif);
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 1.4;
+  color: var(--ink-900, #1F2A36);
+  margin-top: 6px;
+}
+.tha-book2__count {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-600, #5C5C55);
+  white-space: nowrap;
+}
+
+/* ---- the departures list ---- */
+.tha-deps {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tha-dep {
+  border: 1px solid var(--paper-200, #D9D7CB);
+  border-radius: var(--radius, 4px);   /* interactive selector → 4px (§6) */
+  background: var(--paper-50, #F8F7F1);
+  overflow: hidden;
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.tha-dep:hover { border-color: var(--blue-300, #6D9CD0); }
+.tha-dep.is-on {
+  background: #FFFFFF;
+  border-color: var(--blue-500, #0B5AB1);
+  box-shadow: inset 0 0 0 1px var(--blue-500, #0B5AB1), 0 10px 26px -18px rgba(11, 90, 177, 0.55);
+}
+.tha-dep__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+}
+.tha-dep__radio {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--paper-200, #D9D7CB);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  color: transparent;
+  transition: all 0.2s var(--ease);
+}
+.tha-dep.is-on .tha-dep__radio {
+  border-color: var(--blue-500, #0B5AB1);
+  background: var(--blue-500, #0B5AB1);
+  color: #fff;
+}
+.tha-dep__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.tha-dep__top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tha-dep__date {
+  font-family: var(--serif, Georgia, serif);
+  font-weight: 300;
+  font-size: 19px;
+  color: var(--ink-900, #1F2A36);
+  line-height: 1.2;
+}
+.tha-dep__badge {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blue-700, #07366A);
+  background: var(--blue-100, #CEDEEF);
+  padding: 3px 8px;
+  border-radius: var(--radius, 4px);
+}
+.tha-dep__badge--best {
+  color: var(--tha-ok-ink);
+  background: var(--tha-ok-bg);
+}
+.tha-dep__meta { font-size: 13px; color: var(--ink-600, #5C5C55); }
+.tha-dep__right {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+  text-align: right;
+}
+.tha-dep__price {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--ink-900, #1F2A36);
+}
+.tha-dep__price small { font-weight: 400; font-size: 12px; color: var(--ink-600, #5C5C55); }
+.tha-dep__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tha-dep__dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.tha-dep__tag--error { background: var(--tha-err-bg); color: var(--tha-err-ink); }
+.tha-dep__tag--error .tha-dep__dot { background: var(--tha-err); }
+.tha-dep__tag--warn  { background: var(--tha-warn-bg); color: var(--tha-warn-ink); }
+.tha-dep__tag--warn .tha-dep__dot { background: var(--tha-warn); }
+.tha-dep__tag--ok    { background: var(--tha-ok-bg); color: var(--tha-ok-ink); }
+.tha-dep__tag--ok .tha-dep__dot { background: var(--tha-ok); }
+
+/* selected-date detail strip (shows the difference on click) */
+.tha-dep__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 13px 18px 15px 56px;
+  background: rgba(11, 90, 177, 0.04);
+  border-top: 1px solid var(--blue-100, #CEDEEF);
+}
+.tha-dep__detailrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink-800, #3D3D38);
+}
+.tha-dep__detailrow svg { color: var(--blue-500, #0B5AB1); }
+.tha-dep__detailrow strong { margin-left: auto; color: var(--ink-900, #1F2A36); }
+.tha-dep__detailnote { font-size: 12.5px; color: var(--ink-600, #5C5C55); }
+
+/* ---- checkout controls under the list ---- */
+.tha-checkout {
+  border-top: 1px solid var(--paper-200, #D9D7CB);
+  padding-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.tha-checkout__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+/* Adults + Children steppers grouped together */
+.tha-travellers { display: flex; flex-direction: column; gap: 12px; }
+.tha-trav-lbl { display: flex; flex-direction: column; gap: 2px; }
+.tha-trav-lbl small {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-600, #5C5C55);
+}
+
+/* ---- RIGHT — reassurance (sticky) ---- */
+.tha-book2__aside {
+  position: sticky;
+  top: 104px;
+  background: var(--paper-50, #F8F7F1);
+  border: 1px solid var(--paper-200, #D9D7CB);
+  border-radius: var(--radius-lg, 16px);
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.tha-aside__head { display: flex; flex-direction: column; gap: 4px; }
+
+/* ---------- Spacing fixes (UX audit) ----------
+   The reused checkout/aside components ship with their OWN vertical margins,
+   which stacked on top of these flex containers' `gap` and produced uneven
+   spacing (worst in the payment block). Neutralise those intrinsic margins so
+   a single `gap` governs the rhythm everywhere. */
+.tha-checkout { gap: 18px; }
+.tha-checkout > .lxjt-pay,
+.tha-checkout > .lxjt-due,
+.tha-checkout > .lxjt-card__go,
+.tha-checkout > .lxjt-card__secure { margin: 0; }
+
+.tha-book2__aside > .lxjt-book__perks,
+.tha-book2__aside > .lxjt-safety,
+.tha-book2__aside > .tha-trust,
+.tha-book2__aside > .tha-pay-methods,
+.tha-book2__aside > .lxjt-card__talk { margin: 0; }
+/* the trust block keeps its divider (border + padding), just not the margin */
+.tha-book2__aside > .tha-trust { padding-top: 4px; border-top: none; }
+
+/* ---------- Mobile bottom-nav font → Work Sans (design.md) ----------
+   The nudge text had no font-family and was inheriting the app's base
+   `--font-sans` ('Mozaic HUM'), so it mismatched the Work Sans button beside
+   it and broke §3. Pin the whole bar to the UI sans. */
+.tha .lxjt-thumbbar,
+.tha .lxjt-thumbbar__nudge,
+.tha .lxjt-thumbbar__nudge small,
+.tha .lxjt-thumbbar__nudge strong { font-family: var(--sans); }
+
+/* ---------- Booking card: trust badges under the CTA ---------- */
+.tha-trust {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--paper-200, #D9D7CB);
+}
+.tha-trust__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.78rem;
+  color: var(--ink-800, #3D3D38);
+  line-height: 1.25;
+}
+.tha-trust__item svg { flex: none; color: var(--blue-500, #0B5AB1); }
+.tha-trust__item strong { font-weight: 700; }
+
+/* payment-methods reassurance line */
+.tha-pay-methods {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: var(--ink-600, #5C5C55);
+  font-size: 0.72rem;
+}
+.tha-pay-methods span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ---------- Standalone trust-band (assurance row) ---------- */
+.tha-assure {
+  background: var(--ink-950, #021330);   /* Neutrals-Dark/900 — dark sections */
+  color: #fff;
+  padding: 34px 0;
+}
+.tha-assure__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+.tha-assure__item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.tha-assure__ic {
+  flex: none;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(255, 255, 255, 0.08);
+  color: #D78C70;                 /* Sienna Flame/300 — not gold (§2.9) */
+}
+.tha-assure__tx { display: flex; flex-direction: column; gap: 2px; }
+.tha-assure__tx strong { font-size: 0.95rem; font-family: var(--sans); }
+.tha-assure__tx span { font-size: 0.78rem; color: rgba(255, 255, 255, 0.66); line-height: 1.3; }
+
+/* ---------- Mobile thumb bar → booking-first ----------
+   Mirrors the existing .lxjt-thumbbar__chat button (system blue) but at the
+   design.md 4px radius rather than the shared component's 11px. */
+.tha .lxjt-thumbbar__book {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 4px;
+  background: var(--blue-500, #0B5AB1);
+  color: #fff;
+  font-family: var(--sans);
+  font-weight: 500;               /* Work Sans Medium (design.md §4) */
+  font-size: 13px;
+  letter-spacing: 0.56px;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.tha .lxjt-thumbbar__book:active { background: #09488E; }
+
+/* Highlights image on mobile: the photo is ~16:10, but the shared CSS forced a
+   16:9 box (wider than the photo), so `cover` cropped its top & bottom. A 4:3
+   box (narrower than the photo) shows the full height and trims the sides
+   instead — so nothing is cut off the bottom. */
+@media (max-width: 768px) {
+  .tha .lxjt-hl__img { aspect-ratio: 4 / 3; }
+}
+
+/* stack the booking columns — reassurance drops below, no longer sticky */
+@media (max-width: 960px) {
+  .tha-book2 { grid-template-columns: 1fr; gap: 22px; }
+  .tha-book2__aside { position: static; top: auto; }
+}
+@media (max-width: 900px) {
+  .tha-assure__grid { grid-template-columns: 1fr 1fr; gap: 18px; }
+}
+@media (max-width: 680px) {
+  .tha-urgency { flex-wrap: wrap; }
+  .tha-urgency__live { margin-left: 0; width: 100%; }
+  .tha-assure__grid { grid-template-columns: 1fr; gap: 14px; }
+  .tha-trust { grid-template-columns: 1fr; }
+  .tha-book2__main { padding: 22px 18px 24px; }
+  .tha-book2__mainhead { flex-direction: column; align-items: flex-start; gap: 6px; }
+  /* date rows: let price/tag wrap under the date on narrow screens */
+  .tha-dep__btn { flex-wrap: wrap; }
+  .tha-dep__right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; padding-left: 38px; gap: 12px; }
+  .tha-dep__detail { padding-left: 18px; }
+  .tha-checkout__row { flex-direction: column; align-items: flex-start; gap: 8px; }
+}

@@ -1,16 +1,14 @@
 /* ============================================================
-   Journeys2 — the tour LISTING page for Cox & Kings, sidebar edition.
+   Journeys4 — the tour LISTING page for Cox & Kings, sidebar edition.
 
-   A variant of /journeys that swaps the sticky top toolbar for an
-   always-open filter rail down the LEFT side: Destination, Budget,
-   Trip style, Duration and Pace — every option visible at a glance,
-   multi-select, with live result counts. The right column is a flat,
-   filterable/sortable grid of journeys.
-
-   Design language: shares the /improved chrome exactly and reuses the
-   Journeys.css card + lightbox + nav styles. Layout-specific styles
-   (the two-column shell, the sidebar, the mobile filter drawer) live
-   in Journeys2.css. Self-contained: brings its own nav + footer.
+   A variant of /journeys2 with exactly ONE change: every card carries
+   a clear "Private Tour" or "Group Tour" badge on its image, so the
+   way a trip travels is obvious before you read a word. Everything
+   else — the /improved nav + footer, the open LEFT filter rail
+   (Destination, Budget, Travellers, Dates, Pace, Trip style), the
+   filterable/sortable grid and the pill-based radius language — is
+   left exactly as /journeys2. The single badge style lives in
+   Journeys4.css, layered last.
    ============================================================ */
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -18,7 +16,7 @@ import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
   Phone, PhoneCall, MessageCircle, ArrowUpRight, ArrowRight, Search, MapPin,
   Compass, Calendar, Menu, X, ChevronDown, ChevronLeft, ChevronRight,
-  Star, SlidersHorizontal, Clock, Users, Gauge, Images, Wallet,
+  Star, SlidersHorizontal, Clock, Users, User, Gauge, Wallet,
   Instagram, Facebook, Youtube, Linkedin, Check, Plus, Minus, CalendarRange,
 } from 'lucide-react';
 import { img, RATING } from '../data/v3content';
@@ -26,6 +24,7 @@ import './Home2026.css';
 import './Home2026Improved.css';
 import './Journeys.css';
 import './Journeys2.css';
+import './Journeys4.css';
 
 /* /improved-scoped direct line (matches Home2026Improved). */
 const CONTACT = {
@@ -84,6 +83,13 @@ const GROUP_BY_STYLE = {
   Safari: 'Small-group safari',
 };
 
+/* Binary tour-type badge shown prominently on every card. Escorted
+   fixed-departure styles (group tours, small-group safaris) read as a
+   "Group Tour"; everything designed just for the travellers reads as a
+   "Private Tour". Data-driven off the trip style. */
+const GROUP_STYLES = ['Group Tour', 'Safari'];
+const tourTypeOf = (style) => (GROUP_STYLES.includes(style) ? 'Group Tour' : 'Private Tour');
+
 /* Author-vetted, region-correct photo pools (shared with /journeys). */
 const U = (id) => `https://images.unsplash.com/photo-${id}`;
 const REGION_PHOTOS = {
@@ -111,6 +117,7 @@ const J = (o) => ({
   priceLabel: `₹${o.price.toLocaleString('en-IN')}`,
   nightsLabel: `${o.nights} nights`,
   group: GROUP_BY_STYLE[o.style],
+  tourType: tourTypeOf(o.style),
   gallery: buildGallery(o),
 });
 const ALL_JOURNEYS = [
@@ -193,35 +200,35 @@ const fmtDate = (date) => `${date.d} ${MONTHS[date.m]}`;
 /* ---- Nav megamenus (route into THIS listing). ---- */
 const NAV_MENU = [
   {
-    label: 'Ways to travel', href: '/journeys2',
+    label: 'Ways to travel', href: '/journeys4',
     blurb: 'Two ways to see the world — pick the one that fits you.',
     items: [
-      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys2?style=Group Tour' },
-      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys2?style=Bespoke Private' },
-      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys2?style=Luxury' },
+      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
+      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
+      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
       { label: 'Help me decide', desc: 'Talk it through with a specialist', to: '/contact' },
     ],
   },
   {
-    label: 'Destinations', href: '/journeys2',
+    label: 'Destinations', href: '/journeys4',
     blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
     items: [
-      { label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys2?where=Japan' },
-      { label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys2?where=Switzerland' },
-      { label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys2?where=Italy' },
-      { label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys2?where=Northern Lights' },
-      { label: 'Africa Safari', desc: 'Big-five wilderness', to: '/journeys2?where=Africa Safari' },
-      { label: 'All destinations', desc: 'Browse every journey', to: '/journeys2' },
+      { label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys4?where=Japan' },
+      { label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys4?where=Switzerland' },
+      { label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys4?where=Italy' },
+      { label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys4?where=Northern Lights' },
+      { label: 'Africa Safari', desc: 'Big-five wilderness', to: '/journeys4?where=Africa Safari' },
+      { label: 'All destinations', desc: 'Browse every journey', to: '/journeys4' },
     ],
   },
   {
-    label: 'Journeys', href: '/journeys2',
+    label: 'Journeys', href: '/journeys4',
     blurb: 'Signature itineraries, ready to make your own.',
     items: [
-      { label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/journeys2?where=Japan' },
-      { label: 'Grand Switzerland & Italy', desc: 'Scenic rail & cities', to: '/journeys2?where=Switzerland' },
-      { label: 'Northern Lights & Ice', desc: 'Arctic Scandinavia', to: '/journeys2?where=Northern Lights' },
-      { label: 'All journeys', desc: 'The full collection', to: '/journeys2' },
+      { label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/journeys4?where=Japan' },
+      { label: 'Grand Switzerland & Italy', desc: 'Scenic rail & cities', to: '/journeys4?where=Switzerland' },
+      { label: 'Northern Lights & Ice', desc: 'Arctic Scandinavia', to: '/journeys4?where=Northern Lights' },
+      { label: 'All journeys', desc: 'The full collection', to: '/journeys4' },
     ],
   },
   {
@@ -289,27 +296,66 @@ const WaIcon = ({ size = 15 }) => (
   </svg>
 );
 
-/* A single journey card — reuses the .jl-card styles from Journeys.css. */
-function JourneyCard({ j, i, onPhotos, people = 1 }) {
+/* A single journey card — reuses the .jl-card styles from Journeys.css.
+   The card image is an inline carousel: prev/next arrows and dot markers
+   let you flick through the gallery without leaving the listing (no more
+   dead "N photos" label). */
+function JourneyCard({ j, i, people = 1 }) {
   const waHref = `${CONTACT.whatsappHref}?text=${encodeURIComponent(`Hi Cox & Kings, I'd like to enquire about the "${j.title}" journey.`)}`;
+  const isGroup = j.tourType === 'Group Tour';
+  const shots = j.gallery;
+  const many = shots.length > 1;
+  const [shot, setShot] = useState(0);
+  /* Arrows sit above the itinerary link — stop them navigating / bubbling. */
+  const step = (dir) => (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShot((s) => (s + dir + shots.length) % shots.length);
+  };
   return (
     <Reveal className="jl-card" delay={(i % 3) * 0.05} y={24} as="article">
       <div className="jl-card-media">
-        <Link to={j.to} className="jl-card-media-link" aria-label={`${j.title} — view itinerary`}>
-          <img src={img(j.image, 800)} alt={j.title} loading="lazy" />
+        <Link to={j.to} className="jl-card-media-link jl4-media-link" aria-label={`${j.title} — view itinerary`}>
+          <AnimatePresence initial={false}>
+            <motion.img
+              key={shot}
+              src={img(shots[shot], 800)}
+              alt={`${j.title}${many ? ` — photo ${shot + 1} of ${shots.length}` : ''}`}
+              loading="lazy"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            />
+          </AnimatePresence>
         </Link>
-        <span className="jl-card-style">{j.style}</span>
+        <span className={`jl4-tourtype${isGroup ? ' is-group' : ' is-private'}`}>
+          {isGroup ? <Users size={13} aria-hidden="true" /> : <User size={13} aria-hidden="true" />}
+          {j.tourType}
+        </span>
         <span className="jl-card-rating"><Star size={12} fill="currentColor" aria-hidden="true" /> {j.rating.toFixed(1)}</span>
         <span className="jl-card-region"><MapPin size={12} aria-hidden="true" /> {j.regions[0]}</span>
-        {j.gallery.length > 1 && (
-          <button
-            type="button"
-            className="jl-photos"
-            onClick={() => onPhotos(j)}
-            aria-label={`View ${j.gallery.length} photos of ${j.title}`}
-          >
-            <Images size={15} aria-hidden="true" /> {j.gallery.length} photos
-          </button>
+        {many && (
+          <>
+            <button type="button" className="jl4-nav jl4-nav-prev" onClick={step(-1)} aria-label={`Previous photo of ${j.title}`}>
+              <ChevronLeft size={18} aria-hidden="true" />
+            </button>
+            <button type="button" className="jl4-nav jl4-nav-next" onClick={step(1)} aria-label={`Next photo of ${j.title}`}>
+              <ChevronRight size={18} aria-hidden="true" />
+            </button>
+            <div className="jl4-dots" aria-hidden="true">
+              {shots.map((s, k) => (
+                <button
+                  key={s + k}
+                  type="button"
+                  className={`jl4-dot${k === shot ? ' is-on' : ''}`}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShot(k); }}
+                  tabIndex={-1}
+                  aria-label={`Go to photo ${k + 1}`}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
       <div className="jl-card-body">
@@ -743,7 +789,7 @@ function Stepper({ value, min, max, onChange, label, sub }) {
   );
 }
 
-export default function Journeys2() {
+export default function Journeys4() {
   const [params, setParams] = useSearchParams();
 
   const [scrolled, setScrolled] = useState(false);
@@ -939,7 +985,7 @@ export default function Journeys2() {
   );
 
   return (
-    <div className="h26 jl jl2">
+    <div className="h26 jl jl2 jl4">
       <a className="h26-skip" href="#results">Skip to journeys</a>
 
       {/* ---------- NAV (shared /improved chrome) ---------- */}
@@ -993,7 +1039,7 @@ export default function Journeys2() {
           </div>
           <nav className="h26-menu-primary" aria-label="Mobile primary">
             {REGIONS.slice(0, 6).map((r) => (
-              <Link key={r} to={`/journeys2?where=${encodeURIComponent(r)}`} onClick={() => setMenuOpen(false)}>
+              <Link key={r} to={`/journeys4?where=${encodeURIComponent(r)}`} onClick={() => setMenuOpen(false)}>
                 {r}
                 <span className="h26-menu-chev"><ArrowRight size={16} /></span>
               </Link>
@@ -1001,7 +1047,7 @@ export default function Journeys2() {
           </nav>
           <div className="h26-menu-divider" />
           <div className="h26-menu-secondary">
-            <Link to="/journeys2" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
+            <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
             <Link to="/improved" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
             <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
@@ -1234,10 +1280,10 @@ export default function Journeys2() {
           <div className="h26-footer-cols">
             <div>
               <h4>Journeys</h4>
-              <Link to="/journeys2?style=Group Tour">Group tours</Link>
-              <Link to="/journeys2?style=Bespoke Private">Bespoke holidays</Link>
-              <Link to="/journeys2?style=Luxury">Luxury journeys</Link>
-              <Link to="/journeys2">All destinations</Link>
+              <Link to="/journeys4?style=Group Tour">Group tours</Link>
+              <Link to="/journeys4?style=Bespoke Private">Bespoke holidays</Link>
+              <Link to="/journeys4?style=Luxury">Luxury journeys</Link>
+              <Link to="/journeys4">All destinations</Link>
             </div>
             <div>
               <h4>Company</h4>

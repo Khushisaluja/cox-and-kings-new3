@@ -586,7 +586,7 @@
   font-weight: 500;
   backdrop-filter: blur(6px);
 }
-.jl-card-rating svg { color: #F2B34C; }
+.jl-card-rating svg { color: #F4B73F; } /* brand Rating Gold — single value for all stars (design.md §2.9) */
 .jl-card-region {
   position: absolute;
   bottom: 12px; left: 12px;

@@ -17,15 +17,16 @@ import './JapanTourLuxe.css';
 import './JapanTourLuxe2.css';
 import './JapanTourLuxe3.css';
 import './JapanTourLuxe4.css';
+import './JapanTourLuxe5.css';
 
 /* ============================================================
    Cox & Kings — "Essence Japan with Hakone" tour-detail page,
-   VARIANT 4. Route: /tour-detail-japan-4.
-   Builds on VARIANT 3 (split itinerary + "the policies") and
-   enriches the day-by-day with the real product content from
-   coxandkings.com/group-tours/essence-japan-with-hakone — hotels,
-   meals and sights per day. The picture on the right is shorter and,
-   on hover, surfaces those details on top of it.
+   VARIANT 5. Route: /tour-detail-japan-5.
+   Identical to VARIANT 4 except for the hero overlay: instead of a
+   side-weighted veil (dark left → clear right), the hero carries a
+   near-constant tint across the whole image. On desktop it eases
+   only slightly lighter towards the right; on mobile it is fully
+   uniform, with no left-to-right variation.
    ============================================================ */
 
 const sizedUnsplash = (id, w = 1200) =>
@@ -190,27 +191,35 @@ const DEPARTURES = [
   { date: '17 October 2026', seats: '14 seats available', tight: false },
 ];
 
-/* Photo-first traveller reviews (families & groups). */
+/* Traveller reviews — marquee shape (design from /journeys/japan-2). */
 const REVIEWS = [
-  { name: 'The Menon Family', age: '3 generations', trip: 'Japan · Cherry Blossom', rating: 5, span: 'tall',
-    text: 'Grandparents, parents and two kids — all looked after. The pace was gentle, the ryokan night unforgettable, and the children still talk about the bullet train.',
-    ids: ['1758272959663-b30513083206', '1715745218436-5a583702447a', '1580825175616-77f8df1bb507'] },
-  { name: 'Aditi & Mohit', age: '', trip: 'Japan · Group · 2025', rating: 5, span: 'tall',
-    text: 'Every transfer, every meal, flawless. The blossom timing was perfect and the small group felt like friends by the end. We simply turned up and were cared for.',
-    ids: ['1630001722538-a9a540da549b', '1529156069898-49953e39b3ac'] },
-  { name: 'Sunita Rao', age: '', trip: 'Japan · Kyoto temples', rating: 5, span: 'tall',
-    text: 'Flawless from start to finish. The cherry blossom viewing in Kyoto was a once-in-a-lifetime moment, arranged beautifully by our guide.',
-    ids: ['1567122087721-47b09b61e1d1', '1667029839636-af119b059c49'] },
-  { name: 'The Nair Family', age: '5 travelling', trip: 'Japan · Escorted Group', rating: 5, span: 'tall',
-    text: 'Zero planning stress with the fixed departure. Veg and Jain meals arranged every single day, and Nara’s deer were the highlight for our kids.',
-    ids: ['1642342397404-fed6450eb964', '1580825175616-77f8df1bb507'] },
-  { name: 'Rahul & friends', age: 'Group of 6', trip: 'Japan · Spring 2025', rating: 5, span: 'tall',
-    text: 'Six of us, one seamless trip. The Dotonbori food walk, the onsen ryokan, temples at dawn — our guide made every day effortless.',
-    ids: ['1639979511572-ff346bc5b3b7', '1667029839636-af119b059c49'] },
-  { name: 'Priya & Raghav', age: '', trip: 'Japan · Anniversary', rating: 5, span: 'tall',
-    text: 'A private tea ceremony, Mt. Fuji from the ropeway, and a curator a call away the whole time. Genuinely worth every rupee.',
-    ids: ['1677179974826-b6619bd77506', '1639979511572-ff346bc5b3b7'] },
+  { name: 'Ananya & Rohan Mehta', location: 'Mumbai', tour: 'Cherry Blossom Japan', rating: 5, text: 'The petals fell exactly when they promised. Every ryokan, every bullet-train seat, every dinner reservation was handled — we just showed up and fell in love with Japan.', avatar: '1545167622-3a6ac756afa4', tripPhoto: '1522383225653-ed111181a951' },
+  { name: 'Suresh Iyer', location: 'Bengaluru', tour: 'Japan for Families', rating: 5, text: 'Two kids, my parents and us — and not one dull hour. The pace was gentle, the guides endlessly patient, and the little touches made it unforgettable.', avatar: '1633332755192-727a05c4013d', tripPhoto: '1540959733332-eab4deabeeaf' },
+  { name: 'Vikram Desai', location: 'Delhi', tour: 'Luxury Japan by Rail', rating: 5, text: 'First-class Shinkansen, faultless hotels and a curator who anticipated everything. This is how Japan should be travelled — effortless, and quietly extraordinary.', avatar: '1500648767791-00dcc994a43e', tripPhoto: '1490806843957-31f4c9a91c65' },
+  { name: 'Sunita Rao', location: 'Hyderabad', tour: 'Japan in Autumn Colours', rating: 5, text: 'The maples in Kyoto were on fire with colour, timed to the day. A once-in-a-lifetime week, arranged with such care that nothing ever felt rushed.', avatar: '1438761681033-6461ffad8d80', tripPhoto: '1528360983277-13d401cdc186' },
+  { name: 'The Nair Family', location: 'Pune', tour: 'Essence of Japan with Hakone', rating: 5, text: 'Mt Fuji from the ryokan window, the kids wide-eyed on the bullet train, and a guide who felt like family by day three. Faultless from start to finish.', avatar: '1552058544-f2b08422138a', tripPhoto: '1493976040374-85c8e12f0c0e' },
 ];
+
+/* Brand marks for the review-credibility strip (inline, no asset deps). */
+const GoogleG = () => (
+  <svg viewBox="0 0 48 48" width="16" height="16" aria-hidden="true">
+    <path fill="#4285F4" d="M47.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h13.2c-.6 3-2.3 5.6-4.9 7.3v6h7.9c4.6-4.3 7.3-10.5 7.3-17.8z" />
+    <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.2 1.5-5 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.6H2.6v6.2C6.6 42.6 14.6 48 24 48z" />
+    <path fill="#FBBC05" d="M10.8 28.9c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6v-6.2H2.6C.9 16.1 0 19.9 0 24s.9 7.9 2.6 11.1l8.2-6.2z" />
+    <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.5 0 24 0 14.6 0 6.6 5.4 2.6 13.4l8.2 6.2C12.7 13.6 17.9 9.5 24 9.5z" />
+  </svg>
+);
+const TripAdvisorOwl = () => (
+  <svg viewBox="0 0 132 80" width="24" height="15" aria-hidden="true">
+    <circle cx="38" cy="42" r="32" fill="#34E0A1" />
+    <circle cx="94" cy="42" r="32" fill="#34E0A1" />
+    <circle cx="38" cy="42" r="18" fill="#fff" />
+    <circle cx="94" cy="42" r="18" fill="#fff" />
+    <circle cx="38" cy="42" r="9" fill="#000" />
+    <circle cx="94" cy="42" r="9" fill="#000" />
+    <path d="M52 2 Q66 14 80 2 L66 22 Z" fill="#000" />
+  </svg>
+);
 
 const SIMILAR = [
   { title: 'Grand European Sojourn', region: '5 countries', season: 'Apr–Oct', nights: '12 nights', priceFrom: '₹2,85,000', image: '1502602898657-3e91760cbb34', tags: ['Balanced pace', 'Escorted group'] },
@@ -479,7 +488,7 @@ function useReveal() {
   }, []);
 }
 
-export default function JapanTourLuxe4() {
+export default function JapanTourLuxe5() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -490,17 +499,13 @@ export default function JapanTourLuxe4() {
   const [activeSection, setActiveSection] = useState('highlights');
   const [callbackOpen, setCallbackOpen] = useState(false);
   const [callbackSent, setCallbackSent] = useState(false);
-  const [reviewIdx, setReviewIdx] = useState(0);
   const [travellers, setTravellers] = useState(2);
   const [termsTab, setTermsTab] = useState('booking');       // which policy category is shown
   const [termsModalOpen, setTermsModalOpen] = useState(false); // full-detail modal
 
   useReveal();
-  const review = REVIEWS[reviewIdx];
   const day = ITINERARY[activeDay];
   const activeCat = TERM_CATS.find((c) => c.id === termsTab);
-  const nextReview = () => setReviewIdx((i) => (i + 1) % REVIEWS.length);
-  const prevReview = () => setReviewIdx((i) => (i - 1 + REVIEWS.length) % REVIEWS.length);
 
   // Live booking maths — the card computes a real, changing total.
   const total = PRICE * travellers;
@@ -560,7 +565,7 @@ export default function JapanTourLuxe4() {
 
   return (
     <>
-      <div className="lx2i lxjt lxjt2 lxjt3 lxjt4">
+      <div className="lx2i lxjt lxjt2 lxjt3 lxjt4 lxjt5">
         <div className="lx2i-grain" aria-hidden="true" />
         <a className="lxjt-skip" href="#main">Skip to content</a>
 
@@ -672,12 +677,11 @@ export default function JapanTourLuxe4() {
                 </ul>
                 <div className="lxjt-hero__actions">
                   <a href="#dates" onClick={navClick('#dates')} className="lx2i-btn lx2i-btn--secondary lx2i-btn--lg">Check dates &amp; prices <ArrowRight size={16} /></a>
-                  <a href="#itinerary" onClick={navClick('#itinerary')} className="lxjt-hero__textcta">or view the day-by-day itinerary <ArrowRight size={14} /></a>
                 </div>
-                <div className="lxjt-hero__rating">
+                <a href="#reviews" onClick={navClick('#reviews')} className="lxjt-hero__rating lxjt5-rating-link">
                   <span className="lx2i-stars">{[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}</span>
                   <strong>4.9</strong><span>from 640 traveller reviews of this tour</span>
-                </div>
+                </a>
               </div>
             </div>
           </section>
@@ -1001,7 +1005,7 @@ export default function JapanTourLuxe4() {
                 </div>
 
                 <button type="button" className="lx2i-btn lx2i-btn--primary lx2i-btn--lg lxjt-card__go">
-                  Reserve {travellers === 1 ? 'my seat' : `${travellers} seats`} <ArrowRight size={17} />
+                  <MessageCircle size={17} /> Enquire Now
                 </button>
                 <p className="lxjt-card__secure"><Lock size={13} /> Secure encrypted checkout · deposit protected</p>
                 <a href={PHONE_TEL} className="lxjt-card__talk">Prefer to talk? Call a curator, free <ArrowRight size={14} /></a>
@@ -1051,45 +1055,64 @@ export default function JapanTourLuxe4() {
           </section>
 
           {/* ============ REVIEWS (photo collage + quote, one at a time) ============ */}
-          <section className="lxjt-review" id="reviews">
-            <div className="lx2i-container">
-              <div className="lxjt-head lxjt-head--center lxjt-head--light lx2i-reveal">
-                <span className="lx2i-eyebrow lx2i-eyebrow--light">// WHAT TRAVELLERS SAY</span>
-                <h2 className="lx2i-h2 lxjt-review__h">Real journeys, captured by <strong>our travellers</strong></h2>
-                <p className="lxjt-lead lxjt-lead--light">The moments that made each trip &mdash; straight from the families and groups who lived them.</p>
-              </div>
+          <section className="h26-reviews" id="reviews">
+            <div className="h26-head">
+              <p className="h26-label lx2i-reveal">Travelled, and came back happy</p>
+              <h2 className="h26-h2 lx2i-reveal">Travellers who trusted us with Japan.</h2>
+              <p className="hi-rev-sub lx2i-reveal">Couples and honeymooners, multi-generational families, friends and solo explorers.</p>
+            </div>
 
-              <div className="lxjt-review__stage lx2i-reveal">
-                <div className="lxjt-review__photos" key={`p-${reviewIdx}`}>
-                  <div className="lxjt-review__photo lxjt-review__photo--lead" style={{ backgroundImage: `url(${sizedUnsplash(review.ids[0], 800)})` }} role="img" aria-label={`${review.name} — ${review.trip}`} />
-                  <div className="lxjt-review__col">
-                    {review.ids.slice(1, 3).map((id, k) => (
-                      <div key={id + k} className="lxjt-review__photo" style={{ backgroundImage: `url(${sizedUnsplash(id, 500)})` }} role="img" aria-label={`${review.name} — travel photo`} />
-                    ))}
-                  </div>
+            {/* Independent-rating trust strip: overall score + Google / Tripadvisor */}
+            <div className="hi-rtrust lx2i-reveal">
+              <div className="hi-rtrust-overall">
+                <strong>4.9</strong>
+                <div className="hi-rtrust-overall-meta">
+                  <span className="hi-rtrust-stars" aria-hidden="true">
+                    {Array.from({ length: 5 }).map((_, k) => <Star key={k} size={15} fill="currentColor" />)}
+                  </span>
+                  <span className="hi-rtrust-sub">Excellent · 2,400+ verified reviews</span>
                 </div>
-
-                <figure className="lxjt-review__body lx2i-glass" key={`q-${reviewIdx}`}>
-                  <Quote size={36} className="lxjt-review__q" aria-hidden="true" />
-                  <div className="lx2i-stars lx2i-stars--lg" aria-label={`${review.rating} out of 5 stars`}>{[...Array(review.rating)].map((_, i) => <Star key={i} size={17} fill="currentColor" />)}</div>
-                  <blockquote>{review.text}</blockquote>
-                  <figcaption className="lxjt-review__who">
-                    <strong>{review.name}{review.age && <span className="lxjt-review__age"> · {review.age}</span>}</strong>
-                    <span>{review.trip}</span>
-                  </figcaption>
-                </figure>
               </div>
-
-              <div className="lxjt-review__controls">
-                <button type="button" className="lxjt-review__arrow" onClick={prevReview} aria-label="Previous review"><ArrowLeft size={18} /></button>
-                <div className="lxjt-review__dots" role="tablist" aria-label="Choose a review">
-                  {REVIEWS.map((r, i) => (
-                    <button key={r.name} type="button" role="tab" aria-selected={i === reviewIdx} aria-label={`Review ${i + 1}: ${r.name}`} className={`lxjt-review__dot ${i === reviewIdx ? 'is-on' : ''}`} onClick={() => setReviewIdx(i)} />
-                  ))}
-                </div>
-                <span className="lxjt-review__count">{String(reviewIdx + 1).padStart(2, '0')} / {String(REVIEWS.length).padStart(2, '0')}</span>
-                <button type="button" className="lxjt-review__arrow" onClick={nextReview} aria-label="Next review"><ArrowRight size={18} /></button>
+              <span className="hi-rtrust-div" aria-hidden="true" />
+              <div className="hi-rtrust-platforms">
+                <span className="hi-rtrust-plat">
+                  <GoogleG />
+                  <span><strong>4.8</strong> on <b>Google</b></span>
+                </span>
+                <span className="hi-rtrust-plat">
+                  <TripAdvisorOwl />
+                  <span><strong>4.9</strong> on <b>Tripadvisor</b></span>
+                </span>
               </div>
+            </div>
+
+            <div className="h26-marquee">
+              <div className="h26-marquee-track">
+                {[...REVIEWS, ...REVIEWS].map((r, i) => (
+                  <article className="h26-rev" key={i}>
+                    <div className="h26-rev-photo">
+                      <img src={sizedUnsplash(r.tripPhoto, 600)} alt={r.tour} loading="lazy" />
+                      <span className="h26-rev-tour">{r.tour}</span>
+                    </div>
+                    <div className="h26-rev-content">
+                      <div className="h26-rev-stars">
+                        {Array.from({ length: r.rating }).map((_, k) => <Star key={k} size={14} fill="currentColor" />)}
+                      </div>
+                      <p>"{r.text}"</p>
+                      <div className="h26-rev-who">
+                        <img src={sizedUnsplash(r.avatar, 120)} alt="" loading="lazy" />
+                        <span>
+                          <strong>{r.name}</strong>
+                          <em>{r.location}</em>
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="h26-reviews-more lx2i-reveal">
+              <Link to="/improved#reviews" className="h26-btn h26-btn-pill">View all reviews <ArrowUpRight size={16} /></Link>
             </div>
           </section>
 

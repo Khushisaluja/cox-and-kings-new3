@@ -160,6 +160,104 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
 .bf-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .bf-restart { align-self: flex-start; margin-top: 16px; background: none; border: none; cursor: pointer; font-size: 0.88rem; color: var(--muted); text-decoration: underline; }
 
+/* ---- Contact — cinematic closing band (full-bleed, image-backed) ----
+   A film-still "moment" before the footer: a warm coastal vista under a navy
+   scrim, editorial left-aligned type in the site's Zodiak / Work Sans system
+   (headline + italic-sienna word accent mirror the hero). Sienna is the single
+   filled primary action; WhatsApp is a quiet outline — brand neutrals only. */
+.h26-contact {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: clamp(440px, 52vw, 600px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(60px, 8vw, 120px) clamp(22px, 6vw, 100px);
+  background: var(--navy);
+}
+/* Dim the photo against the navy base so it reads as atmosphere, not a bright
+   backdrop competing with the type (mirrors the /tour-detail-japan-4 CTA). */
+.h26-contact-bg {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%; object-fit: cover; object-position: center 45%;
+  transform: scale(1.05);
+  opacity: 0.58;
+}
+.h26-contact-scrim {
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(120% 120% at 50% -8%, rgba(11,90,177,0.26), transparent 54%),
+    linear-gradient(180deg, rgba(2,10,26,0.52) 0%, rgba(1,7,20,0.8) 100%);
+}
+.h26-contact-grain {
+  position: absolute; inset: 0; z-index: -1; opacity: 0.4; mix-blend-mode: overlay; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+}
+.h26-contact-inner { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
+.h26-contact-eyebrow {
+  display: inline-flex; align-items: center; justify-content: center; gap: 13px;
+  font-family: var(--sans); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.26em; text-transform: uppercase; color: #F3B9A2; margin: 0 0 22px;
+}
+.h26-contact-rule { display: inline-block; width: 34px; height: 1px; background: currentColor; opacity: 0.85; }
+.h26-contact-title {
+  font-family: var(--serif); font-weight: 300; color: var(--paper);
+  font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.06; letter-spacing: -0.01em;
+  margin: 0; text-shadow: 0 2px 40px rgba(0,0,0,0.35);
+}
+.h26-contact-title .wr-accent { color: #F6A07E; font-style: italic; }
+.h26-contact-sub {
+  max-width: 520px; margin: 24px auto 0; color: rgba(241,239,226,0.9);
+  font-size: clamp(1rem, 1.4vw, 1.14rem); line-height: 1.6; font-weight: 300;
+  text-shadow: 0 1px 20px rgba(2,19,48,0.45);
+}
+.h26-contact-ctas { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 36px; }
+.h26-contact-wa { background: rgba(255,255,255,0.07); color: var(--paper-2); border: 1px solid rgba(223,225,230,0.5); }
+.h26-contact-wa:hover { background: rgba(255,255,255,0.16); border-color: rgba(223,225,230,0.82); }
+.h26-contact-alt {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 26px; color: rgba(223,225,230,0.78); font-size: 0.92rem; letter-spacing: 0.01em;
+}
+.h26-contact-alt svg { color: #F3B9A2; }
+@media (max-width: 680px) {
+  .h26-contact { padding-left: 22px; padding-right: 22px; }
+  .h26-contact-inner { max-width: 100%; }
+  .h26-contact-ctas .h26-btn { flex: 1 1 100%; justify-content: center; }
+}
+
+/* ---- "Schedule a callback" popup (opened from the mobile call icon) ---- */
+/* Sits above the fixed thumb-bar (z 150) and nav (z 50). */
+.h26-cb { z-index: 200; }
+.cb-panel { width: min(480px, 100%); }
+.cb-form { display: flex; flex-direction: column; }
+.cb-title { margin: 12px 0 6px; font-size: 1.5rem; }
+.cb-intro { font-size: 0.94rem; line-height: 1.5; color: var(--muted); margin: 0 0 20px; }
+.cb-intro strong { color: var(--ink); font-weight: 600; }
+.cb-field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 15px; }
+.cb-label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.02em; color: var(--ink); }
+.cb-input {
+  width: 100%; font-family: var(--sans); font-size: 0.98rem; color: var(--ink);
+  padding: 13px 15px; background: #fff; border: 1px solid var(--border);
+  border-radius: 11px; transition: border-color .2s ease, box-shadow .2s ease;
+}
+.cb-input::placeholder { color: var(--muted-2); }
+.cb-input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(11,90,177,0.14); }
+.cb-select-wrap { position: relative; display: block; }
+.cb-select { appearance: none; -webkit-appearance: none; padding-right: 42px; cursor: pointer; }
+.cb-select-chev { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.cb-times { gap: 8px; }
+.cb-times .bf-chip { font-size: 0.86rem; padding: 9px 13px; }
+.cb-submit { justify-content: center; width: 100%; margin-top: 8px; padding: 15px 24px; }
+.cb-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+.cb-alt { text-align: center; font-size: 0.86rem; color: var(--muted); margin: 14px 0 0; }
+.cb-alt a { color: var(--blue); font-weight: 500; text-decoration: underline; }
+.cb-done { display: flex; flex-direction: column; align-items: flex-start; }
+.cb-done-ic { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #D6E5E0; color: #337D64; margin-bottom: 6px; }
+.cb-done-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; width: 100%; }
+.cb-done-actions .h26-btn { flex: 1; justify-content: center; min-width: 150px; }
+
 /* Full-bleed sections — the content "sheet" spans edge to edge (no side inset,
    no backdrop gap), keeping only the rounded top where it rises over the hero.
    On the host app this stays a floating card; here every section is full width. */
@@ -170,8 +268,35 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
   border-radius: 40px 40px 0 0;
 }
 
+/* The "Relaxed pace" shelf is the standalone /journeys page's wrapper reused as
+   a single embedded rail. Its full-page min-height (100vh) left a huge empty gap
+   between the shelf and the Clips section — neutralise it in this composite only. */
+.h26-sheet .jl { min-height: 0; }
+
+/* The "Ask Enaya" FAB is the lx2i component dropped into the h26 page; its
+   gradient/transition/icon use lx2i-scoped tokens (--blue-500, --ease,
+   --gold-soft) that don't resolve here, leaving the button with no visible
+   background. Re-point it at the h26 brand tokens. */
+.h26 .lx2i-aifab {
+  background: linear-gradient(135deg, var(--blue), var(--blue-d));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+.h26 .lx2i-aifab svg { color: #F3B9A2; }
+
 /* Hero — a touch more breathing room above the search dock (/improved only) */
 .h26-search { margin-top: clamp(54px, 6vw, 76px); }
+
+/* Hero rating line under the search bar (mirrors /luxe2-improved hero) */
+.h26-hero-rating {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 22px;
+  color: #fff; text-decoration: none; font-size: 14px; transition: gap 0.3s var(--ease, ease);
+}
+.h26-hero-rating:hover { gap: 12px; }
+.h26-hero-rating strong { font-size: 16px; color: #fff; font-weight: 600; }
+.h26-hero-rating > span:last-of-type { color: rgba(255,255,255,0.85); }
+.h26-hero-rating-stars { display: inline-flex; gap: 2px; color: #F4B73F; }
+.h26-hero-rating svg:last-child { transition: transform 0.3s var(--ease, ease); }
+.h26-hero-rating:hover svg:last-child { transform: translateX(4px); }
 
 /* "Where to?" — typeable combobox with a site-styled suggestion dropdown.
    The field itself reads like the other glassy search segments (white text on

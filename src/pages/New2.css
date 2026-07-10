@@ -1,0 +1,275 @@
+/* ============================================================
+   New2 — styles unique to the /new2 page. Two blocks only:
+   · .nx2-assure  — the intro assurance cards (replaces the flat
+     checklist from /new)
+   · .nx2-awards  — the "Accolades & Achievements" band inside the
+     heritage section.
+
+   Everything else on the page reuses the h26-/hi-, lx2i- and jl-
+   stylesheets. Scoped under .nx2-* so nothing bleeds to /new.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   INTRO — assurance cards
+   Lives inside the h26 intro (.h26-intro-copy), on the paper sheet.
+   Re-declare the tokens it leans on so it never depends on cascade.
+   ------------------------------------------------------------ */
+.nx2-assure {
+  --nx-ink: #1F2A36;
+  --nx-muted: #4E4E48;
+  --nx-blue: #0B5AB1;
+  --nx-blue-d: #07366A;
+  --nx-gold: #C9A86A;
+  --nx-paper: #F8F7F1;
+  --nx-line: #E4E1D4;
+  --nx-serif: 'Zodiak', Georgia, 'Times New Roman', serif;
+  --nx-sans: 'Work Sans', system-ui, sans-serif;
+  --nx-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  list-style: none;
+  padding: 0;
+  margin: 30px auto 0;
+  max-width: 620px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  text-align: left;
+}
+
+.nx2-assure-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 14px;
+  padding: 18px 18px 18px 17px;
+  border-radius: 15px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBF6 100%);
+  border: 1px solid var(--nx-line);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 14px 30px -24px rgba(2, 19, 48, 0.45);
+  overflow: hidden;
+  transition: transform 0.45s var(--nx-ease), box-shadow 0.45s var(--nx-ease),
+    border-color 0.45s var(--nx-ease);
+}
+/* gold hairline that sweeps in on hover — the luxury tell */
+.nx2-assure-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--nx-gold), #E4D2A8);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.5s var(--nx-ease);
+}
+.nx2-assure-card:hover {
+  transform: translateY(-4px);
+  border-color: #D6D2C2;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 26px 44px -26px rgba(2, 19, 48, 0.5);
+}
+.nx2-assure-card:hover::before { transform: scaleY(1); }
+
+.nx2-assure-ic {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: var(--nx-blue-d);
+  background: radial-gradient(120% 120% at 30% 20%, #EAF1FA 0%, #E2ECF7 60%, #DCE7F4 100%);
+  border: 1px solid #D3E0F0;
+  box-shadow: 0 6px 14px -10px rgba(11, 90, 177, 0.6);
+  transition: transform 0.45s var(--nx-ease), color 0.45s var(--nx-ease);
+}
+.nx2-assure-card:hover .nx2-assure-ic {
+  transform: rotate(-4deg) scale(1.05);
+  color: var(--nx-blue);
+}
+
+.nx2-assure-body { min-width: 0; }
+.nx2-assure-title {
+  font-family: var(--nx-sans);
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--nx-ink);
+  margin: 2px 0 5px;
+  line-height: 1.25;
+}
+.nx2-assure-desc {
+  font-family: var(--nx-sans);
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--nx-muted);
+  margin: 0;
+}
+
+/* the visa card carries a small stat badge */
+.nx2-assure-stat {
+  position: absolute;
+  top: 14px;
+  right: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1;
+  text-align: right;
+}
+.nx2-assure-stat strong {
+  font-family: var(--nx-serif);
+  font-weight: 400;
+  font-size: 1.35rem;
+  color: var(--nx-blue-d);
+}
+.nx2-assure-stat small {
+  font-family: var(--nx-sans);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nx-gold);
+  margin-top: 3px;
+}
+
+@media (max-width: 680px) {
+  .nx2-assure {
+    grid-template-columns: 1fr;
+    gap: 11px;
+    margin-top: 22px;
+    max-width: 100%;
+  }
+  .nx2-assure-card { padding: 15px 16px; border-radius: 14px; }
+  .nx2-assure-ic { width: 40px; height: 40px; }
+  /* the stat can crowd the single-column card — tuck it out of the way */
+  .nx2-assure-stat { position: static; flex-direction: row; align-items: baseline; gap: 6px; margin-top: 8px; }
+  .nx2-assure-stat small { margin-top: 0; }
+}
+
+/* ------------------------------------------------------------
+   HERITAGE — Accolades & Achievements band
+   Sits inside the .lx2i wrapper, so it inherits the lx2i tokens
+   (--paper-50, --gold, --serif, etc.).
+   ------------------------------------------------------------ */
+.nx2-awards {
+  padding: clamp(64px, 8vw, 104px) 0 clamp(72px, 9vw, 120px);
+  background:
+    radial-gradient(140% 120% at 50% -10%, rgba(201, 168, 106, 0.09) 0%, transparent 55%),
+    var(--paper-50);
+  border-top: 1px solid rgba(201, 168, 106, 0.28);
+}
+
+.nx2-awards-head { text-align: center; max-width: 640px; margin: 0 auto clamp(38px, 5vw, 56px); }
+.nx2-awards-head .lx2i-eyebrow { justify-content: center; }
+.nx2-awards-head .lx2i-h2 { margin-top: 12px; }
+.nx2-awards-sub {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-700);
+  margin: 18px auto 0;
+  max-width: 460px;
+}
+
+.nx2-awards-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+.nx2-award {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 34px 24px 30px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FBFAF4 100%);
+  border: 1px solid var(--paper-200);
+  box-shadow: 0 22px 44px -34px rgba(2, 19, 48, 0.5);
+  overflow: hidden;
+  transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease),
+    border-color 0.5s var(--ease);
+}
+/* gold top rule that fills on hover */
+.nx2-award::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0.2);
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: transform 0.55s var(--ease), opacity 0.55s var(--ease);
+}
+.nx2-award:hover {
+  transform: translateY(-6px);
+  border-color: rgba(201, 168, 106, 0.6);
+  box-shadow: 0 34px 56px -34px rgba(2, 19, 48, 0.55);
+}
+.nx2-award:hover::before { transform: translateX(-50%) scaleX(1); opacity: 1; }
+
+.nx2-award-medal {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--blue-700);
+  background: radial-gradient(120% 120% at 30% 25%, #FBF3DE 0%, #F3E6C4 55%, #EAD8A8 100%);
+  border: 1px solid rgba(201, 168, 106, 0.55);
+  box-shadow: 0 10px 22px -14px rgba(201, 168, 106, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
+  margin-bottom: 18px;
+  transition: transform 0.5s var(--ease);
+}
+.nx2-award:hover .nx2-award-medal { transform: scale(1.06) rotate(-3deg); }
+
+.nx2-award-years {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--sienna);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.nx2-award-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.12rem;
+  line-height: 1.28;
+  color: var(--ink-900);
+  margin: 0 0 8px;
+  text-wrap: balance;
+}
+.nx2-award-org {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-600);
+  margin: 0;
+}
+
+/* staggered scroll-in for each award card */
+.nx2-award.lx2i-reveal { transition-delay: var(--d, 0s); }
+
+@media (max-width: 900px) {
+  .nx2-awards-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+@media (max-width: 520px) {
+  .nx2-awards-grid { grid-template-columns: 1fr; gap: 14px; }
+  .nx2-award { padding: 26px 22px; }
+  .nx2-award-medal { width: 54px; height: 54px; margin-bottom: 14px; }
+  .nx2-award-title { font-size: 1.08rem; }
+}

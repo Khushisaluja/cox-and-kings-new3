@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Menu, X, ArrowRight, ArrowLeft, ArrowUpRight, ChevronDown,
-  Star, MapPin, Calendar, Users, Plane, Check, Plus, Minus, Lock, Quote,
-  ShieldCheck, Phone, MessageCircle, PhoneCall, Headset, Sparkles, Clock,
+  Star, MapPin, Calendar, Users, Check, Plus, Minus, Lock, Quote,
+  ShieldCheck, Phone, MessageCircle, PhoneCall, Sparkles, Clock,
   Wallet, Repeat, Stamp, CheckCircle2, Instagram, Facebook, Youtube, Linkedin,
-  Hotel, Utensils, TrainFront, Compass,
+  Hotel, Utensils, Compass, Headset, Flame, Zap, BadgeCheck, Plane,
   CreditCard, FileText, AlertTriangle, RefreshCcw, Building2, UserCheck,
   HeartPulse, BedDouble, CloudLightning, Gavel, Scale, Car,
 } from 'lucide-react';
@@ -17,15 +17,20 @@ import './JapanTourLuxe.css';
 import './JapanTourLuxe2.css';
 import './JapanTourLuxe3.css';
 import './JapanTourLuxe4.css';
+import './JapanTourLuxe5.css';
+import './ThailandEscape.css';
+import './ThailandEscape2.css';
 
 /* ============================================================
-   Cox & Kings — "Essence Japan with Hakone" tour-detail page,
-   VARIANT 4. Route: /tour-detail-japan-4.
-   Builds on VARIANT 3 (split itinerary + "the policies") and
-   enriches the day-by-day with the real product content from
-   coxandkings.com/group-tours/essence-japan-with-hakone — hotels,
-   meals and sights per day. The picture on the right is shorter and,
-   on hover, surfaces those details on top of it.
+   Cox & Kings — "Pattaya & Bangkok Escape" tour-detail page.
+   Route: /tour-detail-thailand.
+
+   Built on the same design language as /tour-detail-japan-5, but
+   where the Japan page is tuned for LEAD CAPTURE, this page is tuned
+   to make people BOOK: a loud "Book now" hero CTA, an urgency /
+   high-demand strip and scarcity ribbon on the booking card, seats-
+   left tags on every date, and trust badges beside the checkout.
+   Content is taken from coxandkings.com/private-tours/pattaya-bangkok-escape.
    ============================================================ */
 
 const sizedUnsplash = (id, w = 1200) =>
@@ -34,21 +39,18 @@ const sizedUnsplash = (id, w = 1200) =>
 /* ---------- Human contact (matches the homepage) ---------- */
 const PHONE_DISPLAY = '+91 85560 01700';
 const PHONE_TEL = 'tel:+918556001700';
-const WHATSAPP = 'https://wa.me/918556001700?text=Hi%20Cox%20%26%20Kings%2C%20I%27d%20like%20to%20plan%20the%20Essence%20Japan%20with%20Hakone%20journey.';
+const WHATSAPP = 'https://wa.me/918556001700?text=Hi%20Cox%20%26%20Kings%2C%20I%27d%20like%20to%20book%20the%20Pattaya%20%26%20Bangkok%20Escape.';
 const EMAIL = 'holidays@coxandkings.com';
-const OFFICE_SHORT = 'Fort, Mumbai 400001';
-const OFFICE_FULL = 'Turner Morrison House, 16 Bank Street, Fort, Mumbai 400001';
 const HOME = '/luxe2-improved';
 
-/* Desktop nav megamenus — same shape as the /new homepage (hover flyouts),
-   remapped to the sections that exist on this tour-detail page. */
+/* Desktop nav megamenus — same shape as the /new homepage, remapped
+   to the sections on this tour-detail page. */
 const NAV_MENU = [
   {
     label: 'This tour', href: '#highlights',
-    blurb: 'Everything about the Essence Japan with Hakone journey.',
+    blurb: 'Everything about the Pattaya & Bangkok Escape.',
     items: [
       { label: 'Highlights', desc: 'What makes this trip special', href: '#highlights' },
-      { label: 'Your route', desc: 'Five cities, coast to coast', href: '#route' },
       { label: 'Day by day', desc: 'The full itinerary', href: '#itinerary' },
       { label: 'Dates & prices', desc: 'Departures and fares', href: '#dates' },
     ],
@@ -57,7 +59,7 @@ const NAV_MENU = [
     label: 'Journeys', href: `${HOME}#curated`,
     blurb: 'Signature itineraries, ready to make your own.',
     items: [
-      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', href: `${HOME}#curated` },
+      { label: 'Private tours', desc: 'Just your party, your pace', href: `${HOME}#curated` },
       { label: 'Tailor-made trips', desc: 'Designed entirely around you', href: `${HOME}#curated` },
       { label: 'Honeymoons & milestones', desc: 'Celebrate something special', href: `${HOME}#curated` },
       { label: 'All destinations', desc: 'Browse the full map', href: `${HOME}#destinations` },
@@ -69,169 +71,185 @@ const NAV_MENU = [
     items: [
       { label: 'Since 1758', desc: 'Heritage you can lean on', href: `${HOME}#heritage` },
       { label: 'Why Cox & Kings', desc: 'How we plan differently', href: `${HOME}#curated` },
-      { label: 'Real reviews', desc: '640 verified travellers', href: '#reviews' },
+      { label: 'Real reviews', desc: '2,400+ verified travellers', href: '#reviews' },
       { label: 'Press & awards', desc: 'The press that covers us', href: `${HOME}#reviews` },
     ],
   },
   { label: 'Reviews', href: '#reviews' },
 ];
 
-/* ---------- Tour data (Essence Japan with Hakone) ---------- */
-const PRICE = 295000;
+/* ---------- Tour data (Pattaya & Bangkok Escape) ----------
+   PRICE is the headline "from" fare — the lowest across all 2026 departures
+   (the per-date prices live in DEPARTURES below). */
+const PRICE = 31299;
 const HERO = {
-  kicker: 'Essence Japan with Hakone · Escorted group tour',
+  kicker: 'Pattaya & Bangkok Escape · Private tour',
   title: (
-    <>Japan, as the <em className="lxjt-hero__accent">cherry blossoms</em> fall.</>
+    <>Thailand, from <em className="lxjt-hero__accent">island shores</em> to golden temples.</>
   ),
   lead:
-    'Eight unhurried days from Tokyo’s neon to Kyoto’s temple gardens, by way of Mount Fuji and a night in a hot-spring ryokan, in a small group, led by an expert guide. You simply turn up; we’ve thought of all the rest. 🇯🇵',
-  image: '1522383225653-ed111181a951',
+    'Five easy days across Pattaya’s beaches and Bangkok’s temples — private transfers throughout, just your party, your pace. 🇹🇭',
+  image: '1552465011-b4e21bf6e79a',
   facts: [
-    { icon: Calendar, label: '8 Days · 7 Nights' },
-    { icon: MapPin, label: '5 Cities' },
-    { icon: Users, label: 'Small group' },
-    { icon: Compass, label: 'Guided throughout' },
+    { icon: Calendar, label: '5 Days · 4 Nights' },
+    { icon: MapPin, label: '2 Cities' },
+    { icon: Users, label: 'Escorted small group' },
+    { icon: Compass, label: 'Guided sightseeing' },
   ],
 };
 
-const HIGHLIGHT_IMG = '1533050487297-09b450131914';
+const HIGHLIGHT_IMG = '1519451241324-20b4ea2c4220';
 /* Scannable "what's in the price" strip — the key inclusions, at a glance. */
 const KEY_INCLUSIONS = [
-  { icon: Hotel, label: '7 nights incl. a ryokan' },
-  { icon: Utensils, label: 'Breakfast daily + meals' },
-  { icon: Compass, label: 'English-speaking guide' },
-  { icon: TrainFront, label: 'Coach & transfers' },
-  { icon: MapPin, label: 'All entrance fees' },
-  { icon: ShieldCheck, label: 'Visa & insurance' },
+  { icon: Hotel, label: '4 nights · Pattaya & Bangkok' },
+  { icon: Utensils, label: 'Breakfast daily + 2 lunches' },
+  { icon: Compass, label: 'Alcazar Show & Coral Island' },
+  { icon: Car, label: 'Private airport & city transfers' },
+  { icon: MapPin, label: 'Temple tour & Safari World' },
+  { icon: ShieldCheck, label: 'Local representative throughout' },
 ];
 const HIGHLIGHTS = [
-  'Mount Fuji’s 5th Station and a Lake Kawaguchiko boat ride',
-  'A night in a traditional onsen ryokan',
-  'Kamakura’s Great Buddha and bamboo groves',
-  'Fushimi Inari’s vermilion torii and the Golden Pavilion',
-  'Nara’s Tōdai-ji and its famously friendly deer',
-  'Dōtonbori’s neon and street food in Osaka',
+  'The world-famous Alcazar cabaret show in Pattaya',
+  'A Coral Island speedboat adventure, with lunch',
+  'Tiger Topia — a close-up wildlife encounter',
+  'Bangkok’s golden temples: Wat Traimit & Wat Pho',
+  'Safari World & Marine Park, with lunch included',
+  'Private transfers and guided sightseeing throughout',
 ];
 
-const ROUTE = [
-  { nights: '2 nights', city: 'Tokyo', note: 'Temples, shrines and the electric crossings — plus an evening walk through neon-lit Shinjuku.', image: '1480796927426-f609979314bd' },
-  { nights: '1 night', city: 'Odawara', note: 'Kamakura’s Great Buddha and bamboo groves, Enoshima Island, and a hilltop castle.', image: '1528360983277-13d401cdc186' },
-  { nights: '1 night', city: 'Kawaguchiko', note: 'Mount Fuji up close, hot-spring valleys and a night in a traditional onsen ryokan.', image: '1490806843957-31f4c9a91c65' },
-  { nights: '2 nights', city: 'Kyoto', note: 'Arashiyama, Fushimi Inari and the Golden Pavilion in Japan’s old capital.', image: '1493976040374-85c8e12f0c0e' },
-  { nights: '1 night', city: 'Osaka', note: 'A day in Nara among the deer en route, then Dōtonbori’s neon and street food.', image: '1590559899731-a382839e5549' },
-];
-
-/* Day-by-day itinerary — mirrors the real "Essence Japan with Hakone" product.
+/* Day-by-day itinerary — mirrors the real "Pattaya & Bangkok Escape" product.
    Each day carries its picture + the hotel, meals and key sights that surface on
    the picture (desktop) or inside the accordion (mobile). */
 const ITINERARY = [
-  { day: 'Day 01', place: 'Tokyo', title: 'Arrive in Tokyo', img: '1480796927426-f609979314bd', cap: 'Arrival into Tokyo',
-    body: 'Arrive in Tokyo, transfer to your hotel and unwind, with an evening briefing on the journey ahead.',
-    hotel: 'Shinagawa Prince Hotel, Tokyo', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
-    transfer: 'Narita / Haneda Airport → Tokyo hotel (shared shuttle)', meals: 'No meals included', nights: '2 nights · Tokyo',
-    acts: ['Airport shared transfer', 'Evening trip briefing'] },
-  { day: 'Day 02', place: 'Tokyo', title: 'Tokyo sightseeing & Shinjuku', img: '1522383225653-ed111181a951', cap: 'Sensō-ji & Shibuya, Tokyo',
-    body: 'A full day across old and new Tokyo, ending with an evening walk through neon-lit Shinjuku.',
-    hotel: 'Shinagawa Prince Hotel, Tokyo', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
-    transfer: 'Coach touring + evening transfer to Shinjuku', meals: 'Breakfast', nights: '2 nights · Tokyo',
-    acts: ['Zōjō-ji Temple & Meiji Shrine', 'Shibuya Crossing & Imperial Palace', 'Tokyo Skytree', 'Sensō-ji & Nakamise Street'] },
-  { day: 'Day 03', place: 'Odawara', title: 'Kamakura, Enoshima & Odawara', img: '1528360983277-13d401cdc186', cap: 'The Great Buddha, Kamakura',
-    body: 'The seaside temple town of Kamakura and its Great Buddha, then on via Enoshima Island to Odawara.',
-    hotel: 'Hotel in Odawara (or similar)', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
-    transfer: 'Tokyo → Kamakura → Odawara by coach', meals: 'Breakfast', nights: '1 night · Odawara',
-    acts: ['Hōkoku-ji Temple & bamboo forest', 'Sugimoto-dera & the Great Buddha', 'Enoshima Island', 'Odawara Castle'] },
-  { day: 'Day 04', place: 'Kawaguchiko', title: 'Mount Fuji & a ryokan night', img: '1490806843957-31f4c9a91c65', cap: 'Mt. Fuji from Lake Kawaguchiko',
-    body: 'The Mount Fuji region — 5th Station, hot-spring valleys and a lake boat ride — then a night in an onsen ryokan.',
-    hotel: 'Onsen Ryokan, Kawaguchiko', stars: 4, room: 'Japanese-style room · twin', ryokan: true,
-    transfer: 'Odawara → Fuji region → Kawaguchiko by coach', meals: 'Breakfast · Lunch · Dinner', nights: '1 night · Kawaguchiko',
-    acts: ['Owakudani / Arakurayama', 'Oshino Hakkai springs', 'Mount Fuji 5th Station', 'Lake Kawaguchiko boat ride & onsen'] },
-  { day: 'Day 05', place: 'Kyoto', title: 'Iyashi-no-Sato, Shiraito & Kyoto', img: '1533050487297-09b450131914', cap: 'Thatched village of Iyashi-no-Sato',
-    body: 'A thatched-roof village, the lace-like Shiraito Falls and the Toyota Museum en route to the old capital, Kyoto.',
-    hotel: 'Hotel in Kyoto (or similar)', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
-    transfer: 'Kawaguchiko → Kyoto by coach', meals: 'Breakfast · Lunch · Dinner', nights: '2 nights · Kyoto',
-    acts: ['Iyashi-no-Sato Nenba village', 'Shiraito Falls', 'Toyota Museum'] },
-  { day: 'Day 06', place: 'Kyoto', title: 'Kyoto heritage tour', img: '1493976040374-85c8e12f0c0e', cap: 'Golden Pavilion, Kyoto',
-    body: 'A full day among Kyoto’s finest — Arashiyama’s bamboo grove, Fushimi Inari and the Golden Pavilion.',
-    hotel: 'Hotel in Kyoto (or similar)', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
-    transfer: 'Kyoto sightseeing by coach', meals: 'Breakfast', nights: '2 nights · Kyoto',
-    acts: ['Arashiyama & Tenryū-ji Temple', 'Bamboo Grove', 'Fushimi Inari', 'Imperial Palace & Golden Pavilion'] },
-  { day: 'Day 07', place: 'Osaka', title: 'Nara, then Osaka', img: '1590559899731-a382839e5549', cap: 'Nara’s temples & deer',
-    body: 'A morning in Nara — the great Tōdai-ji and its friendly deer — then on to Osaka and Dōtonbori.',
-    hotel: 'Hotel in Osaka (or similar)', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
-    transfer: 'Kyoto → Nara → Osaka by coach', meals: 'Breakfast · Lunch', nights: '1 night · Osaka',
-    acts: ['Tōdai-ji Temple', 'Hōryū-ji Temple', 'Nara Park deer', 'Dōtonbori, Osaka'] },
-  { day: 'Day 08', place: 'Osaka', title: 'Depart from Osaka', img: '1522383225653-ed111181a951', cap: 'Sayōnara, from Osaka',
-    body: 'After breakfast, transfer to the airport for your onward flight home.',
+  { day: 'Day 01', place: 'Pattaya', title: 'Arrive in Bangkok → Pattaya', img: '1528702748617-c64d49f918af', cap: 'The Alcazar Show, Pattaya',
+    body: 'Land at Bangkok’s Suvarnabhumi Airport, where our local representative meets you for a private transfer to Pattaya (about 2–2.5 hours). After check-in, take in the world-famous Alcazar Show — a dazzling cabaret of costumes, music and stagecraft.',
+    hotel: 'Aiyara Grand Pattaya (or similar)', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
+    transfer: 'Suvarnabhumi Airport → Pattaya (private, ~2–2.5 hrs)', meals: 'No meals included', nights: '2 nights · Pattaya',
+    acts: ['Private airport transfer', 'Hotel check-in', 'Alcazar cabaret show'] },
+  { day: 'Day 02', place: 'Pattaya', title: 'Coral Island & Tiger Topia', img: '1537956965359-7573183d1f57', cap: 'Coral Island by speedboat',
+    body: 'A speedboat skims out to Coral Island for a day on powder-soft sand and clear water, with lunch included. Back on the mainland, come face to face with the big cats at the Tiger Topia wildlife park.',
+    hotel: 'Aiyara Grand Pattaya (or similar)', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
+    transfer: 'Speedboat to Coral Island + coach touring', meals: 'Breakfast · Lunch', nights: '2 nights · Pattaya',
+    acts: ['Coral Island by speedboat', 'Beach time & water activities', 'Lunch on the island', 'Tiger Topia wildlife park'] },
+  { day: 'Day 03', place: 'Bangkok', title: 'Pattaya → Bangkok & temple tour', img: '1563492065599-3520f775eeed', cap: 'Wat Pho, Bangkok',
+    body: 'Travel on to Bangkok and step into its spiritual heart — Wat Traimit, home to the solid-gold Buddha, and Wat Pho with its vast reclining Buddha — before settling into your city hotel.',
+    hotel: 'Hotel in Bangkok (or similar)', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
+    transfer: 'Pattaya → Bangkok by coach', meals: 'Breakfast', nights: '2 nights · Bangkok',
+    acts: ['Transfer to Bangkok', 'Wat Traimit (Golden Buddha)', 'Wat Pho (Reclining Buddha)', 'City orientation'] },
+  { day: 'Day 04', place: 'Bangkok', title: 'Safari World & Marine Park', img: '1571407970349-bc81e7e96d47', cap: 'Safari World, Bangkok',
+    body: 'Spend the day at Safari World & Marine Park — a drive-through safari of free-roaming animals and a marine park of dolphin, sea-lion and orangutan shows — with lunch included.',
+    hotel: 'Hotel in Bangkok (or similar)', stars: 4, room: 'Standard Room · twin / double', ryokan: false,
+    transfer: 'Coach to Safari World & Marine Park', meals: 'Breakfast · Lunch', nights: '2 nights · Bangkok',
+    acts: ['Safari drive-through park', 'Marine Park shows', 'Lunch included', 'Return to Bangkok'] },
+  { day: 'Day 05', place: 'Bangkok', title: 'Depart from Bangkok', img: '1528181304800-259b08848526', cap: 'Sawasdee, from Bangkok',
+    body: 'After breakfast, a private transfer takes you to Suvarnabhumi Airport in good time for your onward flight home.',
     hotel: 'Check-out · departure day', stars: 0, room: '—', ryokan: false,
-    transfer: 'Osaka hotel → Kansai Airport', meals: 'Breakfast', nights: 'Departure',
-    acts: ['Airport transfer'] },
+    transfer: 'Bangkok hotel → Suvarnabhumi Airport (private)', meals: 'Breakfast', nights: 'Departure',
+    acts: ['Breakfast at hotel', 'Private airport transfer'] },
 ];
 
 const INCLUDED = [
-  'Seven nights in hand-picked hotels, including a night in a traditional onsen ryokan',
-  'Daily breakfast, plus the lunches and dinners in Tokyo, Kawaguchiko and Nara',
-  'Airport arrival transfer by shared shuttle and all coach travel per the itinerary',
-  'An English-speaking guide throughout the touring days',
-  'All entrance fees for the attractions listed in the itinerary',
-  'Visa assistance and travel insurance (for travellers up to 69 years)',
+  'Two nights in Pattaya and two nights in Bangkok in hand-picked hotels',
+  'Daily breakfast, plus lunch on Coral Island and at Safari World',
+  'Private airport arrival transfer and all intercity & sightseeing transfers',
+  'The Alcazar cabaret show, Coral Island tour, Tiger Topia and the Bangkok temple tour',
+  'Safari World & Marine Park entry with lunch',
+  'A local representative on hand throughout your stay',
 ];
 const NOT_INCLUDED = [
   'International airfare and anything not listed in the inclusions',
-  'Monument or attraction entrance fees not listed in the itinerary',
+  'Visa fees and monument entrance fees not specified in the itinerary',
   'Meals beyond those specified in the daily programme',
-  'Personal expenses — tips, laundry, calls, beverages, camera fees and the like',
-  'Costs arising from itinerary changes due to weather, flight cancellations, illness or roadblocks',
+  'Personal expenses — tips, laundry, calls, beverages, shopping, minibar and camera fees',
+  'Early check-in / late check-out and any optional tours or activities',
+  'Travel insurance (mandatory, arranged separately)',
 ];
 
+/* Fixed group departures — a real list (not a dropdown). Each carries its own
+   price, seats and an urgency LEVEL that maps to a design.md semantic colour:
+   'error' (almost gone) · 'warn' (filling) · 'ok' (good availability). */
 const DEPARTURES = [
-  { date: '21 March 2026', seats: 'Only 6 seats left', tight: true },
-  { date: '28 March 2026', seats: 'Filling fast · 8 seats', tight: true },
-  { date: '04 April 2026', seats: '12 seats available', tight: false },
-  { date: '17 October 2026', seats: '14 seats available', tight: false },
+  { date: '18 Jul 2026', dow: 'Saturday', ret: 'Returns Wed 22 Jul', price: 34999, seats: 4, level: 'error', badge: 'Peak season' },
+  { date: '09 Aug 2026', dow: 'Sunday',   ret: 'Returns Thu 13 Aug', price: 33499, seats: 6, level: 'warn',  badge: 'Popular' },
+  { date: '20 Sep 2026', dow: 'Sunday',   ret: 'Returns Thu 24 Sep', price: 31299, seats: 11, level: 'ok',   badge: 'Best price' },
+  { date: '18 Oct 2026', dow: 'Sunday',   ret: 'Returns Thu 22 Oct', price: 32279, seats: 14, level: 'ok',   badge: '' },
+  { date: '15 Nov 2026', dow: 'Sunday',   ret: 'Returns Thu 19 Nov', price: 33999, seats: 8, level: 'warn',  badge: '' },
 ];
+/* Urgency label + a11y wording for a given departure. */
+const seatText = (d) =>
+  d.level === 'error' ? `Only ${d.seats} seats left`
+  : d.level === 'warn' ? `Filling fast · ${d.seats} seats`
+  : `${d.seats} seats available`;
 
-/* Photo-first traveller reviews (families & groups). */
+/* Photo-first traveller reviews (families, couples & groups). */
 const REVIEWS = [
-  { name: 'The Menon Family', age: '3 generations', trip: 'Japan · Cherry Blossom', rating: 5, span: 'tall',
-    text: 'Grandparents, parents and two kids — all looked after. The pace was gentle, the ryokan night unforgettable, and the children still talk about the bullet train.',
+  { name: 'The Kapoor Family', age: '2 kids', trip: 'Thailand · Pattaya & Bangkok', rating: 5, span: 'tall', location: 'Mumbai', avatar: '1552058544-f2b08422138a',
+    text: 'Coral Island by speedboat and Safari World back to back — the kids were in heaven. Every transfer was private and on time, so we never once stood around waiting.',
     ids: ['1758272959663-b30513083206', '1715745218436-5a583702447a', '1580825175616-77f8df1bb507'] },
-  { name: 'Aditi & Mohit', age: '', trip: 'Japan · Group · 2025', rating: 5, span: 'tall',
-    text: 'Every transfer, every meal, flawless. The blossom timing was perfect and the small group felt like friends by the end. We simply turned up and were cared for.',
+  { name: 'Neha & Arjun', age: '', trip: 'Thailand · Honeymoon', rating: 5, span: 'tall', location: 'Bengaluru', avatar: '1545167622-3a6ac756afa4',
+    text: 'The Alcazar show was spectacular and the Pattaya beach evenings were pure romance. Booking took five minutes and the whole trip was handled end to end.',
     ids: ['1630001722538-a9a540da549b', '1529156069898-49953e39b3ac'] },
-  { name: 'Sunita Rao', age: '', trip: 'Japan · Kyoto temples', rating: 5, span: 'tall',
-    text: 'Flawless from start to finish. The cherry blossom viewing in Kyoto was a once-in-a-lifetime moment, arranged beautifully by our guide.',
+  { name: 'Sameer Gupta', age: '', trip: 'Thailand · Temples & city', rating: 5, span: 'tall', location: 'Delhi', avatar: '1500648767791-00dcc994a43e',
+    text: 'Wat Traimit and Wat Pho were breathtaking, and our guide brought the history alive. Flawless from the airport pickup to the drop-off five days later.',
     ids: ['1567122087721-47b09b61e1d1', '1667029839636-af119b059c49'] },
-  { name: 'The Nair Family', age: '5 travelling', trip: 'Japan · Escorted Group', rating: 5, span: 'tall',
-    text: 'Zero planning stress with the fixed departure. Veg and Jain meals arranged every single day, and Nara’s deer were the highlight for our kids.',
+  { name: 'The Shah Family', age: '4 travelling', trip: 'Thailand · Escape', rating: 5, span: 'tall', location: 'Ahmedabad', avatar: '1633332755192-727a05c4013d',
+    text: 'Zero planning stress — everything was booked and confirmed before we flew. Safari World was the highlight for our children, and lunch was sorted every day.',
     ids: ['1642342397404-fed6450eb964', '1580825175616-77f8df1bb507'] },
-  { name: 'Rahul & friends', age: 'Group of 6', trip: 'Japan · Spring 2025', rating: 5, span: 'tall',
-    text: 'Six of us, one seamless trip. The Dotonbori food walk, the onsen ryokan, temples at dawn — our guide made every day effortless.',
+  { name: 'Riya & friends', age: 'Group of 5', trip: 'Thailand · Spring 2026', rating: 5, span: 'tall', location: 'Pune', avatar: '1438761681033-6461ffad8d80',
+    text: 'Five of us, one seamless trip. Coral Island, the cabaret, the temples — our own private tour meant we set the pace and never felt rushed.',
     ids: ['1639979511572-ff346bc5b3b7', '1667029839636-af119b059c49'] },
-  { name: 'Priya & Raghav', age: '', trip: 'Japan · Anniversary', rating: 5, span: 'tall',
-    text: 'A private tea ceremony, Mt. Fuji from the ropeway, and a curator a call away the whole time. Genuinely worth every rupee.',
+  { name: 'Anita & Vikram', age: '', trip: 'Thailand · Anniversary', rating: 5, span: 'tall', location: 'Hyderabad', avatar: '1545167622-3a6ac756afa4',
+    text: 'Private transfers meant we could relax the whole way. Great hotels in both cities and a curator a call away the entire time. Genuinely worth every rupee.',
     ids: ['1677179974826-b6619bd77506', '1639979511572-ff346bc5b3b7'] },
 ];
 
+/* Brand marks for the review-credibility strip (inline, no asset deps). */
+const GoogleG = () => (
+  <svg viewBox="0 0 48 48" width="16" height="16" aria-hidden="true">
+    <path fill="#4285F4" d="M47.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h13.2c-.6 3-2.3 5.6-4.9 7.3v6h7.9c4.6-4.3 7.3-10.5 7.3-17.8z" />
+    <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.2 1.5-5 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.6H2.6v6.2C6.6 42.6 14.6 48 24 48z" />
+    <path fill="#FBBC05" d="M10.8 28.9c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6v-6.2H2.6C.9 16.1 0 19.9 0 24s.9 7.9 2.6 11.1l8.2-6.2z" />
+    <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.5 0 24 0 14.6 0 6.6 5.4 2.6 13.4l8.2 6.2C12.7 13.6 17.9 9.5 24 9.5z" />
+  </svg>
+);
+const TripAdvisorOwl = () => (
+  <svg viewBox="0 0 132 80" width="24" height="15" aria-hidden="true">
+    <circle cx="38" cy="42" r="32" fill="#34E0A1" />
+    <circle cx="94" cy="42" r="32" fill="#34E0A1" />
+    <circle cx="38" cy="42" r="18" fill="#fff" />
+    <circle cx="94" cy="42" r="18" fill="#fff" />
+    <circle cx="38" cy="42" r="9" fill="#000" />
+    <circle cx="94" cy="42" r="9" fill="#000" />
+    <path d="M52 2 Q66 14 80 2 L66 22 Z" fill="#000" />
+  </svg>
+);
+
 const SIMILAR = [
-  { title: 'Grand European Sojourn', region: '5 countries', season: 'Apr–Oct', nights: '12 nights', priceFrom: '₹2,85,000', image: '1502602898657-3e91760cbb34', tags: ['Balanced pace', 'Escorted group'] },
-  { title: 'Switzerland & the Alps', region: 'Switzerland', season: 'May–Sep', nights: '11 nights', priceFrom: '₹2,55,000', image: '1530841377377-3ff06c0ca713', tags: ['Relaxed pace', 'Scenic rail'] },
-  { title: 'Rajasthan by Palace', region: 'India', season: 'Oct–Mar', nights: '9 nights', priceFrom: '₹1,95,000', image: '1599661046289-e31897846e41', tags: ['Relaxed pace', 'Heritage stays'] },
-  { title: 'African Safari', region: 'Kenya & Tanzania', season: 'Jul–Oct', nights: '8 nights', priceFrom: '₹3,10,000', image: '1516426122078-c23e76319801', tags: ['Active pace', 'Small group'] },
+  { title: 'Phuket & Krabi Beaches', region: 'Thailand', season: 'Oct–Apr', nights: '6 nights', priceFrom: '₹48,000', image: '1519451241324-20b4ea2c4220', tags: ['Relaxed pace', 'Private tour'] },
+  { title: 'Bali Highlights', region: 'Indonesia', season: 'All year', nights: '6 nights', priceFrom: '₹52,000', image: '1537956965359-7573183d1f57', tags: ['Relaxed pace', 'Private tour'] },
+  { title: 'Singapore & Malaysia', region: '2 countries', season: 'All year', nights: '6 nights', priceFrom: '₹65,000', image: '1583417319070-4a69db38a482', tags: ['Balanced pace', 'Private tour'] },
+  { title: 'Vietnam Discovery', region: 'Vietnam', season: 'Oct–Apr', nights: '8 nights', priceFrom: '₹78,000', image: '1598935888738-cd2622bcd437', tags: ['Active pace', 'Private tour'] },
 ];
 
 const SAFETY = [
   { icon: Wallet, label: 'Low deposit', note: 'Book from 20% today' },
-  { icon: Repeat, label: 'Free changes', note: 'Up to 45 days before travel' },
-  { icon: Stamp, label: 'Visa support', note: 'Paperwork handled for you' },
+  { icon: Repeat, label: 'Free date changes', note: 'Up to 45 days before travel' },
+  { icon: Stamp, label: 'Visa support', note: 'Paperwork guidance included' },
   { icon: ShieldCheck, label: 'Financially protected', note: 'Your money is held securely' },
+];
+
+/* Assurance band — a standalone strip of trust badges (booking-first). */
+const ASSURE = [
+  { icon: BadgeCheck, label: '4.8 / 5 rating', note: 'From 2,400+ verified travellers', stars: true, to: '#reviews' },
+  { icon: Lock, label: '100% secure payments', note: 'Encrypted checkout, protected deposit' },
+  { icon: Headset, label: '24 × 7 support', note: 'A real human, on WhatsApp or call' },
+  { icon: Stamp, label: 'Since 1758', note: 'The world’s longest-running travel firm' },
 ];
 
 /* ============================================================
    The policies — the full Cox & Kings terms, organised into three
    filterable categories. Each topic shows a short summary + a couple
    of preview points; the rest expands on demand (accordion).
-   A point can be a plain string or { tone, text } where tone drives
-   its icon: 'do' (allowed), 'dont' (never), 'warn' (caution).
    ============================================================ */
 const TERM_CATS = [
   { id: 'booking', label: 'Booking Terms', icon: Wallet, blurb: 'How and when you pay — and how to keep every rupee safe.' },
@@ -332,7 +350,7 @@ const TERM_GROUPS = {
     { id: 'documents', icon: Stamp, heading: 'Travel documents & statutory clearances',
       summary: 'Holding valid passports, visas and clearances is entirely the customer’s responsibility.',
       points: [
-        'Passport valid for at least 6 months beyond return date (9 months for Malaysia)',
+        'Passport valid for at least 6 months beyond return date',
         'Valid visa, ETA or other required entry permits for all destinations',
         'Confirmed air tickets',
         'NOC, immigration clearances and medical certificates where required',
@@ -358,7 +376,7 @@ const TERM_GROUPS = {
     { id: 'accommodation', icon: BedDouble, heading: 'Accommodation',
       summary: 'Hotel category varies by package; valuables and any room damage are the guest’s responsibility.',
       points: [
-        'Hotel category and standard vary by tour package; hotels may be near airports or in the countryside for international group tours',
+        'Hotel category and standard vary by tour package',
         'Triple-occupancy rooms typically include a twin room plus a rollaway bed; no more than 3 persons per room recommended',
         'All personal belongings and valuables are the sole responsibility of the customer',
         'Any damage to hotel property caused by the customer — wilful or accidental — is the customer’s sole liability',
@@ -392,8 +410,6 @@ const TERM_GROUPS = {
   ],
 };
 
-/* The few headline points shown on the page per category (3 in a row, or 4 in
-   two rows). The exhaustive detail lives in the "read full" modal. */
 const TERM_HIGHLIGHTS = {
   booking: [
     { icon: Calendar, title: 'Payment schedule', text: '35% non-refundable advance at booking, 75% by 60 days out, then 100% by 45 days before departure.' },
@@ -437,7 +453,6 @@ function TermPoint({ point }) {
   );
 }
 
-/* The cancellation-charge tiers — a compact visual scale (severity by level). */
 function TermTiers({ tiers }) {
   return (
     <ul className="lxjt3-tiers" aria-label="Cancellation charges by timing">
@@ -455,10 +470,9 @@ function TermTiers({ tiers }) {
 
 const SUBNAV = [
   { id: 'highlights', label: 'Highlights' },
-  { id: 'route', label: 'Route' },
   { id: 'itinerary', label: 'Day by day' },
   { id: 'included', label: 'Included' },
-  { id: 'dates', label: 'Dates & prices' },
+  { id: 'dates', label: 'Book now' },
   { id: 'terms', label: 'Policies' },
   { id: 'reviews', label: 'Reviews' },
 ];
@@ -479,21 +493,23 @@ function useReveal() {
   }, []);
 }
 
-export default function JapanTourLuxe4() {
+export default function ThailandEscape2() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeDay, setActiveDay] = useState(0);     // desktop: drives the sticky itinerary picture
-  const [openDay, setOpenDay] = useState(-1);        // mobile: which day's accordion is expanded
+  const [activeDay, setActiveDay] = useState(0);
+  const [openDay, setOpenDay] = useState(-1);
   const [selectedDep, setSelectedDep] = useState(0);
   const [payMode, setPayMode] = useState('deposit');
   const [activeSection, setActiveSection] = useState('highlights');
   const [callbackOpen, setCallbackOpen] = useState(false);
   const [callbackSent, setCallbackSent] = useState(false);
   const [reviewIdx, setReviewIdx] = useState(0);
-  const [travellers, setTravellers] = useState(2);
-  const [termsTab, setTermsTab] = useState('booking');       // which policy category is shown
-  const [termsModalOpen, setTermsModalOpen] = useState(false); // full-detail modal
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+  const travellers = adults + children;   // seats = adults + children
+  const [termsTab, setTermsTab] = useState('booking');
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
 
   useReveal();
   const review = REVIEWS[reviewIdx];
@@ -502,15 +518,16 @@ export default function JapanTourLuxe4() {
   const nextReview = () => setReviewIdx((i) => (i + 1) % REVIEWS.length);
   const prevReview = () => setReviewIdx((i) => (i - 1 + REVIEWS.length) % REVIEWS.length);
 
-  // Live booking maths — the card computes a real, changing total.
-  const total = PRICE * travellers;
+  // Live booking maths — driven by the SELECTED departure's per-person price.
+  const dep = DEPARTURES[selectedDep];
+  const pp = dep.price;
+  const total = pp * travellers;
   const depositTotal = Math.round(total * 0.2);
   const dueToday = payMode === 'deposit' ? depositTotal : total;
   const balance = total - dueToday;
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  // Sticky-header state (transparent over hero → solid blue on scroll, like the homepage)
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     onScroll();
@@ -531,7 +548,6 @@ export default function JapanTourLuxe4() {
     return () => window.removeEventListener('keydown', onKey);
   }, [callbackOpen, termsModalOpen]);
 
-  // Spy the active section for the sticky sub-nav
   useEffect(() => {
     const els = SUBNAV.map((s) => document.getElementById(s.id)).filter(Boolean);
     if (!els.length) return;
@@ -546,7 +562,6 @@ export default function JapanTourLuxe4() {
     return () => obs.disconnect();
   }, []);
 
-  // In-page (#) nav links smooth-scroll; cross-page links navigate normally.
   const navClick = useCallback((href) => (e) => {
     setMenuOpen(false);
     if (href.startsWith('#')) {
@@ -560,11 +575,11 @@ export default function JapanTourLuxe4() {
 
   return (
     <>
-      <div className="lx2i lxjt lxjt2 lxjt3 lxjt4">
+      <div className="lx2i lxjt lxjt2 lxjt3 lxjt4 lxjt5 tha tha2">
         <div className="lx2i-grain" aria-hidden="true" />
         <a className="lxjt-skip" href="#main">Skip to content</a>
 
-        {/* ============ HEADER + MOBILE MENU (matches the /new homepage) ============ */}
+        {/* ============ HEADER + MOBILE MENU ============ */}
         <div className="h26">
           <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
             <Link to={HOME} className="h26-brand" aria-label="Cox & Kings — home">
@@ -601,7 +616,7 @@ export default function JapanTourLuxe4() {
               <a href={PHONE_TEL} className="h26-phone">
                 <Phone size={15} /> <span>{PHONE_DISPLAY}</span>
               </a>
-              <a href="#callback" onClick={openCallback} className="h26-btn h26-btn-pill">Talk to an expert</a>
+              <a href="#dates" onClick={navClick('#dates')} className="h26-btn h26-btn-pill">Book now</a>
               <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
                 <Menu size={22} />
               </button>
@@ -619,9 +634,8 @@ export default function JapanTourLuxe4() {
               <nav className="h26-menu-primary" aria-label="Mobile primary">
                 {[
                   { label: 'Highlights', href: '#highlights' },
-                  { label: 'Your route', href: '#route' },
                   { label: 'Day by day', href: '#itinerary' },
-                  { label: 'Dates & prices', href: '#dates' },
+                  { label: 'Book now', href: '#dates' },
                   { label: 'Reviews', href: '#reviews' },
                 ].map((n) => (
                   <a key={n.label} href={n.href} onClick={navClick(n.href)}>
@@ -636,8 +650,8 @@ export default function JapanTourLuxe4() {
                 <a href={`${HOME}#destinations`} onClick={navClick(`${HOME}#destinations`)}>Destinations <ArrowUpRight size={13} /></a>
                 <a href={`${HOME}#heritage`} onClick={navClick(`${HOME}#heritage`)}>Our story <ArrowUpRight size={13} /></a>
               </div>
-              <a href="#callback" className="h26-btn h26-btn-pill h26-menu-cta" onClick={openCallback}>
-                <Phone size={16} /> Speak to an expert
+              <a href="#dates" className="h26-btn h26-btn-pill h26-menu-cta" onClick={navClick('#dates')}>
+                <Zap size={16} /> Book this tour
               </a>
               <div className="h26-menu-foot">
                 <span className="h26-menu-eyebrow">Follow the journey</span>
@@ -653,7 +667,7 @@ export default function JapanTourLuxe4() {
         </div>
 
         <main id="main">
-          {/* ============ HERO (full-bleed under the fixed header) ============ */}
+          {/* ============ HERO ============ */}
           <section className="lxjt-hero">
             <div className="lxjt-hero__bg" style={{ backgroundImage: `url(${sizedUnsplash(HERO.image, 1900)})` }} aria-hidden="true" />
             <div className="lxjt-hero__veil" aria-hidden="true" />
@@ -671,13 +685,13 @@ export default function JapanTourLuxe4() {
                   ))}
                 </ul>
                 <div className="lxjt-hero__actions">
-                  <a href="#dates" onClick={navClick('#dates')} className="lx2i-btn lx2i-btn--secondary lx2i-btn--lg">Check dates &amp; prices <ArrowRight size={16} /></a>
-                  <a href="#itinerary" onClick={navClick('#itinerary')} className="lxjt-hero__textcta">or view the day-by-day itinerary <ArrowRight size={14} /></a>
+                  <a href="#dates" onClick={navClick('#dates')} className="lx2i-btn lx2i-btn--primary lx2i-btn--lg">Book now — from {inr(PRICE)} pp <ArrowRight size={16} /></a>
+                  <a href="#itinerary" onClick={navClick('#itinerary')} className="lx2i-btn lx2i-btn--outline lx2i-btn--lg">View itinerary</a>
                 </div>
-                <div className="lxjt-hero__rating">
+                <a href="#reviews" onClick={navClick('#reviews')} className="lxjt-hero__rating lxjt5-rating-link">
                   <span className="lx2i-stars">{[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}</span>
-                  <strong>4.9</strong><span>from 640 traveller reviews of this tour</span>
-                </div>
+                  <strong>4.8</strong><span>from 2,400+ traveller reviews</span>
+                </a>
               </div>
             </div>
           </section>
@@ -697,9 +711,9 @@ export default function JapanTourLuxe4() {
           <section className="lxjt-section" id="highlights">
             <div className="lx2i-container">
               <div className="lxjt-head lx2i-reveal">
-                <span className="lx2i-eyebrow">// THE JOURNEY, CURATED FOR YOU</span>
+                <span className="lx2i-eyebrow">// FIVE EASY DAYS, EVERYTHING HANDLED</span>
                 <h2 className="lx2i-h2">Tour <strong>highlights</strong></h2>
-                <p className="lxjt-lead">Every detail privately arranged, so you need only turn up and be there for it.</p>
+                <p className="lxjt-lead">Beaches, temples and wildlife — privately arranged, so you need only turn up and be there for it.</p>
               </div>
               <ul className="lxjt-keyinc lx2i-reveal" aria-label="Key inclusions in the price">
                 {KEY_INCLUSIONS.map(({ icon: Icon, label }) => (
@@ -711,8 +725,8 @@ export default function JapanTourLuxe4() {
               </ul>
               <div className="lxjt-hl__grid">
                 <div className="lxjt-hl__media lx2i-reveal">
-                  <div className="lxjt-hl__img" style={{ backgroundImage: `url(${sizedUnsplash(HIGHLIGHT_IMG, 900)})` }} role="img" aria-label="Travellers exploring a Kyoto temple garden" />
-                  <span className="lxjt-hl__cap"><MapPin size={13} /> Kyoto, at first light</span>
+                  <div className="lxjt-hl__img" style={{ backgroundImage: `url(${sizedUnsplash(HIGHLIGHT_IMG, 900)})` }} role="img" aria-label="A Thai island beach with clear turquoise water" />
+                  <span className="lxjt-hl__cap"><MapPin size={13} /> Coral Island, off Pattaya</span>
                 </div>
                 <ul className="lxjt-hl__list">
                   {HIGHLIGHTS.map((h, i) => (
@@ -726,45 +740,18 @@ export default function JapanTourLuxe4() {
             </div>
           </section>
 
-          {/* ============ ROUTE ============ */}
-          <section className="lxjt-route" id="route">
-            <div className="lx2i-container">
-              <div className="lxjt-head lxjt-head--center lx2i-reveal">
-                <span className="lx2i-eyebrow">// 7 NIGHTS, IN A SMALL GROUP</span>
-                <h2 className="lx2i-h2">Your <strong>route</strong></h2>
-                <p className="lxjt-lead">Tokyo to Osaka: five cities, one seamless journey by coach.</p>
-              </div>
-              <ol className="lxjt-route__list">
-                {ROUTE.map((r, i) => (
-                  <li key={r.city} className="lxjt-stop lx2i-reveal" style={{ '--d': `${i * 0.06}s` }}>
-                    <div className="lxjt-stop__marker">
-                      <div className="lxjt-stop__photo" style={{ backgroundImage: `url(${sizedUnsplash(r.image, 400)})` }} role="img" aria-label={`${r.city}, Japan`} />
-                      <span className="lxjt-stop__num">{i + 1}</span>
-                    </div>
-                    {i < ROUTE.length - 1 && <span className="lxjt-stop__line" aria-hidden="true" />}
-                    <div className="lxjt-stop__body">
-                      <span className="lxjt-stop__nights">{r.nights}</span>
-                      <h3>{r.city}</h3>
-                      <p>{r.note}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </section>
-
-          {/* ============ DAY BY DAY — itinerary (left) + sticky picture (right) ============ */}
+          {/* ============ DAY BY DAY ============ */}
           <section className="lxjt-section lxjt2-itin" id="itinerary">
             <div className="lx2i-container">
               <div className="lxjt-head lxjt-head--center lx2i-reveal">
                 <span className="lx2i-eyebrow">// THE FULL PICTURE, DAY BY DAY</span>
                 <h2 className="lx2i-h2">Day by <strong>day</strong></h2>
-                <p className="lxjt-lead">Eight unhurried days — hover or tap any day to see its hotel, meals and sights beside you.</p>
+                <p className="lxjt-lead">Five easy days — hover or tap any day to see its hotel, meals and sights beside you.</p>
               </div>
 
               <div className="lxjt2-split lx2i-reveal">
                 {/* LEFT — the itinerary timeline */}
-                <ol className="lxjt2-days" onMouseLeave={() => { /* keep last-hovered day */ }}>
+                <ol className="lxjt2-days">
                   {ITINERARY.map((d, i) => {
                     const active = activeDay === i;
                     const open = openDay === i;
@@ -784,11 +771,10 @@ export default function JapanTourLuxe4() {
                           <span className="lxjt2-day__content">
                             <span className="lxjt2-day__kicker">{d.day} <span className="lxjt2-day__place"><MapPin size={11} /> {d.place}</span></span>
                             <span className="lxjt2-day__title">{d.title}</span>
-                            {/* desktop shows this on the picture; mobile expands it as an accordion */}
                             <span className="lxjt2-day__body"><span className="lxjt2-day__bodyin">
                               {d.body}
                               <span className="lxjt4-mdetails">
-                                <span className="lxjt4-mfact"><Hotel size={13} /> <span>{d.hotel}{d.stars > 0 && <span className="lxjt4-mstars">{'★'.repeat(d.stars)}</span>}{d.ryokan && <span className="lxjt4-tag">Ryokan</span>}</span></span>
+                                <span className="lxjt4-mfact"><Hotel size={13} /> <span>{d.hotel}{d.stars > 0 && <span className="lxjt4-mstars">{'★'.repeat(d.stars)}</span>}</span></span>
                                 <span className="lxjt4-mfact"><BedDouble size={13} /> <span>{d.room}</span></span>
                                 <span className="lxjt4-mfact"><Car size={13} /> <span>{d.transfer}</span></span>
                                 <span className="lxjt4-mfact"><Utensils size={13} /> <span>{d.meals}</span></span>
@@ -809,7 +795,6 @@ export default function JapanTourLuxe4() {
                 {/* RIGHT — sticky picture card + a separate day-details card */}
                 <aside className="lxjt2-media lxjt4-side" aria-live="polite">
                   <div className="lxjt2-media__sticky lxjt4-sticky">
-                    {/* picture card */}
                     <div className="lxjt2-media__frame lxjt4-imgcard">
                       {ITINERARY.map((d, i) => (
                         <div
@@ -829,7 +814,6 @@ export default function JapanTourLuxe4() {
                       </div>
                     </div>
 
-                    {/* details card */}
                     <div className="lxjt4-detail" key={`d${activeDay}`}>
                       <p className="lxjt4-detail__desc">{day.body}</p>
                       <div className="lxjt4-detail__rows">
@@ -844,7 +828,6 @@ export default function JapanTourLuxe4() {
                                   {[...Array(day.stars)].map((_, s) => <Star key={s} size={12} fill="currentColor" />)}
                                 </span>
                               )}
-                              {day.ryokan && <span className="lxjt4-tag">Ryokan</span>}
                             </span>
                           </div>
                         </div>
@@ -889,7 +872,7 @@ export default function JapanTourLuxe4() {
                 </aside>
               </div>
 
-              {/* MOBILE ONLY — the journey in pictures, as a horizontal city carousel */}
+              {/* MOBILE ONLY — the journey in pictures */}
               <div className="lxjt2-rail" role="group" aria-label="The journey in pictures">
                 {ITINERARY.map((d) => (
                   <div key={d.day} className="lxjt2-railcard" style={{ backgroundImage: `url(${sizedUnsplash(d.img, 640)})` }}>
@@ -899,7 +882,7 @@ export default function JapanTourLuxe4() {
                 ))}
               </div>
 
-              <p className="lxjt2-note lx2i-reveal"><Check size={15} strokeWidth={2.4} /> Everything above is included in your price — stays, meals, guiding and transfers.</p>
+              <p className="lxjt2-note lx2i-reveal"><Check size={15} strokeWidth={2.4} /> Everything above is included in your price — stays, meals, sightseeing and private transfers.</p>
             </div>
           </section>
 
@@ -928,88 +911,141 @@ export default function JapanTourLuxe4() {
           </section>
 
           {/* ============ DATES & PRICES / BOOK ============ */}
-          <section className="lxjt-book" id="dates">
-            <div className="lx2i-container lxjt-book__grid">
-              <div className="lxjt-book__intro lx2i-reveal">
-                <span className="lx2i-eyebrow">// RESERVE YOUR DATES</span>
-                <h2 className="lx2i-h2">Reserve your <strong>seats</strong></h2>
-                <p className="lxjt-lead">Pick one of our set 2026 departures and confirm your seats with a 20% deposit &mdash; the balance comes later.</p>
-                <ul className="lxjt-book__perks">
-                  <li><Check size={16} strokeWidth={2.4} /> Expert-guided from the moment you land to the day you fly home</li>
-                  <li><Check size={16} strokeWidth={2.4} /> All-inclusive: flights, visa, insurance, stays, meals and transfers</li>
-                  <li><Check size={16} strokeWidth={2.4} /> A small group of no more than 20 like-minded travellers</li>
-                </ul>
-                <div className="lxjt-confidence">
-                  <ShieldCheck size={24} strokeWidth={1.7} />
-                  <div>
-                    <strong>Book with confidence</strong>
-                    <p>Encrypted checkout. Your 20% deposit is protected, and you can talk to a curator first &mdash; free.</p>
-                  </div>
-                </div>
-                <ul className="lxjt-safety" aria-label="How your booking is protected">
-                  {SAFETY.map(({ icon: Icon, label, note }) => (
-                    <li key={label} className="lxjt-safety__item">
-                      <span className="lxjt-safety__ic"><Icon size={17} strokeWidth={1.8} /></span>
-                      <span className="lxjt-safety__txt"><strong>{label}</strong><small>{note}</small></span>
-                    </li>
-                  ))}
-                </ul>
+          <section className="lxjt-book tha-book-section tha2-section" id="dates">
+            <div className="lx2i-container tha2-wrap">
+              <div className="lxjt-head lxjt-head--center lx2i-reveal">
+                <span className="lx2i-eyebrow">// FIXED GROUP DEPARTURES · 2026</span>
+                <h2 className="lx2i-h2">Book now in <strong>three easy steps</strong></h2>
+                <p className="tha2-steplede">Pick a date, tell us who&rsquo;s travelling, and choose how to pay &mdash; it takes about two minutes.</p>
               </div>
 
-              <aside className="lxjt-card lx2i-reveal" style={{ '--d': '.08s' }}>
-                <div className="lxjt-card__top">
-                  <span className="lxjt-card__frm">from <strong>{inr(PRICE)}</strong> <small>pp</small></span>
-                  <span className="lxjt-card__live"><span className="lxjt-card__dot" aria-hidden="true" /> Live availability</span>
+              {/* Book with confidence */}
+              <div className="tha2-confidence lx2i-reveal">
+                <span className="tha2-confidence__ic"><Lock size={22} strokeWidth={2} /></span>
+                <div className="tha2-confidence__tx">
+                  <h3>Book with confidence</h3>
+                  <p>Encrypted checkout. Your 20% deposit is protected, and you can talk to a curator first, <strong>FREE</strong>.</p>
+                </div>
+              </div>
+
+              {/* Booking card */}
+              <div className="tha2-card lx2i-reveal">
+                <div className="tha2-card__col tha2-card__col--dates">
+                <div className="tha2-step">
+                  <span className="tha2-step__n">1</span>
+                  <h3 className="tha2-step__t">Choose your date</h3>
                 </div>
 
-                <div className="lxjt-card__fields">
-                  <label className="lxjt-fld lxjt-fld--dep">
-                    <span className="lxjt-fld__lbl">Departure</span>
-                    <div className="lxjt-select">
-                      <select value={selectedDep} onChange={(e) => setSelectedDep(Number(e.target.value))} aria-label="Departure date">
-                        {DEPARTURES.map((d, i) => <option key={d.date} value={i}>{d.date}</option>)}
-                      </select>
-                      <ChevronDown size={16} aria-hidden="true" />
-                    </div>
-                    <small className={`lxjt-fld__seats ${DEPARTURES[selectedDep].tight ? 'is-tight' : ''}`}>{DEPARTURES[selectedDep].seats}</small>
-                  </label>
+                <ul className="tha2-deps" role="radiogroup" aria-label="Choose a departure date">
+                  {DEPARTURES.map((d, i) => {
+                    const on = selectedDep === i;
+                    return (
+                      <li key={d.date}>
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={on}
+                          className={`tha2-dep ${on ? 'is-on' : ''}`}
+                          onClick={() => setSelectedDep(i)}
+                        >
+                          <span className="tha2-dep__left">
+                            <span className="tha2-dep__date">{d.date}</span>
+                            <span className={`tha2-dep__seats tha2-dep__seats--${d.level}`}>{seatText(d)}</span>
+                          </span>
+                          <span className="tha2-dep__price">{inr(d.price)}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+                </div>
 
-                  <label className="lxjt-fld lxjt-fld--trav">
-                    <span className="lxjt-fld__lbl">Travellers</span>
+                <div className="tha2-card__col tha2-card__col--pay">
+                <div className="tha2-step">
+                  <span className="tha2-step__n">2</span>
+                  <h3 className="tha2-step__t">Who&rsquo;s travelling?</h3>
+                </div>
+                {/* travellers */}
+                <div className="tha2-travellers">
+                  <div className="tha2-travrow">
+                    <span className="tha2-travrow__lbl">Adults <small>Age 12+</small></span>
                     <div className="lxjt-stepper">
-                      <button type="button" aria-label="Fewer travellers" onClick={() => setTravellers((n) => Math.max(1, n - 1))} disabled={travellers <= 1}><Minus size={15} /></button>
-                      <span className="lxjt-stepper__val">{travellers}</span>
-                      <button type="button" aria-label="More travellers" onClick={() => setTravellers((n) => Math.min(20, n + 1))} disabled={travellers >= 20}><Plus size={15} /></button>
+                      <button type="button" aria-label="Fewer adults" onClick={() => setAdults((n) => Math.max(1, n - 1))} disabled={adults <= 1}><Minus size={15} /></button>
+                      <span className="lxjt-stepper__val">{adults}</span>
+                      <button type="button" aria-label="More adults" onClick={() => setAdults((n) => n + 1)} disabled={travellers >= 20}><Plus size={15} /></button>
                     </div>
-                  </label>
+                  </div>
+                  <div className="tha2-travrow">
+                    <span className="tha2-travrow__lbl">Children <small>Age 2&ndash;11</small></span>
+                    <div className="lxjt-stepper">
+                      <button type="button" aria-label="Fewer children" onClick={() => setChildren((n) => Math.max(0, n - 1))} disabled={children <= 0}><Minus size={15} /></button>
+                      <span className="lxjt-stepper__val">{children}</span>
+                      <button type="button" aria-label="More children" onClick={() => setChildren((n) => n + 1)} disabled={travellers >= 20}><Plus size={15} /></button>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="lxjt-pay" role="radiogroup" aria-label="Payment option">
-                  <button type="button" role="radio" aria-checked={payMode === 'deposit'} className={`lxjt-pay__opt ${payMode === 'deposit' ? 'is-on' : ''}`} onClick={() => setPayMode('deposit')}>
-                    <span className="lxjt-pay__title">20% deposit</span>
-                    <span className="lxjt-pay__amt">{inr(depositTotal)}</span>
+                <div className="tha2-step">
+                  <span className="tha2-step__n">3</span>
+                  <h3 className="tha2-step__t">Choose how to pay</h3>
+                </div>
+                {/* pay options */}
+                <div className="tha2-pay" role="radiogroup" aria-label="Payment option">
+                  <button type="button" role="radio" aria-checked={payMode === 'deposit'} className={`tha2-payopt ${payMode === 'deposit' ? 'is-on' : ''}`} onClick={() => setPayMode('deposit')}>
+                    <span className="tha2-payopt__t">Pay a Deposit</span>
+                    <span className="tha2-payopt__amt">{inr(depositTotal)}</span>
+                    <span className="tha2-payopt__sub">20% to confirm</span>
                   </button>
-                  <button type="button" role="radio" aria-checked={payMode === 'full'} className={`lxjt-pay__opt ${payMode === 'full' ? 'is-on' : ''}`} onClick={() => setPayMode('full')}>
-                    <span className="lxjt-pay__title">Pay in full</span>
-                    <span className="lxjt-pay__amt">{inr(total)}</span>
+                  <button type="button" role="radio" aria-checked={payMode === 'full'} className={`tha2-payopt ${payMode === 'full' ? 'is-on' : ''}`} onClick={() => setPayMode('full')}>
+                    <span className="tha2-payopt__t">Pay in Full</span>
+                    <span className="tha2-payopt__amt">{inr(total)}</span>
+                    <span className="tha2-payopt__sub">Settle full today</span>
                   </button>
                 </div>
 
-                <div className="lxjt-due">
-                  <div className="lxjt-due__row"><span>Due today</span><strong>{inr(dueToday)}</strong></div>
-                  <span className="lxjt-due__sub">{payMode === 'deposit' ? `Balance ${inr(balance)} due 45 days before travel` : `${travellers} × ${inr(PRICE)}, paid in full`}</span>
+                <button type="button" className="tha2-cta">Pay now and secure seat</button>
+                <p className="tha2-secure"><Lock size={14} /> Secure encrypted checkout &middot; deposit protected</p>
                 </div>
-
-                <button type="button" className="lx2i-btn lx2i-btn--primary lx2i-btn--lg lxjt-card__go">
-                  Reserve {travellers === 1 ? 'my seat' : `${travellers} seats`} <ArrowRight size={17} />
-                </button>
-                <p className="lxjt-card__secure"><Lock size={13} /> Secure encrypted checkout · deposit protected</p>
-                <a href={PHONE_TEL} className="lxjt-card__talk">Prefer to talk? Call a curator, free <ArrowRight size={14} /></a>
-              </aside>
+              </div>
             </div>
           </section>
 
-          {/* ============ POLICIES (3 toggleable categories, summary + full modal) ============ */}
+          {/* ============ ASSURANCE BAND (trust badges) ============ */}
+          <section className="tha-assure">
+            <div className="lx2i-container">
+              <div className="tha-assure__grid">
+                {ASSURE.map(({ icon: Icon, label, note, stars, to }) =>
+                  stars ? (
+                    <a
+                      key={label}
+                      href={to}
+                      onClick={navClick(to)}
+                      className="tha-assure__item tha-assure__item--link"
+                    >
+                      <span className="tha-assure__ic"><Icon size={22} strokeWidth={1.7} /></span>
+                      <span className="tha-assure__tx">
+                        <span className="tha-assure__ratingline">
+                          <strong>{label}</strong>
+                          <span className="tha-assure__stars" aria-hidden="true">
+                            {[...Array(5)].map((_, i) => <Star key={i} size={13} fill="currentColor" strokeWidth={0} />)}
+                          </span>
+                        </span>
+                        <span>{note}</span>
+                      </span>
+                      <ArrowRight className="tha-assure__go" size={18} />
+                    </a>
+                  ) : (
+                    <div key={label} className="tha-assure__item">
+                      <span className="tha-assure__ic"><Icon size={22} strokeWidth={1.7} /></span>
+                      <span className="tha-assure__tx"><strong>{label}</strong><span>{note}</span></span>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* ============ POLICIES ============ */}
           <section className="lxjt-terms lxjt3-policies" id="terms">
             <div className="lx2i-container">
               <div className="lxjt-head lx2i-reveal">
@@ -1018,7 +1054,6 @@ export default function JapanTourLuxe4() {
                 <p className="lxjt-lead">Booking, cancellation and the full terms &mdash; pick a section, skim the essentials, and open the full detail whenever you need it.</p>
               </div>
 
-              {/* the 3 categories, toggleable */}
               <div className="lxjt3-tabs lx2i-reveal" role="tablist" aria-label="Policy category">
                 {TERM_CATS.map((c) => (
                   <button key={c.id} type="button" role="tab" aria-selected={termsTab === c.id}
@@ -1031,7 +1066,6 @@ export default function JapanTourLuxe4() {
                 ))}
               </div>
 
-              {/* a few headline points for the active category (3 across, or 4 in 2 rows) */}
               <div className={`lxjt3-hgrid lxjt3-hgrid--n${TERM_HIGHLIGHTS[termsTab].length}`} key={termsTab}>
                 {TERM_HIGHLIGHTS[termsTab].map((h) => (
                   <div key={h.title} className="lxjt-term">
@@ -1050,46 +1084,65 @@ export default function JapanTourLuxe4() {
             </div>
           </section>
 
-          {/* ============ REVIEWS (photo collage + quote, one at a time) ============ */}
-          <section className="lxjt-review" id="reviews">
-            <div className="lx2i-container">
-              <div className="lxjt-head lxjt-head--center lxjt-head--light lx2i-reveal">
-                <span className="lx2i-eyebrow lx2i-eyebrow--light">// WHAT TRAVELLERS SAY</span>
-                <h2 className="lx2i-h2 lxjt-review__h">Real journeys, captured by <strong>our travellers</strong></h2>
-                <p className="lxjt-lead lxjt-lead--light">The moments that made each trip &mdash; straight from the families and groups who lived them.</p>
-              </div>
+          {/* ============ REVIEWS — marquee of real travellers (design from /journeys/japan-2) ============ */}
+          <section className="h26-reviews" id="reviews">
+            <div className="h26-head">
+              <p className="h26-label lx2i-reveal">Travelled, and came back happy</p>
+              <h2 className="h26-h2 lx2i-reveal">Travellers who trusted us with Thailand.</h2>
+              <p className="hi-rev-sub lx2i-reveal">Couples and honeymooners, multi-generational families, friends and groups.</p>
+            </div>
 
-              <div className="lxjt-review__stage lx2i-reveal">
-                <div className="lxjt-review__photos" key={`p-${reviewIdx}`}>
-                  <div className="lxjt-review__photo lxjt-review__photo--lead" style={{ backgroundImage: `url(${sizedUnsplash(review.ids[0], 800)})` }} role="img" aria-label={`${review.name} — ${review.trip}`} />
-                  <div className="lxjt-review__col">
-                    {review.ids.slice(1, 3).map((id, k) => (
-                      <div key={id + k} className="lxjt-review__photo" style={{ backgroundImage: `url(${sizedUnsplash(id, 500)})` }} role="img" aria-label={`${review.name} — travel photo`} />
-                    ))}
-                  </div>
+            {/* Independent-rating trust strip: overall score + Google / Tripadvisor */}
+            <div className="hi-rtrust lx2i-reveal">
+              <div className="hi-rtrust-overall">
+                <strong>4.8</strong>
+                <div className="hi-rtrust-overall-meta">
+                  <span className="hi-rtrust-stars" aria-hidden="true">
+                    {Array.from({ length: 5 }).map((_, k) => <Star key={k} size={15} fill="currentColor" />)}
+                  </span>
+                  <span className="hi-rtrust-sub">Excellent · 2,400+ verified reviews</span>
                 </div>
-
-                <figure className="lxjt-review__body lx2i-glass" key={`q-${reviewIdx}`}>
-                  <Quote size={36} className="lxjt-review__q" aria-hidden="true" />
-                  <div className="lx2i-stars lx2i-stars--lg" aria-label={`${review.rating} out of 5 stars`}>{[...Array(review.rating)].map((_, i) => <Star key={i} size={17} fill="currentColor" />)}</div>
-                  <blockquote>{review.text}</blockquote>
-                  <figcaption className="lxjt-review__who">
-                    <strong>{review.name}{review.age && <span className="lxjt-review__age"> · {review.age}</span>}</strong>
-                    <span>{review.trip}</span>
-                  </figcaption>
-                </figure>
               </div>
-
-              <div className="lxjt-review__controls">
-                <button type="button" className="lxjt-review__arrow" onClick={prevReview} aria-label="Previous review"><ArrowLeft size={18} /></button>
-                <div className="lxjt-review__dots" role="tablist" aria-label="Choose a review">
-                  {REVIEWS.map((r, i) => (
-                    <button key={r.name} type="button" role="tab" aria-selected={i === reviewIdx} aria-label={`Review ${i + 1}: ${r.name}`} className={`lxjt-review__dot ${i === reviewIdx ? 'is-on' : ''}`} onClick={() => setReviewIdx(i)} />
-                  ))}
-                </div>
-                <span className="lxjt-review__count">{String(reviewIdx + 1).padStart(2, '0')} / {String(REVIEWS.length).padStart(2, '0')}</span>
-                <button type="button" className="lxjt-review__arrow" onClick={nextReview} aria-label="Next review"><ArrowRight size={18} /></button>
+              <span className="hi-rtrust-div" aria-hidden="true" />
+              <div className="hi-rtrust-platforms">
+                <span className="hi-rtrust-plat">
+                  <GoogleG />
+                  <span><strong>4.8</strong> on <b>Google</b></span>
+                </span>
+                <span className="hi-rtrust-plat">
+                  <TripAdvisorOwl />
+                  <span><strong>4.9</strong> on <b>Tripadvisor</b></span>
+                </span>
               </div>
+            </div>
+
+            <div className="h26-marquee">
+              <div className="h26-marquee-track">
+                {[...REVIEWS, ...REVIEWS].map((r, i) => (
+                  <article className="h26-rev" key={i}>
+                    <div className="h26-rev-photo">
+                      <img src={sizedUnsplash(r.ids[0], 600)} alt={r.trip} loading="lazy" />
+                      <span className="h26-rev-tour">{r.trip}</span>
+                    </div>
+                    <div className="h26-rev-content">
+                      <div className="h26-rev-stars">
+                        {Array.from({ length: r.rating }).map((_, k) => <Star key={k} size={14} fill="currentColor" />)}
+                      </div>
+                      <p>"{r.text}"</p>
+                      <div className="h26-rev-who">
+                        <img src={sizedUnsplash(r.avatar, 120)} alt="" loading="lazy" />
+                        <span>
+                          <strong>{r.name}</strong>
+                          <em>{r.location}</em>
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="h26-reviews-more lx2i-reveal">
+              <a href="#dates" onClick={navClick('#dates')} className="h26-btn h26-btn-pill">Book this trip <ArrowUpRight size={16} /></a>
             </div>
           </section>
 
@@ -1112,7 +1165,7 @@ export default function JapanTourLuxe4() {
                     </div>
                     <div className="lxjt-sim__body">
                       <h3>{s.title}</h3>
-                      <div className="lxjt-sim__meta"><Clock size={12} /> {s.nights}<span className="lxjt-sim__dot">&middot;</span><Users size={12} /> Small group</div>
+                      <div className="lxjt-sim__meta"><Clock size={12} /> {s.nights}<span className="lxjt-sim__dot">&middot;</span><Users size={12} /> Private tour</div>
                       <div className="lxjt-sim__tags">
                         {s.tags.map((t) => <span key={t} className="lxjt-sim__tag">{t}</span>)}
                       </div>
@@ -1127,23 +1180,23 @@ export default function JapanTourLuxe4() {
             </div>
           </section>
 
-          {/* ============ FINAL CTA (reuses homepage lx2i-cta) ============ */}
+          {/* ============ FINAL CTA ============ */}
           <section className="lx2i-cta">
-            <div className="lx2i-cta__bg" style={{ backgroundImage: `url(${sizedUnsplash('1522383225653-ed111181a951', 1800)})` }} />
+            <div className="lx2i-cta__bg" style={{ backgroundImage: `url(${sizedUnsplash('1508009603885-50cf7c579365', 1800)})` }} />
             <div className="lx2i-cta__veil" />
             <div className="lx2i-container lx2i-cta__inner lx2i-reveal">
-              <span className="lx2i-eyebrow lx2i-eyebrow--light">BEGIN YOUR JAPAN JOURNEY</span>
-              <h2 className="lx2i-cta__title">Eight days in Japan,<br /><strong>every detail already handled.</strong></h2>
-              <p className="lx2i-cta__sub">Set 2026 departures, a small group and an expert guide &mdash; and a curator who handles the visas, the ryokan, the rail and the reservations, so you can simply be there.</p>
+              <span className="lx2i-eyebrow lx2i-eyebrow--light">READY WHEN YOU ARE</span>
+              <h2 className="lx2i-cta__title">Five days in Thailand,<br /><strong>from just {inr(PRICE)} per person.</strong></h2>
+              <p className="lx2i-cta__sub">Beaches, temples and wildlife on a private tour, with every transfer, hotel and key meal handled &mdash; confirm your seats today with a 20% deposit.</p>
               <div className="lx2i-cta__actions">
-                <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="lx2i-btn lx2i-btn--secondary lx2i-btn--lg"><MessageCircle size={17} /> WhatsApp us</a>
-                <button type="button" onClick={openCallback} className="lx2i-btn lx2i-btn--glass lx2i-btn--lg"><PhoneCall size={16} /> Schedule a callback</button>
+                <a href="#dates" onClick={navClick('#dates')} className="lx2i-btn lx2i-btn--primary lx2i-btn--lg"><Zap size={17} /> Book now</a>
+                <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="lx2i-btn lx2i-btn--outline lx2i-btn--lg"><MessageCircle size={16} /> WhatsApp us</a>
               </div>
               <p className="lx2i-cta__hours">Travel experts available 9am–9pm IST, every day</p>
             </div>
           </section>
 
-          {/* ============ FOOTER (reuses homepage lx2i-footer) ============ */}
+          {/* ============ FOOTER ============ */}
           <footer className="lx2i-footer">
             <div className="lx2i-container lx2i-footer__top">
               <div className="lx2i-footer__brand">
@@ -1187,16 +1240,16 @@ export default function JapanTourLuxe4() {
           </footer>
         </main>
 
-        {/* ============ MOBILE THUMB-REACH BAR — talk to a human ============ */}
+        {/* ============ MOBILE THUMB-REACH BAR — book now ============ */}
         <div className="lxjt-thumbbar">
           <div className="lxjt-thumbbar__nudge">
-            <small>Got questions about Japan?</small>
-            <strong>A specialist can help — free</strong>
+            <small>From {inr(PRICE)} pp · 4 nights</small>
+            <strong>Only 4 seats left on the next date</strong>
           </div>
-          <button type="button" className="lxjt-thumbbar__chat" onClick={() => setChatOpen(true)}>
-            <MessageCircle size={18} /> Chat with a specialist
-          </button>
-          <a href={PHONE_TEL} className="lxjt-thumbbar__ico" aria-label="Call a specialist"><Phone size={20} /></a>
+          <a href="#dates" onClick={navClick('#dates')} className="lxjt-thumbbar__book">
+            <Calendar size={17} /> Check Availability
+          </a>
+          <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="lxjt-thumbbar__ico" aria-label="Message us on WhatsApp"><MessageCircle size={20} /></a>
         </div>
 
         {/* ============ FLOATING AI BUTTON (desktop) ============ */}
@@ -1204,7 +1257,7 @@ export default function JapanTourLuxe4() {
           <Sparkles size={20} /><span>Ask Enaya</span>
         </button>
 
-        {/* ============ FULL POLICY DETAIL MODAL (active category) ============ */}
+        {/* ============ FULL POLICY DETAIL MODAL ============ */}
         {termsModalOpen && (
           <div className="lxjt-tc" role="dialog" aria-modal="true" aria-label={`${activeCat.label} — full detail`}>
             <div className="lxjt-tc__scrim" onClick={() => setTermsModalOpen(false)} />
@@ -1212,7 +1265,7 @@ export default function JapanTourLuxe4() {
               <div className="lxjt-tc__head">
                 <div>
                   <span className="lx2i-eyebrow">{activeCat.label}</span>
-                  <h3 className="lxjt-tc__title">{activeCat.label} — Essence Japan with Hakone</h3>
+                  <h3 className="lxjt-tc__title">{activeCat.label} — Pattaya &amp; Bangkok Escape</h3>
                 </div>
                 <button className="lxjt-tc__close" aria-label="Close" onClick={() => setTermsModalOpen(false)}><X size={20} /></button>
               </div>
@@ -1229,7 +1282,7 @@ export default function JapanTourLuxe4() {
                     {g.note && <p className="lxjt3-note2"><AlertTriangle size={14} strokeWidth={2} /> {g.note}</p>}
                   </div>
                 ))}
-                <p className="lxjt-tc__note">These are the Cox &amp; Kings booking conditions for this departure. Full contractual terms are provided with your booking confirmation.</p>
+                <p className="lxjt-tc__note">These are the Cox &amp; Kings booking conditions for this tour. Full contractual terms are provided with your booking confirmation.</p>
               </div>
               <div className="lxjt-tc__foot">
                 <button type="button" className="lx2i-btn lx2i-btn--primary" onClick={() => setTermsModalOpen(false)}>Got it</button>
@@ -1282,7 +1335,7 @@ export default function JapanTourLuxe4() {
         )}
       </div>
 
-      {/* AI chat (Enaya) — rendered OUTSIDE .lx2i so scoped styles can't leak in */}
+      {/* AI chat (Enaya) */}
       <ChatBot open={chatOpen} onOpenChange={setChatOpen} hideFab name="Enaya" />
     </>
   );

@@ -406,15 +406,39 @@
 }
 
 /* ---------------- TRAVELLERS STEPPER ---------------- */
-.j2-stepper {
+.j2-steppers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.j2-stepper-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+.j2-stepper-label {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.j2-stepper-label small {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+.j2-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 5px 6px;
   border: 1px solid var(--border);
   border-radius: 11px;
   background: #fff;
+  flex-shrink: 0;
 }
 .j2-step-btn {
   display: inline-flex;
@@ -432,12 +456,13 @@
 .j2-step-btn:hover:not(:disabled) { background: #EAF1FA; border-color: var(--blue); }
 .j2-step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .j2-step-val {
+  min-width: 20px;
+  text-align: center;
   font-family: var(--sans);
   font-size: 1rem;
   font-weight: 600;
   color: var(--ink);
 }
-.j2-step-val small { font-size: 0.82rem; font-weight: 400; color: var(--muted); }
 
 /* ---------------- TRAVEL-DATE CALENDAR ---------------- */
 .j2-cal { position: relative; }
@@ -557,6 +582,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 14px;
   padding-top: 13px;
@@ -568,7 +594,14 @@
   color: var(--muted);
   flex-shrink: 0;
 }
-.j2-cal-flex-chips { display: flex; gap: 5px; }
+.j2-cal-flex-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .j2-flexchip {
   padding: 5px 9px;
   border: 1px solid var(--border);

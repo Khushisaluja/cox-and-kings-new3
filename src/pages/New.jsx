@@ -1,55 +1,42 @@
 /* ============================================================
-   Home2026 — scroll-activated luxury homepage for Cox & Kings.
+   New — composite page assembled from the best sections of the
+   existing prototypes (route /new):
 
-   Design language: a cinematic Voyager-Blue backdrop stays FIXED
-   while a warm-paper "sheet" of content scrolls up over it
-   (the EarthSlice card-over-background mechanic), elevated with
-   oversized Zodiak serif, blur-to-focus word reveals, a scattered
-   floating image grid, a glass directed-search dock, and a
-   circular reveal finale.
+   · Navbar, hero, "Specialists, not salespeople." intro,
+     "How would you like to travel?" fork, destinations grid,
+     Clips (reels) section and footer  →  from /improved
+   · Enaya (the working AI concierge — floating "Ask Enaya"
+     button + ChatBot), "Crafting unforgettable journeys since
+     1758" heritage, photo-first reviews and the "As featured
+     in" press marquee  →  from /luxe2-improved
+   · "Relaxed pace, for a calm vacation" shelf  →  from /journeys
 
-   Self-contained: brings its own header + footer. Does not touch
-   the shared chrome or any other route.
+   Self-contained: brings its own header + footer, does not touch
+   any other route. The three design systems coexist because every
+   stylesheet is prefix-scoped (h26-/hi-, lx2i-, jl-).
    ============================================================ */
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
-  Phone, MessageCircle, ArrowRight, ArrowUpRight, Star, Play,
-  Search, MapPin, Compass, Calendar, Menu, X, ChevronDown,
-  Bot, Instagram, Facebook, Youtube, Linkedin, ChevronUp, Send,
-  Plane, BedDouble, Users, UtensilsCrossed, Check, ShieldCheck,
-  Wallet, RotateCcw, Lock, Sparkles, Building2, Clock,
-  Bookmark, Share2, Heart, Footprints,
+  Phone, MessageCircle, ArrowRight, ArrowUpRight, Star, Search, MapPin,
+  Compass, Calendar, Menu, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
+  Instagram, Facebook, Youtube, Linkedin, Check, Sparkles, Quote,
+  Award, ShieldCheck, Globe2, Clock, Users, Gauge, Images,
 } from 'lucide-react';
 import {
-  img, CONTACT, STATS, RATING, PRESS, PATHS, DESTINATIONS,
-  ASSURANCE, JOURNEYS, REVIEWS, CURATIONS, EXPERTS, REELS,
-  HERO_DESTINATIONS, HERO_TRIP_TYPES, HERO_WHEN,
+  img, CONTACT, RATING, DESTINATIONS, ASSURANCE, EXPERTS, REELS,
+  HERO_DESTINATIONS, HERO_TRIP_TYPES,
 } from '../data/v3content';
+import ChatBot from '../components/ChatBot';
 import './Home2026.css';
 import './Home2026Improved.css';
+import './Luxe2Improved.css';
+import './Journeys.css';
+import './NewTypography.css'; // /new-homepage: Cormorant Garamond (primary) + Work Sans (secondary)
 
-/* /improved-only: Indian portrait faces for reviewers & specialists, to match
-   the (already Indian) names. Overrides the shared v3content photos here only,
-   so the reference page "/" is unchanged. */
-const IMP_REVIEW_AVATARS = {
-  'Anjali & Rohan Mehta': 'https://images.unsplash.com/photo-1628264047320-49bab8dc07d6',
-  'Suresh Iyer': 'https://images.unsplash.com/photo-1624202090198-d6f758540f18',
-  'Priya Nair': 'https://images.unsplash.com/photo-1496813146940-1601b02f81a4',
-  'The Kapoor Family': 'https://images.unsplash.com/photo-1596604820148-da737958af16',
-};
-const IMP_EXPERT_PHOTOS = {
-  'Meera Sundaram': 'https://images.unsplash.com/photo-1463335361701-e90f4c5045d0',
-  'Arjun Rao': 'https://images.unsplash.com/photo-1618306842557-a2515acf2112',
-  'Nisha Verma': 'https://images.unsplash.com/photo-1759840278361-f1adc75529a1',
-};
-const REVIEWS_IMP = REVIEWS.map((r) => ({ ...r, avatar: IMP_REVIEW_AVATARS[r.name] || r.avatar }));
-const EXPERTS_IMP = EXPERTS.map((e) => ({ ...e, photo: IMP_EXPERT_PHOTOS[e.name] || e.photo }));
-
-/* /improved-only contact override — new direct line, scoped here so the
-   reference page "/" keeps the shared CONTACT number. */
+/* ---------- Shared contact (matches /improved & /luxe2-improved) ---------- */
 const CONTACT_IMP = {
   ...CONTACT,
   phoneDisplay: '+91 8556001700',
@@ -57,22 +44,8 @@ const CONTACT_IMP = {
   whatsappHref: 'https://wa.me/918556001700',
 };
 
-/* /improved-only curation enrichments — concrete proof a high-ticket buyer
-   asks for: a pace rating and named example stays, plus a softer "designed
-   from" price wording on the genuinely tailor-made (bespoke/luxury) paths.
-   Keyed by curation name; scoped here so the reference page "/" is unchanged. */
-const CURATION_EXTRAS = {
-  'Grand Switzerland & Italy': { pace: 'Relaxed', stays: 'e.g. Hotel Schweizerhof, Lucerne · Hotel Danieli, Venice', bespoke: false },
-  'Japan for First-Timers':    { pace: 'Balanced', stays: 'e.g. The Tokyo Station Hotel · a traditional Hakone ryokan', bespoke: true },
-  'Australia & New Zealand':   { pace: 'Relaxed', stays: 'e.g. Sofitel Sydney Darling Harbour · Sofitel Queenstown', bespoke: false },
-  'Kenya Migration Safari':    { pace: 'Active', stays: 'e.g. Angama Mara · a private Maasai Mara conservancy camp', bespoke: true },
-};
-const CURATIONS_IMP = CURATIONS.map((c) => ({ ...c, ...(CURATION_EXTRAS[c.name] || {}) }));
-
-/* Desktop nav megamenus — each top-level link expands on hover to reveal a
-   curated set of in-page destinations (/improved only). The first entry of
-   each group is the section the link already points to, so the header still
-   behaves like a simple jump link for anyone who just clicks it. */
+/* ---------- Desktop nav megamenus (from /improved, anchors remapped
+   to the sections that exist on THIS page) ---------- */
 const NAV_MENU = [
   {
     label: 'Ways to travel', href: '#paths',
@@ -80,8 +53,8 @@ const NAV_MENU = [
     items: [
       { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', href: '#paths' },
       { label: 'Tailor-made journeys', desc: 'Designed entirely around you', href: '#paths' },
-      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', href: '#journeys' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', href: '#plan' },
+      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', href: '#relaxed' },
+      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: '/contact' },
     ],
   },
   {
@@ -97,30 +70,28 @@ const NAV_MENU = [
     ],
   },
   {
-    label: 'Journeys', href: '#journeys',
+    label: 'Journeys', href: '#relaxed',
     blurb: 'Signature itineraries, ready to make your own.',
     items: [
       { label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/tour-detail-japan-4' },
       { label: 'Classic Switzerland', desc: 'Scenic rail & summits', to: '/tour-detail-japan-4' },
-      { label: 'Northern Lights & Ice', desc: 'Arctic Scandinavia', to: '/tour-detail-japan-4' },
+      { label: 'Relaxed-pace journeys', desc: 'A calm vacation, handled', href: '#relaxed' },
       { label: 'Ready when you are', desc: 'Hand-picked departures', to: '/journeys' },
     ],
   },
   {
-    label: 'Why us', href: '#trust',
+    label: 'Why us', href: '#heritage',
     blurb: 'Specialists, not salespeople — and 260 years behind every trip.',
     items: [
-      { label: 'Our specialists', desc: 'The people who plan your trip', href: '#trust' },
-      { label: 'Since 1758', desc: 'Heritage you can lean on', href: '#trust' },
+      { label: 'Since 1758', desc: 'Heritage you can lean on', href: '#heritage' },
       { label: 'Real reviews', desc: '2,400+ verified travellers', href: '#reviews' },
-      { label: 'Talk to an expert', desc: 'We pick up the phone', href: '#plan' },
+      { label: 'As featured in', desc: 'The press that covers us', href: '#press' },
+      { label: 'Talk to an expert', desc: 'We pick up the phone', to: '/contact' },
     ],
   },
 ];
 
-/* --- Tabler icons (the Clips section uses the design-system icon set from
-   Figma, not lucide). Inlined as small stroke SVGs; closed-path icons
-   (play / heart / bookmark) fill solid when `filled` is set. --- */
+/* --- Tabler icons for the Clips section (from /improved) --- */
 const TiBase = ({ size = 24, filled = false, children, ...rest }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'}
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -154,8 +125,7 @@ const TiChevronUp = (p) => <TiBase {...p}><path d="M6 15l6 -6l6 6" /></TiBase>;
 const TiChevronDown = (p) => <TiBase {...p}><path d="M6 9l6 6l6 -6" /></TiBase>;
 const TiX = (p) => <TiBase {...p}><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></TiBase>;
 
-/* Per-thumbnail cursor-parallax depth (px of travel at full cursor offset).
-   Mixed signs + magnitudes give the grid a layered, floating feel. */
+/* Per-thumbnail cursor-parallax depth for the scatter grid. */
 const SCATTER_DEPTH = [34, -26, 44, -38, 28, -46, 22];
 
 /* --- Reel "reviews" (comments) — light, per-clip traveller chatter --- */
@@ -179,11 +149,10 @@ function buildReelComments(r) {
   }));
 }
 
-/* --- "When" calendar helpers --- */
+/* --- "When" calendar helpers (hero search) --- */
 const WK_DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 const MON_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const FLEX_OPTS = [0, 1, 2, 3];
-/* Build the 6-week grid (leading blanks as null) for a given month-start Date. */
 function buildCalendar(monthStart) {
   const y = monthStart.getFullYear(), m = monthStart.getMonth();
   const firstDow = new Date(y, m, 1).getDay();
@@ -196,7 +165,7 @@ function buildCalendar(monthStart) {
 }
 const sameDay = (a, b) => a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 
-/* One floating thumbnail: scroll drift (y) blended with cursor parallax (x/y). */
+/* One floating thumbnail: scroll drift (y) blended with cursor parallax. */
 function ScatterImg({ src, cls, driftY, mx, my, depth }) {
   const x = useTransform(mx, (v) => v * depth);
   const y = useTransform([driftY, my], ([d, m]) => d + m * depth * 0.6);
@@ -212,28 +181,7 @@ function ScatterImg({ src, cls, driftY, mx, my, depth }) {
   );
 }
 
-/* Brand marks for the review-trust strip (inline so there are no asset deps). */
-const GoogleG = () => (
-  <svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true">
-    <path fill="#4285F4" d="M47.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h13.2c-.6 3-2.3 5.6-4.9 7.3v6h7.9c4.6-4.3 7.3-10.5 7.3-17.8z" />
-    <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.2 1.5-5 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.6H2.6v6.2C6.6 42.6 14.6 48 24 48z" />
-    <path fill="#FBBC05" d="M10.8 28.9c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6v-6.2H2.6C.9 16.1 0 19.9 0 24s.9 7.9 2.6 11.1l8.2-6.2z" />
-    <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.5 0 24 0 14.6 0 6.6 5.4 2.6 13.4l8.2 6.2C12.7 13.6 17.9 9.5 24 9.5z" />
-  </svg>
-);
-const TripAdvisorOwl = () => (
-  <svg viewBox="0 0 132 80" width="26" height="16" aria-hidden="true">
-    <circle cx="38" cy="42" r="32" fill="#34E0A1" />
-    <circle cx="94" cy="42" r="32" fill="#34E0A1" />
-    <circle cx="38" cy="42" r="18" fill="#fff" />
-    <circle cx="94" cy="42" r="18" fill="#fff" />
-    <circle cx="38" cy="42" r="9" fill="#000" />
-    <circle cx="94" cy="42" r="9" fill="#000" />
-    <path d="M52 2 Q66 14 80 2 L66 22 Z" fill="#000" />
-  </svg>
-);
-
-/* The cinematic backdrop that the sheet scrolls over. */
+/* The cinematic backdrop the sheet scrolls over. */
 const BG = img('https://images.unsplash.com/photo-1501785888041-af3ef285b470', 2000);
 
 /* Scattered thumbnails for the intro statement grid. */
@@ -247,14 +195,10 @@ const SCATTER = [
   { src: img('https://images.unsplash.com/photo-1523906834658-6e24ef2386f9', 500), c: 's7' },
 ];
 
-/* Hand-tuned spans so the 8-card destination grid tiles a 4-col layout
-   with zero gaps (2 tall + 2 wide bookend rows 1-2, 4 normals fill row 3). */
+/* Hand-tuned spans so the 8-card destination grid tiles with zero gaps. */
 const DEST_SPANS = ['tall', 'wide', 'tall', 'wide', 'normal', 'normal', 'normal', 'normal'];
 
-/* ---- Reusable blur-to-focus reveal ----
-   Honours prefers-reduced-motion: motion-sensitive users (and any
-   JS/observer failure path) render the content immediately, fully
-   visible — never trapped at opacity:0. */
+/* ---- Reusable blur-to-focus reveal (from /improved) ---- */
 function Reveal({ children, className = '', delay = 0, y = 24, as = 'div' }) {
   const M = motion[as] || motion.div;
   const reduce = useReducedMotion();
@@ -299,33 +243,13 @@ function WordReveal({ text, className = '', accent = [], delay = 0 }) {
   );
 }
 
-/* ---- Improved-page content (persona-driven) ---- */
-const SPEC = [
-  { icon: Plane, label: 'Flights', value: 'Intl. flights incl. (ex-Mumbai)' },
-  { icon: BedDouble, label: 'Hotels', value: '4★ / select 5★, central' },
-  { icon: Users, label: 'Group size', value: 'Max 18 · avg 12–16' },
-  { icon: UtensilsCrossed, label: 'Meals', value: 'Daily breakfast + select dinners' },
-];
-const INCLUDED = ['Return international flights', 'All hotels (4★/5★, central)', 'Daily breakfast + select dinners', 'All transfers & entrance fees', 'A Cox & Kings tour manager throughout'];
-const EXCLUDED = ['Paperwork cost', 'Travel insurance', 'Lunches & optional excursions', 'Tips & personal expenses'];
-const WHY_PREMIUM = [
-  'Small groups, capped at 18 — never a 40-seat coach.',
-  'Central 4★/5★ hotels, not budget properties on the outskirts.',
-  'A Cox & Kings tour manager travels with you the whole way.',
-  'Entrance fees & most meals included — fewer surprises on the road.',
-];
-const BOOKING_SAFETY = [
-  { icon: Wallet, t: 'Book with a 20% deposit', d: 'Balance due 30 days before you travel.' },
-  { icon: RotateCcw, t: 'Free cancellation for 7 days', d: 'Full cancellation schedule shown before you pay.' },
-  { icon: ShieldCheck, t: 'Visa delayed or refused?', d: 'We rebook your dates or refund the land portion.' },
-  { icon: Lock, t: 'Secure payments only', d: 'Verified gateways — never to a personal account.' },
-];
-const COMPANY_TODAY = {
-  line: 'A licensed Indian tour operator, open and taking bookings now.',
-  address: 'Registered office · Fort, Mumbai',
-  licence: 'IATA accredited · TAAI & ASTA member',
-  hours: 'Specialists: Mon–Sat, 9:30am–6:30pm IST',
+/* ---- Bespoke "Design It Around You" guided flow (from /improved) ---- */
+const IMP_EXPERT_PHOTOS = {
+  'Meera Sundaram': 'https://images.unsplash.com/photo-1463335361701-e90f4c5045d0',
+  'Arjun Rao': 'https://images.unsplash.com/photo-1618306842557-a2515acf2112',
+  'Nisha Verma': 'https://images.unsplash.com/photo-1759840278361-f1adc75529a1',
 };
+const EXPERTS_IMP = EXPERTS.map((e) => ({ ...e, photo: IMP_EXPERT_PHOTOS[e.name] || e.photo }));
 
 const BF_REGIONS = ['Japan', 'Italy', 'Switzerland', 'Scandinavia', 'Southeast Asia', 'Africa', 'Maldives', 'Somewhere else'];
 const BF_WHO = ['A couple', 'Family with kids', 'Multi-generational', 'A group of friends', 'Solo'];
@@ -338,7 +262,6 @@ const BF_SAMPLE = {
   default: { title: 'A trip designed around you', from: '₹2,20,000', days: ['Arrive to a private transfer & a plan that fits you', 'Hand-picked stays with character', 'Private guiding where it matters', 'Free days to wander, with us on call'] },
 };
 
-/* ---- Bespoke "Design It Around You" guided flow ---- */
 function BespokeFlow({ onClose }) {
   const [step, setStep] = useState(0);
   const [region, setRegion] = useState('');
@@ -431,19 +354,133 @@ function BespokeFlow({ onClose }) {
   );
 }
 
-/* Full-screen vertical reel player — YouTube-Shorts style.
-   Desktop: scroll (wheel) to move between clips, with the reviews/comments
-   panel docked open on the right. Mobile: swipe down for the next clip, with
-   a TikTok-style action rail and a comments bottom-sheet. A short hint on open
-   tells first-timers they can swipe/scroll for more. */
+/* ---- "Schedule a callback" popup (opened from the mobile call icon) ---- */
+const CB_PURPOSES = [
+  'Plan a new trip',
+  'Get a price quote',
+  'An existing booking',
+  'Group / family tour',
+  'Bespoke / tailor-made journey',
+  'Other',
+];
+const CB_TIMES = [
+  'As soon as possible',
+  '9–11 AM',
+  '11 AM–1 PM',
+  '1–3 PM',
+  '3–5 PM',
+  '5–7 PM',
+  '7–9 PM',
+];
+
+function ScheduleCallback({ onClose }) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [purpose, setPurpose] = useState(CB_PURPOSES[0]);
+  const [purposeOther, setPurposeOther] = useState('');
+  const [time, setTime] = useState(CB_TIMES[0]);
+  const [sent, setSent] = useState(false);
+
+  const phoneValid = phone.replace(/\D/g, '').length >= 7;
+  const purposeText = purpose === 'Other' ? purposeOther.trim() : purpose;
+  const canSubmit = name.trim().length > 1 && phoneValid && !!time
+    && (purpose !== 'Other' || purposeOther.trim().length > 1);
+
+  const waHref = `${CONTACT_IMP.whatsappHref}?text=${encodeURIComponent(
+    `Hi Cox & Kings, please schedule a callback.\nName: ${name}\nPhone: ${phone}\nAbout: ${purposeText}\nPreferred time: ${time}`,
+  )}`;
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (canSubmit) setSent(true);
+  };
+
+  return (
+    <motion.div
+      className="bf h26-cb" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }} onClick={onClose}
+    >
+      <motion.div
+        className="bf-panel cb-panel" role="dialog" aria-modal="true" aria-label="Schedule a callback"
+        initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.97 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }} onClick={(e) => e.stopPropagation()}
+      >
+        <button className="bf-close" aria-label="Close" onClick={onClose}><X size={20} /></button>
+
+        {!sent ? (
+          <form className="cb-form" onSubmit={submit}>
+            <span className="bf-eyebrow"><Phone size={13} /> Schedule a callback</span>
+            <h3 className="bf-q cb-title">A specialist will call you back</h3>
+            <p className="cb-intro">Leave your details and a time that suits you — we'll call, no charge and no obligation.</p>
+
+            <label className="cb-field">
+              <span className="cb-label">Your name</span>
+              <input className="cb-input" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Priya Sharma" autoComplete="name" required />
+            </label>
+
+            <label className="cb-field">
+              <span className="cb-label">Phone number</span>
+              <input className="cb-input" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. +91 98765 43210" autoComplete="tel" required />
+            </label>
+
+            <label className="cb-field">
+              <span className="cb-label">What's it about?</span>
+              <span className="cb-select-wrap">
+                <select className="cb-input cb-select" value={purpose} onChange={(e) => setPurpose(e.target.value)} aria-label="Purpose of callback">
+                  {CB_PURPOSES.map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
+                <ChevronDown size={16} className="cb-select-chev" aria-hidden="true" />
+              </span>
+            </label>
+
+            {purpose === 'Other' && (
+              <label className="cb-field">
+                <span className="cb-label">Tell us a little more</span>
+                <input className="cb-input" type="text" value={purposeOther} onChange={(e) => setPurposeOther(e.target.value)} placeholder="In a few words…" required />
+              </label>
+            )}
+
+            <div className="cb-field">
+              <span className="cb-label">Preferred time to call</span>
+              <div className="bf-chips cb-times">
+                {CB_TIMES.map((t) => (
+                  <button key={t} type="button" className={`bf-chip${time === t ? ' on' : ''}`} onClick={() => setTime(t)}>{t}</button>
+                ))}
+              </div>
+            </div>
+
+            <button type="submit" className="h26-btn h26-btn-accent cb-submit" disabled={!canSubmit}>
+              Request my callback <ArrowRight size={16} />
+            </button>
+          </form>
+        ) : (
+          <div className="cb-done">
+            <span className="cb-done-ic"><Check size={26} /></span>
+            <h3 className="bf-q cb-title">You're all set, {name.trim().split(' ')[0]}.</h3>
+            <p className="cb-intro">
+              A Cox &amp; Kings specialist will call you on <strong>{phone}</strong>, <strong>{time.toLowerCase()}</strong>
+              {purposeText ? <>, about <strong>{purposeText.toLowerCase()}</strong></> : null}.
+            </p>
+            <div className="cb-done-actions">
+              <a href={waHref} target="_blank" rel="noopener noreferrer" className="h26-btn h26-btn-accent"><MessageCircle size={16} /> Send details on WhatsApp</a>
+              <button type="button" className="h26-btn h26-btn-ghost" onClick={onClose}>Done</button>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* Full-screen vertical reel player — YouTube-Shorts style (from /improved). */
 function ReelPlayer({ reels, index, setIndex, onClose }) {
   const reel = reels[index];
   const [saved, setSaved] = useState({});
   const [liked, setLiked] = useState({});
-  const [commentsOpen, setCommentsOpen] = useState(false); // mobile bottom-sheet
+  const [commentsOpen, setCommentsOpen] = useState(false);
   const [shared, setShared] = useState(false);
   const [hint, setHint] = useState(true);
-  const [dir, setDir] = useState(1); // travel direction, for the slide animation
+  const [dir, setDir] = useState(1);
   const wheelLock = useRef(false);
 
   const isSaved = !!saved[reel.id];
@@ -451,7 +488,6 @@ function ReelPlayer({ reels, index, setIndex, onClose }) {
   const comments = buildReelComments(reel);
   const go = (d) => { setDir(d); setIndex((i) => (i + d + reels.length) % reels.length); };
 
-  /* Re-show the swipe hint briefly each time a new clip comes up. */
   useEffect(() => {
     setHint(true);
     const t = setTimeout(() => setHint(false), 2200);
@@ -464,8 +500,6 @@ function ReelPlayer({ reels, index, setIndex, onClose }) {
     go(e.deltaY > 0 ? 1 : -1);
     setTimeout(() => { wheelLock.current = false; }, 480);
   };
-  /* Drag-to-swipe: the clip follows the finger and snaps back; a decisive
-     drag (or a flick) advances. Swipe DOWN → next clip. */
   const onDragEnd = (_e, info) => {
     if (info.offset.y > 70 || info.velocity.y > 450) go(1);
     else if (info.offset.y < -70 || info.velocity.y < -450) go(-1);
@@ -525,7 +559,6 @@ function ReelPlayer({ reels, index, setIndex, onClose }) {
             <span className="h26-reelplayer-live"><span className="h26-reelplayer-dot" /> Clip · {index + 1}/{reels.length}</span>
             <span className="h26-reelplayer-bigplay"><TiPlay size={28} /></span>
 
-            {/* Action rail — like / reviews / save / share (TikTok-style) */}
             <div className="h26-reelrail">
               <button type="button" className={`h26-reelrail-btn${isLiked ? ' is-on' : ''}`} onClick={() => setLiked((s) => ({ ...s, [reel.id]: !s[reel.id] }))} aria-pressed={isLiked} aria-label="Like">
                 <span className="h26-reelrail-ic"><TiHeart size={23} filled={isLiked} /></span>
@@ -552,7 +585,6 @@ function ReelPlayer({ reels, index, setIndex, onClose }) {
               <Link to="/tour-detail-japan-4" className="h26-btn h26-btn-accent">Explore this journey <ArrowRight size={16} /></Link>
             </div>
 
-            {/* Swipe / scroll hint on open */}
             <AnimatePresence>
               {hint && (
                 <motion.div
@@ -572,7 +604,6 @@ function ReelPlayer({ reels, index, setIndex, onClose }) {
           </motion.div>
         </div>
 
-        {/* Desktop reviews panel — always open beside the clip */}
         <aside className="h26-reelpanel">
           <div className="h26-reelpanel-head">
             <strong>Traveller reviews</strong>
@@ -588,7 +619,6 @@ function ReelPlayer({ reels, index, setIndex, onClose }) {
         <button className="h26-reelplayer-nav down" aria-label="Next clip" onClick={() => go(1)}><TiChevronDown size={26} /></button>
       </div>
 
-      {/* Mobile comments bottom-sheet */}
       <AnimatePresence>
         {commentsOpen && (
           <motion.div
@@ -614,10 +644,7 @@ function ReelPlayer({ reels, index, setIndex, onClose }) {
   );
 }
 
-/* Hero-search dropdown popover. Rendered in a portal to <body> with fixed
-   positioning anchored to its trigger, so it floats above the page without
-   any z-index juggling on the hero/sheet (which was causing the section below
-   to flicker when a dropdown opened). Repositions on scroll/resize. */
+/* Hero-search dropdown popover, rendered in a body portal (from /improved). */
 function Popover({ open, anchorRef, placement = 'left', className = '', role, ariaLabel, children }) {
   const [rect, setRect] = useState(null);
   useEffect(() => {
@@ -664,9 +691,7 @@ function Popover({ open, anchorRef, placement = 'left', className = '', role, ar
   );
 }
 
-/* Swipe indicator for the mobile horizontal carousels: a row of dots that
-   tracks which card is in view and lets you tap to jump. Rendered for every
-   carousel but only shown on mobile (where the grids become scrollers). */
+/* Swipe indicator for the mobile horizontal carousels (from /improved). */
 function CarouselDots({ scrollRef, count, label = 'cards' }) {
   const [active, setActive] = useState(0);
   useEffect(() => {
@@ -711,24 +736,451 @@ function CarouselDots({ scrollRef, count, label = 'cards' }) {
   );
 }
 
-export default function Home2026Improved() {
+/* ============================================================
+   From /luxe2-improved — heritage, reviews, press
+   ============================================================ */
+const sizedUnsplash = (id, w = 1200) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
+
+const TRUST_BADGES = [
+  { icon: Star, stat: '4.9★', label: 'from 2,400+ verified reviews' },
+  { icon: Award, stat: 'Condé Nast 2024', label: 'Readers’ Choice Award, India' },
+  { icon: ShieldCheck, stat: 'Since 1758', label: '267 years · financially protected' },
+  { icon: Globe2, stat: '100+ countries', label: 'on all seven continents' },
+];
+
+const LX_REVIEWS = [
+  { name: 'Mr & Mrs Iyer', age: 'Both 67', trip: 'Europe · Escorted Group Tour', rating: 5, span: 'tall',
+    text: 'We worried the pace would be too much at our age - it was perfectly gentle. The tour manager carried our bags and found us Jain meals every single day.',
+    ids: ['1630001722538-a9a540da549b', '1529156069898-49953e39b3ac', '1642342397404-fed6450eb964'] },
+  { name: 'Sunita Rao', age: '', trip: 'Japan · Cherry Blossom', rating: 5, span: 'tall',
+    text: 'Flawless from start to finish. The cherry blossom viewing in Kyoto was a once-in-a-lifetime moment, arranged beautifully.',
+    ids: ['1567122087721-47b09b61e1d1', '1667029839636-af119b059c49', '1639979511572-ff346bc5b3b7'] },
+  { name: 'Arjun & Meera', age: '', trip: 'Maldives · Honeymoon', rating: 5, span: 'tall',
+    text: 'An overwater villa, a private sandbank dinner, and not a single thing to worry about. Pure magic.',
+    ids: ['1677179974826-b6619bd77506', '1677176455554-03ae366d51d5', '1639979511514-904e46c8c13f'] },
+  { name: 'The Nair Family', age: '3 generations', trip: 'Switzerland · Escorted Group Tour', rating: 5, span: 'tall',
+    text: 'Grandparents, parents and two kids - all looked after. The fixed departure meant zero planning stress and the kids still talk about the Glacier Express.',
+    ids: ['1758272959663-b30513083206', '1715745218436-5a583702447a', '1580825175616-77f8df1bb507'] },
+  { name: 'Rohan Kapoor', age: '', trip: 'Kenya · Safari', rating: 5, span: 'tall',
+    text: 'We watched the migration cross the Mara at dawn. The lodge, the guides, the timing - all impeccable.',
+    ids: ['1539635278303-d4002c07eae3', '1581866548373-e6b8e1d0342c', '1758272959063-ef8a2114f807'] },
+  { name: 'Priya Menon', age: '', trip: 'Italy · Tailor-Made', rating: 5, span: 'tall',
+    text: 'A private gondola, a chef in Tuscany, a guide who opened doors most tourists never see. Worth every rupee.',
+    ids: ['1721884487052-8fb79415772c', '1763643820621-d775cf3ae5dd', '1506869640319-fe1a24fd76dc'] },
+];
+
+/* Brand marks for the review-credibility strip (inline, no asset deps). */
+const GoogleG = () => (
+  <svg viewBox="0 0 48 48" width="16" height="16" aria-hidden="true">
+    <path fill="#4285F4" d="M47.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h13.2c-.6 3-2.3 5.6-4.9 7.3v6h7.9c4.6-4.3 7.3-10.5 7.3-17.8z" />
+    <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.2 1.5-5 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.6H2.6v6.2C6.6 42.6 14.6 48 24 48z" />
+    <path fill="#FBBC05" d="M10.8 28.9c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6v-6.2H2.6C.9 16.1 0 19.9 0 24s.9 7.9 2.6 11.1l8.2-6.2z" />
+    <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.5 0 24 0 14.6 0 6.6 5.4 2.6 13.4l8.2 6.2C12.7 13.6 17.9 9.5 24 9.5z" />
+  </svg>
+);
+const TripAdvisorOwl = () => (
+  <svg viewBox="0 0 132 80" width="24" height="15" aria-hidden="true">
+    <circle cx="38" cy="42" r="32" fill="#34E0A1" />
+    <circle cx="94" cy="42" r="32" fill="#34E0A1" />
+    <circle cx="38" cy="42" r="18" fill="#fff" />
+    <circle cx="94" cy="42" r="18" fill="#fff" />
+    <circle cx="38" cy="42" r="9" fill="#000" />
+    <circle cx="94" cy="42" r="9" fill="#000" />
+    <path d="M52 2 Q66 14 80 2 L66 22 Z" fill="#000" />
+  </svg>
+);
+
+/* One review card: a small photo gallery that auto-slides on hover. */
+function ReviewCard({ r, i }) {
+  const ids = r.ids && r.ids.length ? r.ids : (r.id ? [r.id] : []);
+  const [idx, setIdx] = useState(0);
+  const timer = useRef(null);
+  const reduce = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const start = () => {
+    if (reduce || ids.length < 2 || timer.current) return;
+    timer.current = setInterval(() => setIdx((n) => (n + 1) % ids.length), 1300);
+  };
+  const stop = () => {
+    if (timer.current) { clearInterval(timer.current); timer.current = null; }
+    setIdx(0);
+  };
+  useEffect(() => () => { if (timer.current) clearInterval(timer.current); }, []);
+
+  return (
+    <figure
+      className={`lx2i-rcard ${r.span ? `lx2i-rcard--${r.span}` : ''} lx2i-reveal`}
+      style={{ '--d': `${(i % 3) * 0.08}s` }}
+      onMouseEnter={start}
+      onMouseLeave={stop}
+    >
+      <div
+        className="lx2i-rcard__slides"
+        style={{ transform: `translateX(-${idx * 100}%)` }}
+        onClick={ids.length > 1 ? () => setIdx((n) => (n + 1) % ids.length) : undefined}
+        role={ids.length > 1 ? 'button' : undefined}
+        aria-label={ids.length > 1 ? 'Next photo' : undefined}
+      >
+        {ids.map((id, k) => (
+          <div
+            key={id + k}
+            className="lx2i-rcard__slide"
+            style={{ backgroundImage: `url(${sizedUnsplash(id, 800)})` }}
+            role="img"
+            aria-label={`${r.trip} - photo ${k + 1} of ${ids.length} by ${r.name}`}
+          />
+        ))}
+      </div>
+      {ids.length > 1 && (
+        <div className="lx2i-rcard__dots">
+          {ids.map((id, k) => (
+            <button
+              key={id + k}
+              type="button"
+              className={`lx2i-rcard__dot ${k === idx ? 'is-on' : ''}`}
+              aria-label={`Show photo ${k + 1}`}
+              aria-current={k === idx}
+              onMouseEnter={() => setIdx(k)}
+              onClick={() => setIdx(k)}
+            />
+          ))}
+        </div>
+      )}
+      <figcaption className="lx2i-rcard__glass lx2i-glass">
+        <div className="lx2i-rcard__meta">
+          <div>
+            <strong>{r.name}{r.age && <em className="lx2i-rcard__age"> · {r.age}</em>}</strong>
+            <span>{r.trip}</span>
+          </div>
+          <span className="lx2i-stars">{[...Array(r.rating)].map((_, j) => <Star key={j} size={12} fill="currentColor" />)}</span>
+        </div>
+        <p className="lx2i-rcard__text"><Quote size={15} className="lx2i-rcard__q" />{r.text}</p>
+      </figcaption>
+    </figure>
+  );
+}
+
+const LX_PRESS = [
+  { name: 'Condé Nast Traveler', src: '/press/cntraveller.svg' },
+  { name: 'National Geographic', src: '/press/natgeo.svg' },
+  { name: 'Travel + Leisure', src: '/press/travel-leisure.svg' },
+  { name: 'Forbes', src: '/press/forbes.svg' },
+  { name: "Harper's Bazaar", src: '/press/harpers-bazaar.svg' },
+  { name: 'The Telegraph', src: '/press/telegraph.svg' },
+];
+
+/* Scroll-reveal for the lx2i-reveal elements (from /luxe2-improved). */
+function useLxReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll('.lx2i-reveal');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { els.forEach((e) => e.classList.add('in')); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+    els.forEach((e) => io.observe(e));
+    return () => io.disconnect();
+  }, []);
+}
+
+/* Count-up stat — rest state is ALWAYS the final number. */
+function useCountUp(target, run) {
+  const [val, setVal] = useState(target);
+  useEffect(() => {
+    if (!run) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setVal(target); return; }
+    const from = Math.round(target * 0.82);
+    let raf; const start = performance.now(); const dur = 1100;
+    setVal(from);
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(from + (target - from) * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else setVal(target);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, run]);
+  return val;
+}
+
+function Stat({ value, suffix, label, run }) {
+  const v = useCountUp(value, run);
+  return (
+    <div className="lx2i-stat">
+      <span className="lx2i-stat__num">{v}{suffix}</span>
+      <span className="lx2i-stat__lbl">{label}</span>
+    </div>
+  );
+}
+
+/* ============================================================
+   From /journeys — the "Relaxed pace, for a calm vacation" shelf
+   ============================================================ */
+const U = (id) => `https://images.unsplash.com/photo-${id}`;
+const REGION_PHOTOS = {
+  Japan: [U('1522383225653-ed111181a951'), U('1492571350019-22de08371fd3'), U('1493976040374-85c8e12f0c0e'), U('1490806843957-31f4c9a91c65'), U('1528360983277-13d401cdc186'), U('1540959733332-eab4deabeeaf')],
+  Switzerland: [U('1530122037265-a5f1f91d3b99'), U('1467269204594-9661b134dd2b')],
+  Italy: [U('1534445867742-43195f401b6c'), U('1523906834658-6e24ef2386f9'), U('1467269204594-9661b134dd2b')],
+  'Australia & NZ': [U('1506973035872-a4ec16b8e8d9'), U('1469521669194-babb45599def'), U('1507699622108-4be3abd695ad')],
+  'Southeast Asia': [U('1528181304800-259b08848526'), U('1546708973-b339540b5162')],
+  Maldives: [U('1514282401047-d79a71a590e8'), U('1546708973-b339540b5162')],
+};
+const GROUP_BY_STYLE = {
+  'Group Tour': 'Small group · max 18',
+  'Bespoke Private': 'Private & tailor-made',
+  Luxury: 'Private guiding',
+  Family: 'Family-friendly',
+  Honeymoon: 'Just the two of you',
+  Safari: 'Small-group safari',
+};
+function buildGallery(o) {
+  const pool = REGION_PHOTOS[o.regions[0]] || [];
+  return [...new Set([o.image, ...pool])].slice(0, 5);
+}
+const J = (o) => ({
+  ...o,
+  priceLabel: `₹${o.price.toLocaleString('en-IN')}`,
+  nightsLabel: `${o.nights} nights`,
+  group: GROUP_BY_STYLE[o.style],
+  gallery: buildGallery(o),
+});
+/* The relaxed-pace journeys shown on this page's shelf. */
+const RELAXED_JOURNEYS = [
+  J({ id: 'jp-luxe', title: 'Japan: Ryokans & Art Islands', blurb: 'Slow luxury — design hotels, private onsen and the Naoshima art islands.', regions: ['Japan'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/japan' }),
+  J({ id: 'ch-summer', title: 'Summer in Switzerland', blurb: 'Glacier trains and alpine lakes — Lucerne, Zermatt and the Jungfrau region.', regions: ['Switzerland', 'Europe'], style: 'Group Tour', pace: 'Relaxed', rating: 4.8, nights: 10, season: 'Jun–Sep', price: 245000, image: U('1530122037265-a5f1f91d3b99'), to: '/contact' }),
+  J({ id: 'ch-rail', title: 'Swiss Alps Private Rail Journey', blurb: 'The Glacier Express and Bernina line, first-class, with elevated stays throughout.', regions: ['Switzerland', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 8, season: 'May–Oct', price: 360000, image: U('1530122037265-a5f1f91d3b99'), to: '/contact' }),
+  J({ id: 'it-slow', title: 'Slow Italy: Coast to Art', blurb: 'Rome after-hours, a Tuscan villa and a hidden Amalfi cove — designed around you.', regions: ['Italy', 'Europe'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Apr–Oct', price: 240000, image: U('1534445867742-43195f401b6c'), to: '/contact' }),
+  J({ id: 'it-amalfi', title: 'Amalfi & the Southern Coast', blurb: 'A private skipper, cliffside stays and long lunches above the Tyrrhenian.', regions: ['Italy', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.8, nights: 7, season: 'May–Sep', price: 280000, image: U('1534445867742-43195f401b6c'), to: '/contact' }),
+  J({ id: 'it-family', title: 'Italy for Families', blurb: 'Gladiator schools in Rome, gelato trails and a slow Tuscan farmhouse week.', regions: ['Italy', 'Europe'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 10, season: 'Apr–Oct', price: 215000, image: U('1534445867742-43195f401b6c'), to: '/contact' }),
+  J({ id: 'au-family', title: 'Australia for Families', blurb: 'Reef, beaches and easy days — snorkelling, Rotorua and time to breathe.', regions: ['Australia & NZ'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 14, season: 'Year-round', price: 340000, image: U('1506973035872-a4ec16b8e8d9'), to: '/contact' }),
+  J({ id: 'sea-srilanka', title: 'Sri Lanka: Tea Trails & Coast', blurb: 'Hill-country tea estates, ancient cities and a slow finish by the sea.', regions: ['Southeast Asia'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Year-round', price: 130000, image: U('1546708973-b339540b5162'), to: '/contact' }),
+  J({ id: 'mv-overwater', title: 'Maldives Overwater Escape', blurb: 'Overwater calm — a private villa, a house reef and nowhere to be.', regions: ['Maldives'], style: 'Honeymoon', pace: 'Relaxed', rating: 4.9, nights: 5, season: 'Year-round', price: 140000, image: U('1514282401047-d79a71a590e8'), to: '/contact' }),
+];
+const RELAXED_COL = {
+  key: 'relaxed',
+  title: 'Relaxed pace, for a calm vacation',
+  sub: 'Slow mornings, gentle days and comfortable distances — easy on every generation.',
+};
+
+/* WhatsApp glyph (lucide has no brand icon) — used on the enquiry CTA. */
+const WaIcon = ({ size = 15 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm0 18.3c-1.5 0-2.98-.4-4.27-1.16l-.3-.18-3.17 1 1.02-3.09-.2-.32A8.3 8.3 0 1 1 12 20.3z" />
+    <path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35z" />
+  </svg>
+);
+
+/* A single journey card (from /journeys). */
+function JourneyCard({ j, i, onPhotos }) {
+  const waHref = `${CONTACT_IMP.whatsappHref}?text=${encodeURIComponent(`Hi Cox & Kings, I'd like to enquire about the "${j.title}" journey.`)}`;
+  return (
+    <Reveal className="jl-card" delay={(i % 3) * 0.05} y={24} as="article">
+      <div className="jl-card-media">
+        <Link to={j.to} className="jl-card-media-link" aria-label={`${j.title} — view itinerary`}>
+          <img src={img(j.image, 800)} alt={j.title} loading="lazy" />
+        </Link>
+        <span className="jl-card-style">{j.style}</span>
+        <span className="jl-card-rating"><Star size={12} fill="currentColor" aria-hidden="true" /> {j.rating.toFixed(1)}</span>
+        <span className="jl-card-region"><MapPin size={12} aria-hidden="true" /> {j.regions[0]}</span>
+        {j.gallery.length > 1 && (
+          <button
+            type="button"
+            className="jl-photos"
+            onClick={() => onPhotos(j)}
+            aria-label={`View ${j.gallery.length} photos of ${j.title}`}
+          >
+            <Images size={15} aria-hidden="true" /> {j.gallery.length} photos
+          </button>
+        )}
+      </div>
+      <div className="jl-card-body">
+        <h3 className="jl-card-title"><Link to={j.to}>{j.title}</Link></h3>
+        <span className="jl-card-group"><Users size={13} aria-hidden="true" /> {j.group}</span>
+        <p className="jl-card-blurb">{j.blurb}</p>
+        <div className="jl-card-meta">
+          <span><Clock size={14} aria-hidden="true" /> {j.nightsLabel}</span>
+          <span><Calendar size={14} aria-hidden="true" /> {j.season}</span>
+          <span><Gauge size={14} aria-hidden="true" /> {j.pace} pace</span>
+        </div>
+        <div className="jl-card-foot">
+          <span className="jl-card-price">
+            <small>from</small> {j.priceLabel} <small>/ person</small>
+          </span>
+          <div className="jl-card-ctas">
+            <Link to={j.to} className="jl-cbtn jl-cbtn-view">
+              View Itinerary <ArrowRight size={15} aria-hidden="true" />
+            </Link>
+            <a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="jl-cbtn jl-cbtn-wa"
+              aria-label={`Enquire about ${j.title} on WhatsApp`}
+            >
+              <WaIcon size={15} /> Enquire Now
+            </a>
+          </div>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
+/* The themed collection shelf — a horizontally scrollable rail (from /journeys). */
+function Shelf({ col, list, onPhotos }) {
+  const railRef = useRef(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const update = useCallback(() => {
+    const el = railRef.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft <= 4);
+    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    update();
+    const el = railRef.current;
+    el?.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => { el?.removeEventListener('scroll', update); window.removeEventListener('resize', update); };
+  }, [update]);
+
+  const scrollBy = (dir) => {
+    const el = railRef.current;
+    if (!el) return;
+    const card = el.querySelector('.jl-card');
+    const step = (card ? card.offsetWidth : 320) + 22;
+    el.scrollBy({ left: dir * step, behavior: 'smooth' });
+  };
+
+  return (
+    <section className="jl-shelf" aria-labelledby={`shelf-${col.key}`}>
+      <div className="jl-shelf-head">
+        <div className="jl-shelf-heading">
+          <Reveal className="h26-label jl-shelf-label" as="p">{list.length} journeys</Reveal>
+          <Reveal as="h2" className="jl-shelf-title" delay={0.04} id={`shelf-${col.key}`}>{col.title}</Reveal>
+          <Reveal as="p" className="jl-shelf-sub" delay={0.08}>{col.sub}</Reveal>
+        </div>
+        <div className="jl-shelf-arrows" aria-hidden="true">
+          <button type="button" className="jl-arrow" onClick={() => scrollBy(-1)} disabled={atStart} aria-label="Scroll left" tabIndex={-1}>
+            <ChevronLeft size={20} />
+          </button>
+          <button type="button" className="jl-arrow" onClick={() => scrollBy(1)} disabled={atEnd} aria-label="Scroll right" tabIndex={-1}>
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      </div>
+      <div className="jl-rail" ref={railRef} role="group" aria-label={`${col.title} — scroll for more`}>
+        {list.map((j, i) => <JourneyCard key={j.id} j={j} i={i} onPhotos={onPhotos} />)}
+      </div>
+    </section>
+  );
+}
+
+/* Photo lightbox — cycles a tour's gallery (from /journeys). */
+function Lightbox({ data, onClose }) {
+  const { title, photos } = data;
+  const [idx, setIdx] = useState(data.index || 0);
+  const dialogRef = useRef(null);
+
+  const go = useCallback((dir) => setIdx((n) => (n + dir + photos.length) % photos.length), [photos.length]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      else if (e.key === 'ArrowRight') go(1);
+      else if (e.key === 'ArrowLeft') go(-1);
+    };
+    document.addEventListener('keydown', onKey);
+    dialogRef.current?.focus();
+    return () => document.removeEventListener('keydown', onKey);
+  }, [go, onClose]);
+
+  return (
+    <motion.div
+      className="jl-lb"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Photos of ${title}`}
+    >
+      <div className="jl-lb-top" onClick={(e) => e.stopPropagation()}>
+        <span className="jl-lb-title">{title}</span>
+        <span className="jl-lb-count">{idx + 1} / {photos.length}</span>
+        <button type="button" className="jl-lb-close" onClick={onClose} aria-label="Close photos"><X size={22} /></button>
+      </div>
+      <div className="jl-lb-stage" onClick={(e) => e.stopPropagation()} ref={dialogRef} tabIndex={-1}>
+        <button type="button" className="jl-lb-nav jl-lb-prev" onClick={() => go(-1)} aria-label="Previous photo"><ChevronLeft size={26} /></button>
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={idx}
+            src={img(photos[idx], 1400)}
+            alt={`${title} — photo ${idx + 1}`}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          />
+        </AnimatePresence>
+        <button type="button" className="jl-lb-nav jl-lb-next" onClick={() => go(1)} aria-label="Next photo"><ChevronRight size={26} /></button>
+      </div>
+      <div className="jl-lb-thumbs" onClick={(e) => e.stopPropagation()}>
+        {photos.map((p, k) => (
+          <button
+            key={p + k}
+            type="button"
+            className={`jl-lb-thumb${k === idx ? ' is-on' : ''}`}
+            onClick={() => setIdx(k)}
+            aria-label={`Photo ${k + 1}`}
+            aria-current={k === idx}
+          >
+            <img src={img(p, 200)} alt="" />
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+/* ============================================================
+   THE PAGE
+   ============================================================ */
+export default function New() {
+  useLxReveal();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [where, setWhere] = useState('');
   const [whereOpen, setWhereOpen] = useState(false);
   const whereRef = useRef(null);
-  const [style, setStyle] = useState(''); // no pre-selection — neutral "Any style" placeholder
+  const [style, setStyle] = useState('');
   const [styleOpen, setStyleOpen] = useState(false);
   const styleRef = useRef(null);
-  /* When: a calendar pick + flexible window, instead of a coarse select. */
   const [whenOpen, setWhenOpen] = useState(false);
   const whenRef = useRef(null);
-  const [whenDate, setWhenDate] = useState(null); // Date | null
-  const [whenFlex, setWhenFlex] = useState(0); // 0 = exact, else ± days
+  const [whenDate, setWhenDate] = useState(null);
+  const [whenFlex, setWhenFlex] = useState(0);
   const [whenMonth, setWhenMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [chatOpen, setChatOpen] = useState(false);
-  const [activeReel, setActiveReel] = useState(null); // index into REELS, or null
+  const [activeReel, setActiveReel] = useState(null);
   const [bespokeOpen, setBespokeOpen] = useState(false);
+  const [callbackOpen, setCallbackOpen] = useState(false);
+  const [lightbox, setLightbox] = useState(null);
+  const [statsRun, setStatsRun] = useState(false);
+  const statsRef = useRef(null);
+
+  const openPhotos = useCallback((j) => setLightbox({ title: j.title, photos: j.gallery, index: 0 }), []);
 
   // Hide the page scrollbar + go full-bleed, only while this page is mounted
   useEffect(() => {
@@ -746,8 +1198,6 @@ export default function Home2026Improved() {
   useEffect(() => {
     if (!whereOpen && !styleOpen && !whenOpen) return;
     const onDown = (e) => {
-      // The dropdowns render in a body portal, so a click inside one isn't
-      // inside the trigger refs — treat any click within a popover as "inside".
       if (e.target.closest && e.target.closest('.hi-where-pop')) return;
       if (whereRef.current && !whereRef.current.contains(e.target)) setWhereOpen(false);
       if (styleRef.current && !styleRef.current.contains(e.target)) setStyleOpen(false);
@@ -757,12 +1207,12 @@ export default function Home2026Improved() {
     return () => document.removeEventListener('pointerdown', onDown);
   }, [whereOpen, styleOpen, whenOpen]);
 
-  /* Lock body scroll while the menu or a reel is open. */
+  /* Lock body scroll while a modal surface is open. */
   useEffect(() => {
-    const lock = menuOpen || activeReel !== null || bespokeOpen;
+    const lock = menuOpen || activeReel !== null || bespokeOpen || callbackOpen || !!lightbox;
     document.body.style.overflow = lock ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [menuOpen, activeReel, bespokeOpen]);
+  }, [menuOpen, activeReel, bespokeOpen, callbackOpen, lightbox]);
 
   /* Keyboard control for the reel player. */
   useEffect(() => {
@@ -776,9 +1226,7 @@ export default function Home2026Improved() {
     return () => window.removeEventListener('keydown', onKey);
   }, [activeReel]);
 
-  /* Hero parallax — the headline drifts up as the sheet rises. (No opacity
-     fade: it dimmed the text on the way out and made an open search dropdown
-     flicker while scrolling.) */
+  /* Hero parallax. */
   const heroRef = useRef(null);
   const { scrollYProgress: heroP } = useScroll({
     target: heroRef, offset: ['start start', 'end start'],
@@ -803,7 +1251,7 @@ export default function Home2026Improved() {
   const drift2 = useTransform(scP, [0, 1], [-40, 40]);
   const drift3 = useTransform(scP, [0, 1], [90, -90]);
 
-  /* Cursor parallax for the scatter grid (springy so it eases, not snaps). */
+  /* Cursor parallax for the scatter grid. */
   const prefersReduced = useReducedMotion();
   const mPx = useMotionValue(0);
   const mPy = useMotionValue(0);
@@ -817,16 +1265,11 @@ export default function Home2026Improved() {
   };
   const onScatterLeave = () => { mPx.set(0); mPy.set(0); };
 
-  /* Refs for the mobile carousels, so their swipe-dot indicators can track
-     scroll position and jump to a card. */
+  /* Refs for the mobile carousels. */
   const forkRef = useRef(null);
   const destRef = useRef(null);
-  const journeysRef = useRef(null);
-  const includesRef = useRef(null);
-  const curRef = useRef(null);
 
-  /* Mobile reels: auto-advance the horizontal carousel so it "plays" itself,
-     pausing for a few seconds whenever the visitor swipes (lets them interact). */
+  /* Mobile reels: auto-advance the horizontal carousel. */
   const reelsRef = useRef(null);
   useEffect(() => {
     const el = reelsRef.current;
@@ -854,8 +1297,16 @@ export default function Home2026Improved() {
     };
   }, [prefersReduced]);
 
-  /* "When" — derive a friendly label from the picked date + flexible window.
-     Falls back to "Anytime" until a date is chosen. */
+  /* Trigger the heritage count-up when the stats band enters view. */
+  useEffect(() => {
+    if (!statsRef.current) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setStatsRun(true); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStatsRun(true); io.disconnect(); } }, { threshold: 0.25 });
+    io.observe(statsRef.current);
+    return () => io.disconnect();
+  }, []);
+
+  /* "When" — derive a friendly label from the picked date + flexible window. */
   const whenLabel = whenDate
     ? `${whenDate.getDate()} ${MON_NAMES[whenDate.getMonth()].slice(0, 3)}${whenFlex ? ` · ±${whenFlex}d` : ''}`
     : 'Anytime';
@@ -863,34 +1314,26 @@ export default function Home2026Improved() {
   const todayMidnight = new Date(); todayMidnight.setHours(0, 0, 0, 0);
   const canGoPrevMonth = whenMonth > new Date(todayMidnight.getFullYear(), todayMidnight.getMonth(), 1);
 
-  /* While any hero-search dropdown is open we freeze the hero's scroll
-     parallax, so scrolling doesn't drag the popover around / make it jitter. */
-  const searchOpen = whereOpen || styleOpen || whenOpen;
-
-  /* The hero search carries the visitor's choices through to the
-     listing page instead of throwing them away. */
   const searchHref = `/journeys?where=${encodeURIComponent(where)}&style=${encodeURIComponent(style)}`;
 
-  /* "Where to?" is a typeable combobox: free text in the field, while the
-     dropdown only ever suggests popular places. As the visitor types we
-     narrow that list of suggestions (and never block a custom entry). */
   const whereQuery = where.trim().toLowerCase();
   const whereSuggestions = whereQuery
     ? HERO_DESTINATIONS.filter((d) => d.toLowerCase().includes(whereQuery))
     : HERO_DESTINATIONS;
 
   return (
-    <div className="h26">
+    <>
+    <div className="h26 new-typo">
       <a className="h26-skip" href="#top">Skip to content</a>
 
       {/* Fixed cinematic backdrop the sheet scrolls over */}
       <div className="h26-bg" aria-hidden="true">
-        <img src={BG} alt="" loading="eager" fetchPriority="high" decoding="sync" />
+        <img src={BG} alt="" />
         <div className="h26-bg-veil" />
         <div className="h26-bg-grain" />
       </div>
 
-      {/* ---------- NAV ---------- */}
+      {/* ---------- NAV (from /improved) ---------- */}
       <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
         <a href="#top" className="h26-brand">
           <img src="/cox-logo-new.png" alt="Cox & Kings" />
@@ -931,7 +1374,7 @@ export default function Home2026Improved() {
           <a href={CONTACT_IMP.phoneHref} className="h26-phone">
             <Phone size={15} /> <span>{CONTACT_IMP.phoneDisplay}</span>
           </a>
-          <a href="#plan" className="h26-btn h26-btn-pill">Talk to an expert</a>
+          <Link to="/contact" className="h26-btn h26-btn-pill">Talk to an expert</Link>
           <button
             className="h26-burger"
             aria-label="Menu"
@@ -942,7 +1385,7 @@ export default function Home2026Improved() {
         </div>
       </header>
 
-      {/* Mobile slide-in menu — luxe2-style glass panel */}
+      {/* Mobile slide-in menu */}
       <div className={`h26-menu${menuOpen ? ' is-open' : ''}`} aria-hidden={!menuOpen}>
         <div className="h26-menu-scrim" onClick={() => setMenuOpen(false)} />
         <div className="h26-menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
@@ -954,9 +1397,9 @@ export default function Home2026Improved() {
             {[
               { label: 'Ways to travel', href: '#paths' },
               { label: 'Destinations', href: '#destinations' },
-              { label: 'Journeys', href: '#journeys' },
+              { label: 'Journeys', href: '#relaxed' },
               { label: 'Clips', href: '#reels' },
-              { label: 'Why us', href: '#trust' },
+              { label: 'Reviews', href: '#reviews' },
             ].map((n) => (
               <a key={n.label} href={n.href} onClick={() => setMenuOpen(false)}>
                 {n.label}
@@ -986,9 +1429,9 @@ export default function Home2026Improved() {
         </div>
       </div>
 
-      {/* ---------- HERO ---------- */}
+      {/* ---------- HERO (from /improved) ---------- */}
       <section className="h26-hero" id="top" ref={heroRef}>
-        <motion.div className="h26-hero-inner" style={{ y: (isMobile || searchOpen) ? 0 : heroY }}>
+        <motion.div className="h26-hero-inner" style={{ y: (isMobile || prefersReduced) ? 0 : heroY }}>
           <Reveal className="h26-eyebrow" as="p">
             Established 1758 · 260+ years of travel
           </Reveal>
@@ -999,9 +1442,6 @@ export default function Home2026Improved() {
             <WordReveal text="it's a journey." accent={[2]} delay={0.25} />
           </h1>
 
-          {/* Directed search dock — chips instead of a blank field */}
-          {/* Plain (no-blur) reveal: a filter on this wrapper would clip the
-              search dropdowns to its own box. Animate opacity + y only. */}
           <motion.div
             className="h26-search"
             initial={prefersReduced ? false : { opacity: 0, y: 24 }}
@@ -1160,6 +1600,18 @@ export default function Home2026Improved() {
                 <span>Find my journey</span>
               </Link>
             </div>
+            <motion.a
+              href="#reviews"
+              className="h26-hero-rating"
+              initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <span className="h26-hero-rating-stars">{[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}</span>
+              <strong>4.9</strong>
+              <span>from 2,400+ verified reviews</span>
+              <ArrowRight size={15} />
+            </motion.a>
             <div className="h26-search-quick">
               <span>Popular —</span>
               {['Switzerland', 'Japan', 'Italy', 'Northern Lights', 'African Safari'].map((d) => (
@@ -1169,7 +1621,7 @@ export default function Home2026Improved() {
           </motion.div>
         </motion.div>
 
-        {/* Floating stat pills — hero teaser; full proof set lives in #trust */}
+        {/* Floating stat pills */}
         <div className="h26-pills">
           {[
             { v: '260+ yrs', l: 'of heritage' },
@@ -1199,7 +1651,7 @@ export default function Home2026Improved() {
       {/* ---------- SHEET (everything below scrolls over the backdrop) ---------- */}
       <div className="h26-sheet">
 
-        {/* INTRO — scattered floating grid + centered statement (matches "/" exactly) */}
+        {/* INTRO — "Specialists, not salespeople. Every detail, handled." (from /improved) */}
         <section className="h26-intro" ref={scatterRef} onMouseMove={onScatterMove} onMouseLeave={onScatterLeave}>
           {SCATTER.map((s, i) => (
             <ScatterImg
@@ -1236,14 +1688,13 @@ export default function Home2026Improved() {
           </div>
         </section>
 
-        {/* FORK — four ways in: bespoke, escorted, help me decide, talk to someone */}
+        {/* FORK — "How would you like to travel?" (from /improved) */}
         <section className="h26-section hi-fork" id="paths">
           <div className="h26-head hi-center">
             <Reveal className="h26-label" as="p">Start here</Reveal>
             <Reveal as="h2" className="h26-h2" delay={0.05}>How would you like to travel?</Reveal>
           </div>
           <div className="hi-fork-grid hi-fork-grid--four" ref={forkRef}>
-            {/* Bespoke lane — desire-led, no price (serves Ananya) */}
             <Reveal className="hi-lane" y={0}>
               <div className="hi-lane-media">
                 <img src={img('https://images.unsplash.com/photo-1540541338287-41700207dee6', 800)} alt="A private, design-led stay" loading="lazy" />
@@ -1257,7 +1708,6 @@ export default function Home2026Improved() {
                 </button>
               </div>
             </Reveal>
-            {/* Escorted lane — value-led, with spec proof (serves Karan, Rajesh) */}
             <Reveal className="hi-lane" y={0}>
               <Link to="/journeys2" className="hi-lane-link">
                 <div className="hi-lane-media">
@@ -1271,7 +1721,6 @@ export default function Home2026Improved() {
                 </div>
               </Link>
             </Reveal>
-            {/* Help me decide — highlighted/recommended path for the undecided visitor */}
             <Reveal className="hi-lane is-featured" y={0}>
               <span className="hi-lane-badge">Recommended</span>
               <div className="hi-lane-media">
@@ -1286,7 +1735,6 @@ export default function Home2026Improved() {
                 </button>
               </div>
             </Reveal>
-            {/* Talk to someone — human contact, no form (serves Sunita) */}
             <Reveal className="hi-lane" y={0}>
               <div className="hi-lane-media">
                 <img src={img('https://images.unsplash.com/photo-1521737604893-d14cc237f11d', 800)} alt="A travel specialist ready to talk" loading="lazy" />
@@ -1302,7 +1750,7 @@ export default function Home2026Improved() {
           <CarouselDots scrollRef={forkRef} count={4} label="ways to travel" />
         </section>
 
-        {/* DESTINATIONS — editorial grid */}
+        {/* DESTINATIONS — editorial grid (from /improved) */}
         <section className="h26-section" id="destinations">
           <div className="h26-head h26-head-row">
             <div>
@@ -1332,208 +1780,64 @@ export default function Home2026Improved() {
           <CarouselDots scrollRef={destRef} count={Math.min(8, DESTINATIONS.length)} label="destinations" />
         </section>
 
-        {/* TRUST — genuinely back, quantified credibility */}
-        <section className="h26-trust" id="trust">
-          <div className="h26-trust-inner">
-            {/* Media column — heritage photo with an overlapping glass card */}
-            <Reveal className="h26-heritage-media">
-              <img
-                className="h26-heritage-photo"
-                src={img('https://images.unsplash.com/photo-1503220317375-aaad61436b1b', 900)}
-                alt="A Cox & Kings traveller taking in the view"
-                loading="lazy"
-              />
-              <div className="h26-heritage-card">
-                <span className="h26-heritage-eyebrow">Since 1758</span>
-                <strong>Bespoke itineraries</strong>
-                <p>Each journey is crafted with care and precision — shaped to reflect you alone.</p>
-                <img
-                  className="h26-heritage-inset"
-                  src={img('https://images.unsplash.com/photo-1523906834658-6e24ef2386f9', 500)}
-                  alt=""
-                  loading="lazy"
-                />
+        {/* HERITAGE — "Crafting unforgettable journeys since 1758" (from /luxe2-improved) */}
+        <div className="lx2i">
+          <section className="lx2i-heritage" id="heritage">
+            <div className="lx2i-container lx2i-heritage__grid">
+              <div className="lx2i-heritage__media lx2i-reveal">
+                <div className="lx2i-heritage__photo lx2i-heritage__photo--main" style={{ backgroundImage: `url(${sizedUnsplash('1599661046289-e31897846e41', 900)})` }} />
+                <div className="lx2i-heritage__card lx2i-glass">
+                  <span className="lx2i-eyebrow">SINCE 1758</span>
+                  <h4>Bespoke Itineraries</h4>
+                  <p>Each journey we curate is a masterpiece - crafted with care and precision to reflect you alone.</p>
+                  <div className="lx2i-heritage__photo lx2i-heritage__photo--inset" style={{ backgroundImage: `url(${sizedUnsplash('1523906834658-6e24ef2386f9', 600)})` }} />
+                </div>
               </div>
-            </Reveal>
 
-            {/* Text column */}
-            <div className="h26-heritage-text">
-              <Reveal className="h26-label" as="p">Our heritage</Reveal>
-              <Reveal as="h2" className="h26-h2 h26-h2-light" delay={0.05}>
-                Crafting <em>unforgettable journeys</em> since 1758.
-              </Reveal>
-              <Reveal as="p" className="h26-trust-text" delay={0.1}>
-                From the age of sail to the era of bespoke travel, Cox &amp; Kings has guided
-                generations of explorers across the globe — the same name, the same standard,
-                for over a quarter of a millennium.
-              </Reveal>
-              <div className="h26-statband">
-                {STATS.map((s, i) => (
-                  <Reveal key={s.value} className="h26-statband-item" delay={i * 0.07}>
-                    <strong>{s.value}</strong>
-                    <span>{s.label}</span>
-                  </Reveal>
-                ))}
-              </div>
-              <Reveal as="div" delay={0.2}>
-                <Link to="/about" className="h26-btn h26-btn-accent">Discover our story <ArrowRight size={16} /></Link>
-              </Reveal>
-            </div>
-          </div>
-          <Reveal className="h26-award">
-            <span className="h26-award-badge">🏆</span>
-            <div>
-              <strong>Awarded Best Leisure Tours Brand</strong>
-              <span>Economic Times Travel &amp; Tourism Awards · {RATING.score}★ from {RATING.count} travellers</span>
-            </div>
-            <div className="h26-press">
-              {PRESS.slice(0, 4).map((p) => <span key={p}>{p}</span>)}
-            </div>
-          </Reveal>
-        </section>
+              <div className="lx2i-heritage__text lx2i-reveal">
+                <span className="lx2i-eyebrow">OUR HERITAGE</span>
+                <h2 className="lx2i-h2">Crafting <strong>unforgettable<br />journeys</strong> since 1758</h2>
+                <p className="lx2i-heritage__copy">
+                  From the age of sail to the era of bespoke travel, Cox &amp; Kings has guided generations
+                  of explorers across the globe - the same name, the same standard, for over a quarter of a millennium.
+                </p>
 
-        {/* COX & KINGS TODAY — "we're back", real facts (serves Sunita) */}
-        <section className="hi-today">
-          <div className="hi-today-inner">
-            <Reveal className="hi-today-main">
-              <span className="h26-label h26-label-light">Cox &amp; Kings today</span>
-              <h2 className="h26-h2 h26-h2-light">The name you remember — back, and taking bookings now.</h2>
-              <p className="hi-today-lead">{COMPANY_TODAY.line}</p>
-              <div className="hi-today-facts">
-                <span><Building2 size={16} /> {COMPANY_TODAY.address}</span>
-                <span><ShieldCheck size={16} /> {COMPANY_TODAY.licence}</span>
-                <span><Clock size={16} /> {COMPANY_TODAY.hours}</span>
-                <span><Phone size={16} /> {CONTACT_IMP.phoneDisplay}</span>
-              </div>
-            </Reveal>
-            <Reveal className="hi-safety" delay={0.1}>
-              <h3>Your booking is protected</h3>
-              <ul>
-                {BOOKING_SAFETY.map((b) => {
-                  const Ic = b.icon;
-                  return (
-                    <li key={b.t}>
-                      <span className="hi-safety-ic"><Ic size={17} /></span>
-                      <span><strong>{b.t}</strong><em>{b.d}</em></span>
-                    </li>
-                  );
-                })}
-              </ul>
-              <Link to="/contact" className="hi-textlink hi-textlink-light">Read full booking terms <ArrowRight size={14} /></Link>
-            </Reveal>
-          </div>
-        </section>
+                <ul className="lx2i-trust" aria-label="Why travellers trust Cox & Kings">
+                  {TRUST_BADGES.map((b) => {
+                    const Icon = b.icon;
+                    return (
+                      <li key={b.stat} className="lx2i-trust__item">
+                        <span className="lx2i-trust__ic"><Icon size={20} strokeWidth={1.6} /></span>
+                        <span className="lx2i-trust__body">
+                          <strong>{b.stat}</strong>
+                          <small>{b.label}</small>
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
 
-        {/* JOURNEYS — signature, inspiration → shortlist */}
-        <section className="h26-section" id="journeys">
-          <div className="h26-head h26-head-row">
-            <div>
-              <Reveal className="h26-label" as="p">Signature journeys</Reveal>
-              <Reveal as="h2" className="h26-h2" delay={0.05}>Begin with a little desire.</Reveal>
-            </div>
-            <Reveal as="div" delay={0.1}>
-              <Link to="/journeys" className="h26-textlink">Browse all journeys <ArrowUpRight size={16} /></Link>
-            </Reveal>
-          </div>
-
-          {/* What every escorted journey includes — answers "what's in the price?" */}
-          <Reveal className="hi-includes">
-            <div className="hi-includes-spec">
-              {SPEC.map((s) => {
-                const Ic = s.icon;
-                return (
-                  <div key={s.label} className="hi-spec">
-                    <span className="hi-spec-ic"><Ic size={18} /></span>
-                    <span><strong>{s.label}</strong><em>{s.value}</em></span>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="hi-includes-lists" ref={includesRef}>
-              <div className="hi-inc">
-                <h4>What's included</h4>
-                <ul>{INCLUDED.map((x) => <li key={x}><Check size={14} className="hi-check" />{x}</li>)}</ul>
-              </div>
-              <div className="hi-inc hi-exc">
-                <h4>Not included</h4>
-                <ul>{EXCLUDED.map((x) => <li key={x}><span className="hi-dash" aria-hidden="true">–</span>{x}</li>)}</ul>
-              </div>
-              <div className="hi-inc hi-why">
-                <h4>Why we cost a little more</h4>
-                <ul>{WHY_PREMIUM.map((x) => <li key={x}><Sparkles size={13} className="hi-spark" />{x}</li>)}</ul>
+                <div className="lx2i-statband" ref={statsRef}>
+                  <Stat value={267} suffix="" label="Years of journeys" run={statsRun} />
+                  <span className="lx2i-statband__div" />
+                  <Stat value={100} suffix="+" label="Countries" run={statsRun} />
+                  <span className="lx2i-statband__div" />
+                  <Stat value={98} suffix="%" label="Would travel again" run={statsRun} />
+                </div>
+                <Link to="/about" className="lx2i-btn lx2i-btn--primary">Discover our story <ArrowRight size={16} /></Link>
               </div>
             </div>
-            <CarouselDots scrollRef={includesRef} count={3} label="lists" />
-          </Reveal>
+          </section>
+        </div>
 
-          <div className="h26-journeys" ref={journeysRef}>
-            {JOURNEYS.slice(0, 5).map((j, i) => (
-              <Reveal key={j.title} className={`h26-jrn${j.lead ? ' is-lead' : ''}`} delay={(i % 3) * 0.06} y={0}>
-                <Link to="/tour-detail-japan-4" className="h26-jrn-link">
-                  <img src={img(j.image, j.lead ? 1100 : 700)} alt={j.title} loading="lazy" />
-                  <div className="h26-jrn-veil" />
-                  <div className="h26-jrn-body">
-                    {j.season && <span className="h26-jrn-season">{j.season}</span>}
-                    <h3>{j.title}</h3>
-                    <p>{j.blurb}</p>
-                    <span className="h26-jrn-meta">
-                      {j.nights && <span>{j.nights}</span>}
-                      <span className="hi-jrn-cap"><Users size={12} /> Max 18</span>
-                      {j.priceFrom && <span className="h26-jrn-price">from {j.priceFrom} <small>pp · incl. flights</small></span>}
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
+        {/* RELAXED PACE — "Relaxed pace, for a calm vacation" shelf (from /journeys) */}
+        <div className="jl" id="relaxed">
+          <div className="jl-collections">
+            <Shelf col={RELAXED_COL} list={RELAXED_JOURNEYS} onPhotos={openPhotos} />
           </div>
-          <CarouselDots scrollRef={journeysRef} count={Math.min(5, JOURNEYS.length)} label="journeys" />
-        </section>
+        </div>
 
-        {/* CURATIONS — hand-picked by credentialed specialists */}
-        <section className="h26-section" id="curations">
-          <div className="h26-head">
-            <Reveal className="h26-label" as="p">Hand-picked by our specialists</Reveal>
-            <Reveal as="h2" className="h26-h2" delay={0.05}>Ready when you are.</Reveal>
-            <Reveal as="p" className="hi-cur-promise" delay={0.1}>
-              <ShieldCheck size={15} aria-hidden="true" /> Paced for comfort as standard — relaxed mornings, lifts in every hotel, and senior-friendly days, with vegetarian &amp; Indian meals arranged in advance.
-            </Reveal>
-          </div>
-          <div className="h26-cur" ref={curRef}>
-            {CURATIONS_IMP.map((c, i) => {
-              const expert = EXPERTS_IMP.find((e) => e.name === c.specialist);
-              return (
-                <Reveal key={c.name} className="h26-cur-card" delay={i * 0.07} y={0}>
-                  <div className="h26-cur-media">
-                    <img src={img(c.image, 800)} alt={c.name} loading="lazy" />
-                    <span className="h26-cur-cat">{c.category}</span>
-                    {c.pace && <span className={`hi-cur-pace hi-cur-pace--${c.pace.toLowerCase()}`}><Footprints size={12} aria-hidden="true" /> {c.pace} pace</span>}
-                  </div>
-                  <div className="h26-cur-body">
-                    <h3>{c.name}</h3>
-                    <p className="h26-cur-note">{c.note}</p>
-                    {c.stays && <p className="hi-cur-stays"><BedDouble size={13} aria-hidden="true" /> <span><strong>Stays:</strong> {c.stays.replace('e.g. ', '')}</span></p>}
-                    <div className="h26-cur-meta">
-                      <span className="hi-cur-dur"><Clock size={13} aria-hidden="true" /> {c.duration}</span>
-                      <span className="h26-cur-price">designed from {c.priceFrom}<small>/person</small></span>
-                    </div>
-                    {c.departs && <p className="h26-cur-departs">{c.departs}</p>}
-                    <div className="h26-cur-expert">
-                      {expert && <img src={img(expert.photo, 120)} alt={expert.name} loading="lazy" />}
-                      <span>
-                        Curated by <strong>{c.specialist}</strong>
-                        {expert && <em>{expert.region} · {expert.years}</em>}
-                      </span>
-                    </div>
-                    <Link to="/contact" className="h26-cur-cta">Request this trip <ArrowRight size={15} /></Link>
-                  </div>
-                </Reveal>
-              );
-            })}
-          </div>
-          <CarouselDots scrollRef={curRef} count={CURATIONS.length} label="trips" />
-        </section>
-
-        {/* REELS — short-form vertical discovery (YouTube-Shorts style) */}
+        {/* CLIPS — short-form vertical discovery (from /improved) */}
         <section className="h26-section h26-reels-sec" id="reels">
           <div className="h26-head h26-head-row">
             <div>
@@ -1565,94 +1869,86 @@ export default function Home2026Improved() {
           <CarouselDots scrollRef={reelsRef} count={REELS.length} label="clips" />
         </section>
 
-        {/* REVIEWS — marquee of real travellers */}
-        <section className="h26-reviews">
-          <div className="h26-head">
-            <Reveal className="h26-label" as="p">Travelled, and came back happy</Reveal>
-            <Reveal as="h2" className="h26-h2" delay={0.05}>Travellers who trusted us.</Reveal>
-            <Reveal as="p" className="hi-rev-sub" delay={0.1}>Couples and honeymooners, multi-generational families, friends and solo explorers.</Reveal>
-          </div>
+        {/* REVIEWS + PRESS (from /luxe2-improved) */}
+        <div className="lx2i">
+          <section className="lx2i-reviews" id="reviews">
+            <div className="lx2i-container">
+              <div className="lx2i-reviews__head lx2i-reveal">
+                <div>
+                  <span className="lx2i-eyebrow">TRAVELLER STORIES</span>
+                  <h2 className="lx2i-h2">Real journeys, captured<br />by <strong>real travellers</strong></h2>
+                </div>
+                <div className="lx2i-reviews__agg lx2i-glass">
+                  <span className="lx2i-stars lx2i-stars--lg">{[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}</span>
+                  <strong>4.9 / 5</strong>
+                  <span>from 2,400+ verified reviews</span>
+                  <div className="lx2i-reviews__plats">
+                    <span className="lx2i-revplat"><GoogleG /> <b>4.8</b> on Google</span>
+                    <span className="lx2i-revplat"><TripAdvisorOwl /> <b>4.9</b> on Tripadvisor</span>
+                  </div>
+                </div>
+              </div>
 
-          {/* Independent-rating trust strip: overall score + Google / Tripadvisor */}
-          <Reveal className="hi-rtrust">
-            <div className="hi-rtrust-overall">
-              <strong>{RATING.score}</strong>
-              <div className="hi-rtrust-overall-meta">
-                <span className="hi-rtrust-stars" aria-hidden="true">
-                  {Array.from({ length: 5 }).map((_, k) => <Star key={k} size={15} fill="currentColor" />)}
-                </span>
-                <span className="hi-rtrust-sub">Excellent · {RATING.count} verified reviews</span>
+              <div className="lx2i-wall">
+                {LX_REVIEWS.map((r, i) => (
+                  <ReviewCard key={r.name} r={r} i={i} />
+                ))}
+              </div>
+
+              <div className="lx2i-reviews__more lx2i-reveal">
+                <Link to="/about" className="lx2i-btn lx2i-btn--outline lx2i-btn--lg">View all 2,400+ reviews <ArrowRight size={16} /></Link>
               </div>
             </div>
-            <span className="hi-rtrust-div" aria-hidden="true" />
-            <div className="hi-rtrust-platforms">
-              <span className="hi-rtrust-plat">
-                <GoogleG />
-                <span><strong>4.8</strong> on <b>Google</b></span>
-              </span>
-              <span className="hi-rtrust-plat">
-                <TripAdvisorOwl />
-                <span><strong>4.9</strong> on <b>Tripadvisor</b></span>
-              </span>
-            </div>
-          </Reveal>
+          </section>
 
-          <div className="h26-marquee">
-            <div className="h26-marquee-track">
-              {[...REVIEWS_IMP, ...REVIEWS_IMP].map((r, i) => (
-                <article className="h26-rev" key={i}>
-                  <div className="h26-rev-photo">
-                    <img src={img(r.tripPhoto, 600)} alt={r.tour} loading="lazy" />
-                    <span className="h26-rev-tour">{r.tour}</span>
-                  </div>
-                  <div className="h26-rev-content">
-                    <div className="h26-rev-stars">
-                      {Array.from({ length: r.rating }).map((_, k) => <Star key={k} size={14} fill="currentColor" />)}
-                    </div>
-                    <p>"{r.text}"</p>
-                    <div className="h26-rev-who">
-                      <img src={img(r.avatar, 120)} alt="" loading="lazy" />
-                      <span>
-                        <strong>{r.name}</strong>
-                        <em>{r.location}</em>
-                      </span>
-                    </div>
-                  </div>
-                </article>
+          {/* AS SEEN IN — press marquee */}
+          <section className="lx2i-press" id="press" aria-label="As featured in">
+            <div className="lx2i-press__label"><span className="lx2i-eyebrow">AS FEATURED IN</span></div>
+            <div className="lx2i-press__track">
+              {[...LX_PRESS, ...LX_PRESS].map((p, i) => (
+                <img key={i} className="lx2i-press__logo" src={p.src} alt={p.name} loading="lazy" />
               ))}
             </div>
+          </section>
+        </div>
+
+        {/* CONTACT — cinematic closing band (WhatsApp / schedule a callback) */}
+        <section className="h26-contact" id="contact">
+          <img
+            className="h26-contact-bg"
+            src={img('https://images.unsplash.com/photo-1534445867742-43195f401b6c', 1600)}
+            alt="" aria-hidden="true" loading="lazy"
+          />
+          <div className="h26-contact-scrim" aria-hidden="true" />
+          <div className="h26-contact-grain" aria-hidden="true" />
+          <div className="h26-contact-inner">
+            <Reveal className="h26-contact-eyebrow" as="p">
+              <span className="h26-contact-rule" aria-hidden="true" /> Talk to us
+            </Reveal>
+            <h2 className="h26-contact-title">
+              <WordReveal text="Let's plan" />
+              <br />
+              <WordReveal text="your next journey." accent={[2]} delay={0.18} />
+            </h2>
+            <Reveal as="p" className="h26-contact-sub" delay={0.2}>
+              Speak to a specialist who's actually walked the route. Message us now, or
+              pick a time and we'll call you — no scripts, no call centres, no obligation.
+            </Reveal>
+            <Reveal as="div" className="h26-contact-ctas" delay={0.3} y={0}>
+              <button type="button" className="h26-btn h26-btn-accent h26-btn-lg" onClick={() => setCallbackOpen(true)}>
+                <Phone size={17} /> Schedule a callback
+              </button>
+              <a href={CONTACT_IMP.whatsappHref} target="_blank" rel="noopener noreferrer" className="h26-btn h26-btn-lg h26-contact-wa">
+                <WaIcon size={18} /> WhatsApp us
+              </a>
+            </Reveal>
+            <Reveal as="p" className="h26-contact-alt" delay={0.38}>
+              <Clock size={14} aria-hidden="true" /> Travel experts available 9am–9pm IST, every day
+            </Reveal>
           </div>
-          <Reveal className="h26-reviews-more" delay={0.1}>
-            <Link to="/about" className="h26-btn h26-btn-pill">View all reviews <ArrowUpRight size={16} /></Link>
-          </Reveal>
         </section>
 
-        {/* FINAL CTA — luxe2-improved style: full-bleed dark, image + veil */}
-        <section className="h26-cta2" id="plan">
-          <div className="h26-cta2-bg" style={{ backgroundImage: `url(${img('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e', 1800)})` }} />
-          <div className="h26-cta2-veil" />
-          <div className="h26-cta2-inner">
-            <Reveal className="h26-cta2-eyebrow" as="span">Begin the conversation</Reveal>
-            <Reveal as="h2" className="h26-cta2-title" delay={0.05}>
-              Your next journey deserves<br /><strong>a quarter-millennium of judgment.</strong>
-            </Reveal>
-            <Reveal as="p" className="h26-cta2-sub" delay={0.1}>
-              Speak with a personal travel designer. No call centres, no scripts — just one expert
-              who learns how you like to travel, and builds it around you.
-            </Reveal>
-            <Reveal className="h26-cta2-actions" delay={0.15}>
-              <a href={CONTACT_IMP.phoneHref} className="h26-btn h26-btn-accent h26-btn-lg"><Phone size={17} /> {CONTACT_IMP.phoneDisplay}</a>
-              <a href={CONTACT_IMP.whatsappHref} target="_blank" rel="noopener noreferrer" className="h26-btn h26-btn-glass h26-btn-lg"><MessageCircle size={16} /> WhatsApp us</a>
-              <Link to="/contact" className="h26-btn h26-btn-glass h26-btn-lg"><Phone size={16} /> Request a callback</Link>
-            </Reveal>
-            <Reveal as="p" className="h26-cta2-hours" delay={0.2}>Travel experts available 9am–9pm IST, every day · or browse journeys below</Reveal>
-            <Reveal as="p" className="hi-plan-safe" delay={0.25}>
-              <ShieldCheck size={15} /> 20% deposit · free cancellation for 7 days · visa delay protected · secure payments
-            </Reveal>
-          </div>
-        </section>
-
-        {/* FOOTER */}
+        {/* FOOTER (from /improved) */}
         <footer className="h26-footer">
           <div className="h26-footer-top">
             <div className="h26-footer-brand">
@@ -1676,12 +1972,12 @@ export default function Home2026Improved() {
                 <Link to="/about">Our story</Link>
                 <Link to="/about">Specialists</Link>
                 <Link to="/contact">Contact</Link>
-                <a href="#trust">Why Cox &amp; Kings</a>
+                <a href="#heritage">Why Cox &amp; Kings</a>
               </div>
               <div>
                 <h4>Assurance</h4>
-                <a href="#trust">Trust &amp; safety</a>
-                <a href="#trust">Awards</a>
+                <a href="#heritage">Trust &amp; safety</a>
+                <a href="#reviews">Reviews</a>
                 <Link to="/contact">Refund policy</Link>
                 <Link to="/contact">Speak to an expert</Link>
               </div>
@@ -1694,57 +1990,30 @@ export default function Home2026Improved() {
         </footer>
       </div>
 
-      {/* Mobile thumb-reach bar — matches /luxe2-improved. Hidden while the
-          clips player is open so it doesn't sit under the player's CTA. */}
+      {/* Mobile thumb-reach bar — chat (primary) + schedule-a-callback */}
       <div className={`h26-thumbbar${activeReel !== null ? ' is-hidden' : ''}`}>
-        <a href={CONTACT_IMP.phoneHref} className="h26-thumbbar-cta"><Phone size={17} /> Call an Expert</a>
-        <a href={CONTACT_IMP.whatsappHref} target="_blank" rel="noopener noreferrer" className="h26-thumbbar-wa" aria-label="Chat on WhatsApp"><MessageCircle size={20} /></a>
-        <button type="button" className="h26-thumbbar-ai" aria-label="Open Enaya, the AI travel assistant" onClick={() => setChatOpen(true)}>
-          <Sparkles size={20} />
+        <button type="button" className="h26-thumbbar-cta" onClick={() => setChatOpen(true)}>
+          <MessageCircle size={18} /> Chat with an expert
+        </button>
+        <button type="button" className="h26-thumbbar-call" aria-label="Schedule a callback" onClick={() => setCallbackOpen(true)}>
+          <Phone size={20} />
         </button>
       </div>
 
-      {/* Desktop floating AI button — matches /luxe2-improved */}
-      <button type="button" className={`h26-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Enaya, the AI travel assistant" onClick={() => setChatOpen(true)}>
+      {/* ENAYA — floating "Ask Enaya" button (from /luxe2-improved) */}
+      <button className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Enaya, the AI travel assistant" onClick={() => setChatOpen(true)}>
         <Sparkles size={20} />
         <span>Ask Enaya</span>
       </button>
 
-      {/* Lightweight chat launcher popover */}
-      <AnimatePresence>
-        {chatOpen && (
-          <motion.div
-            className="h26-chat"
-            initial={{ opacity: 0, y: 16, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.96 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            role="dialog"
-            aria-label="Chat with Cox & Kings"
-          >
-            <div className="h26-chat-head">
-              <span className="h26-chat-avatar"><Sparkles size={18} /></span>
-              <div>
-                <strong>Enaya — AI Travel Designer</strong>
-                <em>Typically replies in a few minutes</em>
-              </div>
-              <button type="button" className="h26-chat-close" aria-label="Close chat" onClick={() => setChatOpen(false)}><X size={18} /></button>
-            </div>
-            <div className="h26-chat-body">
-              <p className="h26-chat-bubble">Hi! 👋 Tell us where you'd like to go and we'll match you with a specialist.</p>
-              <div className="h26-chat-quick">
-                <a href={CONTACT_IMP.whatsappHref} target="_blank" rel="noopener noreferrer"><MessageCircle size={15} /> Chat on WhatsApp</a>
-                <a href={CONTACT_IMP.phoneHref}><Phone size={15} /> Call a specialist</a>
-                <Link to="/contact"><Send size={15} /> Send an enquiry</Link>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Bespoke "Design it around you" guided flow */}
       <AnimatePresence>
         {bespokeOpen && <BespokeFlow onClose={() => setBespokeOpen(false)} />}
+      </AnimatePresence>
+
+      {/* Schedule-a-callback popup (mobile call icon) */}
+      <AnimatePresence>
+        {callbackOpen && <ScheduleCallback onClose={() => setCallbackOpen(false)} />}
       </AnimatePresence>
 
       {/* Reel / shorts player */}
@@ -1753,6 +2022,16 @@ export default function Home2026Improved() {
           <ReelPlayer reels={REELS} index={activeReel} setIndex={setActiveReel} onClose={() => setActiveReel(null)} />
         )}
       </AnimatePresence>
+
+      {/* Journey photo lightbox */}
+      <AnimatePresence>
+        {lightbox && <Lightbox data={lightbox} onClose={() => setLightbox(null)} />}
+      </AnimatePresence>
     </div>
+
+    {/* ENAYA — the working AI concierge (from /luxe2-improved). Rendered
+        OUTSIDE the page wrapper so scoped colour/font styles can't bleed in. */}
+    <ChatBot open={chatOpen} onOpenChange={setChatOpen} hideFab name="Enaya" />
+    </>
   );
 }

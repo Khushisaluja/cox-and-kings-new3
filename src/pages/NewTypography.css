@@ -1,0 +1,34 @@
+/* ============================================================
+   New (route /new-homepage) — typography override.
+
+   Primary font   → Cormorant Garamond  (was Zodiak, via --serif)
+   Secondary font → Work Sans           (already the --sans value)
+
+   Scoped to .new-typo so the shared h26-/hi-/lx2i-/jl- stylesheets
+   used by ~18 other routes keep their original Zodiak type. Both
+   families are already loaded via Google Fonts in index.html, so no
+   @font-face / @import is needed here.
+
+   The variables are redefined on every wrapper that re-declares
+   --serif locally inside this page (.h26 root, the nested .lx2i
+   review/stay sections, and the .hi-where-pop search popup); .jl and
+   the hi-* sections simply inherit it.
+   ============================================================ */
+.h26.new-typo,
+.new-typo .lx2i,
+.new-typo .hi-where-pop {
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans:  'Work Sans', system-ui, sans-serif;
+}
+
+/* Accent / bold words in headings — Cormorant Garamond renders lighter
+   and more delicate than Zodiak, so the italic accent words (which
+   otherwise inherit the heading's 300/light weight) look too thin.
+   Bump them to a bold italic (700 is loaded for this family in
+   index.html). Covers both the animated WordReveal accents and the
+   <strong> emphasis in the luxe2 section headings. */
+.new-typo .wr-accent,
+.new-typo .lx2i-h2 strong,
+.new-typo .lx2i-cta__title strong {
+  font-weight: 700;
+}

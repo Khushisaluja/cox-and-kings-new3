@@ -88,3 +88,91 @@
 @media (prefers-reduced-motion: reduce) {
   .lxjt4-imgcap, .lxjt4-detail { animation: none; }
 }
+
+/* ============================================================
+   HERO — realigned to match the /new (Home2026) homepage hero:
+   full-height, vertically-centred, left-weighted content with the
+   wide-tracked eyebrow, large light-weight serif display and the
+   italic Sienna-Flame accent word. Scoped to .lxjt4 so the other
+   Japan tour variants are untouched.
+   ============================================================ */
+.lxjt4 .lxjt-hero {
+  min-height: clamp(560px, 82vh, 780px);   /* a touch shorter — lets the sub-nav peek */
+  align-items: center;                      /* vertically centre the content block, like /new */
+  padding-top: clamp(104px, 13vh, 148px);
+  padding-bottom: clamp(48px, 7vh, 80px);
+}
+
+/* Editorial "blossoms at dusk" composition rather than a flat scrim:
+   a warm deep-plum panel carries the type on the left and FEATHERS into
+   the photo, which shows clean and bright on the right; a low-left ember
+   of the brand's Sienna Flame grounds the CTAs and ties the frame to the
+   palette. Warm dark complements the pink blossoms far better than a cold
+   wash. Layers (top→bottom): sienna ember · nav vignette · base anchor ·
+   plum text panel. Every gradient stop is measured against the real photo
+   so all text clears WCAG AA (the light-Sienna "cherry" accent, ~61%
+   across the brightest blossoms, is the binding constraint at 3.46:1). */
+.lxjt4 .lxjt-hero__bg { background-position: 62% center; }
+.lxjt4 .lxjt-hero__veil {
+  background:
+    radial-gradient(52% 52% at 5% 99%, rgba(190,66,20,0.26) 0%, rgba(190,66,20,0) 100%),
+    linear-gradient(180deg, rgba(12,8,12,0.55) 0%, rgba(12,8,12,0.10) 22%, transparent 40%),
+    linear-gradient(0deg, rgba(12,8,12,0.52) 0%, transparent 36%),
+    linear-gradient(90deg,
+      rgba(27,15,24,0.62) 0%, rgba(27,15,24,0.66) 12%, rgba(27,15,24,0.80) 28%,
+      rgba(27,15,24,0.90) 44%, rgba(27,15,24,0.80) 54%, rgba(27,15,24,0.66) 62%,
+      rgba(27,15,24,0.22) 70%, rgba(27,15,24,0.05) 80%, transparent 90%);
+}
+
+/* Match the /new hero's left inset: hug the left edge with the same
+   clamp() padding rather than the centred .lx2i-container, which pushes
+   the type inward (up to ~340px) on wide screens. */
+.lxjt4 .lxjt-hero__inner {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: clamp(20px, 5vw, 80px);
+}
+
+.lxjt4 .lxjt-hero__content { max-width: 1000px; }
+
+/* A lone Back button now — give it a little breathing room below. */
+.lxjt4 .lxjt-crumb { margin-bottom: 22px; }
+
+/* Eyebrow → h26-eyebrow treatment: white, wide uppercase tracking. */
+.lxjt4 .lxjt-hero .lx2i-eyebrow {
+  color: rgba(255,255,255,0.82);
+  letter-spacing: 0.26em;
+  font-size: 11.5px;
+  margin-bottom: 4px;
+}
+
+/* Display headline → h26-display scale, dialled back a step. */
+.lxjt4 .lxjt-hero__title {
+  font-size: clamp(2.4rem, 1.1rem + 4.4vw, 5.2rem);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  margin-top: 18px;
+}
+
+/* Accent word — italic Sienna Flame, the /new hero's emphasis treatment
+   (a light tint of sienna that reads on the dark photo), kept a touch
+   heavier so "cherry blossoms" still leads the eye. */
+.lxjt4 .lxjt-hero__accent {
+  font-style: italic;
+  font-weight: 500;
+  color: #F6A07E;
+  text-shadow: 0 2px 30px rgba(2,19,48,0.55);
+}
+
+/* Lead → h26-hero-sub measure & size. */
+.lxjt4 .lxjt-hero__lead {
+  max-width: 540px;
+  font-size: clamp(0.98rem, 0.95rem + 0.4vw, 1.14rem);
+  color: rgba(255,255,255,0.94);
+  margin-top: 22px;
+}
+
+.lxjt4 .lxjt-hero__facts { margin-top: 26px; }
+.lxjt4 .lxjt-hero__actions { margin-top: 30px; }
+.lxjt4 .lxjt-hero__rating { margin-top: 22px; }

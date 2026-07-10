@@ -568,14 +568,14 @@ html, body { margin: 0; padding: 0; }
 .lx2i-revplat svg { flex-shrink: 0; }
 
 .lx2i-wall { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 230px; gap: 22px; }
-.lx2i-rcard { position: relative; margin: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0,0,0,0.6); }
+.lx2i-rcard { position: relative; margin: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0,0,0,0.6); contain: paint; }
 .lx2i-rcard--tall { grid-row: span 2; }
 .lx2i-rcard--wide { grid-column: span 2; }
 /* sliding photo gallery: a flex track of full-bleed slides, translated on hover */
 .lx2i-rcard__slides { position: absolute; inset: 0; display: flex; transition: transform 0.6s var(--ease); will-change: transform; }
 .lx2i-rcard__slide { flex: 0 0 100%; width: 100%; height: 100%; background-color: var(--blue-800); background-size: cover; background-position: center; }
 /* dot indicators — always visible so multi-photo cards are discoverable */
-.lx2i-rcard__dots { position: absolute; top: 12px; right: 12px; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 5px 7px; border-radius: 999px; background: rgba(2,19,48,0.34); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.lx2i-rcard__dots { position: absolute; top: 12px; right: 12px; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 5px 7px; border-radius: 999px; background: rgba(2,19,48,0.5); }
 .lx2i-rcard__dot { width: 6px; height: 6px; padding: 0; border: none; border-radius: 50%; cursor: pointer; background: rgba(255,255,255,0.5); transition: background 0.3s var(--ease), transform 0.3s var(--ease); }
 .lx2i-rcard__dot:hover { background: rgba(255,255,255,0.85); }
 .lx2i-rcard__dot.is-on { background: #fff; transform: scale(1.35); }
@@ -588,6 +588,16 @@ html, body { margin: 0; padding: 0; }
   transform: translateY(calc(100% - 60px)); transition: transform 0.55s var(--ease);
 }
 .lx2i-rcard:hover .lx2i-rcard__glass, .lx2i-rcard:focus-within .lx2i-rcard__glass { transform: translateY(0); }
+/* The reviews wall shows ~6 glass captions at once. A live backdrop-filter on
+   each one forces the browser to re-blur every frame while scrolling, which is
+   what makes this section stutter on desktop. The captions sit over a darkened
+   photo, so a static frosted fill reads the same with zero per-frame cost.
+   Scoped to the review card so the heritage / hero glass keep their live blur. */
+.lx2i-rcard .lx2i-rcard__glass {
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
 .lx2i-rcard__meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 32px; }
 .lx2i-rcard__meta strong { display: block; font-size: 14px; color: var(--ink-900); font-weight: 500; }
 .lx2i-rcard__meta span { font-size: 12px; color: var(--ink-700); }
@@ -599,15 +609,15 @@ html, body { margin: 0; padding: 0; }
 .lx2i-rcard__q { color: var(--sienna); vertical-align: -2px; margin-right: 6px; }
 
 /* ============ PRESS MARQUEE ============ */
-.lx2i-press { padding: 48px 0; background: var(--blue-800); border-top: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+.lx2i-press { padding: 48px 0; background: #E5E3D7; border-top: 1px solid rgba(2,19,48,0.08); border-bottom: 1px solid rgba(2,19,48,0.08); overflow: hidden; }
 .lx2i-press__label { text-align: center; margin-bottom: 26px; }
 .lx2i-press__track { display: flex; align-items: center; gap: 64px; width: max-content; animation: lx2i-marquee 32s linear infinite; }
 .lx2i-press:hover .lx2i-press__track { animation-play-state: paused; }
 @keyframes lx2i-marquee { to { transform: translateX(-50%); } }
-/* real publication logos, rendered as a uniform editorial monochrome on the dark strip */
+/* real publication logos, rendered as a uniform editorial charcoal on the beige strip */
 .lx2i-press__logo { height: 30px; width: auto; flex-shrink: 0; object-fit: contain; background: transparent;
-  filter: brightness(0) invert(1); opacity: 0.78; transition: opacity 0.3s var(--ease); }
-.lx2i-press__logo:hover { opacity: 0.92; }
+  filter: brightness(0); opacity: 0.55; transition: opacity 0.3s var(--ease); }
+.lx2i-press__logo:hover { opacity: 0.82; }
 
 /* ============ FINAL CTA ============ */
 .lx2i-cta { position: relative; padding: clamp(90px, 12vw, 170px) 0; overflow: hidden; background: var(--ink-950); }

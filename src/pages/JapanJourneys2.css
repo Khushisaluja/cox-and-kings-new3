@@ -1,0 +1,440 @@
+/* ============================================================
+   Japan Journeys 2 — a new version of /journeys/japan.
+
+   Reuses the shared /improved chrome (Home2026.css +
+   Home2026Improved.css), the /journeys hero/card/lightbox
+   (Journeys.css), the /journeys2 left-rail filter shell
+   (Journeys2.css) and the base Japan sections (JapanJourneys.css).
+
+   This file only carries what is NEW to this version:
+     · the filterable tour-listing section header
+     · the food & reservations section on a BEIGE surface (Neutrals/150)
+     · a standalone "Where you'll go" section
+     · traveller testimonials
+     · a "people also view" shelf
+   Everything is scoped under .jj2 so /journeys/japan is untouched.
+   ============================================================ */
+
+/* ---- Tokens local to this page (design.md warm/paper scale). ---- */
+.jj2 { --beige-150: #E5E3D7; } /* Neutrals / 150 */
+
+/* ============================================================
+   1 · THE JAPAN JOURNEYS — filter rail + sortable grid
+   ============================================================ */
+/* Section intro sits above the two-column shell, on the same cap. */
+.jj2-tours { background: var(--paper); padding-top: clamp(40px, 6vw, 76px); scroll-margin-top: 88px; }
+/* Programmatic focus (from the "how to travel" lanes) shouldn't paint a ring. */
+.jj2-tours-head h2:focus { outline: none; }
+.jj2-tours-head {
+  max-width: var(--jl-cap);
+  margin: 0 auto;
+  padding-inline: var(--jl-pad);
+  margin-bottom: clamp(6px, 1.5vw, 14px);
+}
+.jj2-tours-head .jp-eyebrow { margin: 0 0 12px; }
+.jj2-tours-head .jp-title { font-size: clamp(2rem, 4.2vw, 3.1rem); line-height: 1.1; }
+.jj2-tours-head .jp-title em { font-style: italic; color: var(--sienna); }
+.jj2-tours-sub {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 16px 0 0;
+  max-width: 60ch;
+}
+
+/* The shell keeps its own top padding tight since the head sits above it. */
+.jj2 .jj2-shell { padding-top: clamp(14px, 2vw, 26px); }
+
+/* "Show more" row under the grid. */
+.jj2-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: clamp(28px, 3.5vw, 44px);
+}
+.jj2-more-count {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: var(--muted-2);
+}
+.jj2-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 26px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .25s ease, border-color .25s ease, transform .25s ease;
+}
+.jj2-more-btn:hover { background: var(--paper); border-color: var(--blue); transform: translateY(-2px); }
+.jj2-more-btn svg { transition: transform .3s ease; }
+.jj2-more-btn:hover svg { transform: translateY(2px); }
+
+/* ============================================================
+   2 · FOOD & RESERVATIONS — BEIGE surface (Neutrals/150)
+   Overrides the base Cloudstone background from JapanJourneys.css.
+   ============================================================ */
+.jj2 .jp-food { background: var(--beige-150); }
+/* The intro note sat on a cool blue tint; warm it a touch so it reads
+   as part of the beige band rather than fighting it. */
+.jj2 .jp-resto-foot { background: #EFEDE2; }
+
+/* ============================================================
+   3 · WHERE YOU'LL GO — standalone section (moved out of "about")
+   ============================================================ */
+.jj2-where {
+  background: var(--paper); /* Neutrals / 50 (#F8F7F1) */
+  padding: clamp(56px, 8vw, 104px) 0 clamp(48px, 6vw, 80px);
+}
+.jj2-where .jp-wrap { max-width: var(--jl-cap); margin: 0 auto; padding-inline: var(--jl-pad); }
+.jj2-where-head {
+  max-width: 62ch;
+  margin-bottom: clamp(26px, 3.5vw, 44px);
+}
+.jj2-where-head .jp-eyebrow { margin: 0 0 12px; }
+.jj2-where-head .jj2-where-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2rem, 4.2vw, 3.1rem);
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 0;
+}
+.jj2-where-head .jj2-where-title em { font-style: italic; color: var(--sienna); }
+.jj2-where-head .jj2-where-sub {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+  line-height: 1.4;
+  color: var(--muted);
+  margin: 14px 0 0;
+}
+
+/* ============================================================
+   3b · HOW WOULD YOU LIKE TO TRAVEL — dark editorial fork
+   A deep-navy interstitial that breaks from the warm paper grid
+   above and the beige food band below. Two quiet "ready-made"
+   glass rows (Group / Private, which pre-filter the list above) +
+   a glowing featured Enaya panel (opens the AI concierge).
+   Self-contained classes so the homepage cards are untouched.
+   ============================================================ */
+.jj2-choose {
+  position: relative; isolation: isolate; overflow: hidden;
+  padding: clamp(48px, 6vw, 76px) 0;
+  color: #F6F4EC;
+  --dk-blue: #9CC2EE;
+  --sienna-warm: #EF7A43; /* lifted flame — brand sienna fails contrast on navy */
+  --ease: cubic-bezier(.16,1,.3,1);
+  background:
+    radial-gradient(120% 90% at 82% 0%, rgba(11,90,177,0.40) 0%, rgba(11,90,177,0) 58%),
+    linear-gradient(168deg, #042447 0%, #021330 70%, #010B1F 100%);
+}
+.jj2-choose .jp-wrap { position: relative; z-index: 1; max-width: var(--jl-cap); margin: 0 auto; padding-inline: var(--jl-pad); }
+
+/* -- head -- */
+.jj2-choose__head { text-align: center; margin: 0 auto clamp(24px, 3.4vw, 40px); }
+.jj2-choose__head .h26-label { color: #F3B9A2; }
+.jj2-choose__title { font-family: var(--serif); font-weight: 300; margin: 6px 0 0;
+  font-size: clamp(1.7rem, 3.2vw, 2.4rem); line-height: 1.1; color: #F6F4EC; }
+.jj2-choose__title em { font-style: italic; color: var(--sienna-warm); }
+
+/* -- three compact picks -- */
+.jj2-picks { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(12px, 1.4vw, 18px); }
+.jj2-pick {
+  display: flex; align-items: center; gap: 15px; text-align: left; cursor: pointer;
+  padding: clamp(14px, 1.5vw, 18px); border-radius: 14px;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16);
+  transition: transform .35s var(--ease), background .3s ease, border-color .3s ease;
+}
+.jj2-pick:hover { transform: translateY(-3px); background: rgba(255,255,255,0.11); border-color: rgba(255,255,255,0.3); }
+.jj2-pick:focus-visible { outline: 2px solid var(--dk-blue); outline-offset: 3px; }
+.jj2-pick__thumb { position: relative; flex: none; width: 60px; height: 60px; border-radius: 12px;
+  overflow: hidden; border: 1px solid rgba(255,255,255,0.18); }
+.jj2-pick__thumb img { width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .45s var(--ease); }
+.jj2-pick:hover .jj2-pick__thumb img { transform: scale(1.07); }
+.jj2-pick__spark { position: absolute; inset: 0; display: grid; place-items: center;
+  background: linear-gradient(135deg, rgba(189,64,17,0.72), rgba(151,51,14,0.72)); color: #FBEFE6; }
+.jj2-pick__body { flex: 1 1 auto; min-width: 0; }
+.jj2-pick__title { font-family: var(--serif); font-weight: 500; color: #FDFCF8;
+  font-size: clamp(1.08rem, 1.4vw, 1.24rem); margin: 0 0 4px; }
+.jj2-pick__desc { font-family: var(--sans); font-weight: 400; color: rgba(247,245,239,0.88);
+  font-size: 0.9rem; line-height: 1.4; margin: 0; }
+.jj2-pick__arrow { flex: none; color: rgba(247,245,239,0.62); transition: transform .3s var(--ease), color .3s ease; }
+.jj2-pick:hover .jj2-pick__arrow { color: #EAF1FA; transform: translateX(3px); }
+
+/* -- responsive -- */
+@media (max-width: 860px) {
+  .jj2-picks { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jj2-pick { transition: background .2s ease, border-color .2s ease; }
+  .jj2-pick:hover { transform: none; }
+  .jj2-pick:hover .jj2-pick__arrow { transform: none; }
+}
+
+/* ============================================================
+   4 · TRAVELLER REVIEWS
+   The review marquee is borrowed wholesale from /improved
+   (.h26-reviews / .h26-marquee / .h26-rev + .hi-rtrust), whose
+   styling already lives in Home2026.css + Home2026Improved.css.
+
+   On /improved the head is left-aligned to that page's gutter; here
+   the neighbouring sections are centred + capped and the trust pill
+   and marquee below are centred too, so centre the head to match —
+   otherwise its left edge floats out of rhythm.
+   ============================================================ */
+/* Match the page's vertical rhythm (the /improved default runs taller). */
+.jj2 .h26-reviews { padding: clamp(56px, 8vw, 104px) 0; }
+.jj2 .h26-reviews .h26-head {
+  max-width: 760px;
+  margin-inline: auto;
+  padding-inline: var(--jl-pad); /* same side gutter as every other section */
+  text-align: center;
+}
+
+/* ---- Footer: cap + gutter it like the rest of the page (the /improved
+   footer is uncapped and uses a wider 22–90px gutter, so on wide screens
+   its content spilled past the 1560px column the page sits in). ---- */
+.jj2 .h26-footer { padding-inline: var(--jl-pad); }
+.jj2 .h26-footer-top,
+.jj2 .h26-footer-bottom {
+  max-width: var(--jl-cap);
+  margin-inline: auto;
+  width: 100%;
+}
+
+/* ============================================================
+   5 · PEOPLE ALSO VIEW
+   ============================================================ */
+.jj2-pav {
+  background: var(--paper);
+  padding: clamp(56px, 8vw, 104px) 0;
+}
+.jj2-pav .jp-wrap { max-width: var(--jl-cap); margin: 0 auto; padding-inline: var(--jl-pad); }
+.jj2-pav-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: clamp(24px, 3.5vw, 42px);
+}
+.jj2-pav-head .jp-eyebrow { margin: 0 0 10px; }
+.jj2-pav-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.8rem, 3.6vw, 2.7rem);
+  line-height: 1.12;
+  color: var(--ink);
+  margin: 0;
+}
+.jj2-pav-title strong { font-weight: 300; font-style: italic; color: var(--sienna); }
+.jj2-pav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--blue);
+  white-space: nowrap;
+}
+.jj2-pav-link:hover { text-decoration: underline; }
+
+.jj2-pav-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(14px, 1.8vw, 22px);
+}
+.jj2-pav-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 10px rgba(2,19,48,0.04);
+  color: inherit;
+  transition: transform .4s cubic-bezier(0.16,1,0.3,1), box-shadow .4s ease;
+}
+.jj2-pav-card:hover { transform: translateY(-5px); box-shadow: 0 20px 44px rgba(2,19,48,0.14); }
+.jj2-pav-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.jj2-pav-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .7s cubic-bezier(0.16,1,0.3,1);
+}
+.jj2-pav-card:hover .jj2-pav-media img { transform: scale(1.07); }
+.jj2-pav-region {
+  position: absolute;
+  top: 12px; left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(2,19,48,0.72);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  backdrop-filter: blur(6px);
+}
+.jj2-pav-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+  padding: 16px 16px 18px;
+}
+.jj2-pav-name {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.12rem;
+  line-height: 1.22;
+  color: var(--ink);
+  margin: 0;
+}
+.jj2-pav-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: var(--muted);
+}
+.jj2-pav-meta svg { color: var(--blue); }
+.jj2-pav-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 6px;
+}
+.jj2-pav-price {
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.jj2-pav-price small { font-weight: 300; color: var(--muted-2); }
+.jj2-pav-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--blue);
+}
+.jj2-pav-card:hover .jj2-pav-go svg { transform: translateX(3px); }
+.jj2-pav-go svg { transition: transform .3s ease; }
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width: 1080px) {
+  .jj2-pav-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  .jj2-pav-grid { grid-template-columns: 1fr; }
+}
+/* Mobile filter bar carries only the Filters button now — push it to the
+   right (the journey count sits in the results head just below). */
+@media (max-width: 920px) {
+  .jj2 .jl2-mobilebar { justify-content: flex-end; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jj2-pav-card:hover { transform: none; }
+  .jj2-pav-card:hover .jj2-pav-media img { transform: none; }
+  .jj2-more-btn:hover { transform: none; }
+}
+
+/* ============================================================
+   6 · MOBILE BOTTOM BAR — "talk to a specialist"
+   A faithful copy of the /tour-detail-japan-5 thumb-reach bar,
+   re-tokened to this page's .h26 palette so it needs no other
+   stylesheet. Hidden on desktop; fixed to the bottom on phones.
+   ============================================================ */
+.jj2-thumbbar { display: none; }
+
+@media (max-width: 640px) {
+  .jj2-thumbbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 120;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: rgba(248,247,241,0.94); /* Neutrals/50 tint */
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -10px 30px -18px rgba(2,19,48,0.4);
+  }
+  .jj2-thumbbar__nudge {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    margin-right: auto;
+    min-width: 0;
+  }
+  .jj2-thumbbar__nudge small { font-family: var(--sans); font-size: 11px; color: var(--muted); }
+  .jj2-thumbbar__nudge strong { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--ink); }
+  .jj2-thumbbar__chat {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 46px;
+    padding: 0 16px;
+    border-radius: 11px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .jj2-thumbbar__chat:active { background: #09488E; } /* Voyager Blue pressed */
+  .jj2-thumbbar__ico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px; height: 46px;
+    flex-shrink: 0;
+    border-radius: 11px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--blue);
+    text-decoration: none;
+  }
+  /* Keep the footer clear of the fixed bar. */
+  .jj2 .h26-footer { padding-bottom: 96px; }
+}
+
+/* Very narrow phones: drop the nudge text so the chat CTA always fits. */
+@media (max-width: 400px) {
+  .jj2-thumbbar__nudge { display: none; }
+  .jj2-thumbbar__chat { flex: 1; }
+}

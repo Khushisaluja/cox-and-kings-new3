@@ -1,4 +1,13 @@
 /* ============================================================
+   Home2026Improved2 (/improved2) — a copy of /improved whose ONLY
+   difference is the hero backdrop. On /improved the hero photo is a
+   position:fixed page layer that the content sheet scrolls over; that
+   fixed layer is dropped by full-page screenshot tools, so the hero
+   image was missing from a full-page capture. Here the hero image lives
+   INSIDE the hero as a normal in-flow layer, and the hero content's
+   scroll parallax is removed — so the section is static and the hero
+   photo is captured like any other content. See Home2026Improved2.css.
+
    Home2026 — scroll-activated luxury homepage for Cox & Kings.
 
    Design language: a cinematic Voyager-Blue backdrop stays FIXED
@@ -30,6 +39,7 @@ import {
 } from '../data/v3content';
 import './Home2026.css';
 import './Home2026Improved.css';
+import './Home2026Improved2.css';
 
 /* /improved-only: Indian portrait faces for reviewers & specialists, to match
    the (already Indian) names. Overrides the shared v3content photos here only,
@@ -711,7 +721,7 @@ function CarouselDots({ scrollRef, count, label = 'cards' }) {
   );
 }
 
-export default function Home2026Improved() {
+export default function Home2026Improved2() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [where, setWhere] = useState('');
@@ -776,23 +786,9 @@ export default function Home2026Improved() {
     return () => window.removeEventListener('keydown', onKey);
   }, [activeReel]);
 
-  /* Hero parallax — the headline drifts up as the sheet rises. (No opacity
-     fade: it dimmed the text on the way out and made an open search dropdown
-     flicker while scrolling.) */
+  /* /improved2: the hero is static — no scroll parallax on its content.
+     (Removed the drift transform so nothing animates on scroll/capture.) */
   const heroRef = useRef(null);
-  const { scrollYProgress: heroP } = useScroll({
-    target: heroRef, offset: ['start start', 'end start'],
-  });
-  const heroY = useTransform(heroP, [0, 1], [0, -120]);
-
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 680px)');
-    const sync = () => setIsMobile(mq.matches);
-    sync();
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
-  }, []);
 
   /* Scatter grid parallax. */
   const scatterRef = useRef(null);
@@ -863,10 +859,6 @@ export default function Home2026Improved() {
   const todayMidnight = new Date(); todayMidnight.setHours(0, 0, 0, 0);
   const canGoPrevMonth = whenMonth > new Date(todayMidnight.getFullYear(), todayMidnight.getMonth(), 1);
 
-  /* While any hero-search dropdown is open we freeze the hero's scroll
-     parallax, so scrolling doesn't drag the popover around / make it jitter. */
-  const searchOpen = whereOpen || styleOpen || whenOpen;
-
   /* The hero search carries the visitor's choices through to the
      listing page instead of throwing them away. */
   const searchHref = `/journeys?where=${encodeURIComponent(where)}&style=${encodeURIComponent(style)}`;
@@ -883,12 +875,9 @@ export default function Home2026Improved() {
     <div className="h26">
       <a className="h26-skip" href="#top">Skip to content</a>
 
-      {/* Fixed cinematic backdrop the sheet scrolls over */}
-      <div className="h26-bg" aria-hidden="true">
-        <img src={BG} alt="" loading="eager" fetchPriority="high" decoding="sync" />
-        <div className="h26-bg-veil" />
-        <div className="h26-bg-grain" />
-      </div>
+      {/* /improved2: the cinematic backdrop is NOT a fixed page layer here.
+          It lives inside the hero (see below) so it stays in normal flow and
+          shows up in full-page screenshots. */}
 
       {/* ---------- NAV ---------- */}
       <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
@@ -987,8 +976,17 @@ export default function Home2026Improved() {
       </div>
 
       {/* ---------- HERO ---------- */}
-      <section className="h26-hero" id="top" ref={heroRef}>
-        <motion.div className="h26-hero-inner" style={{ y: (isMobile || searchOpen) ? 0 : heroY }}>
+      <section className="h26-hero h26i2-hero" id="top" ref={heroRef}>
+        {/* In-flow cinematic backdrop (contained to the hero, not fixed) so
+            the hero image renders in a full-page capture. */}
+        <div className="h26-bg" aria-hidden="true">
+          <img src={BG} alt="" loading="eager" fetchPriority="high" decoding="sync" />
+          <div className="h26-bg-veil" />
+          <div className="h26-bg-grain" />
+        </div>
+        {/* /improved2: no scroll parallax on the hero content — the section
+            is static, so nothing animates as you scroll or capture it. */}
+        <div className="h26-hero-inner">
           <Reveal className="h26-eyebrow" as="p">
             Established 1758 · 260+ years of travel
           </Reveal>
@@ -1167,7 +1165,7 @@ export default function Home2026Improved() {
               ))}
             </div>
           </motion.div>
-        </motion.div>
+        </div>
 
         {/* Floating stat pills — hero teaser; full proof set lives in #trust */}
         <div className="h26-pills">

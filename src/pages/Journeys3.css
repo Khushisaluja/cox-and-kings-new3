@@ -1,0 +1,63 @@
+/* ============================================================
+   Journeys3 — layered LAST, on top of Journeys.css + Journeys2.css.
+   Two jobs only:
+     1. A bold, always-visible "Private Tour" / "Group Tour" badge
+        on every card image.
+     2. A squarer radius language — nothing on this page rounds more
+        than 4px (8px is the absolute ceiling), overriding the pill-
+        and-999px chrome inherited from the shared stylesheets.
+   Everything is scoped under .jl3 so /journeys and /journeys2 keep
+   their original look. Tokens (--blue, --sienna, --sans, --border)
+   come from the .h26 scope.
+   ============================================================ */
+
+/* ---------------- 1. RADIUS CAP ----------------
+   Hard ceiling of 4px on every element on this page. !important so it
+   wins over the inline 999px pills / 12–18px cards from the shared CSS.
+   The slider thumbs live in ::-webkit/::-moz pseudo-elements that a
+   universal selector can't reach, so they're capped explicitly below. */
+.jl3 *,
+.jl3 *::before,
+.jl3 *::after {
+  border-radius: 4px !important;
+}
+.jl3 .j2-budget-input::-webkit-slider-thumb {
+  border-radius: 4px !important;
+}
+.jl3 .j2-budget-input::-moz-range-thumb {
+  border-radius: 4px !important;
+}
+
+/* ---------------- 2. TOUR-TYPE BADGE ----------------
+   Sits where the old .jl-card-style pill used to. Solid, high-contrast
+   and larger than the ambient overlays so the way a trip travels is
+   unmissable: blue = escorted group, sienna = private/tailor-made. */
+.jl3-tourtype {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(2, 19, 48, 0.28);
+  pointer-events: none;
+}
+.jl3-tourtype svg {
+  flex-shrink: 0;
+  opacity: 0.95;
+}
+.jl3-tourtype.is-group {
+  background: var(--blue);
+}
+.jl3-tourtype.is-private {
+  background: var(--sienna);
+}

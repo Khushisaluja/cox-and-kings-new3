@@ -1,0 +1,67 @@
+/* ============================================================
+   Cox & Kings — Tour detail VARIANT 5 (/tour-detail-japan-5).
+   Only difference from VARIANT 4 is the hero overlay.
+
+   VARIANT 4 used a side-weighted veil (dark on the left, fading to
+   clear on the right). VARIANT 5 replaces it with a near-CONSTANT
+   tint laid evenly over the whole image:
+     · Desktop — uniform, easing only *slightly* lighter towards the
+       right so the photo breathes a touch on that edge.
+     · Mobile  — fully uniform, with no left-to-right variation.
+   Scoped to .lxjt5 so VARIANT 4 stays untouched.
+   ============================================================ */
+
+/* Desktop / default: constant NEUTRAL-DARK tint (near-black, not navy), so the
+   photo's real colours show through — just dimmed — only a hair lighter on the right. */
+.lxjt5 .lxjt-hero__veil {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(12, 14, 20, 0.58) 0%,
+      rgba(12, 14, 20, 0.58) 45%,
+      rgba(12, 14, 20, 0.54) 72%,
+      rgba(12, 14, 20, 0.46) 100%
+    );
+}
+
+/* Mobile: a single, perfectly even neutral-dark overlay — no directional variation. */
+@media (max-width: 768px) {
+  .lxjt5 .lxjt-hero__veil {
+    background: rgba(12, 14, 20, 0.64);
+  }
+}
+
+/* Mobile hero legibility: keep the overlay flat but strengthen the text itself,
+   so the copy stays high-contrast over the brighter parts of the photo. */
+@media (max-width: 640px) {
+  .lxjt5 .lxjt-hero__title {
+    text-shadow: 0 2px 4px rgba(6, 8, 14, 0.55), 0 2px 30px rgba(6, 8, 14, 0.7);
+  }
+  .lxjt5 .lxjt-hero__lead,
+  .lxjt5 .lxjt-hero__content .lx2i-eyebrow {
+    text-shadow: 0 1px 3px rgba(6, 8, 14, 0.7);
+  }
+  .lxjt5 .lxjt-hero__rating {
+    text-shadow: 0 1px 3px rgba(6, 8, 14, 0.7);
+  }
+}
+
+/* Hero rating → jumps to the reviews section; make it read as clickable. */
+.lxjt5 .lxjt5-rating-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s var(--ease);
+}
+.lxjt5 .lxjt5-rating-link span:last-child {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(255, 255, 255, 0.35);
+  transition: text-decoration-color 0.2s var(--ease);
+}
+.lxjt5 .lxjt5-rating-link:hover span:last-child {
+  text-decoration-color: rgba(255, 255, 255, 0.85);
+}
+.lxjt5 .lxjt5-rating-link:hover { opacity: 0.92; }
+
+/* Bottom thumb-bar CTA: square-ish 4px corners (japan-5 only) */
+.lxjt5 .lxjt-thumbbar__chat { border-radius: 4px; }

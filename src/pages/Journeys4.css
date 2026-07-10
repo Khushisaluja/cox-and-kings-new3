@@ -1,0 +1,192 @@
+/* ============================================================
+   Journeys4 — layered LAST, on top of Journeys.css + Journeys2.css.
+
+   Two scoped jobs (everything else inherited from /journeys2):
+     1. Card CTAs → PRIMARY (Voyager Blue) so the actions lead the eye.
+     2. A refined "Private Tour" / "Group Tour" tag on every card,
+        pulled into the SECONDARY (Sienna Flame) family so the two
+        badges complement — never compete with — the blue CTAs.
+   Both variants live in one warm palette but read distinctly:
+   Private is the filled, premium chip; Group is the lighter frosted
+   one. Scoped under .jl4 so /journeys2 keeps its original look.
+   Tokens (--blue, --blue-d, --sienna, --sienna-d) come from .h26.
+   ============================================================ */
+
+/* ---------------- CARD CTAs → PRIMARY (Voyager Blue) ---------------- */
+/* "Enquire Now" — filled primary. */
+.jl4 .jl-cbtn-wa {
+  background: var(--blue);
+  color: #fff;
+}
+.jl4 .jl-cbtn-wa:hover {
+  background: var(--blue-d);
+}
+/* "View Itinerary" — primary outline. */
+.jl4 .jl-cbtn-view {
+  color: var(--blue);
+  border-color: var(--blue);
+}
+.jl4 .jl-cbtn-view:hover {
+  background: #EAF1FA; /* Voyager Blue / 50 tint */
+}
+
+/* ---------------- TOUR-TYPE TAG → SECONDARY (Sienna Flame) ---------------- */
+.jl4-tourtype {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 10px;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(7px) saturate(135%);
+  backdrop-filter: blur(7px) saturate(135%);
+  transition: box-shadow 0.35s ease, transform 0.35s ease;
+}
+.jl4-tourtype svg {
+  flex-shrink: 0;
+}
+
+/* Private — the premium, FILLED secondary chip. */
+.jl4-tourtype.is-private {
+  background: linear-gradient(135deg, var(--sienna), var(--sienna-d));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 14px rgba(151, 51, 14, 0.32),
+              inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.jl4-tourtype.is-private svg {
+  opacity: 0.92;
+}
+
+/* Group — the lighter, FROSTED-CREAM secondary chip. */
+.jl4-tourtype.is-group {
+  background: rgba(253, 247, 243, 0.88);
+  color: var(--sienna-d);
+  border: 1px solid rgba(189, 64, 17, 0.3);
+  box-shadow: 0 4px 14px rgba(2, 19, 48, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.jl4-tourtype.is-group svg {
+  color: var(--sienna);
+}
+
+/* Quiet lift as the card is hovered — just enough craft to feel alive. */
+.jl-card:hover .jl4-tourtype.is-private {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 20px rgba(151, 51, 14, 0.42),
+              inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.jl-card:hover .jl4-tourtype.is-group {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 20px rgba(2, 19, 48, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jl4-tourtype {
+    transition: none;
+  }
+  .jl-card:hover .jl4-tourtype.is-private,
+  .jl-card:hover .jl4-tourtype.is-group {
+    transform: none;
+  }
+}
+
+/* ---------------- INLINE PHOTO CAROUSEL ----------------
+   Replaces the old "N photos" label: the gallery is browsable right on
+   the card via arrows + dots. Crossfading images are stacked absolutely
+   inside the itinerary link so the click-through still works. */
+.jl4 .jl4-media-link {
+  position: relative;
+  display: block;
+}
+.jl4 .jl4-media-link img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Prev / next arrows — revealed on card hover, always shown on touch. */
+.jl4 .jl4-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(2, 19, 48, 0.24);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.25s ease, background 0.2s ease, transform 0.15s ease;
+}
+.jl4 .jl4-nav-prev { left: 8px; }
+.jl4 .jl4-nav-next { right: 8px; }
+.jl4 .jl-card:hover .jl4-nav,
+.jl4 .jl4-nav:focus-visible {
+  opacity: 1;
+}
+.jl4 .jl4-nav:hover { background: #fff; }
+.jl4 .jl4-nav:active { transform: translateY(-50%) scale(0.9); }
+@media (hover: none) {
+  .jl4 .jl4-nav { opacity: 1; }
+}
+
+/* Dot markers — active dot stretches into a pill. */
+.jl4 .jl4-dots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(2, 19, 48, 0.3);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+.jl4 .jl4-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.jl4 .jl4-dot.is-on {
+  width: 15px;
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jl4 .jl4-nav,
+  .jl4 .jl4-dot {
+    transition: none;
+  }
+}
