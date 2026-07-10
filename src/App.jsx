@@ -86,8 +86,11 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
-        {/* Fresh scroll-activated homepage — self-contained design */}
-        <Route path="/" element={<Home2026 />} />
+        {/* New composite page is now the default homepage */}
+        <Route path="/" element={<New />} />
+
+        {/* Previous scroll-activated homepage — still reachable */}
+        <Route path="/home2026" element={<Home2026 />} />
 
         {/* Improved homepage — persona-driven UX revamp (keeps "/" intact) */}
         <Route path="/improved" element={<Home2026Improved />} />
