@@ -1,0 +1,229 @@
+/* ============================================================================
+   Cox & Kings India — full team page (/about-us2/team)
+
+   Loads on top of AboutUs.css (which supplies the .ab tokens, nav, buttons and
+   footer). This file only carries the roll-call treatment: a dark ledger of
+   people, one line each, that opens up on hover.
+   ========================================================================== */
+
+.tm { background: var(--dark); }
+
+/* ---------------------------------------------------------------------- hero */
+.tm-hero {
+  position: relative;
+  padding: 190px 0 92px;
+  background: var(--dark);
+  background-image:
+    radial-gradient(90% 70% at 20% 0%, rgba(11, 90, 177, 0.3) 0%, rgba(2, 19, 48, 0) 62%);
+  overflow: hidden;
+}
+.tm-hero-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.26;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+.tm-hero-inner { position: relative; z-index: 1; }
+
+.tm-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-bottom: 22px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.62);
+  transition: color 0.3s var(--ease);
+}
+.tm-back:hover { color: var(--sienna-300); }
+
+.tm-hero-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--sienna-300);
+  margin-bottom: 22px;
+}
+.tm-hero-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.8rem, 7vw, 6rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--n100);
+}
+.tm-hero-line { display: block; overflow: hidden; }
+.tm-hero-line > span { display: block; }
+.tm-hero-title em { font-style: italic; color: var(--sienna-300); }
+
+.tm-hero-lede {
+  margin-top: 26px;
+  max-width: 54ch;
+  font-size: 16.5px;
+  line-height: 1.8;
+  font-weight: 300;
+  color: rgba(241, 239, 226, 0.72);
+}
+
+/* ---------------------------------------------------------- the roll-call ---
+   Each person is a row in a ledger. Hover lifts the portrait out of the margin
+   and warms the row — the list stays scannable, the detail comes on demand.   */
+.tm-roll {
+  padding: 0 0 130px;
+  background: var(--dark);
+}
+.tm-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px 96px 1.1fr 1.4fr;
+  align-items: center;
+  gap: 32px;
+  padding: 30px 0;
+  border-top: 1px solid rgba(241, 239, 226, 0.13);
+  transition: background 0.5s var(--ease);
+}
+.tm-row:last-child { border-bottom: 1px solid rgba(241, 239, 226, 0.13); }
+/* a sienna rule draws across the row's top border on hover */
+.tm-row::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  height: 1px;
+  width: 0;
+  background: var(--sienna);
+  transition: width 0.7s var(--ease);
+}
+.tm-row:hover::before { width: 100%; }
+.tm-row:hover { background: rgba(11, 90, 177, 0.08); }
+
+.tm-row-n {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 22px;
+  color: rgba(241, 239, 226, 0.32);
+  transition: color 0.45s var(--ease);
+}
+.tm-row:hover .tm-row-n { color: var(--sienna-300); }
+
+.tm-row-photo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--blue-800);
+  border: 1px solid rgba(241, 239, 226, 0.2);
+}
+.tm-row-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.15) brightness(0.9);
+  transition: filter 0.6s var(--ease), transform 0.9s var(--ease);
+}
+.tm-row:hover .tm-row-photo img {
+  filter: grayscale(0) contrast(1) brightness(1);
+  transform: scale(1.07);
+}
+
+.tm-row-name {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  line-height: 1.15;
+  color: var(--n100);
+}
+.tm-row-role {
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sienna-300);
+}
+
+.tm-row-unit {
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.42);
+  margin-bottom: 8px;
+}
+.tm-row-bio {
+  font-size: 14.5px;
+  line-height: 1.72;
+  font-weight: 300;
+  color: rgba(241, 239, 226, 0.68);
+  max-width: 46ch;
+}
+
+/* the Director sits apart at the top of the ledger */
+.tm-row.is-director {
+  border-top: 0;
+  padding: 46px 0 40px;
+  margin-bottom: 8px;
+}
+.tm-row.is-director .tm-row-photo {
+  width: 128px;
+  height: 128px;
+  border-color: var(--sienna-300);
+}
+.tm-row.is-director .tm-row-name { font-size: clamp(2rem, 3.2vw, 2.7rem); }
+.tm-row.is-director .tm-row-n { color: var(--sienna); }
+
+/* ----------------------------------------------------------------------- CTA */
+.tm-cta {
+  padding: 118px 0;
+  background: var(--blue-800);
+  background-image:
+    radial-gradient(80% 100% at 50% 0%, rgba(11, 90, 177, 0.36) 0%, rgba(4, 36, 71, 0) 66%);
+  text-align: center;
+}
+.tm-cta-inner p {
+  margin: 20px auto 0;
+  max-width: 50ch;
+  font-size: 16.5px;
+  line-height: 1.8;
+  font-weight: 300;
+  color: rgba(241, 239, 226, 0.76);
+}
+.tm-cta-actions {
+  margin-top: 36px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* ---------------------------------------------------------------- responsive */
+@media (max-width: 1080px) {
+  .tm-row {
+    grid-template-columns: 44px 80px 1fr;
+    gap: 20px 24px;
+    align-items: start;
+  }
+  .tm-row-photo { width: 80px; height: 80px; }
+  /* the bio drops under the name, spanning the two text columns */
+  .tm-row-meta { grid-column: 2 / -1; margin-top: 4px; }
+  .tm-row.is-director .tm-row-photo { width: 96px; height: 96px; }
+}
+
+@media (max-width: 860px) {
+  .tm-hero { padding: 150px 0 70px; }
+  .tm-roll { padding-bottom: 84px; }
+  .tm-row {
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    padding: 26px 0;
+  }
+  .tm-row-photo { width: 72px; height: 72px; grid-column: 2; }
+  .tm-row-main { grid-column: 2; }
+  .tm-row-meta { grid-column: 2; }
+  .tm-row-bio { font-size: 14px; }
+  .tm-row.is-director { padding-top: 30px; }
+  .tm-cta { padding: 88px 0; }
+}

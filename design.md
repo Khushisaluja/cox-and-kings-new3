@@ -11,7 +11,7 @@ variables and component definitions.
 
 The palette pairs a deep, trustworthy **Voyager Blue** (heritage, reliability) with a warm
 **Sienna Flame** accent (adventure, the earth-tone of travel), grounded on a **warm paper**
-neutral scale rather than cold greys. Headings are set in the editorial serif **Zodiak**;
+neutral scale rather than cold greys. Headings are set in the editorial serif **Cormorant Garamond**;
 body and UI text in the humanist sans **Work Sans**.
 
 ---
@@ -118,12 +118,12 @@ brand palette and must never be used decoratively elsewhere — filled review/ra
 
 Two type families carry the brand:
 
-- **Zodiak** — editorial serif, used for all display & headings. Always **Light (300)**.
+- **Cormorant Garamond** — editorial serif, used for all display & headings. Always **Light (300)**.
 - **Work Sans** — humanist sans, used for all body, labels & UI.
 
 Global heading settings: line-height **1.4**, letter-spacing **0**.
 
-### 3.1 Display & Headings — `Zodiak`, Light (300)
+### 3.1 Display & Headings — `Cormorant Garamond`, Light (300)
 
 | Style | Desktop | Mobile | Line-height |
 |-------|---------|--------|-------------|
@@ -219,7 +219,7 @@ Form inputs draw from the same neutral scale.
 
 ## 6. Usage principles
 
-- **Headings are always Zodiak Light** — never bold the serif; weight comes from size, not heaviness.
+- **Headings are always Cormorant Garamond Light** — never bold the serif; weight comes from size, not heaviness.
 - **One primary action per view.** Use Primary (blue) for the main CTA, Secondary (sienna) sparingly for a competing or accent action.
 - **Warm neutrals, not cold greys.** Default to the `Neutrals` paper scale for surfaces and text; reserve the cool `Neutrals-Light / Neutrals-Mid` set for content placed on dark or brand backgrounds.
 - **Labels are wide-tracked and uppercase** (tracking 4) — use for eyebrows and tags, not for running text.

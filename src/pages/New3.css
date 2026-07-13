@@ -1,0 +1,956 @@
+/* ============================================================
+   New3 (route /new3) — seats the /luxe2-improved hero inside the
+   /new-homepage shell.
+
+   EVERY rule here is scoped under `.n3` (set on this page's root div).
+   Vite hoists CSS imports into one global sheet, so an unscoped
+   `.h26 …` rule would also hit /, /new-homepage, /new2 and /improved,
+   which share the h26 chrome. Keep the .n3 prefix on anything new.
+   ============================================================ */
+
+.n3 .n3-herowrap {
+  background: transparent;
+}
+
+/* ---- The hero/sheet seam --------------------------------------------------
+   The h26 sheet has a 40px rounded top, so its two top corners are transparent
+   and reveal whatever sits behind them. On the h26 pages that is .h26-bg, a
+   FIXED full-page photo the sheet is designed to scroll over.
+
+   This page's hero brings its own backdrop, so .h26-bg has been removed from
+   the markup (see New3.jsx): it held a DIFFERENT photo from the hero's and,
+   being fixed, stayed still while everything else scrolled — so the corners
+   flickered a stray, static image at the seam.
+
+   With it gone the corners fall through to the page background, which is set
+   to the hero veil's final colour — rgba(0,2,7,.985) over the photo, i.e.
+   essentially #000207. Matching it makes the corners read as a continuation of
+   the hero's bottom edge instead of a hole. `.h26.n3` (0,2,0) to beat the
+   `.h26` navy (0,1,0). */
+.h26.n3 {
+  background: #000207;
+}
+
+/* .lx2i-hero ships with z-index: 5 so its search dropdowns can overflow the
+   hero and paint above the section below it. The h26 sheet sits at z-index 3
+   and normally pulls itself UP by 4vh to tuck its rounded corners under the
+   hero — with the hero now painting above the sheet, that overlap would bury
+   the sheet's top edge. Butt them together instead. */
+.n3 .h26-sheet {
+  margin-top: 0;
+}
+
+/* The h26 nav is taller than the one this hero was drawn against, so give the
+   hero more headroom above its (bottom-anchored) content. */
+.n3 .lx2i-hero {
+  padding-top: 124px;
+}
+
+/* Cormorant Garamond is lighter than the Zodiak this hero was drawn for: at
+   display size its 300-weight headline goes wispy. Match the weight ramp
+   NewTypography.css applies to the rest of the page's display type. */
+.n3 .lx2i-hero__title {
+  font-weight: 500;
+}
+.n3 .lx2i-hero__title em {
+  font-weight: 700;
+}
+
+/* ---- Desktop: hero search dropdowns open UPWARD -----------------------
+   The luxe2 hero is bottom-anchored (justify-content: flex-end), so the
+   search bar always sits low in the viewport and a panel opening downward
+   runs off the fold — on /luxe2-improved itself the destinations list is
+   already cut off by ~157px at 1440x900. The calendar is taller still, which
+   would put its Clear/Done row well past the bottom.
+
+   There is always room above (the headline is only decoration to overlay), so
+   flip the panels upward. Desktop only: below 860px the bar stacks, the fields
+   move UP the screen, and opening upward would instead run off the top. */
+@media (min-width: 861px) {
+  .n3 .lx2i-search__drop {
+    top: auto;
+    bottom: calc(100% + 12px);
+    animation: n3-drop-up 0.22s var(--ease);
+  }
+  @keyframes n3-drop-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ---- "When" calendar: size ----------------------------------------------
+   Doubled class (0,2,0) so it beats .lx2i-search__drop regardless of which
+   stylesheet the bundler emits first — and, unlike a `.n3 …` prefix, it still
+   matches when the calendar is PORTALED out of .n3 into the mobile modal.
+   The luxe2 dropdown is built for a short option list: it caps at 244–320px
+   and scrolls past 340px tall. A month grid you have to scroll is unusable, so
+   the calendar gets a fixed width and no internal scroll. */
+.n3-caldrop.n3-caldrop {
+  width: min(320px, calc(100vw - 56px));
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  padding: 12px;
+  gap: 0;
+}
+
+/* Anchoring — only when inline in the search bar (i.e. not portaled).
+   "When" is the last field before the Search button, so a left-anchored 320px
+   panel would hang off the right of the bar; anchor it to the field's right. */
+.n3 .n3-caldrop {
+  left: auto;
+  right: -6px;
+}
+
+/* Unprefixed so these hold in the portaled mobile modal too (see above). */
+.n3-caldrop .hi-cal-title {
+  font-weight: 600;
+}
+.n3-caldrop .hi-cal-flexlabel {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ---- Mobile: the calendar becomes a centred modal ---------------------
+   At =<860px the luxe2 search bar stacks, which leaves the "When" field with
+   room for neither a downward panel (it runs under the fixed thumb-bar) nor
+   an upward one (~57px off the top of the screen). So below that width the
+   calendar is portaled to <body> and centred — standard mobile date-picker
+   behaviour, and it cannot be clipped by an ancestor.
+
+   Being portaled means it sits OUTSIDE .h26 / .lx2i, where all the design
+   tokens are declared, so re-declare the ones the hi-cal-* component reads —
+   otherwise var(--blue) et al. resolve to nothing and the card renders
+   unstyled. (Same reason .hi-where-pop re-declares them in
+   Home2026Improved.css.) */
+.n3-calscrim {
+  --ink: #1F2A36;
+  --blue: #0B5AB1;
+  --blue-500: #0B5AB1;   /* the lx2i alias — .n3-any reads this one */
+  --blue-d: #07366A;
+  --muted: #4A4A45;
+  --border: #D9D7CB;
+  --paper-200: #D9D7CB;
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans: 'Work Sans', system-ui, sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 19, 48, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: n3-scrim-in 0.2s var(--ease);
+}
+@keyframes n3-scrim-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Neutralise the dropdown's anchored positioning — inside the scrim the
+   calendar is a free-standing card, not a panel hanging off a field. */
+.n3-calscrim .n3-caldrop {
+  position: static;
+  animation: n3-sheet-in 0.24s var(--ease);
+}
+@keyframes n3-sheet-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- The "show me all" option ------------------------------------------
+   One component, used identically in all three search fields: "Anywhere",
+   "Anyone", "Any dates". It previously differed per field — first item in the
+   destinations list, last item in the travellers list, a mid-panel button in
+   the calendar — which made the same choice look like three different ones and
+   left the eye hunting for it.
+
+   Now it is always the LAST thing in the dropdown, always the full-width dashed
+   pill, always the same sparkle and the same "Any… — show me all" phrasing. It
+   is separated from the concrete choices above rather than sitting among them,
+   because it is a different kind of answer: it removes a filter instead of
+   setting one. */
+.n3-any {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px 12px;
+  border-radius: 9px;
+  border: 1px dashed var(--paper-200, #D9D7CB);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--blue-500, #0B5AB1);
+  /* Opaque, matching the dropdown's own surface — it is pinned below, and the
+     option list scrolls behind it. Every state below is opaque for that reason. */
+  background: #FBFAF5;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+.n3-any svg { flex-shrink: 0; }
+
+/* The Where/Who dropdowns scroll (they cap at 340px), and the destination list
+   alone overflows that — so as a plain last child this option sat BELOW the
+   fold and you had to scroll the dropdown to find it. Pin it as a sticky footer
+   instead: always in view, still last. Set apart by whitespace rather than a
+   rule, since a solid separator cut through the pill's own dashed top edge.
+
+   Positioning only — no `background` here. This selector is 0,3,0 and would
+   outrank the 0,2,0 :hover / .is-on rules below, which is how a *selected*
+   option ended up white-on-cream. */
+.lx2i-search__drop:not(.n3-caldrop) .n3-any {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-top: 12px;
+}
+/* Fill the drop's 8px bottom padding, so nothing shows through beneath the
+   pinned pill as the list scrolls under it. */
+.lx2i-search__drop:not(.n3-caldrop) .n3-any::after {
+  content: '';
+  position: absolute;
+  left: -9px;
+  right: -9px;
+  bottom: -9px;
+  height: 9px;
+  background: #FBFAF5;
+}
+
+.n3-any:hover {
+  background: #ECF0F7;                 /* the blue tint, pre-composited */
+  border-color: var(--blue-500, #0B5AB1);
+}
+.n3-any.is-on {
+  background: var(--blue-500, #0B5AB1);
+  border-style: solid;
+  border-color: var(--blue-500, #0B5AB1);
+  color: #fff;
+}
+.n3-any.is-on:hover {
+  background: var(--blue-700, #07366A);
+}
+
+/* ± flexibility is meaningless with no date picked (or with "any dates"). */
+.hi-cal-flexchip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.hi-cal-flexchip:disabled:hover {
+  border-color: var(--border);
+}
+
+/* ---- "How would you like to travel?" — three cards ---------------------
+   Was four. "Design it around you" and "Help me decide" both asked the same
+   question — whether you already know what you want — so they are now one card
+   that hands to Enaya, who works that out with you either way. Mirrors the
+   --four rules from Home2026Improved.css at three columns.
+
+   Deliberately compact: three cards at full page width read as billboards, and
+   this is a signpost you scan on the way past, not the destination. Capped
+   width, shorter media, tighter type. */
+.hi-fork-grid--three {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  max-width: 1040px;
+  margin-inline: auto;
+}
+.hi-fork-grid--three .hi-lane-media { height: 146px; }
+.hi-fork-grid--three .hi-lane-body { padding: 20px 20px 22px; }
+.hi-fork-grid--three .hi-lane-tag { font-size: 10px; margin-bottom: 8px; }
+.hi-fork-grid--three .hi-lane-body h3 { font-size: 1.22rem; margin-bottom: 8px; }
+.hi-fork-grid--three .hi-lane-body p { font-size: 0.9rem; line-height: 1.5; margin-bottom: 18px; }
+@media (max-width: 1080px) { .hi-fork-grid--three { grid-template-columns: 1fr 1fr; max-width: 720px; } }
+
+/* ---- The recommended card ----------------------------------------------
+   It came with THREE separate "look at me" signals stacked on top of each
+   other: a 6px lift out of the row, a 2px blue border, and a sienna CTA while
+   its neighbours were blue. Together they read less as "recommended" and more
+   as a card that had come loose from the grid.
+
+   Keep one signal — the badge — and let the card sit level with its siblings,
+   same border, same blue CTA (set in New3.jsx). It still leads: it is first in
+   the row and it is the only one wearing a tag. */
+.n3 .hi-lane.is-featured {
+  border-color: var(--border);
+  border-width: 1px;
+  box-shadow: none;
+  transform: none;
+}
+.n3 .hi-lane.is-featured:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 26px 54px rgba(2, 19, 48, 0.14);
+}
+/* The eyebrow went blue on this card alone; match the others. */
+.n3 .hi-lane.is-featured .hi-lane-tag { color: var(--sienna); }
+/* Badge stays — it is now the ONLY thing marking the card, so give it a little
+   more presence than the 10px it had when three other cues were helping. */
+.n3 .hi-lane-badge {
+  top: 10px;
+  left: 10px;
+  right: auto;
+  font-size: 10.5px;
+  padding: 6px 12px;
+}
+
+@media (max-width: 680px) {
+  /* Same swipeable carousel the four-card grid becomes. */
+  .hi-fork-grid--three {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 14px;
+    padding-bottom: 14px;
+    scrollbar-width: none;
+  }
+  .hi-fork-grid--three::-webkit-scrollbar { display: none; }
+  .hi-fork-grid--three .hi-lane { flex: 0 0 78%; scroll-snap-align: start; }
+  .hi-fork-grid--three .hi-lane.is-featured { transform: none; }
+}
+
+@media (max-width: 860px) {
+  .n3 .lx2i-hero {
+    padding-top: 140px;
+  }
+}
+
+/* ============================================================================
+   DESIGN RECONCILIATION
+
+   This page composites three prefix-scoped design systems — h26-/hi- (the
+   /improved homepage), lx2i- (/luxe2-improved) and jl- (/journeys) — each with
+   its own container model, type scale and button spec. Side by side down one
+   page they drifted visibly. Measured at 1440px, before this block:
+
+     · side gutters   72px (h26) · 100px (lx2i) · 43px (jl) · 86px (contact)
+     · section h2     54.4 / 56 / 57.6 / 64px, tracking normal / -0.01em
+     · eyebrows       12px/500/sienna vs 12px/500/BLUE vs 10px/600/sienna
+     · body grey      #4A4A45 vs #4E4E48 vs #3D3D38, weight 300 vs 400
+     · buttons        12.5 / 13 / 13.5 / 14px, padding 10×18 / 12×22 / 15×28
+     · card radius    14 / 16 / 18px
+     · vertical pad   93.6 / 115.2 / 140 / 144px, and 0 on the journeys shelf
+
+   Below is ONE set of tokens the whole page answers to. Everything is scoped
+   to .n3, so /improved, /luxe2-improved and /journeys keep their own systems.
+   ========================================================================= */
+.n3 {
+  /* One container: a fluid gutter that becomes a centred max-width on large
+     screens, so the content stops sprawling past 1296px. */
+  --n3-gutter: clamp(16px, 3vw, 56px);
+  /* The cap has to sit wide enough that the GUTTER is what binds at common
+     desktop widths, otherwise the (100% - content)/2 term wins the max() and
+     silently pins the padding back to a larger value. */
+  --n3-content: 1360px;                  /* → 43.2px gutter @1440 */
+  --n3-pad-x: max(var(--n3-gutter), (100% - var(--n3-content)) / 2);
+  --n3-pad-y: clamp(56px, 6.5vw, 104px);
+
+  /* Warm neutral scale (design.md 2.7). Sections alternate down the page so
+     each one reads as its own band without a rule or a border between them.
+     Deliberately NOT Cloudstone (#F7F5FD) — that is a cool, violet-leaning
+     tint and it fights the warm paper the rest of the page is built on. */
+  --n-0:   #FFFFFF;   /* Neutrals / 0   — cards */
+  --n-50:  #F8F7F1;   /* Neutrals / 50  — base page */
+  --n-100: #F1EFE2;   /* Neutrals / 100 — alternate band */
+  --n-150: #E5E3D7;   /* Neutrals / 150 — the press strip */
+}
+
+/* ---- 1. Side padding + vertical rhythm --------------------------------- */
+.n3 .h26-section,
+.n3 .h26-intro,
+.n3 .h26-contact,
+.n3 .lx2i-heritage,
+.n3 .lx2i-reviews {
+  padding-inline: var(--n3-pad-x);
+  padding-block: var(--n3-pad-y);
+}
+/* lx2i sections centre their own 1240px container INSIDE the section. With the
+   section now padded, that would inset the content twice — hand the job to the
+   section and let the container run full width. */
+.n3 .lx2i-container {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+/* The journeys shelf carries its gutter on an inner var, and had no vertical
+   padding at all, so it butted against its neighbours. Point its var at the
+   canonical gutter and uncap its width, so its heading and its card rail line
+   up with every other section. */
+.n3 .jl {
+  padding-block: var(--n3-pad-y);
+  padding-inline: 0;
+  --jl-pad: var(--n3-pad-x);
+  --jl-cap: none;
+}
+.n3 .jl-collections { max-width: none; }
+
+/* ---- 2. Section headings ----------------------------------------------- */
+/* Colour is left alone: it already varies correctly with the background (ink
+   on paper, white on the blue reviews band, paper on the dark contact block).
+   Only the scale, weight, tracking and leading are unified. */
+.n3 .h26-h2,
+.n3 .h26-statement,
+.n3 .lx2i-h2,
+.n3 .h26-contact-title,
+.n3 .jl-shelf-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(2rem, 1.2rem + 2.4vw, 3.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  margin-top: 0;
+}
+
+/* ---- 3. Eyebrows / section labels -------------------------------------- */
+.n3 .h26-label,
+.n3 .lx2i-eyebrow,
+.n3 .jl-shelf-label,
+.n3 .hi-lane-tag,
+.n3 .h26-contact-eyebrow {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+/* On dark grounds the eyebrow takes the light tint. The reviews band was the
+   one real bug this surfaced: its eyebrow was brand blue (#0B5AB1) sitting on
+   dark blue (#042447) — near-invisible. */
+.n3 .lx2i-reviews .lx2i-eyebrow,
+.n3 .h26-contact-eyebrow {
+  color: #F3B9A2;
+}
+/* The hero eyebrow is its own thing — pale blue on the photo, and it sets its
+   own spacing against the headline. */
+.n3 .lx2i-hero .lx2i-eyebrow--light {
+  color: #8FB6E4;
+  margin: 0;
+}
+
+/* ---- 4. Card titles ----------------------------------------------------- */
+.n3 .hi-lane-body h3,
+.n3 .h26-dest-body h3,
+.n3 .jl-card-title,
+.n3 .lx2i-heritage__card h4 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.32rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+/* Reel cards are a genuinely smaller tier — kept smaller, but consistent. */
+.n3 .h26-reel-body h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+/* ---- 5. Body copy ------------------------------------------------------- */
+/* Three near-identical greys and a 300/400 weight split, for text doing the
+   same job. One grey, one weight. */
+.n3 .lx2i {
+  --ink-700: #4A4A45;
+  --ink-800: #4A4A45;
+  font-weight: 400;
+}
+/* Lead paragraphs — the one under a section heading. */
+.n3 .h26-intro-text,
+.n3 .lx2i-heritage__copy,
+.n3 .jl-shelf-sub,
+.n3 .h26-reels-hint,
+.n3 .h26-contact-sub {
+  font-size: 1.06rem;
+  line-height: 1.65;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+/* Card copy. */
+.n3 .hi-lane-body p,
+.n3 .h26-dest-body p,
+.n3 .h26-reel-body p,
+.n3 .jl-card-blurb,
+.n3 .lx2i-rcard__text {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* ---- 6. Buttons --------------------------------------------------------- */
+/* Two sizes, deliberately: default for section CTAs, compact inside cards and
+   in the nav. Everything else — family, weight, tracking, case, radius — is
+   shared, so a button reads as the same object wherever it appears. */
+.n3 .h26-btn,
+.n3 .lx2i-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 14px 26px;
+  gap: 9px;
+}
+.n3 .h26-nav .h26-btn,
+.n3 .hi-lane-body .h26-btn,
+.n3 .jl-card .h26-btn {
+  font-size: 12.5px;
+  padding: 10px 20px;
+}
+
+/* ---- 7. Card radius ----------------------------------------------------- */
+.n3 .hi-lane,
+.n3 .jl-card,
+.n3 .lx2i-rcard,
+.n3 .lx2i-heritage__card {
+  border-radius: 16px;
+}
+
+/* ---- 6b. Journey-card CTAs --------------------------------------------
+   The one button family the rule above missed: .jl-cbtn is its own component
+   from the /journeys system, and it arrived at 12px with 11x10 padding and a
+   sienna fill — so the primary action on nine cards was a different SIZE and a
+   different COLOUR from every other CTA on the page.
+
+   Colour convention now used throughout, and it is a contrast rule, not a
+   whim: on light ground the primary CTA is brand blue; sienna is reserved for
+   the dark contact block at the foot of the page, where blue-on-blue would be
+   near-illegible. Sienna stays the accent for eyebrows everywhere. */
+.n3 .jl-cbtn {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 11px 14px;
+  border-radius: 4px;
+  gap: 8px;
+}
+/* Enquire now — primary, filled. */
+.n3 .jl-cbtn-wa {
+  background: var(--blue);
+  color: var(--paper-2);
+  border-color: var(--blue);
+}
+.n3 .jl-cbtn-wa:hover { background: #09488E; }
+/* View itinerary — secondary, outline. */
+.n3 .jl-cbtn-view {
+  background: transparent;
+  color: var(--blue);
+  border-color: var(--blue-300, #6D9CD0);
+}
+.n3 .jl-cbtn-view:hover {
+  background: rgba(11, 90, 177, 0.07);
+  border-color: var(--blue);
+}
+
+/* ---- 8. Section rhythm, on the warm neutral scale -----------------------
+   Every light section was the same #F8F7F1, so the page read as one long
+   undifferentiated sheet. Alternating Neutrals/50 and /100 gives each section
+   its own band — enough to separate them, far too little to look striped. The
+   dark bands (reviews, contact) and the /150 press strip already punctuate. */
+.n3 .h26-sheet   { background: var(--n-50); }
+.n3 .h26-intro   { background: var(--n-50); }
+.n3 .hi-fork     { background: var(--n-100); }
+.n3 #destinations { background: var(--n-50); }
+.n3 .lx2i-heritage { background: var(--n-100); }
+.n3 .jl          { background: var(--n-50); }
+.n3 .h26-reels-sec { background: var(--n-100); }
+.n3 .lx2i-press  { background: var(--n-150); }
+
+/* ---- 9. Heading weight -------------------------------------------------
+   The heading was set at 500 (medium) throughout, so "Crafting … since 1758"
+   sat only one step below its own emphasised words and the contrast between
+   them was muddy. Regular for the heading, bold for the words being
+   emphasised — a real two-step, and it reads as one sentence again. */
+.n3 .h26-h2,
+.n3 .h26-statement,
+.n3 .lx2i-h2,
+.n3 .h26-contact-title,
+.n3 .jl-shelf-title {
+  font-weight: 400;
+}
+.n3 .lx2i-h2 strong,
+.n3 .h26-cta2-title strong,
+.n3 .wr-accent {
+  font-weight: 700;
+}
+
+/* ---- 10. The "Recommended" badge ---------------------------------------
+   Sienna, the accent colour: the CTA below it is brand blue, so a blue badge
+   read as a second button rather than as a label on the card. */
+.n3 .hi-lane-badge {
+  background: var(--sienna);
+  box-shadow: 0 4px 12px rgba(189, 64, 17, 0.35);
+}
+
+/* ---- 11. Nav, hero and footer join the same container -------------------
+   The page had four different left edges: the nav at 56px, the hero at 100px
+   (it centres its own 1240px box), the sections at 57.6px and the footer at
+   72px. Nothing lined up vertically as you scrolled. Point them all at the one
+   gutter, so the wordmark, the headline, every section heading and the footer
+   share a single edge down the page. */
+.n3 .h26-nav {
+  padding-inline: var(--n3-pad-x);
+}
+.n3 .lx2i-hero__inner {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: var(--n3-pad-x);
+}
+.n3 .h26-footer {
+  padding-inline: var(--n3-pad-x);
+}
+
+/* ---- 12. The callback dialog -------------------------------------------
+   Its submit arrived as h26-btn-accent (sienna). The dialog panel is a light
+   surface, and the page's rule is blue primary on light ground — sienna is
+   held back for the dark contact block, where blue-on-blue would be
+   illegible. Bring it in line. */
+.n3 .cb-submit {
+  background: var(--blue);
+  color: var(--paper-2);
+}
+.n3 .cb-submit:hover:not(:disabled) {
+  background: #09488E;
+}
+
+/* ---- 13. Callback form: required vs optional ---------------------------
+   Only name, phone and a time slot are needed to place the call. Email and
+   purpose are useful but never block the request, so the form says which is
+   which up front rather than failing on submit. */
+.n3 .cb-req {
+  color: var(--sienna);
+  font-weight: 700;
+  text-decoration: none;      /* Safari underlines <abbr title> by default */
+  cursor: help;
+  margin-left: 1px;
+}
+.n3 .cb-opt {
+  color: var(--muted-2, #696960);
+  font-weight: 400;
+  font-size: 0.92em;
+}
+.n3 .cb-legend {
+  margin: 2px 0 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--muted-2, #696960);
+}
+.n3 .cb-err {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--sienna);
+}
+.n3 .cb-input[aria-invalid='true'] {
+  border-color: var(--sienna);
+}
+/* An empty select is a placeholder, not an answer — grey it until chosen. */
+.n3 .cb-select:has(option[value='']:checked) {
+  color: var(--muted-2, #696960);
+}
+
+/* ---- 14. Nav flyout: make the menu scannable ---------------------------
+   The Destinations flyout had grown to eight rows in one flat column — five
+   places, two signature itineraries and "All destinations" — every one of them
+   rendered as the same label-over-description row. Nothing told the eye where
+   one kind of thing ended and the next began, and the catch-all, which is not a
+   destination at all but the way OUT of the list, was the hardest row to find.
+
+   Two moves, both in the page's existing language rather than a new one:
+     1. A small-caps rule wherever the kind of item changes. Same eyebrow
+        token as the section labels (Work Sans / 600 / 0.2em / sienna).
+     2. The catch-all leaves the list entirely and becomes a footer action:
+        tinted, full-width, brand blue, carrying a count and an arrow that
+        moves. It reads as "go" — the same job the "Anywhere · show me all"
+        pill does at the foot of every hero search dropdown. */
+
+/* Widen the panel slightly: the grouped list needs the extra breathing room. */
+.n3 .hi-nav-flyout-inner {
+  width: 300px;
+}
+
+/* 1. Group rule */
+.n3 .n3-navgroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 10px 5px;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  white-space: nowrap;
+}
+/* The hairline runs from the label to the panel edge. */
+.n3 .n3-navgroup::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+/* No leading gap on the first group — the blurb's rule already sits above it. */
+.n3 .hi-nav-list > .n3-navgroup:first-child {
+  margin-top: 2px;
+}
+
+/* 2. The catch-all action */
+.n3 .n3-navall {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(11, 90, 177, 0.22);
+  background: rgba(11, 90, 177, 0.06);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  text-decoration: none;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.n3 .n3-navall:hover,
+.n3 .n3-navall:focus-visible {
+  background: rgba(11, 90, 177, 0.12);
+  border-color: var(--blue);
+  outline: none;
+}
+.n3 .n3-navall-label { flex: 1; white-space: nowrap; }
+/* The count earns its place: it tells you how big the list is before you go. */
+.n3 .n3-navall-meta {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-2, #696960);
+  white-space: nowrap;
+}
+.n3 .n3-navall-arrow {
+  flex-shrink: 0;
+  transition: transform 0.22s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.n3 .n3-navall:hover .n3-navall-arrow,
+.n3 .n3-navall:focus-visible .n3-navall-arrow {
+  transform: translateX(3px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .n3 .n3-navall-arrow { transition: none; }
+  .n3 .n3-navall:hover .n3-navall-arrow { transform: none; }
+}
+
+/* "Talk to an expert" is an action, not a page, so it renders as a <button>
+   inside the flyout list. Make it sit exactly like the links around it — a
+   button is centred and shrink-wrapped by default. */
+.n3 .n3-nav-action {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* ---- 15. Mobile drawer: accordions, matching the desktop flyouts --------
+   The drawer was a flat list of six links: the four mega-menu sections had been
+   flattened to a single destination each, so everything inside them — the
+   grouped destinations, the signature journeys, the catch-all, "talk to an
+   expert" — was simply unreachable on a phone. It now mirrors the desktop
+   menu, from the same NAV_MENU data. */
+
+/* The accordion header keeps the drawer's big serif voice. */
+.n3 .n3-macc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(31, 42, 54, 0.08);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 26px;
+  color: var(--ink);
+  transition: color 0.25s ease;
+}
+.n3 .n3-macc-item.is-open .n3-macc-head { color: var(--blue); }
+.n3 .n3-macc-chev { transition: transform 0.3s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)); }
+.n3 .n3-macc-item.is-open .n3-macc-chev { transform: rotate(180deg); }
+
+/* The open panel. Indented and quieter, so it reads as a level down rather
+   than as more top-level links.
+
+   The [hidden] rule is load-bearing: `display: flex` below is an author style
+   and beats the UA's `[hidden] { display: none }`, so without this every panel
+   renders open and the accordion does nothing. */
+.n3 .n3-macc-panel[hidden] {
+  display: none;
+}
+.n3 .n3-macc-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0 16px 2px;
+  border-bottom: 1px solid rgba(31, 42, 54, 0.08);
+  animation: n3-macc-in 0.24s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+@keyframes n3-macc-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n3 .n3-macc-panel { animation: none; }
+  .n3 .n3-macc-chev { transition: none; }
+}
+
+/* Submenu rows. The `.h26-menu-primary a` rule would otherwise set these at
+   26px serif like the headers, so they are re-specified here in full. */
+.n3 .h26-menu-primary .n3-macc-link {
+  display: block;
+  width: 100%;
+  padding: 9px 0;
+  border: 0;
+  border-bottom: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink);
+  transition: padding-left 0.2s ease, color 0.2s ease;
+}
+.n3 .h26-menu-primary .n3-macc-link:hover,
+.n3 .h26-menu-primary .n3-macc-link:focus-visible {
+  padding-left: 6px;
+  color: var(--blue);
+  outline: none;
+}
+.n3 .n3-macc-lbl {
+  display: block;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.n3 .n3-macc-desc {
+  display: block;
+  margin-top: 1px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* Same group rule as the desktop flyout. */
+.n3 .n3-macc-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 4px;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  white-space: nowrap;
+}
+.n3 .n3-macc-group::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.n3 .n3-macc-panel > .n3-macc-group:first-child { margin-top: 2px; }
+
+/* The catch-all keeps the tinted action treatment it has on desktop. */
+.n3 .h26-menu-primary .n3-macc-all {
+  margin-top: 14px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(11, 90, 177, 0.22);
+}
+.n3 .h26-menu-primary .n3-macc-all:hover { padding-left: 12px; }
+
+/* Clips / Reviews have no submenu — they keep the original big-link look. */
+.n3 .h26-menu-primary .n3-macc-plain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(31, 42, 54, 0.08);
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 26px;
+  color: var(--ink);
+}
+
+/* ---- 16. Mobile thumb bar: a labelled Enaya button ---------------------
+   .h26-thumbbar-ai ships as a 52px icon-only square. An unlabelled sparkle is
+   not a recognisable thing to tap — Enaya is a named assistant, so it gets its
+   name. Auto width, so the sienna "Schedule a call" primary still takes the
+   remaining room. */
+.n3 .n3-thumb-ai {
+  width: auto;
+  gap: 7px;
+  padding: 0 14px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #fff;
+  white-space: nowrap;
+}
+.n3 .n3-thumb-ai svg { color: #F0C674; }   /* the gold spark, as on the desktop FAB */
+.n3 .n3-thumb-ai:active { filter: brightness(1.12); }
+
+/* Very narrow phones: drop the label rather than squeeze the primary CTA. */
+@media (max-width: 359px) {
+  .n3 .n3-thumb-ai { width: 52px; padding: 0; }
+  .n3 .n3-thumb-ai span { display: none; }
+}
+
+/* ---- 17. Destinations without a page yet -------------------------------
+   Japan is the only country page built. The other destinations are inert for
+   now — they simply don't navigate, rather than quietly landing you on Japan's
+   page, which is what every card used to do. No badges, no dimming: they look
+   exactly as before. */
+.n3 .lx2i-quickpick.n3-soon {
+  cursor: default;
+}
+.n3 .n3-dest-soon {
+  cursor: default;
+}
+
+/* ---- 18. The catch-all must not follow the nav's scrolled state ---------
+   Home2026.css has `.h26-nav.is-solid .h26-links a { color: rgba(255,255,255,.9) }`
+   to flip the TOP-LEVEL nav links to white once the bar goes solid blue. But it
+   matches ANY <a> inside .h26-links — including the catch-all, which lives down
+   in the flyout on a paper panel. So on scroll its label turned white on cream
+   and vanished. (The other flyout rows survive only because their label spans
+   carry their own colour; the catch-all's label had none and inherited it.)
+
+   That rule is (0,3,1), so these have to outrank it — hence the longer chain
+   rather than a plain `.n3 .n3-navall`. The panel's colours do not depend on
+   whether the page happens to be scrolled. */
+.n3 .h26-nav .h26-links .n3-navall,
+.n3 .h26-nav.is-solid .h26-links .n3-navall {
+  color: var(--blue);
+}
+.n3 .h26-nav .h26-links .n3-navall .n3-navall-label,
+.n3 .h26-nav.is-solid .h26-links .n3-navall .n3-navall-label {
+  color: var(--blue);
+}
+.n3 .h26-nav .h26-links .n3-navall .n3-navall-meta,
+.n3 .h26-nav.is-solid .h26-links .n3-navall .n3-navall-meta {
+  color: var(--muted-2, #696960);
+}

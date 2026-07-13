@@ -19,7 +19,7 @@ import {
   Star, SlidersHorizontal, Clock, Users, User, Gauge, Wallet,
   Instagram, Facebook, Youtube, Linkedin, Check, Plus, Minus, CalendarRange,
 } from 'lucide-react';
-import { img, RATING } from '../data/v3content';
+import { img } from '../data/v3content';
 import './Home2026.css';
 import './Home2026Improved.css';
 import './Journeys.css';
@@ -36,7 +36,7 @@ const CONTACT = {
 
 /* ---- Canonical destination filters. Order = the sidebar list. ---- */
 const REGIONS = [
-  'Japan', 'Switzerland', 'Italy', 'Northern Lights',
+  'India', 'Japan', 'Switzerland', 'Italy', 'Northern Lights',
   'Australia & NZ', 'Africa Safari', 'Southeast Asia',
   'Maldives', 'Europe', 'USA',
 ];
@@ -93,6 +93,7 @@ const tourTypeOf = (style) => (GROUP_STYLES.includes(style) ? 'Group Tour' : 'Pr
 /* Author-vetted, region-correct photo pools (shared with /journeys). */
 const U = (id) => `https://images.unsplash.com/photo-${id}`;
 const REGION_PHOTOS = {
+  India: [U('1564507592333-c60657eea523'), U('1477587458883-47145ed94245'), U('1524492412937-b28074a5d7da'), U('1602216056096-3b40cc0c9944'), U('1587474260584-136574528ed5')],
   Japan: [U('1522383225653-ed111181a951'), U('1492571350019-22de08371fd3'), U('1493976040374-85c8e12f0c0e'), U('1490806843957-31f4c9a91c65'), U('1528360983277-13d401cdc186'), U('1540959733332-eab4deabeeaf')],
   Switzerland: [U('1530122037265-a5f1f91d3b99'), U('1467269204594-9661b134dd2b')],
   Italy: [U('1534445867742-43195f401b6c'), U('1523906834658-6e24ef2386f9'), U('1467269204594-9661b134dd2b')],
@@ -121,6 +122,15 @@ const J = (o) => ({
   gallery: buildGallery(o),
 });
 const ALL_JOURNEYS = [
+  /* ---- India. Added so the "Indian Getaways" nav entry resolves to real
+     journeys: the catalogue previously had no India inventory at all, so any
+     India search (Rajasthan, Kerala, the Golden Triangle) dead-ended on
+     "0 journeys". Priced and paced in line with the rest of the list. ---- */
+  J({ id: 'in-golden', title: 'Golden Triangle & the Taj', blurb: 'Delhi, Agra and Jaipur: the Taj at sunrise, Amber Fort and the Pink City.', regions: ['India'], style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 8, season: 'Oct–Mar', price: 95000, image: U('1564507592333-c60657eea523'), to: '/contact' }),
+  J({ id: 'in-rajasthan', title: 'Rajasthan: Palaces & Forts', blurb: 'Udaipur lake palaces, Jodhpur blue city and a night under the Thar desert sky.', regions: ['India'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 10, season: 'Oct–Mar', price: 185000, image: U('1477587458883-47145ed94245'), to: '/contact' }),
+  J({ id: 'in-kerala', title: 'Kerala Backwaters & Coast', blurb: 'A private houseboat on the backwaters, tea country and a slow finish by the Arabian Sea.', regions: ['India'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Sep–Mar', price: 120000, image: U('1602216056096-3b40cc0c9944'), to: '/contact' }),
+  J({ id: 'in-honeymoon', title: 'Udaipur & Ranthambore Honeymoon', blurb: 'A lake-palace suite, a private dinner on the water and tigers at first light.', regions: ['India'], style: 'Honeymoon', pace: 'Relaxed', rating: 4.9, nights: 7, season: 'Oct–Mar', price: 165000, image: U('1524492412937-b28074a5d7da'), to: '/contact' }),
+  J({ id: 'in-family', title: 'India for Families', blurb: 'Forts to climb, elephants to meet and a tiger safari, paced for younger travellers.', regions: ['India'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 9, season: 'Oct–Mar', price: 110000, image: U('1587474260584-136574528ed5'), to: '/contact' }),
   J({ id: 'jp-blossom', title: 'Cherry Blossom Japan', blurb: 'Two weeks, one fleeting bloom — Tokyo neon to Kyoto temple gardens, timed to the petals.', regions: ['Japan'], style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 13, season: 'Mar–Apr', price: 295000, image: U('1522383225653-ed111181a951'), to: '/japan' }),
   J({ id: 'jp-first', title: 'Japan for First-Timers', blurb: 'Tokyo, Hakone and Kyoto with a private guide and a night in a traditional ryokan.', regions: ['Japan'], style: 'Bespoke Private', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Any date', price: 310000, image: U('1492571350019-22de08371fd3'), to: '/japan' }),
   J({ id: 'jp-luxe', title: 'Japan: Ryokans & Art Islands', blurb: 'Slow luxury — design hotels, private onsen and the Naoshima art islands.', regions: ['Japan'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/japan' }),
@@ -1241,13 +1251,6 @@ export default function Journeys4() {
           )}
         </section>
       </main>
-
-      {/* Trust line — mirrors /improved's proof cues */}
-      <div className="jl-trust jl2-trust">
-        <span><Star size={15} aria-hidden="true" fill="currentColor" /> {RATING.score}★ · {RATING.count} reviews</span>
-        <span>Est. 1758 · 260+ years of travel</span>
-        <span>Small groups · specialist-led · fully coordinated</span>
-      </div>
 
       {/* ---------- CLOSING CTA ---------- */}
       <section className="jl-cta">

@@ -189,7 +189,7 @@ function ChatTourCard({ tour, onSelect, expanded }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function ChatBot({ open: openProp, onOpenChange, hideFab = false, name = 'Cox & Kings Concierge' } = {}) {
+export default function ChatBot({ open: openProp, onOpenChange, hideFab = false, openExpanded, name = 'Cox & Kings Concierge' } = {}) {
   // Optional controlled-open: when `open`/`onOpenChange` are passed (e.g. a host
   // page with its own launcher), the parent drives visibility and `hideFab` can
   // suppress the built-in launcher. With no props it behaves exactly as before.
@@ -201,6 +201,17 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
     if (onOpenChange) onOpenChange(next);
   };
   const [expanded, setExpanded]       = useState(false);
+
+  /* `openExpanded` lets a host page launch the chat centred (expanded) rather
+     than docked in the corner — used where the chat IS the task, not a side
+     offer. Re-applied on each open, so a page with two launchers (a "start
+     here" card vs. the floating button) can give each its own presentation.
+
+     Left UNDEFINED by default and no-op in that case: callers that don't opt in
+     keep today's behaviour exactly, where `expanded` persists across opens. */
+  useEffect(() => {
+    if (open && openExpanded !== undefined) setExpanded(openExpanded);
+  }, [open, openExpanded]);
   const [stage, setStage]             = useState(STAGES.WELCOME);
   const [profile, setProfile]         = useState(EMPTY_PROFILE);
   const [messages, setMessages]       = useState([]);

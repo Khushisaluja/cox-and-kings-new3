@@ -1,0 +1,1370 @@
+/* ============================================================================
+   Cox & Kings India — About Us  (/about-us2)
+
+   Tokens straight from design.md:
+     Voyager Blue 500  #0B5AB1   (primary)
+     Sienna Flame 500  #BD4011   (accent / secondary CTA)
+     Neutrals-Dark 900 #021330   (dark sections, timeline ground)
+     Warm paper neutral scale     (surfaces + text)
+     4px radius, 12/24 button padding, uppercase Work Sans Medium labels
+
+   Type: Cormorant Garamond (display) + Work Sans (body/UI) — loaded in
+   index.html. Headings take their weight from SIZE, not heaviness (design.md §6).
+   ========================================================================== */
+
+.ab {
+  /* Brand */
+  --blue: #0B5AB1;
+  --blue-700: #07366A;
+  --blue-800: #042447;
+  --blue-hover: #09488E;
+  --sienna: #BD4011;
+  --sienna-300: #D78C70;
+  --sienna-100: #F2D9CF;
+  --sienna-700: #71260A;
+
+  /* Warm paper neutrals */
+  --n0: #FFFFFF;
+  --n50: #F8F7F1;
+  --n100: #F1EFE2;
+  --n150: #E5E3D7;
+  --n200: #D9D7CB;
+  --n400: #A9A79E;
+  --n500: #918F88;
+  --n600: #797871;
+  --n700: #60605A;
+  --n800: #484844;
+  --n900: #1F2A36;
+
+  /* Dark */
+  --dark: #021330;
+  --dark-2: #05192f;
+
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Work Sans', 'Helvetica Neue', Arial, sans-serif;
+
+  --r: 4px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Voyager Blue tints (design.md §2.1) — the primary ramp, used as a surface
+     rather than only as an accent. */
+  --blue-100: #CEDEEF;
+
+  /* One vertical rhythm for every section on the page. */
+  --sec-y: 128px;
+
+  /* PAGE CADENCE — every surface is a step on the Neutrals ramp or the Voyager
+     Blue ramp (design.md). NO Cloudstone (#F7F5FD) anywhere: it is a cool,
+     lilac-tinted white that fights the warm paper scale this page is built on.
+     Six distinct surfaces, and no two neighbours share one:
+
+     Neutrals/0 (#FFFFFF) is deliberately NOT used as a surface. It is the only
+     non-warm tone available, and beside the warm paper the eye adapts and reads
+     it as COOL — a white section literally looks blue on this page. Warm steps
+     only (design.md §6: "warm neutrals, not cold greys").
+
+       hero            Neutrals-Dark/900  #021330
+       our purpose     Neutrals/50        #F8F7F1
+       in figures      Neutrals/150       #E5E3D7
+       TIMELINE        Neutrals-Dark/900  #021330
+       Wilson & Hughes Neutrals/100       #F1EFE2   (the beige)
+       how we work     Neutrals/50        #F8F7F1
+       on the road     Neutrals/150       #E5E3D7
+       the people      Neutrals/50        #F8F7F1
+       members of      Voyager Blue/100   #CEDEEF
+       CTA             Voyager Blue/800   #042447                        */
+
+  font-family: var(--sans);
+  font-weight: 300;
+  color: var(--n900);
+  background: var(--n50);
+  overflow-x: clip;
+}
+
+.ab-wrap {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* --------------------------------------------------------------- typography */
+.ab-h2 {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.1rem, 4.4vw, 3.6rem);
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+  color: var(--n900);
+}
+.ab-h2 em {
+  font-style: italic;
+  color: var(--sienna);
+}
+.ab-h2--light { color: var(--n100); }
+.ab-h2--light em { color: var(--sienna-300); }
+
+.ab-eyebrow {
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.26em;      /* design.md: labels are wide-tracked */
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin-bottom: 18px;
+}
+.ab-eyebrow--light { color: var(--sienna-300); }
+
+.ab-lede {
+  font-size: 18px;
+  line-height: 1.75;
+  font-weight: 300;
+  color: var(--n700);
+  max-width: 62ch;
+}
+
+.ab-sec-head { max-width: 760px; margin-bottom: 64px; }
+.ab-sec-head .ab-lede { margin-top: 22px; }
+
+/* Shared paper texture — faint ledger rules, masked to fade at the edges.
+   Used by any paper section that would otherwise read as a flat slab. */
+.ab-rules {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(31, 42, 54, 0.045) 0px,
+    rgba(31, 42, 54, 0.045) 1px,
+    transparent 1px,
+    transparent 42px
+  );
+  -webkit-mask-image: radial-gradient(80% 60% at 50% 40%, #000 0%, transparent 78%);
+          mask-image: radial-gradient(80% 60% at 50% 40%, #000 0%, transparent 78%);
+}
+
+/* ------------------------------------------------------------------ buttons */
+.ab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;                 /* design.md §4.1 large */
+  border-radius: var(--r);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.56px;
+  text-transform: uppercase;
+  min-height: 44px;                   /* touch target */
+  transition: background 0.25s var(--ease), color 0.25s var(--ease),
+              border-color 0.25s var(--ease), transform 0.25s var(--ease);
+}
+.ab-btn--primary { background: var(--blue); color: var(--n100); }
+.ab-btn--primary:hover { background: var(--blue-hover); }
+
+.ab-btn--secondary { background: var(--sienna); color: var(--n100); }
+.ab-btn--secondary:hover { background: var(--sienna-700); }
+
+.ab-btn--outline {
+  background: var(--n0);
+  color: var(--blue);
+  border: 1px solid var(--n200);
+}
+.ab-btn--outline:hover { background: #EEF4FB; border-color: var(--blue); }
+
+.ab-btn--ghost {
+  background: transparent;
+  color: var(--n100);
+  border: 1px solid rgba(241, 239, 226, 0.32);
+}
+.ab-btn--ghost:hover { background: rgba(241, 239, 226, 0.1); border-color: var(--n100); }
+
+.ab :where(a, button):focus-visible {
+  outline: 2px solid var(--sienna);
+  outline-offset: 3px;
+  border-radius: var(--r);
+}
+
+/* ---------------------------------------------------------------------- nav */
+.ab-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 18px 32px;
+  transition: background 0.35s var(--ease), padding 0.35s var(--ease),
+              box-shadow 0.35s var(--ease);
+}
+.ab-nav.is-solid {
+  background: rgba(2, 19, 48, 0.92);
+  backdrop-filter: blur(12px);
+  padding: 12px 32px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+/* Logo_New has a white-filled badge interior, so it reads on any background.
+   The global img rule in index.css paints a beige placeholder — clear it. */
+.ab-nav-logo img { height: 46px; width: auto; background: transparent; }
+.ab-nav-links {
+  display: flex;
+  gap: 30px;
+  margin-left: auto;
+}
+.ab-nav-links a {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.86);
+  padding: 10px 0;
+  position: relative;
+}
+.ab-nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 4px;
+  height: 1px;
+  background: var(--sienna-300);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s var(--ease);
+}
+.ab-nav-links a:hover::after,
+.ab-nav-links a[aria-current='page']::after { transform: scaleX(1); }
+.ab-nav-cta { flex-shrink: 0; }
+
+/* --------------------------------------------------------------------- hero */
+.ab-hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 88px;
+  background: var(--dark);
+  overflow: hidden;
+}
+.ab-hero-media { position: absolute; inset: 0; }
+.ab-hero-media img {
+  width: 100%;
+  height: 116%;
+  object-fit: cover;
+  filter: saturate(0.72) contrast(1.05);
+}
+.ab-hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(2,19,48,0.72) 0%, rgba(2,19,48,0.35) 34%, rgba(2,19,48,0.94) 100%),
+    linear-gradient(90deg, rgba(2,19,48,0.86) 0%, rgba(2,19,48,0.2) 62%);
+}
+/* Fine film grain — keeps the photograph from feeling like stock */
+.ab-hero-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.32;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+.ab-hero-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.ab-hero-eyebrow {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--sienna-300);
+  margin-bottom: 26px;
+}
+.ab-hero-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.6rem, 6.6vw, 6rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: var(--n100);
+  max-width: 16ch;
+}
+.ab-hero-line {
+  display: block;
+  overflow: hidden;          /* the mask the words rise out of */
+}
+.ab-hero-line > span { display: block; }
+.ab-hero-title em { font-style: italic; color: var(--sienna-300); }
+
+.ab-hero-lede {
+  margin-top: 30px;
+  max-width: 56ch;
+  font-size: 17px;
+  line-height: 1.8;
+  font-weight: 300;
+  color: rgba(241, 239, 226, 0.8);
+}
+.ab-hero-cue {
+  margin-top: 52px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.6);
+}
+.ab-hero-cue-line {
+  width: 54px;
+  height: 1px;
+  background: var(--sienna-300);
+  transform-origin: left;
+  animation: ab-cue 2.4s var(--ease) infinite;
+}
+@keyframes ab-cue {
+  0%, 100% { transform: scaleX(0.35); opacity: 0.5; }
+  50%      { transform: scaleX(1);    opacity: 1; }
+}
+
+/* ============================================================================
+   PURPOSE — editorial two-column: prose left, arched photography right.
+   ========================================================================== */
+.ab-purpose { padding: var(--sec-y) 0; background: var(--n50); }
+.ab-purpose-grid {
+  display: grid;
+  /* the art takes the larger share — these photographs are the argument the
+     copy is making, so they carry the section rather than decorate it */
+  grid-template-columns: 0.86fr 1.14fr;
+  gap: clamp(44px, 4.5vw, 72px);
+  align-items: start;          /* prose and art now hang from one baseline */
+}
+/* The headline is a 95-character sentence. Across the FULL measure it sets at
+   the page's own h2 scale in two lines — no size override, so the type scale
+   stays consistent with every other section. */
+.ab-purpose-head {
+  margin-bottom: clamp(56px, 6vw, 84px);
+}
+/* The measure has to be capped on the HEADING, not the wrapper: `ch` resolves
+   against the element's own font-size, and on the wrapper that is the 16px body
+   font — so a cap set there is ~4× tighter than intended. */
+.ab-purpose-head .ab-h2 {
+  max-width: 34ch;
+}
+
+/* Body prose — shared by Purpose and Wilson & Hughes. */
+.ab-prose p {
+  font-size: 16.5px;
+  line-height: 1.85;
+  font-weight: 300;
+  color: var(--n700);
+  max-width: 52ch;
+}
+.ab-prose p + p { margin-top: 20px; }
+.ab-prose em { font-style: italic; color: var(--n900); }
+/* In Wilson & Hughes the prose still follows a heading and needs the gap. */
+.ab-wh-text .ab-prose { margin-top: 30px; }
+
+/* Drop cap on the opening paragraph — the editorial signature.
+   Sized to exactly three lines of the body (3 × 1.85em) and nudged up by its
+   own overshoot, so the cap's cap-height sits on the first baseline instead of
+   floating above it — which is what made the spacing read as off. */
+.ab-drop::first-letter {
+  float: left;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 3.7em;
+  line-height: 0.9;
+  margin: 0.06em 0.12em 0 0;
+  color: var(--sienna);
+}
+
+.ab-pull {
+  margin-top: 44px;
+  padding-left: 26px;
+  border-left: 2px solid var(--sienna);
+  font-family: var(--serif);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  line-height: 1.45;
+  color: var(--n900);
+  max-width: 34ch;
+}
+
+/* ---- Arched photography (the "window" motif) ---------------------------- */
+.ab-purpose-art {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+.ab-arch {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  /* a true arch — semicircular head, square foot (same token as /about-us1) */
+  border-radius: 999px 999px var(--r) var(--r);
+  background: var(--n150);
+  isolation: isolate;
+  width: 100%;
+}
+/* 116% tall, not 100% — the picture drifts inside the frame, so it needs the
+   overscan or the drift would pull the frame's edge into view. */
+.ab-arch img {
+  width: 100%;
+  height: 116%;
+  object-fit: cover;
+  filter: saturate(0.78) contrast(1.04);
+}
+/* a hairline inside the arch — the frame of a print */
+.ab-arch-ring {
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(248, 247, 241, 0.38);
+  border-radius: 999px 999px 2px 2px;
+  pointer-events: none;
+  z-index: 2;
+}
+.ab-arch--offset { margin-top: 84px; }
+
+/* ------------------------------------------------------------------ pillars */
+.ab-pillars { padding: var(--sec-y) 0; background: var(--n150); }
+.ab-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--n200);
+}
+.ab-pillar {
+  padding: 44px 32px 50px;
+  border-right: 1px solid var(--n200);
+  position: relative;
+}
+.ab-pillar:first-child { padding-left: 0; }
+.ab-pillar:last-child { border-right: 0; padding-right: 0; }
+.ab-pillar::before {          /* the sienna tick that draws in on hover */
+  content: '';
+  position: absolute;
+  top: -1px; left: 0;
+  width: 0; height: 2px;
+  background: var(--sienna);
+  transition: width 0.55s var(--ease);
+}
+.ab-pillar:hover::before { width: 64px; }
+.ab-pillar-n {
+  display: block;
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--n400);
+  margin-bottom: 22px;
+}
+.ab-pillar h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 1.26;
+  color: var(--n900);
+  margin-bottom: 14px;
+  min-height: 2.52em;   /* keeps the four bodies on a shared baseline */
+}
+.ab-pillar p {
+  font-size: 14.5px;
+  line-height: 1.75;
+  font-weight: 300;
+  color: var(--n700);
+}
+
+/* ============================================================================
+   THE TIMELINE — pinned, scrubbed, horizontal.
+   Modelled on the reference video: dark ground, a glowing accent spine that
+   fills as you travel, nodes on the line, elbow stems alternating up/down,
+   circular medallions.
+   ========================================================================== */
+.ab-tl {
+  background: var(--dark);
+  background-image:
+    radial-gradient(120% 80% at 50% 50%, rgba(11, 90, 177, 0.16) 0%, rgba(2, 19, 48, 0) 62%);
+  color: var(--n100);
+  position: relative;
+}
+.ab-tl-viewport {
+  position: relative;
+  height: 100svh;
+  min-height: 680px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ab-tl-head {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 3;
+  padding: 74px 32px 0;
+  max-width: 1240px;
+  margin: 0 auto;
+  width: 100%;
+  pointer-events: none;
+}
+.ab-tl-h {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+  line-height: 1.14;
+  color: var(--n100);
+}
+.ab-tl-h em { font-style: italic; color: var(--sienna-300); }
+.ab-tl-sub {
+  margin-top: 12px;
+  max-width: 46ch;
+  font-size: 13.5px;
+  line-height: 1.65;
+  font-weight: 300;
+  color: rgba(241, 239, 226, 0.58);
+}
+
+/* The stage soaks up the leftover height; the rail centres inside it. */
+.ab-tl-stage {
+  flex: 1 1 auto;
+  position: relative;
+  min-height: 0;
+}
+
+/* Progress read-out — its own row, so entries never sit under it */
+.ab-tl-hud {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 32px 24px;
+  max-width: 1240px;
+  margin: 0 auto;
+  width: 100%;
+}
+.ab-tl-hud-year {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--sienna-300);
+  min-width: 106px;
+}
+.ab-tl-hud-bar {
+  display: block;
+  width: 160px;
+  height: 1px;
+  background: rgba(241, 239, 226, 0.2);
+  position: relative;
+}
+.ab-tl-hud-bar i {
+  position: absolute;
+  inset: 0;
+  background: var(--sienna);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.ab-tl-hud-count {
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.45);
+}
+
+/* ---- the rail: base line + sienna fill + glowing playhead ---------------- */
+.ab-tl-rail {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.ab-tl-rail-base,
+.ab-tl-rail-fill {
+  position: absolute;
+  left: 0; right: 0;
+  top: -1px;
+  height: 2px;
+}
+.ab-tl-rail-base { background: rgba(241, 239, 226, 0.14); }
+.ab-tl-rail-fill {
+  background: var(--sienna);
+  transform-origin: left;
+  transform: scaleX(0);
+  box-shadow: 0 0 18px 2px rgba(189, 64, 17, 0.75),
+              0 0 44px 8px rgba(189, 64, 17, 0.28);
+}
+/* The playhead sits where the entries animate in (55% across) */
+.ab-tl-playhead {
+  position: absolute;
+  left: 55%;
+  top: -7px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: var(--dark);
+  border: 2px solid var(--n100);
+  box-shadow: 0 0 0 4px rgba(2, 19, 48, 0.9),
+              0 0 22px 5px rgba(241, 239, 226, 0.5);
+}
+.ab-tl-playhead::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--n100);
+}
+
+/* ---- the moving track --------------------------------------------------- */
+.ab-tl-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  height: 0;
+  padding: 0 0 0 12vw;
+  will-change: transform;
+}
+.ab-tl-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 460px;
+  height: 0;
+}
+/* The last entry needs room to clear the playhead before the pin releases */
+.ab-tl-item:last-child { padding-right: 46vw; width: 900px; }
+
+/* node on the line */
+.ab-tl-node {
+  position: absolute;
+  left: 0;
+  top: -8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--n100);
+  background: var(--dark);
+  box-shadow: 0 0 16px 3px rgba(241, 239, 226, 0.42);
+}
+.ab-tl-node::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--sienna);
+}
+.ab-tl-item.is-now .ab-tl-node {
+  border-color: var(--sienna);
+  box-shadow: 0 0 20px 5px rgba(189, 64, 17, 0.6);
+}
+
+/* elbow stem drawing away from the line */
+.ab-tl-stem {
+  position: absolute;
+  left: 7px;
+  width: 1px;
+  height: 58px;
+  background: linear-gradient(var(--n100), rgba(241, 239, 226, 0.35));
+}
+.ab-tl-item.is-up .ab-tl-stem   { bottom: 8px;  transform-origin: bottom; }
+.ab-tl-item.is-down .ab-tl-stem { top: 8px;     transform-origin: top;
+  background: linear-gradient(rgba(241, 239, 226, 0.35), var(--n100)); }
+
+/* content hangs off the stem */
+.ab-tl-content {
+  position: absolute;
+  left: 0;
+  width: 480px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.ab-tl-item.is-up .ab-tl-content   { bottom: 64px; }
+.ab-tl-item.is-down .ab-tl-content { top: 64px; }
+
+/* circular medallion — the engraving-style reveal from the reference */
+.ab-tl-medallion {
+  flex: 0 0 auto;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(241, 239, 226, 0.34);
+  box-shadow: 0 0 0 6px rgba(2, 19, 48, 0.8), 0 18px 46px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+.ab-tl-medallion img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.28) brightness(0.92);
+  transition: filter 0.6s var(--ease), transform 0.9s var(--ease);
+}
+.ab-tl-medallion::after {          /* faint sienna wash, lifted on hover */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(189, 64, 17, 0.3), rgba(2, 19, 48, 0.28));
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  transition: opacity 0.6s var(--ease);
+}
+.ab-tl-item:hover .ab-tl-medallion img {
+  filter: grayscale(0) contrast(1.05) brightness(1);
+  transform: scale(1.06);
+}
+.ab-tl-item:hover .ab-tl-medallion::after { opacity: 0; }
+
+.ab-tl-text { flex: 1 1 auto; min-width: 0; }
+.ab-tl-year {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 42px;
+  line-height: 1;
+  color: var(--n100);
+  margin-bottom: 10px;
+}
+.ab-tl-item.is-now .ab-tl-year { color: var(--sienna-300); font-style: italic; }
+
+.ab-tl-tag {
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--sienna-300);
+  margin-bottom: 8px;
+}
+.ab-tl-card h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 1.3;
+  color: var(--n100);
+  margin-bottom: 8px;
+}
+.ab-tl-card p {
+  font-size: 13px;
+  line-height: 1.62;
+  font-weight: 300;
+  color: rgba(241, 239, 226, 0.66);
+}
+
+/* ---------------------------------------------------------------- stats */
+.ab-stats { background: var(--n150); padding: 78px 0; }
+.ab-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.ab-stat { text-align: center; }
+.ab-stat-v {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 4.4vw, 3.6rem);
+  line-height: 1;
+  color: var(--blue);
+}
+.ab-stat-l {
+  margin-top: 12px;
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--n700);          /* n600 fails AA on Neutrals/150 */
+}
+
+/* --------------------------------------------------------------- values */
+.ab-values { padding: var(--sec-y) 0; background: var(--n50); }
+.ab-values-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.ab-values-aside .ab-lede { margin: 22px 0 32px; }
+.ab-values-list { border-top: 1px solid var(--n200); }
+.ab-values-list li {
+  padding: 30px 0;
+  border-bottom: 1px solid var(--n200);
+  transition: padding-left 0.45s var(--ease);
+}
+.ab-values-list li:hover { padding-left: 14px; }
+.ab-values-list h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--n900);
+  margin-bottom: 8px;
+}
+.ab-values-list p {
+  font-size: 15px;
+  line-height: 1.75;
+  font-weight: 300;
+  color: var(--n700);
+  max-width: 52ch;
+}
+
+/* ============================================================================
+   WILSON & HUGHES — on beige paper, not dark.
+   It is the sequel to the timeline: the history ends at 2024, and this explains
+   that 2024. Sitting it on the warm paper keeps it part of the company's story
+   rather than a corporate slab bolted onto the end.
+   ========================================================================== */
+.ab-wh {
+  position: relative;
+  padding: var(--sec-y) 0;
+  background: var(--n100);          /* beige */
+  overflow: hidden;
+}
+.ab-wh-grid {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: clamp(48px, 5vw, 76px);
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* the four facts, as a ledger on paper */
+.ab-wh-facts {
+  margin-top: 40px;
+  border-top: 1px solid var(--n200);
+}
+.ab-wh-facts li {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 20px;
+  align-items: baseline;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--n200);
+  transition: padding-left 0.45s var(--ease);
+}
+.ab-wh-facts li:hover { padding-left: 10px; }
+.ab-wh-facts span {
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--n700);          /* n600 fails AA on the beige */
+}
+.ab-wh-facts strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.4;
+  color: var(--n900);
+}
+
+.ab-link-out {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 26px;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(189, 64, 17, 0.4);
+  min-height: 44px;
+}
+.ab-link-out:hover { color: var(--n900); border-color: var(--n900); }
+
+/* ============================================================================
+   TEAM — editorial, not a card grid.
+   A large asymmetric Director feature whose name breaks out over the portrait,
+   then four tall duotone portraits with italic serif numerals, staggered off
+   the baseline so the row never reads as a plain grid.
+   ========================================================================== */
+.ab-team {
+  position: relative;
+  padding: var(--sec-y) 0;
+  background: var(--n50);
+  overflow: hidden;
+}
+/* faint ledger rules — texture under the warm paper */
+.ab-team-rules {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(31, 42, 54, 0.045) 0px,
+    rgba(31, 42, 54, 0.045) 1px,
+    transparent 1px,
+    transparent 42px
+  );
+  -webkit-mask-image: radial-gradient(80% 60% at 50% 40%, #000 0%, transparent 78%);
+          mask-image: radial-gradient(80% 60% at 50% 40%, #000 0%, transparent 78%);
+}
+.ab-team > .ab-wrap { position: relative; z-index: 1; }
+
+/* ---- Director ----------------------------------------------------------- */
+.ab-director {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 118px;
+}
+.ab-director-photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  max-height: 560px;
+  overflow: hidden;
+  background: var(--n150);
+}
+.ab-director-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.1);
+  transition: filter 0.9s var(--ease), transform 1.2s var(--ease);
+}
+.ab-director:hover .ab-director-photo img {
+  filter: grayscale(0) contrast(1.02);
+  transform: scale(1.03);
+}
+/* thin sienna frame offset off the portrait corner */
+.ab-director-frame {
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(241, 239, 226, 0.5);
+  pointer-events: none;
+}
+
+.ab-director-body {
+  position: relative;
+  z-index: 2;
+  /* the body plate slides back OVER the portrait — the grid-breaking move */
+  margin-left: -200px;
+  padding: 60px 0 60px 72px;
+  background: var(--n50);
+  border-left: 2px solid var(--sienna);
+}
+.ab-director-kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin-bottom: 18px;
+}
+.ab-director-kicker i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--n300, #C1BFB5);
+  flex: 0 0 auto;
+}
+.ab-director-kicker span:last-child { color: var(--n700); letter-spacing: 0.2em; }
+.ab-director-name {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 4.6vw, 3.9rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--n900);
+}
+.ab-director-bio {
+  margin-top: 24px;
+  max-width: 44ch;
+  font-size: 16.5px;
+  line-height: 1.8;
+  font-weight: 300;
+  color: var(--n700);
+}
+
+/* ---- The four heads ----------------------------------------------------- */
+.ab-heads {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+/* stagger: 2nd and 4th drop down, breaking the baseline */
+.ab-head:nth-child(even) { margin-top: 56px; }
+
+.ab-head-photo {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--n150);
+}
+.ab-head-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* duotone: desaturate and cool it toward the brand navy */
+  filter: grayscale(1) contrast(1.15) brightness(0.95);
+  transition: filter 0.7s var(--ease), transform 1s var(--ease);
+}
+.ab-head-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(2, 19, 48, 0.12) 0%, rgba(2, 19, 48, 0.62) 100%);
+  transition: opacity 0.7s var(--ease);
+}
+/* the unit label rides in from the bottom of the portrait on hover */
+.ab-head-unit {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--n100);
+  background: linear-gradient(transparent, rgba(2, 19, 48, 0.85));
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.55s var(--ease), opacity 0.55s var(--ease);
+}
+.ab-head:hover .ab-head-photo img {
+  filter: grayscale(0) contrast(1) brightness(1);
+  transform: scale(1.05);
+}
+.ab-head:hover .ab-head-photo::after { opacity: 0.35; }
+.ab-head:hover .ab-head-unit { transform: translateY(0); opacity: 1; }
+
+.ab-head-body {
+  position: relative;
+  padding-top: 22px;
+  border-top: 1px solid var(--n200);
+  margin-top: 20px;
+  transition: border-color 0.5s var(--ease);
+}
+/* sienna rule sweeps across the top border on hover */
+.ab-head-body::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--sienna);
+  transition: width 0.6s var(--ease);
+}
+.ab-head:hover .ab-head-body::before { width: 100%; }
+
+.ab-head-n {
+  position: absolute;
+  top: 18px;
+  right: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--n300, #C1BFB5);
+  transition: color 0.5s var(--ease);
+}
+.ab-head:hover .ab-head-n { color: var(--sienna); }
+
+.ab-head-name {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 1.2;
+  color: var(--n900);
+  padding-right: 34px;   /* clear the numeral */
+}
+.ab-head-role {
+  margin-top: 7px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sienna);
+}
+.ab-head-bio {
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.72;
+  font-weight: 300;
+  color: var(--n700);
+}
+
+.ab-team-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 96px;
+}
+
+/* -------------------------------------------------------- accreditations */
+.ab-accred { padding: 68px 0; background: var(--blue-100); }
+.ab-accred-inner { text-align: center; }
+.ab-accred-inner .ab-eyebrow { color: var(--blue-700); }
+.ab-accred ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px 48px;
+}
+.ab-accred li {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--blue-800);
+}
+
+/* ------------------------------------------------------------------- CTA */
+.ab-cta {
+  position: relative;
+  padding: 150px 0;
+  background: var(--blue-800);
+  text-align: center;
+  overflow: hidden;
+}
+/* photographic ground, held well back so the type stays the subject */
+.ab-cta-media { position: absolute; inset: 0; }
+.ab-cta-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+  filter: saturate(0.6) contrast(1.06);
+}
+.ab-cta-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 90% at 50% 50%, rgba(4, 36, 71, 0.55) 0%, rgba(2, 19, 48, 0.93) 78%),
+    linear-gradient(180deg, rgba(2, 19, 48, 0.86) 0%, rgba(4, 36, 71, 0.7) 45%, rgba(2, 19, 48, 0.95) 100%);
+}
+.ab-cta-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.28;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+.ab-cta-inner { position: relative; z-index: 1; }
+.ab-cta-inner p {
+  margin: 22px auto 0;
+  max-width: 52ch;
+  font-size: 17px;
+  line-height: 1.8;
+  font-weight: 300;
+  color: rgba(241, 239, 226, 0.78);
+}
+.ab-cta-actions {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.ab-cta-contact {
+  margin-top: 44px;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.ab-cta-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 14px;
+  color: rgba(241, 239, 226, 0.72);
+}
+.ab-cta-contact a:hover { color: var(--n100); }
+
+/* ---------------------------------------------------------------- footer */
+.ab-footer { background: var(--dark); padding: 54px 0; }
+.ab-footer-inner {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  flex-wrap: wrap;
+}
+.ab-footer-logo { height: 54px; width: auto; background: transparent; }
+.ab-footer-inner > p {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.5);
+}
+.ab-footer nav {
+  margin-left: auto;
+  display: flex;
+  gap: 26px;
+}
+.ab-footer nav a {
+  font-size: 13px;
+  color: rgba(241, 239, 226, 0.72);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.ab-footer nav a:hover { color: var(--sienna-300); }
+
+/* ============================================================================
+   Responsive — under 860px the timeline becomes an ordinary vertical list.
+   The JS matchMedia drops the pin/scrub at the same breakpoint.
+   ========================================================================== */
+@media (max-width: 1080px) {
+  /* four across is too tight here — go 2×2, and re-hang the dividers */
+  .ab-pillars-grid { grid-template-columns: repeat(2, 1fr); }
+  .ab-pillar:nth-child(even) { border-right: 0; padding-right: 0; }
+  .ab-pillar:nth-child(odd) { padding-left: 0; }
+  .ab-pillar:nth-child(-n+2) { border-bottom: 1px solid var(--n200); }
+  .ab-pillar h3 { min-height: 0; }
+
+  .ab-wh-grid { grid-template-columns: 1fr; gap: 48px; }
+  .ab-wh-art { max-width: 420px; }
+  .ab-purpose-grid { grid-template-columns: 1fr; gap: 56px; }
+  .ab-purpose-art { max-width: 520px; }
+  .ab-values-inner { grid-template-columns: 1fr; gap: 48px; }
+
+  .ab-heads { grid-template-columns: repeat(2, 1fr); gap: 32px 28px; }
+  .ab-head:nth-child(even) { margin-top: 0; }
+  .ab-head:nth-child(2) ~ .ab-head { margin-top: 8px; }
+}
+
+@media (max-width: 860px) {
+  .ab-wrap { padding: 0 20px; }
+  .ab-nav { padding: 14px 20px; gap: 16px; }
+  .ab-nav-links { display: none; }
+  .ab-nav-cta { margin-left: auto; padding: 10px 16px; font-size: 12px; }
+
+  .ab-hero { padding-bottom: 64px; }
+  .ab-hero-inner { padding: 0 20px; }
+
+  .ab-purpose { padding: 84px 0 76px; }
+  .ab-purpose-art { gap: 14px; }
+  .ab-arch--offset { margin-top: 40px; }
+  .ab-pull { font-size: 1.25rem; padding-left: 18px; }
+  .ab-prose p { font-size: 15.5px; }
+  .ab-drop::first-letter { font-size: 3.8em; padding-right: 10px; }
+
+  .ab-wh-facts li { grid-template-columns: 1fr; gap: 4px; }
+
+  .ab-pillars { padding: 88px 0 76px; }
+  .ab-pillars-grid { grid-template-columns: 1fr; }
+  .ab-pillar:nth-child(even),
+  .ab-pillar:nth-child(odd) { padding-left: 0; padding-right: 0; }
+  .ab-pillar:nth-child(-n+2) { border-bottom: 1px solid var(--n200); }
+  .ab-pillar {
+    padding: 34px 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--n200);
+  }
+  .ab-pillar:last-child { border-bottom: 0; }
+
+  /* --- timeline: unpinned vertical column ------------------------------- */
+  .ab-tl-viewport {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding-bottom: 84px;
+  }
+  .ab-tl-head { padding: 76px 20px 0; }
+  .ab-tl-hud { display: none; }
+  .ab-tl-rail { display: none; }
+  .ab-tl-stage { position: static; min-height: 0; }
+
+  .ab-tl-track {
+    position: relative;
+    top: auto;
+    height: auto;
+    display: block;
+    padding: 48px 20px 0;
+    transform: none !important;   /* the scrub never runs at this width */
+    margin-left: 10px;
+    border-left: 1px solid rgba(241, 239, 226, 0.18);
+  }
+  .ab-tl-item,
+  .ab-tl-item:last-child {
+    width: auto;
+    height: auto;
+    padding: 0 0 44px 26px;
+  }
+  .ab-tl-node { left: -8px; top: 6px; }
+  .ab-tl-stem { display: none; }
+  .ab-tl-content {
+    position: static;
+    width: auto;
+    display: block;
+  }
+  .ab-tl-medallion { width: 92px; height: 92px; margin-bottom: 18px; }
+  .ab-tl-year { font-size: 38px; }
+
+  .ab-stats { padding: 54px 0; }
+  .ab-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 34px 16px; }
+
+  .ab-values, .ab-wh, .ab-team { padding: 84px 0; }
+
+  /* Director stacks; the overlapping plate would collide at this width. */
+  .ab-director { grid-template-columns: 1fr; margin-bottom: 64px; }
+  .ab-director-photo { aspect-ratio: 4 / 3; max-height: none; }
+  .ab-director-body {
+    margin-left: 0;
+    margin-top: -32px;
+    margin-right: 20px;
+    padding: 32px 0 8px 24px;
+  }
+  .ab-director-bio { font-size: 15.5px; }
+
+  .ab-heads { grid-template-columns: 1fr; gap: 44px; }
+  .ab-head:nth-child(even),
+  .ab-head:nth-child(2) ~ .ab-head { margin-top: 0; }
+  .ab-head-photo { aspect-ratio: 4 / 3; }
+  /* no hover on touch — show the unit label outright */
+  .ab-head-unit { transform: none; opacity: 1; }
+  .ab-team-more { margin-top: 56px; }
+
+  .ab-cta { padding: 96px 0; }
+  .ab-footer-inner { flex-direction: column; align-items: flex-start; }
+  .ab-footer nav { margin-left: 0; flex-wrap: wrap; gap: 18px; }
+}
+
+/* Honour the OS setting: no parallax, no scrub, no drift. */
+@media (prefers-reduced-motion: reduce) {
+  .ab *,
+  .ab *::before,
+  .ab *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .ab-tl-viewport { height: auto; min-height: 0; overflow: visible; padding-bottom: 84px; }
+  .ab-tl-rail, .ab-tl-hud { display: none; }
+  .ab-tl-stage { position: static; min-height: 0; }
+  .ab-tl-track {
+    position: relative;
+    top: auto;
+    height: auto;
+    display: block;
+    padding: 48px 20px 0;
+    transform: none !important;
+    margin-left: 10px;
+    border-left: 1px solid rgba(241, 239, 226, 0.18);
+  }
+  .ab-tl-item, .ab-tl-item:last-child {
+    width: auto; height: auto; padding: 0 0 44px 26px;
+  }
+  .ab-tl-node { left: -8px; top: 6px; }
+  .ab-tl-stem { display: none; }
+  .ab-tl-content { position: static; width: auto; display: block; }
+  .ab-tl-medallion { width: 92px; height: 92px; margin-bottom: 18px; }
+}

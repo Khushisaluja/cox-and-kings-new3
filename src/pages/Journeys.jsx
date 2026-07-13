@@ -201,13 +201,13 @@ function matchRegion(raw) {
   const direct = REGIONS.find((r) => r.toLowerCase() === q);
   if (direct) return direct;
   const aliases = [
-    [/japan/, 'Japan'], [/switzer/, 'Switzerland'], [/ital/, 'Italy'],
+    [/japan/, 'Japan'], [/(switzer|swiss|alps|zermatt|lucerne)/, 'Switzerland'], [/ital/, 'Italy'],
     [/(northern light|scandinav|arctic|aurora|norway|iceland|finland)/, 'Northern Lights'],
     [/(australia|new zealand|\bnz\b)/, 'Australia & NZ'],
     [/(africa|safari|kenya|tanzania)/, 'Africa Safari'],
     [/(southeast asia|thailand|vietnam|bali|indonesia|cambodia|sri lanka)/, 'Southeast Asia'],
     [/maldive/, 'Maldives'], [/(usa|america|united states|canada)/, 'USA'],
-    [/(europe|christmas market|spain|portugal)/, 'Europe'],
+    [/(europe|christmas market|spain|portugal|greece|santorini|mykonos)/, 'Europe'],
   ];
   for (const [re, region] of aliases) if (re.test(q)) return region;
   return null;
@@ -218,6 +218,49 @@ function matchStyle(raw) {
   if (!raw) return null;
   const q = raw.trim().toLowerCase();
   return STYLES.find((s) => s.toLowerCase() === q || s.toLowerCase().includes(q)) || null;
+}
+
+/* Map a loose incoming ?pace= value onto a canonical pace. The URL already
+   carried ?pace= (it is written on every filter change) but nothing read it
+   back, so a shared /journeys?pace=Relaxed link silently lost the filter. */
+const PACES = ['Relaxed', 'Balanced', 'Active'];
+function matchPace(raw) {
+  if (!raw) return null;
+  const q = raw.trim().toLowerCase();
+  return PACES.find((p) => p.toLowerCase() === q) || null;
+}
+
+/* ---- Departure-month filter (?when=YYYY-MM-DD&flex=N) ----
+   Journeys carry a season window rather than a departure calendar, so a picked
+   date is matched against that window: "Mar–Apr", "Dec", "Year-round"/"Any
+   date" (always open), and wrap-around windows like "Oct–Mar". */
+const MON_ABBR = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+const MON_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function parseWhen(raw) {
+  if (!raw) return null;
+  const d = new Date(`${raw}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+/* The months a ±flex-day window around `date` can land in (usually one, two if
+   the window straddles a month boundary). */
+function monthsInWindow(date, flex) {
+  const months = new Set();
+  for (const offset of [-flex, 0, flex]) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + offset);
+    months.add(d.getMonth());
+  }
+  return [...months];
+}
+function seasonCoversMonth(season, months) {
+  const s = (season || '').trim().toLowerCase();
+  if (!s || s.includes('year-round') || s.includes('any date')) return true;
+  const bounds = s.split(/[–—-]/)
+    .map((part) => MON_ABBR.indexOf(part.trim().slice(0, 3)))
+    .filter((i) => i >= 0);
+  if (!bounds.length) return true;            // unparseable → don't hide it
+  const [from, to = from] = bounds;
+  return months.some((m) => (from <= to ? m >= from && m <= to : m >= from || m <= to));
 }
 
 /* ---- Nav megamenus — Destinations & styles route into THIS listing. ---- */
@@ -515,7 +558,13 @@ export default function Journeys() {
   });
   const [region, setRegion] = useState(() => matchRegion(params.get('where')));
   const [style, setStyle] = useState(() => matchStyle(params.get('style')));
-  const [pace, setPace] = useState(null);
+  const [pace, setPace] = useState(() => matchPace(params.get('pace')));
+  /* Departure date + flexibility, as picked in the homepage hero calendar. */
+  const [when, setWhen] = useState(() => parseWhen(params.get('when')));
+  const [flex, setFlex] = useState(() => {
+    const f = parseInt(params.get('flex'), 10);
+    return Number.isFinite(f) && f >= 0 && f <= 3 ? f : 0;
+  });
   const [sort, setSort] = useState('recommended');
   const [sortOpen, setSortOpen] = useState(false);
 
@@ -556,17 +605,23 @@ export default function Journeys() {
     else if (query.trim()) next.where = query.trim();
     if (style) next.style = style;
     if (pace) next.pace = pace;
+    if (when) {
+      next.when = `${when.getFullYear()}-${String(when.getMonth() + 1).padStart(2, '0')}-${String(when.getDate()).padStart(2, '0')}`;
+      if (flex) next.flex = String(flex);
+    }
     setParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [region, query, style, pace]);
+  }, [region, query, style, pace, when, flex]);
 
   /* The filtered + sorted result set. */
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const months = when ? monthsInWindow(when, flex) : null;
     let list = ALL_JOURNEYS.filter((j) => {
       if (region && !j.regions.includes(region)) return false;
       if (style && j.style !== style) return false;
       if (pace && j.pace !== pace) return false;
+      if (months && !seasonCoversMonth(j.season, months)) return false;
       if (q) {
         const hay = `${j.title} ${j.blurb} ${j.regions.join(' ')} ${j.style} ${j.pace} ${j.season}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -580,13 +635,17 @@ export default function Journeys() {
     }[sort];
     if (by) list = [...list].sort(by);
     return list;
-  }, [query, region, style, pace, sort]);
+  }, [query, region, style, pace, when, flex, sort]);
 
-  const activeCount = (region ? 1 : 0) + (style ? 1 : 0) + (pace ? 1 : 0) + (query.trim() ? 1 : 0);
+  const whenLabel = when
+    ? `${when.getDate()} ${MON_NAMES_SHORT[when.getMonth()]}${flex ? ` · ±${flex}d` : ''}`
+    : '';
+
+  const activeCount = (region ? 1 : 0) + (style ? 1 : 0) + (pace ? 1 : 0) + (when ? 1 : 0) + (query.trim() ? 1 : 0);
   /* No filter + default sort → editorial browse (themed shelves). */
   const browseMode = activeCount === 0 && sort === 'recommended';
 
-  const clearAll = () => { setRegion(null); setStyle(null); setPace(null); setQuery(''); };
+  const clearAll = () => { setRegion(null); setStyle(null); setPace(null); setQuery(''); setWhen(null); setFlex(0); };
   const pickRegion = (r) => { setRegion(region === r ? null : r); setQuery(''); setPace(null); };
 
   const heroImg = img(REGION_HERO[region] || HERO_DEFAULT, 1800);
@@ -873,6 +932,7 @@ export default function Journeys() {
               <p className="jl-count" aria-live="polite">
                 <strong>{results.length}</strong> {results.length === 1 ? 'journey' : 'journeys'}
                 {region ? ` to ${region}` : ''}{style ? ` · ${style}` : ''}{pace ? ` · ${pace} pace` : ''}
+                {whenLabel ? ` · departing around ${whenLabel}` : ''}
               </p>
               {activeCount > 0 && (
                 <div className="jl-active">
@@ -894,6 +954,11 @@ export default function Journeys() {
                   {pace && (
                     <button type="button" className="jl-active-chip" onClick={() => setPace(null)}>
                       {pace} pace <X size={13} />
+                    </button>
+                  )}
+                  {when && (
+                    <button type="button" className="jl-active-chip" onClick={() => { setWhen(null); setFlex(0); }}>
+                      {whenLabel} <X size={13} />
                     </button>
                   )}
                   <button type="button" className="jl-clear-all" onClick={clearAll}>Clear all</button>

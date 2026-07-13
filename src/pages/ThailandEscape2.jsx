@@ -7,7 +7,7 @@ import {
   Wallet, Repeat, Stamp, CheckCircle2, Instagram, Facebook, Youtube, Linkedin,
   Hotel, Utensils, Compass, Headset, Flame, Zap, BadgeCheck, Plane,
   CreditCard, FileText, AlertTriangle, RefreshCcw, Building2, UserCheck,
-  HeartPulse, BedDouble, CloudLightning, Gavel, Scale, Car,
+  HeartPulse, BedDouble, CloudLightning, Gavel, Scale, Car, UserPlus, Trash2,
 } from 'lucide-react';
 import ChatBot from '../components/ChatBot';
 import './Home2026.css';
@@ -87,8 +87,6 @@ const HERO = {
   title: (
     <>Thailand, from <em className="lxjt-hero__accent">island shores</em> to golden temples.</>
   ),
-  lead:
-    'Five easy days across Pattaya’s beaches and Bangkok’s temples — private transfers throughout, just your party, your pace. 🇹🇭',
   image: '1552465011-b4e21bf6e79a',
   facts: [
     { icon: Calendar, label: '5 Days · 4 Nights' },
@@ -479,6 +477,49 @@ const SUBNAV = [
 
 const inr = (n) => `₹${n.toLocaleString('en-IN')}`;
 
+/* Booking add-ons / opt-outs.
+
+   This is a fixed group departure, so the Mumbai return flight is bundled
+   into the headline per-person price by default. A traveller who arranges
+   their own flights books the same tour "land only" and the air component
+   comes back off the bill — hence a credit, not a surcharge.
+
+   Thailand visa is NOT part of the package (see BOOKING_POINTS); the figure
+   below is shown for guidance only and never enters the total. */
+const FLIGHT_CREDIT = 18000;   // per person, deducted when "land only"
+const EXTRA_BED_FEE = 6500;    // flat, one rollaway bed in a shared room
+const VISA_FEE_EST = 2500;     // per person, paid by the traveller directly
+
+const TITLES = ['Mr', 'Mrs', 'Ms', 'Dr', 'Mx'];
+const CHILD_TITLES = ['Mstr', 'Miss'];
+const MAX_PARTY = 20;
+
+const blankGuest = (kind) => ({
+  title: kind === 'child' ? 'Mstr' : 'Mr',
+  first: '',
+  last: '',
+  phone: '',
+});
+
+const nameOk = (g) => Boolean(g.first.trim() && g.last.trim());
+/* Indian mobiles are 10 digits; allow a +91 / 0 prefix and any spacing. */
+const phoneOk = (v) => (v || '').replace(/\D/g, '').length >= 10;
+
+/* Shown inside the traveller-details dialog. `on` = included in the price,
+   `off` = explicitly excluded, so nobody discovers the visa at the airport.
+
+   The flight line tracks the checkbox — a static "flights are included" bullet
+   sitting under an unticked box is the kind of contradiction people ring up
+   about. */
+const bookingPoints = (withFlights) => [
+  withFlights
+    ? { tone: 'on', text: 'Return flights from Mumbai (economy) are included in the price shown. Not flying from Mumbai? Untick the box above and the air fare comes off your bill.' }
+    : { tone: 'off', text: `Flights are NOT included — you've chosen to travel land only. Make your own way to Bangkok and meet the group at the hotel; we've taken ${inr(FLIGHT_CREDIT)} per person off the price.` },
+  { tone: 'on', text: '4 nights hotels, all airport and inter-city transfers, daily breakfast and the guided sightseeing listed in the itinerary.' },
+  { tone: 'off', text: `Thailand visa fee is NOT included. You apply yourself and pay the consulate directly — budget roughly ${inr(VISA_FEE_EST)} per person. We send the paperwork checklist once you book.` },
+  { tone: 'off', text: 'Travel insurance, meals not listed, tips and personal expenses are not included.' },
+];
+
 /* Scroll-reveal (mirrors the homepage useReveal) */
 function useReveal() {
   useEffect(() => {
@@ -497,6 +538,7 @@ export default function ThailandEscape2() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
   const [activeDay, setActiveDay] = useState(0);
   const [openDay, setOpenDay] = useState(-1);
   const [selectedDep, setSelectedDep] = useState(0);
@@ -505,9 +547,29 @@ export default function ThailandEscape2() {
   const [callbackOpen, setCallbackOpen] = useState(false);
   const [callbackSent, setCallbackSent] = useState(false);
   const [reviewIdx, setReviewIdx] = useState(0);
-  const [adults, setAdults] = useState(2);
-  const [children, setChildren] = useState(0);
+
+  /* The party IS the guest list — a seat and the person sitting in it are the
+     same record, so the card's steppers and the drawer's traveller forms can
+     never drift apart. Counts are derived, never stored. */
+  const [adultGuests, setAdultGuests] = useState(() => [blankGuest('adult'), blankGuest('adult')]);
+  const [childGuests, setChildGuests] = useState([]);
+  const adults = adultGuests.length;
+  const children = childGuests.length;
   const travellers = adults + children;   // seats = adults + children
+
+  const addAdult = () => setAdultGuests((g) => (travellers >= MAX_PARTY ? g : [...g, blankGuest('adult')]));
+  const addChild = () => setChildGuests((g) => (travellers >= MAX_PARTY ? g : [...g, blankGuest('child')]));
+  /* The lead (adult 0) can never be removed — they own the booking. */
+  const dropAdult = (i) => setAdultGuests((g) => (i === 0 || g.length <= 1 ? g : g.filter((_, n) => n !== i)));
+  const dropChild = (i) => setChildGuests((g) => g.filter((_, n) => n !== i));
+  const editAdult = (i, patch) => setAdultGuests((g) => g.map((x, n) => (n === i ? { ...x, ...patch } : x)));
+  const editChild = (i, patch) => setChildGuests((g) => g.map((x, n) => (n === i ? { ...x, ...patch } : x)));
+
+  /* Traveller-details drawer (opens from the booking card's CTA). */
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [bookingDone, setBookingDone] = useState(false);
+  const [withFlights, setWithFlights] = useState(true);  // group tour ⇒ flights by default
+  const [extraBed, setExtraBed] = useState(false);
   const [termsTab, setTermsTab] = useState('booking');
   const [termsModalOpen, setTermsModalOpen] = useState(false);
 
@@ -521,10 +583,22 @@ export default function ThailandEscape2() {
   // Live booking maths — driven by the SELECTED departure's per-person price.
   const dep = DEPARTURES[selectedDep];
   const pp = dep.price;
-  const total = pp * travellers;
+  const fare = pp * travellers;
+  /* Opting out of the bundled Mumbai flights credits the air fare back, per
+     traveller. The extra bed is a flat one-off, not per head. */
+  const flightCredit = withFlights ? 0 : FLIGHT_CREDIT * travellers;
+  const bedFee = extraBed ? EXTRA_BED_FEE : 0;
+  const total = fare - flightCredit + bedFee;
   const depositTotal = Math.round(total * 0.2);
   const dueToday = payMode === 'deposit' ? depositTotal : total;
   const balance = total - dueToday;
+
+  /* Every traveller needs the name on their passport; only the lead has to
+     leave a number, since that is who we ring when a flight moves. */
+  const lead = adultGuests[0];
+  const namedOk = [...adultGuests, ...childGuests].every((g) => nameOk(g));
+  const leadPhoneOk = phoneOk(lead.phone);
+  const formOk = namedOk && leadPhoneOk;
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -535,18 +609,31 @@ export default function ThailandEscape2() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  /* The hero already carries a "Book now" — the floating one only earns its
+     place once that has scrolled away, so the two never sit on screen at once. */
   useEffect(() => {
-    const lock = menuOpen || callbackOpen || termsModalOpen;
-    document.body.style.overflow = lock ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [menuOpen, callbackOpen, termsModalOpen]);
+    const hero = document.querySelector('.lxjt-hero');
+    if (!hero) return;
+    const io = new IntersectionObserver(([e]) => setPastHero(!e.isIntersecting), { threshold: 0 });
+    io.observe(hero);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
-    if (!callbackOpen && !termsModalOpen) return;
-    const onKey = (e) => { if (e.key === 'Escape') { setCallbackOpen(false); setTermsModalOpen(false); } };
+    const lock = menuOpen || callbackOpen || termsModalOpen || detailsOpen;
+    document.body.style.overflow = lock ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen, callbackOpen, termsModalOpen, detailsOpen]);
+
+  useEffect(() => {
+    if (!callbackOpen && !termsModalOpen && !detailsOpen) return;
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      setCallbackOpen(false); setTermsModalOpen(false); setDetailsOpen(false);
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [callbackOpen, termsModalOpen]);
+  }, [callbackOpen, termsModalOpen, detailsOpen]);
 
   useEffect(() => {
     const els = SUBNAV.map((s) => document.getElementById(s.id)).filter(Boolean);
@@ -572,6 +659,85 @@ export default function ThailandEscape2() {
   }, []);
 
   const openCallback = useCallback((e) => { if (e) e.preventDefault(); setMenuOpen(false); setCallbackSent(false); setCallbackOpen(true); }, []);
+
+  /* One card per person in the drawer. Adult 0 is the lead: they can't be
+     removed, and theirs is the only phone number we insist on. */
+  const renderGuest = (g, i, kind) => {
+    const isLead = kind === 'adult' && i === 0;
+    const edit = kind === 'adult' ? editAdult : editChild;
+    const drop = kind === 'adult' ? dropAdult : dropChild;
+    const titles = kind === 'adult' ? TITLES : CHILD_TITLES;
+    const who = isLead ? 'Lead traveller' : `${kind === 'adult' ? 'Adult' : 'Child'} ${i + 1}`;
+
+    return (
+      <div className={`tha2-bd__guest ${isLead ? 'is-lead' : ''}`} key={`${kind}-${i}`}>
+        <div className="tha2-bd__guesthd">
+          <span className="tha2-bd__guestwho">
+            {isLead ? <UserCheck size={15} /> : <Users size={15} />} {who}
+            {kind === 'child' && <small>Age 2&ndash;11</small>}
+          </span>
+          {isLead ? (
+            <span className="tha2-bd__guesttag">Books &amp; pays</span>
+          ) : (
+            <button
+              type="button"
+              className="tha2-bd__drop"
+              onClick={() => drop(i)}
+              aria-label={`Remove ${who.toLowerCase()}`}
+            >
+              <Trash2 size={14} /> Remove
+            </button>
+          )}
+        </div>
+
+        <div className="tha2-bd__namerow">
+          <label className="tha2-bd__field tha2-bd__field--title">
+            <span>Title</span>
+            <select value={g.title} onChange={(e) => edit(i, { title: e.target.value })}>
+              {titles.map((t) => <option key={t}>{t}</option>)}
+            </select>
+          </label>
+          <label className="tha2-bd__field">
+            <span>First name <i className="tha2-bd__star" title="Required">*</i></span>
+            <input
+              type="text" required
+              autoComplete={isLead ? 'given-name' : 'off'}
+              placeholder={kind === 'child' ? 'Aarav' : 'Priya'}
+              value={g.first}
+              onChange={(e) => edit(i, { first: e.target.value })}
+            />
+          </label>
+          <label className="tha2-bd__field">
+            <span>Last name <i className="tha2-bd__star" title="Required">*</i></span>
+            <input
+              type="text" required
+              autoComplete={isLead ? 'family-name' : 'off'}
+              placeholder="Sharma"
+              value={g.last}
+              onChange={(e) => edit(i, { last: e.target.value })}
+            />
+          </label>
+        </div>
+
+        <label className="tha2-bd__field tha2-bd__field--phone">
+          <span>
+            Phone number{' '}
+            {isLead
+              ? <i className="tha2-bd__star" title="Required">*</i>
+              : <em className="tha2-bd__opt-lbl">Optional</em>}
+          </span>
+          <input
+            type="tel" inputMode="tel"
+            autoComplete={isLead ? 'tel' : 'off'}
+            required={isLead}
+            placeholder={isLead ? '+91 98765 43210' : 'If you have it'}
+            value={g.phone}
+            onChange={(e) => edit(i, { phone: e.target.value })}
+          />
+        </label>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -678,7 +844,6 @@ export default function ThailandEscape2() {
               <div className="lxjt-hero__content lx2i-fade" style={{ '--d': '.1s' }}>
                 <span className="lx2i-eyebrow lx2i-eyebrow--light">{HERO.kicker}</span>
                 <h1 className="lxjt-hero__title">{HERO.title}</h1>
-                <p className="lxjt-hero__lead">{HERO.lead}</p>
                 <ul className="lxjt-hero__facts" aria-label="Trip at a glance">
                   {HERO.facts.map(({ icon: Icon, label }) => (
                     <li key={label} className="lxjt-fact"><Icon size={16} strokeWidth={1.9} /> {label}</li>
@@ -970,17 +1135,17 @@ export default function ThailandEscape2() {
                   <div className="tha2-travrow">
                     <span className="tha2-travrow__lbl">Adults <small>Age 12+</small></span>
                     <div className="lxjt-stepper">
-                      <button type="button" aria-label="Fewer adults" onClick={() => setAdults((n) => Math.max(1, n - 1))} disabled={adults <= 1}><Minus size={15} /></button>
+                      <button type="button" aria-label="Fewer adults" onClick={() => dropAdult(adults - 1)} disabled={adults <= 1}><Minus size={15} /></button>
                       <span className="lxjt-stepper__val">{adults}</span>
-                      <button type="button" aria-label="More adults" onClick={() => setAdults((n) => n + 1)} disabled={travellers >= 20}><Plus size={15} /></button>
+                      <button type="button" aria-label="More adults" onClick={addAdult} disabled={travellers >= MAX_PARTY}><Plus size={15} /></button>
                     </div>
                   </div>
                   <div className="tha2-travrow">
                     <span className="tha2-travrow__lbl">Children <small>Age 2&ndash;11</small></span>
                     <div className="lxjt-stepper">
-                      <button type="button" aria-label="Fewer children" onClick={() => setChildren((n) => Math.max(0, n - 1))} disabled={children <= 0}><Minus size={15} /></button>
+                      <button type="button" aria-label="Fewer children" onClick={() => dropChild(children - 1)} disabled={children <= 0}><Minus size={15} /></button>
                       <span className="lxjt-stepper__val">{children}</span>
-                      <button type="button" aria-label="More children" onClick={() => setChildren((n) => n + 1)} disabled={travellers >= 20}><Plus size={15} /></button>
+                      <button type="button" aria-label="More children" onClick={addChild} disabled={travellers >= MAX_PARTY}><Plus size={15} /></button>
                     </div>
                   </div>
                 </div>
@@ -1003,8 +1168,10 @@ export default function ThailandEscape2() {
                   </button>
                 </div>
 
-                <button type="button" className="tha2-cta">Pay now and secure seat</button>
-                <p className="tha2-secure"><Lock size={14} /> Secure encrypted checkout &middot; deposit protected</p>
+                <button type="button" className="tha2-cta" onClick={() => { setBookingDone(false); setDetailsOpen(true); }}>
+                  Fill in traveller details <ArrowRight size={17} />
+                </button>
+                <p className="tha2-secure"><Lock size={14} /> Nothing is charged yet &mdash; you&rsquo;ll confirm flights, beds and who&rsquo;s travelling next</p>
                 </div>
               </div>
             </div>
@@ -1252,6 +1419,22 @@ export default function ThailandEscape2() {
           <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="lxjt-thumbbar__ico" aria-label="Message us on WhatsApp"><MessageCircle size={20} /></a>
         </div>
 
+        {/* ============ FLOATING BOOK CTA (desktop) ============
+            Below 640px the thumb-bar carries the booking CTA; above it the only
+            way back to the card was the header pill. This stacks on the same
+            right rail as the Enaya button, directly above it. */}
+        <a
+          href="#dates"
+          onClick={navClick('#dates')}
+          className={`tha2-bookfab ${chatOpen || !pastHero ? 'is-hidden' : ''}`}
+          aria-hidden={chatOpen || !pastHero}
+          tabIndex={chatOpen || !pastHero ? -1 : undefined}
+        >
+          <Calendar size={17} strokeWidth={2} />
+          <span>Book now</span>
+          <span className="tha2-bookfab__px">from {inr(PRICE)} pp</span>
+        </a>
+
         {/* ============ FLOATING AI BUTTON (desktop) ============ */}
         <button className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Enaya, the AI travel assistant" onClick={() => setChatOpen(true)}>
           <Sparkles size={20} /><span>Ask Enaya</span>
@@ -1292,7 +1475,178 @@ export default function ThailandEscape2() {
           </div>
         )}
 
+        {/* ============ TRAVELLER DETAILS DRAWER (from the booking CTA) ============ */}
+        {detailsOpen && (
+          <div className="tha2-bd" role="dialog" aria-modal="true" aria-label="Traveller details">
+            <div className="tha2-bd__scrim" onClick={() => setDetailsOpen(false)} />
+            <aside className="tha2-bd__panel">
+              <button className="tha2-bd__close" aria-label="Close" onClick={() => setDetailsOpen(false)}><X size={18} /></button>
+
+              {bookingDone ? (
+                <div className="tha2-bd__body">
+                  <div className="tha2-bd__done">
+                    <span className="tha2-bd__doneic"><CheckCircle2 size={34} strokeWidth={1.5} /></span>
+                    <h3>Seats held for {lead.title} {lead.first} {lead.last}</h3>
+                    <p>
+                      {travellers} {travellers === 1 ? 'traveller' : 'travellers'} on the {dep.date} departure
+                      {withFlights ? ', flying from Mumbai' : ', land only — you arrange your own flights'}
+                      {extraBed ? ', with an extra bed' : ''}. We&rsquo;ll call {lead.phone} to confirm, and we&rsquo;ve
+                      emailed your visa checklist &mdash; the Thailand visa isn&rsquo;t part of the package.
+                    </p>
+                    <div className="tha2-bd__donerow">
+                      <a href={PHONE_TEL} className="lx2i-btn lx2i-btn--primary"><Phone size={14} /> {PHONE_DISPLAY}</a>
+                      <button type="button" className="lx2i-btn lx2i-btn--outline" onClick={() => setDetailsOpen(false)}>Close</button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <form
+                  className="tha2-bd__form"
+                  onSubmit={(e) => { e.preventDefault(); setBookingDone(true); }}
+                >
+                  <header className="tha2-bd__head">
+                    <span className="lx2i-eyebrow">ALMOST THERE &middot; NOTHING CHARGED YET</span>
+                    <h3 className="tha2-bd__title">Who&rsquo;s travelling?</h3>
+                    <p className="tha2-bd__sub">
+                      {dep.date} departure &middot; {payMode === 'deposit' ? '20% deposit' : 'paying in full'} &middot;{' '}
+                      <span className="tha2-bd__reqkey"><i>*</i> required</span>
+                    </p>
+                  </header>
+
+                  <div className="tha2-bd__body">
+                    {/* ---- Every traveller, named ---- */}
+                    <fieldset className="tha2-bd__set tha2-bd__set--first">
+                      <legend>Travellers ({travellers})</legend>
+                      <p className="tha2-bd__hint">
+                        Names exactly as they appear on each passport. We only need a number for the lead traveller
+                        &mdash; that&rsquo;s who we call if anything about the trip changes.
+                      </p>
+
+                      {adultGuests.map((g, i) => renderGuest(g, i, 'adult'))}
+                      {childGuests.map((g, i) => renderGuest(g, i, 'child'))}
+
+                      <div className="tha2-bd__addrow">
+                        <button type="button" className="tha2-bd__add" onClick={addAdult} disabled={travellers >= MAX_PARTY}>
+                          <UserPlus size={15} /> Add an adult
+                        </button>
+                        <button type="button" className="tha2-bd__add" onClick={addChild} disabled={travellers >= MAX_PARTY}>
+                          <UserPlus size={15} /> Add a child
+                        </button>
+                      </div>
+                      {travellers >= MAX_PARTY && (
+                        <p className="tha2-bd__hint tha2-bd__hint--cap">
+                          {MAX_PARTY} is the most we can book online &mdash; call us for a larger group.
+                        </p>
+                      )}
+                    </fieldset>
+
+                    {/* ---- Flights + beds ---- */}
+                    <fieldset className="tha2-bd__set">
+                      <legend>Flights &amp; beds</legend>
+
+                      <label className={`tha2-bd__opt ${withFlights ? 'is-on' : ''}`}>
+                        <input
+                          type="checkbox"
+                          checked={withFlights}
+                          onChange={(e) => setWithFlights(e.target.checked)}
+                        />
+                        <span className="tha2-bd__optbox" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
+                        <span className="tha2-bd__opttx">
+                          <span className="tha2-bd__optt"><Plane size={15} /> Include return flights from Mumbai</span>
+                          <span className="tha2-bd__opts">
+                            Already booked your own, or flying from another city? Untick this and we&rsquo;ll take{' '}
+                            {inr(FLIGHT_CREDIT)} per person off the price &mdash; you&rsquo;ll join the group in Bangkok.
+                          </span>
+                        </span>
+                      </label>
+
+                      <label className={`tha2-bd__opt ${extraBed ? 'is-on' : ''}`}>
+                        <input
+                          type="checkbox"
+                          checked={extraBed}
+                          onChange={(e) => setExtraBed(e.target.checked)}
+                        />
+                        <span className="tha2-bd__optbox" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>
+                        <span className="tha2-bd__opttx">
+                          <span className="tha2-bd__optt"><BedDouble size={15} /> Add an extra bed</span>
+                          <span className="tha2-bd__opts">
+                            A rollaway bed in a shared room, for a third guest or an older child. Flat {inr(EXTRA_BED_FEE)}.
+                          </span>
+                        </span>
+                      </label>
+                    </fieldset>
+
+                    {/* ---- What's in, what's not ---- */}
+                    <fieldset className="tha2-bd__set">
+                      <legend>What this price covers</legend>
+                      <ul className="tha2-bd__points">
+                        {bookingPoints(withFlights).map((p) => (
+                          <li key={p.text} className={`tha2-bd__point tha2-bd__point--${p.tone}`}>
+                            <span className="tha2-bd__pointic" aria-hidden="true">
+                              {p.tone === 'on' ? <Check size={12} strokeWidth={3} /> : <X size={12} strokeWidth={3} />}
+                            </span>
+                            <span>{p.text}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </fieldset>
+
+                    {/* ---- Live bill ---- */}
+                    <div className="tha2-bd__bill">
+                      <div className="tha2-bd__billrow">
+                        <span>{inr(pp)} × {travellers} {travellers === 1 ? 'traveller' : 'travellers'}</span>
+                        <span>{inr(fare)}</span>
+                      </div>
+                      {!withFlights && (
+                        <div className="tha2-bd__billrow tha2-bd__billrow--credit">
+                          <span>Land only &mdash; flights removed</span>
+                          <span>&minus;{inr(flightCredit)}</span>
+                        </div>
+                      )}
+                      {extraBed && (
+                        <div className="tha2-bd__billrow">
+                          <span>Extra bed</span>
+                          <span>+{inr(bedFee)}</span>
+                        </div>
+                      )}
+                      <div className="tha2-bd__billrow tha2-bd__billrow--total">
+                        <span>Tour total</span>
+                        <span>{inr(total)}</span>
+                      </div>
+                      <div className="tha2-bd__billrow tha2-bd__billrow--due">
+                        <span>{payMode === 'deposit' ? 'Due today (20% deposit)' : 'Due today (paid in full)'}</span>
+                        <span>{inr(dueToday)}</span>
+                      </div>
+                      {balance > 0 && (
+                        <p className="tha2-bd__balance">
+                          {inr(balance)} balance due 30 days before departure. Visa fee is separate and paid by you.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* The pay button rides the bottom of the drawer, so it stays
+                      reachable however long the traveller list grows. */}
+                  <footer className="tha2-bd__foot">
+                    <button type="submit" className="tha2-cta tha2-bd__submit" disabled={!formOk}>
+                      <Lock size={15} /> Pay {inr(dueToday)} and secure {travellers === 1 ? 'seat' : 'seats'}
+                    </button>
+                    {!formOk && (
+                      <p className="tha2-bd__req">
+                        {!namedOk
+                          ? 'Add a first and last name for every traveller to continue.'
+                          : 'Add the lead traveller’s phone number to continue.'}
+                      </p>
+                    )}
+                  </footer>
+                </form>
+              )}
+            </aside>
+          </div>
+        )}
+
         {/* ============ REQUEST A CALLBACK MODAL ============ */}
+
         {callbackOpen && (
           <div className="lx2i-cb" role="dialog" aria-modal="true" aria-label="Request a callback">
             <div className="lx2i-cb__scrim" onClick={() => setCallbackOpen(false)} />

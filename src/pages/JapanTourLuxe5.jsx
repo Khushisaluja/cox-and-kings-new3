@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Menu, X, ArrowRight, ArrowLeft, ArrowUpRight, ChevronDown,
+  Menu, X, ArrowRight, ArrowLeft, ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight,
   Star, MapPin, Calendar, Users, Plane, Check, Plus, Minus, Lock, Quote,
   ShieldCheck, Phone, MessageCircle, PhoneCall, Headset, Sparkles, Clock,
   Wallet, Repeat, Stamp, CheckCircle2, Instagram, Facebook, Youtube, Linkedin,
   Hotel, Utensils, TrainFront, Compass,
   CreditCard, FileText, AlertTriangle, RefreshCcw, Building2, UserCheck,
   HeartPulse, BedDouble, CloudLightning, Gavel, Scale, Car,
+  Baby, Accessibility, Download,
 } from 'lucide-react';
 import ChatBot from '../components/ChatBot';
 import './Home2026.css';
@@ -40,6 +41,14 @@ const EMAIL = 'holidays@coxandkings.com';
 const OFFICE_SHORT = 'Fort, Mumbai 400001';
 const OFFICE_FULL = 'Turner Morrison House, 16 Bank Street, Fort, Mumbai 400001';
 const HOME = '/luxe2-improved';
+
+/* WhatsApp glyph (lucide ships no brand icons) — same path as the homepage. */
+const WaIcon = ({ size = 15 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm0 18.3c-1.5 0-2.98-.4-4.27-1.16l-.3-.18-3.17 1 1.02-3.09-.2-.32A8.3 8.3 0 1 1 12 20.3z" />
+    <path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35z" />
+  </svg>
+);
 
 /* Desktop nav megamenus — same shape as the /new homepage (hover flyouts),
    remapped to the sections that exist on this tour-detail page. */
@@ -184,12 +193,75 @@ const NOT_INCLUDED = [
   'Costs arising from itinerary changes due to weather, flight cancellations, illness or roadblocks',
 ];
 
-const DEPARTURES = [
-  { date: '21 March 2026', seats: 'Only 6 seats left', tight: true },
-  { date: '28 March 2026', seats: 'Filling fast · 8 seats', tight: true },
-  { date: '04 April 2026', seats: '12 seats available', tight: false },
-  { date: '17 October 2026', seats: '14 seats available', tight: false },
-];
+/* ============================================================
+   WHEN YOU TRAVEL — a private journey has no fixed departures
+
+   Essence Japan is private and tailor-made: there is no coach to fill
+   and no group to join, so the journey runs on the traveller's date,
+   not ours. A list of four set departures was the wrong control for
+   that. It invented a scarcity that does not exist ("Only 6 seats
+   left" — there are no seats), and it hid the other 361 days they
+   could perfectly well leave on. A calendar tells the truth: pick any
+   day, and we build the journey around it.
+
+   Two real constraints do apply, and the picker states both up front
+   rather than letting the traveller find out afterwards:
+
+     · LEAD TIME. A private journey takes about three weeks to build —
+       the guide, the ryokan, the rail, the visa — so days inside that
+       window are closed rather than silently accepted and then walked
+       back by a phone call.
+
+     · SEASON. Japan is one of the few countries where WHEN you go
+       changes WHAT the trip is. Blossom and autumn colour are the two
+       peaks and want far more notice, so the picker names the season
+       of the day they chose instead of burying it in a footnote.
+   ============================================================ */
+const TRIP_DAYS = 8;              // eight days, seven nights
+const MIN_LEAD_DAYS = 21;         // the least notice a private journey can be built in
+const BOOK_HORIZON_MONTHS = 18;   // how far ahead the calendar will look
+
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+const WEEKDAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const addDays = (d, n) => { const x = startOfDay(d); x.setDate(x.getDate() + n); return x; };
+const firstOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1);
+const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
+/* Month arithmetic that survives the short months: 31 Jan + 1 month is
+   28 Feb, not 3 March. */
+const addMonthsClamped = (d, n) => {
+  const t = new Date(d.getFullYear(), d.getMonth() + n, 1);
+  const lastDay = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate();
+  t.setDate(Math.min(d.getDate(), lastDay));
+  return t;
+};
+const daysInMonth = (d) => new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+const sameDay = (a, b) => !!a && !!b
+  && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+/* Local-time ISO. `toISOString()` would be a UTC round-trip, which quietly
+   shifts the date by one either side of midnight in IST. */
+const toISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const fromISO = (s) => {
+  if (!s) return null;
+  const [y, m, d] = s.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+const longDate = (d) => `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+/* Monday-first, the way Indian calendars print. */
+const mondayIndex = (d) => (d.getDay() + 6) % 7;
+
+function seasonFor(d) {
+  const md = (d.getMonth() + 1) * 100 + d.getDate();
+  if (md >= 320 && md <= 412) return { label: 'Cherry blossom', peak: true, note: 'The loveliest fortnight in Japan, and the busiest. We would want four months’ notice to hold the ryokan and the rail.' };
+  if (md >= 413 && md <= 531) return { label: 'Late spring', peak: false, note: 'Warm, green, and far quieter than blossom season — our specialists’ own favourite time to go.' };
+  if (md >= 601 && md <= 831) return { label: 'Summer', peak: false, note: 'Hot and humid in the cities, but this is festival season — and the mountains stay cool.' };
+  if (md >= 901 && md <= 1019) return { label: 'Early autumn', peak: false, note: 'The typhoons have eased, the summer crowds have gone, and the light turns golden.' };
+  if (md >= 1020 && md <= 1205) return { label: 'Autumn colour', peak: true, note: 'The second peak. Kyoto under red maple is worth planning a long way ahead.' };
+  return { label: 'Winter', peak: false, note: 'Crisp, clear and quiet. Snow in the north, and the onsen at their very best.' };
+}
 
 /* Traveller reviews — marquee shape (design from /journeys/japan-2). */
 const REVIEWS = [
@@ -228,9 +300,12 @@ const SIMILAR = [
   { title: 'African Safari', region: 'Kenya & Tanzania', season: 'Jul–Oct', nights: '8 nights', priceFrom: '₹3,10,000', image: '1516426122078-c23e76319801', tags: ['Active pace', 'Small group'] },
 ];
 
+/* Nothing here promises a payment, because asking for a quote takes one.
+   The old set led with "Low deposit · Book from 20% today", which read as
+   a checkout on a card that has never been able to charge anything. */
 const SAFETY = [
-  { icon: Wallet, label: 'Low deposit', note: 'Book from 20% today' },
-  { icon: Repeat, label: 'Free changes', note: 'Up to 45 days before travel' },
+  { icon: Wallet, label: 'Nothing to pay', note: 'The quote is free, and free of obligation' },
+  { icon: Repeat, label: 'Reshape it freely', note: 'Change the route until it is yours' },
   { icon: Stamp, label: 'Visa support', note: 'Paperwork handled for you' },
   { icon: ShieldCheck, label: 'Financially protected', note: 'Your money is held securely' },
 ];
@@ -488,14 +563,296 @@ function useReveal() {
   }, []);
 }
 
+/* ============================================================
+   QUOTE ENGINE
+
+   The private departure is priced by hand on the server (~15s), so the
+   numbers below are what the dialog renders once it comes back. Every
+   line is derived from what the traveller actually answered, which is
+   the whole point of a quote: they should recognise their own choices
+   in it, not read a generic price list.
+   ============================================================ */
+const QUOTE_SECONDS = 15;   // how long the server takes to price a private departure
+
+/* The dialog is five screens, so its accessible name has to move with them —
+   a screen reader announces this on entry and on every stage change. */
+const QUOTE_STAGE_LABEL = {
+  details: 'Step 1 of 3 — tell us who is travelling',
+  pricing: 'Step 2 of 3 — pricing your journey, about 15 seconds',
+  quote: 'Your quote is ready',
+  call: 'Step 3 of 3 — book your confirmation call',
+  booked: 'Your call is booked',
+};
+
+const RATES = {
+  child: 0.85,        // of the adult land price, sharing with an adult
+  privatePP: 24000,   // private departure — own guide, coach and dates
+  flightsPP: 62000,   // return economy from the home city
+  visaPP: 8500,       // Japan tourist visa, paperwork handled
+  extraBed: 9500,     // rollaway, per bed for the trip
+  gst: 0.05,          // GST on the package
+};
+
+function priceQuote(q, adults) {
+  const heads = adults + q.children;
+  const childPP = Math.round(PRICE * RATES.child);
+  const lines = [
+    { label: `Land journey — ${adults} adult${adults === 1 ? '' : 's'}`, note: `${inr(PRICE)} per adult`, amount: PRICE * adults },
+  ];
+  if (q.children > 0) {
+    lines.push({ label: `Children — ${q.children}`, note: `${inr(childPP)} each, sharing with an adult`, amount: childPP * q.children });
+  }
+  lines.push({ label: 'Private departure', note: 'Your own guide, coach and dates — not a shared group', amount: RATES.privatePP * adults });
+  if (q.extraBeds > 0) {
+    lines.push({ label: `Extra beds — ${q.extraBeds}`, note: `${inr(RATES.extraBed)} each, for the eight nights`, amount: RATES.extraBed * q.extraBeds });
+  }
+  if (q.flights) {
+    lines.push({ label: `Return flights — ${heads} traveller${heads === 1 ? '' : 's'}`, note: 'Economy, from your home city', amount: RATES.flightsPP * heads });
+  }
+  if (q.visa) {
+    lines.push({ label: `Visa assistance — ${heads}`, note: 'Japan tourist visa, paperwork handled for you', amount: RATES.visaPP * heads });
+  }
+
+  const subtotal = lines.reduce((sum, l) => sum + l.amount, 0);
+  const gst = Math.round(subtotal * RATES.gst);
+  const total = subtotal + gst;
+
+  /* Stated plainly, so nobody discovers it at the airport. */
+  const excluded = [
+    ...(q.flights ? [] : ['International flights — you told us you are booking your own']),
+    ...(q.visa ? [] : ['Visa — you told us you will arrange it yourself']),
+    'Meals beyond those listed in the day-by-day itinerary',
+    'Personal expenses — tips, laundry, beverages and the like',
+  ];
+
+  return { lines, subtotal, gst, total, heads, perPerson: Math.round(total / heads), excluded };
+}
+
+/* The wait is ~15s of real server work. Naming each stage — and echoing the
+   traveller's own answers back into it — is what stops it reading as a hang. */
+function quoteStages(q, adults, departure) {
+  return [
+    { at: 0, label: `Checking availability for ${departure}` },
+    { at: 3, label: `Pricing ${adults} adult${adults === 1 ? '' : 's'}${q.children ? ` and ${q.children} child${q.children === 1 ? '' : 'ren'}` : ''}` },
+    { at: 6, label: `Holding ${q.rooms} room${q.rooms === 1 ? '' : 's'} across the eight nights` },
+    { at: 9, label: q.flights ? 'Fetching live flight fares from your home city' : 'Costing the land journey, without flights' },
+    { at: 12, label: 'Applying your private-departure rates' },
+    { at: 14, label: 'Preparing your quote document' },
+  ];
+}
+
+/* ---- Downloadable documents ----------------------------------------
+   Built client-side as self-contained, print-ready HTML: the traveller
+   saves or prints it to PDF from the browser. Labelled as print-ready
+   rather than "PDF", because it isn't one — see the note in the panel.
+   -------------------------------------------------------------------- */
+const docShell = (title, body) => `<!doctype html><html><head><meta charset="utf-8">
+<title>${title}</title>
+<style>
+  @page { margin: 18mm; }
+  body { font-family: Georgia, 'Times New Roman', serif; color: #1F2A36; line-height: 1.55; max-width: 720px; margin: 40px auto; padding: 0 24px; }
+  header { border-bottom: 2px solid #0B5AB1; padding-bottom: 14px; margin-bottom: 26px; }
+  .brand { font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase; color: #0B5AB1; font-family: Helvetica, Arial, sans-serif; }
+  h1 { font-size: 28px; font-weight: 400; margin: 8px 0 4px; }
+  .sub { font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #5C5C55; margin: 0; }
+  h2 { font-size: 17px; font-weight: 400; margin: 28px 0 10px; border-bottom: 1px solid #D9D7CB; padding-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  td { padding: 9px 0; vertical-align: top; border-bottom: 1px solid #EDEBE1; }
+  td.amt { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .note { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #5C5C55; }
+  .tot td { border-top: 2px solid #1F2A36; border-bottom: 0; font-size: 17px; padding-top: 12px; }
+  ul { padding-left: 18px; font-size: 14px; }
+  li { margin-bottom: 5px; }
+  .day { margin-bottom: 18px; page-break-inside: avoid; }
+  .day h3 { font-size: 15px; margin: 0 0 3px; font-weight: 400; }
+  .day p { margin: 0 0 4px; font-size: 14px; }
+  footer { margin-top: 34px; border-top: 1px solid #D9D7CB; padding-top: 14px; font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #5C5C55; }
+</style></head><body>${body}
+<footer>Cox &amp; Kings · ${OFFICE_FULL} · ${PHONE_DISPLAY} · ${EMAIL}<br>
+This document was generated for you and is not a contract. Fares and availability are confirmed when you book.</footer>
+</body></html>`;
+
+function downloadDoc(filename, html) {
+  const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ---- Quote-form primitives (used only by the "Get a quote" dialog) ---- */
+
+/* Counter row. Mirrors the booking card's .lxjt-stepper so the dialog reads
+   as the same control the traveller already used on the card. */
+function QStep({ label, hint, value, onChange, min = 0, max = 12 }) {
+  return (
+    <div className="lxjt5-q__step">
+      <span className="lxjt5-q__steplbl">{label}{hint && <small>{hint}</small>}</span>
+      <div className="lxjt-stepper">
+        <button type="button" aria-label={`Fewer: ${label}`} onClick={() => onChange(Math.max(min, value - 1))} disabled={value <= min}><Minus size={15} /></button>
+        <span className="lxjt-stepper__val">{value}</span>
+        <button type="button" aria-label={`More: ${label}`} onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max}><Plus size={15} /></button>
+      </div>
+    </div>
+  );
+}
+
+/* On/off row. A real switch (role + aria-checked) rather than a styled
+   checkbox, so screen readers announce the state, not just the label. */
+function QToggle({ icon: Icon, label, hint, checked, onChange }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      className={`lxjt5-q__tog ${checked ? 'is-on' : ''}`}
+      onClick={() => onChange(!checked)}
+    >
+      <span className="lxjt5-q__togic"><Icon size={17} strokeWidth={1.8} /></span>
+      <span className="lxjt5-q__togtxt"><strong>{label}</strong>{hint && <small>{hint}</small>}</span>
+      <span className="lxjt5-q__switch" aria-hidden="true" />
+    </button>
+  );
+}
+
+/* ---- The date picker -------------------------------------------------
+   A month grid rather than a <select> of four dates. The traveller is
+   choosing a moment in their own year — a weekend, a school holiday, an
+   anniversary — and a calendar is the only control that shows them the
+   shape of it.
+
+   Keyboard behaviour is the part that is easy to get wrong. A date grid
+   takes ONE tab stop, not thirty-one: arrows move within it, PageUp and
+   PageDown change month, Home and End jump to the ends of the week. That
+   is the composite-widget pattern a screen-reader user expects of a
+   calendar, and it is what WCAG's roving-tabindex guidance asks for.
+   -------------------------------------------------------------------- */
+function PrivateCalendar({ value, onChange, minDate, maxDate }) {
+  const selected = fromISO(value);
+  const [cursor, setCursor] = useState(() => firstOfMonth(selected ?? minDate));
+  const [focusDay, setFocusDay] = useState(() => selected ?? minDate);
+  const gridRef = useRef(null);
+  /* Only pull focus when the user actually drove the grid with the keyboard
+     — never on first paint, which would yank the page down to the calendar. */
+  const grabFocus = useRef(false);
+
+  useEffect(() => {
+    if (!grabFocus.current) return;
+    grabFocus.current = false;
+    gridRef.current?.querySelector('[data-roving="true"]')?.focus();
+  }, [focusDay]);
+
+  /* The drawer's date field writes to the same state. If it lands on another
+     month, the calendar has to follow it there — otherwise the grid sits on
+     March while the summary underneath reads October. */
+  useEffect(() => {
+    const next = fromISO(value);
+    if (!next) return;
+    setCursor(firstOfMonth(next));
+    setFocusDay(next);
+  }, [value]);
+
+  const clamp = (d) => (d < minDate ? minDate : d > maxDate ? maxDate : d);
+
+  const moveTo = (d) => {
+    const next = clamp(d);
+    grabFocus.current = true;
+    setFocusDay(next);
+    setCursor(firstOfMonth(next));
+  };
+
+  const onKeyDown = (e) => {
+    const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+    if (step !== undefined) { e.preventDefault(); moveTo(addDays(focusDay, step)); return; }
+    if (e.key === 'PageUp') { e.preventDefault(); moveTo(addMonthsClamped(focusDay, -1)); return; }
+    if (e.key === 'PageDown') { e.preventDefault(); moveTo(addMonthsClamped(focusDay, 1)); return; }
+    if (e.key === 'Home') { e.preventDefault(); moveTo(addDays(focusDay, -mondayIndex(focusDay))); return; }
+    if (e.key === 'End') { e.preventDefault(); moveTo(addDays(focusDay, 6 - mondayIndex(focusDay))); }
+  };
+
+  const prevMonth = addMonths(cursor, -1);
+  const nextMonth = addMonths(cursor, 1);
+  const canGoBack = prevMonth >= firstOfMonth(minDate);
+  const canGoOn = nextMonth <= firstOfMonth(maxDate);
+
+  /* Lay the month out Monday-first, padding the ragged ends. */
+  const cells = [];
+  for (let i = 0; i < mondayIndex(cursor); i += 1) cells.push(null);
+  for (let d = 1; d <= daysInMonth(cursor); d += 1) cells.push(new Date(cursor.getFullYear(), cursor.getMonth(), d));
+  while (cells.length % 7 !== 0) cells.push(null);
+  const weeks = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+
+  return (
+    <div className="lxjt5-cal">
+      <div className="lxjt5-cal__bar">
+        <button type="button" className="lxjt5-cal__nav" aria-label="Previous month"
+          disabled={!canGoBack} onClick={() => setCursor(prevMonth)}>
+          <ChevronLeft size={17} />
+        </button>
+        {/* Announced politely, so a screen reader learns the month changed
+            without the arrows shouting over the rest of the page. */}
+        <h4 className="lxjt5-cal__title" aria-live="polite">
+          {MONTH_NAMES[cursor.getMonth()]} {cursor.getFullYear()}
+        </h4>
+        <button type="button" className="lxjt5-cal__nav" aria-label="Next month"
+          disabled={!canGoOn} onClick={() => setCursor(nextMonth)}>
+          <ChevronRight size={17} />
+        </button>
+      </div>
+
+      <div className="lxjt5-cal__wk" aria-hidden="true">
+        {WEEKDAY_NAMES.map((w) => <span key={w}>{w}</span>)}
+      </div>
+
+      <div className="lxjt5-cal__grid" role="grid" aria-label="Choose your start date"
+        ref={gridRef} onKeyDown={onKeyDown}>
+        {weeks.map((week, wi) => (
+          <div className="lxjt5-cal__row" role="row" key={wi}>
+            {week.map((d, di) => {
+              if (!d) return <span className="lxjt5-cal__pad" role="gridcell" key={di} />;
+              const open = d >= minDate && d <= maxDate;
+              const on = sameDay(d, selected);
+              const roving = sameDay(d, focusDay);
+              return (
+                <span role="gridcell" aria-selected={on} key={di}>
+                  <button
+                    type="button"
+                    data-roving={roving ? 'true' : undefined}
+                    tabIndex={roving ? 0 : -1}
+                    disabled={!open}
+                    className={`lxjt5-cal__day ${on ? 'is-on' : ''}`}
+                    onClick={() => { setFocusDay(d); onChange(toISO(d)); }}
+                    /* The visible label is a bare numeral; the accessible one
+                       has to carry the whole date, and the reason a day is
+                       shut rather than leaving it a mystery. */
+                    aria-label={open ? longDate(d) : `${longDate(d)} — too soon to build a private journey`}
+                  >
+                    {d.getDate()}
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function JapanTourLuxe5() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDay, setActiveDay] = useState(0);     // desktop: drives the sticky itinerary picture
   const [openDay, setOpenDay] = useState(-1);        // mobile: which day's accordion is expanded
-  const [selectedDep, setSelectedDep] = useState(0);
-  const [payMode, setPayMode] = useState('deposit');
+  /* The traveller's own start date, as a local ISO day. Empty until they
+     pick one: a private journey has no default departure, and pre-filling
+     a travel date would be putting words in their mouth. */
+  const [startDate, setStartDate] = useState('');
   const [activeSection, setActiveSection] = useState('highlights');
   const [callbackOpen, setCallbackOpen] = useState(false);
   const [callbackSent, setCallbackSent] = useState(false);
@@ -503,15 +860,66 @@ export default function JapanTourLuxe5() {
   const [termsTab, setTermsTab] = useState('booking');       // which policy category is shown
   const [termsModalOpen, setTermsModalOpen] = useState(false); // full-detail modal
 
+  /* Quote dialog. This is a private, tailor-made departure, so the booking
+     card can't price it on its own — the CTA collects the party details and
+     hands off to a travel designer instead of taking a payment.
+     `adults` deliberately lives in `travellers` (the card's stepper), so the
+     two controls stay one number and the card's maths keeps following it. */
+  const [quoteOpen, setQuoteOpen] = useState(false);
+  const [q, setQ] = useState({
+    prefix: 'Mr', first: '', last: '', email: '', phone: '',
+    children: 0, rooms: 1, bed: 'twin', extraBeds: 0,
+    flights: true, visa: true, infant: false, seniors: false,
+    comments: '',
+  });
+  const qSet = (key) => (val) => setQ((prev) => ({ ...prev, [key]: val }));
+
+  /* Where the traveller is in the quote flow:
+       details → pricing (~15s on the server) → quote → call → booked
+     'failed' is a real destination, not an afterthought: a 15-second
+     request that cannot fail does not exist, and a wait with no way out
+     is a trap. */
+  const [qStage, setQStage] = useState('details');
+  const [elapsed, setElapsed] = useState(0);          // seconds into the 15s wait
+  const [quoteRef, setQuoteRef] = useState(null);     // set once the server answers
+  const [validUntil, setValidUntil] = useState('');
+  const [callSlot, setCallSlot] = useState({ day: 'today', time: '' });
+  const quotePanelRef = useRef(null);                 // focus + scroll are managed per stage
+
+  /* The window a private journey can actually be built in. Both ends are
+     computed once from today, so the calendar and the drawer's date field
+     enforce exactly the same rule. */
+  const today = useMemo(() => startOfDay(new Date()), []);
+  const minDate = useMemo(() => addDays(today, MIN_LEAD_DAYS), [today]);
+  const maxDate = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth() + BOOK_HORIZON_MONTHS + 1, 0),
+    [today]
+  );
+  const picked = useMemo(() => fromISO(startDate), [startDate]);
+  const season = useMemo(() => (picked ? seasonFor(picked) : null), [picked]);
+  const homeOn = useMemo(() => (picked ? addDays(picked, TRIP_DAYS - 1) : null), [picked]);
+  /* Everything downstream — the wait, the quote, the PDF — says the date in
+     one voice, and degrades gracefully if they somehow got here without one. */
+  const dateLabel = picked ? longDate(picked) : 'your chosen dates';
+
+  const quote = useMemo(() => priceQuote(q, travellers), [q, travellers]);
+  const stages = useMemo(
+    () => quoteStages(q, travellers, dateLabel),
+    [q, travellers, dateLabel]
+  );
+  const stageLabel = [...stages].reverse().find((s) => elapsed >= s.at)?.label ?? stages[0].label;
+  const pct = Math.min(100, Math.round((elapsed / QUOTE_SECONDS) * 100));
+
   useReveal();
   const day = ITINERARY[activeDay];
   const activeCat = TERM_CATS.find((c) => c.id === termsTab);
 
-  // Live booking maths — the card computes a real, changing total.
-  const total = PRICE * travellers;
-  const depositTotal = Math.round(total * 0.2);
-  const dueToday = payMode === 'deposit' ? depositTotal : total;
-  const balance = total - dueToday;
+  /* The card used to run deposit maths — "Due today ₹1,18,000", 20% of a
+     price nobody had quoted yet. On a private journey that number was
+     fiction twice over: the price is built by hand from the brief, and the
+     card has never been able to take a payment. It has gone. The card now
+     anchors on the honest number (the from-price) and the quote carries the
+     real one. */
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -524,17 +932,17 @@ export default function JapanTourLuxe5() {
   }, []);
 
   useEffect(() => {
-    const lock = menuOpen || callbackOpen || termsModalOpen;
+    const lock = menuOpen || callbackOpen || termsModalOpen || quoteOpen;
     document.body.style.overflow = lock ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [menuOpen, callbackOpen, termsModalOpen]);
+  }, [menuOpen, callbackOpen, termsModalOpen, quoteOpen]);
 
   useEffect(() => {
-    if (!callbackOpen && !termsModalOpen) return;
-    const onKey = (e) => { if (e.key === 'Escape') { setCallbackOpen(false); setTermsModalOpen(false); } };
+    if (!callbackOpen && !termsModalOpen && !quoteOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape') { setCallbackOpen(false); setTermsModalOpen(false); setQuoteOpen(false); } };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [callbackOpen, termsModalOpen]);
+  }, [callbackOpen, termsModalOpen, quoteOpen]);
 
   // Spy the active section for the sticky sub-nav
   useEffect(() => {
@@ -562,6 +970,123 @@ export default function JapanTourLuxe5() {
   }, []);
 
   const openCallback = useCallback((e) => { if (e) e.preventDefault(); setMenuOpen(false); setCallbackSent(false); setCallbackOpen(true); }, []);
+
+  /* Re-opening never throws work away: if a quote already came back, the
+     dialog returns to it rather than to an empty form. */
+  const openQuote = useCallback((e) => {
+    if (e) e.preventDefault();
+    setMenuOpen(false);
+    setQuoteOpen(true);
+  }, []);
+
+  /* The 15-second wait. Ticks every 250ms so the bar moves smoothly and the
+     stage copy can change under it; the whole thing tears down on unmount or
+     if the traveller backs out, so a cancelled request can't land later. */
+  useEffect(() => {
+    if (qStage !== 'pricing') return;
+    setElapsed(0);
+    const started = Date.now();
+    const id = setInterval(() => {
+      const secs = (Date.now() - started) / 1000;
+      setElapsed(secs);
+      if (secs >= QUOTE_SECONDS) {
+        clearInterval(id);
+        setQuoteRef(`CK-JP-${Math.floor(1000 + Math.random() * 9000)}`);
+        const until = new Date(Date.now() + 14 * 864e5);
+        setValidUntil(until.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }));
+        setQStage('quote');
+      }
+    }, 250);
+    return () => clearInterval(id);
+  }, [qStage]);
+
+  /* Each stage swaps the whole panel out. Without this, the button the user
+     just pressed unmounts and focus falls back to <body> — a keyboard user is
+     dumped at the top of the page mid-flow. Moving focus to the new heading
+     also announces the change to a screen reader, which is the only way they
+     learn the 15-second wait is over. The panel scrolls back to the top for
+     everyone else. */
+  useEffect(() => {
+    if (!quoteOpen) return;
+    const head = quotePanelRef.current?.querySelector('h3');
+    if (head) { head.tabIndex = -1; head.focus({ preventScroll: true }); }
+    /* The drawer pins its head and foot, so the panel itself never scrolls —
+       the middle does. Reset that, not the panel. */
+    const body = quotePanelRef.current?.querySelector('.lxjt5-qd__body');
+    if (body) body.scrollTop = 0;
+  }, [qStage, quoteOpen]);
+
+  const partySummary = `${travellers} adult${travellers === 1 ? '' : 's'}${q.children ? `, ${q.children} child${q.children === 1 ? '' : 'ren'}` : ''}`;
+
+  const downloadQuote = useCallback(() => {
+    const rows = quote.lines.map((l) => `<tr><td>${l.label}<br><span class="note">${l.note}</span></td><td class="amt">${inr(l.amount)}</td></tr>`).join('');
+    downloadDoc(`Cox-and-Kings-Quote-${quoteRef}.html`, docShell(`Quote ${quoteRef} — Essence Japan with Hakone`, `
+      <header>
+        <div class="brand">Cox &amp; Kings · Private departure</div>
+        <h1>Essence Japan with Hakone</h1>
+        <p class="sub">Quote ${quoteRef} · prepared for ${q.prefix} ${q.first} ${q.last} · valid until ${validUntil}</p>
+      </header>
+      <h2>Your journey</h2>
+      <table>
+        <tr><td>Departing</td><td class="amt">${dateLabel}</td></tr>
+        <tr><td>Travellers</td><td class="amt">${partySummary}</td></tr>
+        <tr><td>Rooms</td><td class="amt">${q.rooms} · ${q.bed === 'twin' ? 'twin beds' : q.bed === 'double' ? 'one double' : 'a mix'}${q.extraBeds ? ` · ${q.extraBeds} extra bed(s)` : ''}</td></tr>
+        <tr><td>Duration</td><td class="amt">8 days · 7 nights</td></tr>
+      </table>
+      <h2>The price</h2>
+      <table>
+        ${rows}
+        <tr><td>GST (5%)</td><td class="amt">${inr(quote.gst)}</td></tr>
+        <tr class="tot"><td>Total</td><td class="amt">${inr(quote.total)}</td></tr>
+      </table>
+      <p class="note">That is ${inr(quote.perPerson)} per person, all in, for ${quote.heads} traveller${quote.heads === 1 ? '' : 's'}.</p>
+      <h2>What the price includes</h2>
+      <ul>${INCLUDED.map((i) => `<li>${i}</li>`).join('')}</ul>
+      <h2>What it does not include</h2>
+      <ul>${quote.excluded.map((i) => `<li>${i}</li>`).join('')}</ul>
+      ${q.comments ? `<h2>Your notes to us</h2><p>${q.comments}</p>` : ''}
+    `));
+  }, [quote, quoteRef, validUntil, q, dateLabel, partySummary]);
+
+  const downloadItinerary = useCallback(() => {
+    const days = ITINERARY.map((d) => `
+      <div class="day">
+        <h3>${d.day} · ${d.title}</h3>
+        <p>${d.body}</p>
+        <p class="note">Hotel: ${d.hotel} · Meals: ${d.meals} · ${d.transfer}</p>
+      </div>`).join('');
+    downloadDoc(`Cox-and-Kings-Itinerary-Essence-Japan.html`, docShell('Essence Japan with Hakone — full itinerary', `
+      <header>
+        <div class="brand">Cox &amp; Kings · Private departure</div>
+        <h1>Essence Japan with Hakone</h1>
+        <p class="sub">8 days · 7 nights · Tokyo, Odawara, Kawaguchiko, Kyoto, Osaka${quoteRef ? ` · accompanies quote ${quoteRef}` : ''}</p>
+      </header>
+      <h2>Day by day</h2>
+      ${days}
+      <h2>What the price includes</h2>
+      <ul>${INCLUDED.map((i) => `<li>${i}</li>`).join('')}</ul>
+      <h2>What it does not include</h2>
+      <ul>${NOT_INCLUDED.map((i) => `<li>${i}</li>`).join('')}</ul>
+    `));
+  }, [quoteRef]);
+
+  /* An .ics the traveller's own calendar understands — so the call they just
+     booked exists somewhere other than our database. */
+  const downloadCallInvite = useCallback(() => {
+    const when = callSlot.day === 'today' ? new Date() : new Date(Date.now() + 864e5);
+    const stamp = (d) => `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}T${String(d.getUTCHours()).padStart(2, '0')}${String(d.getUTCMinutes()).padStart(2, '0')}00Z`;
+    const end = new Date(when.getTime() + 30 * 60000);
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cox and Kings//Quote call//EN', 'BEGIN:VEVENT',
+      `UID:${quoteRef}@coxandkings.com`, `DTSTAMP:${stamp(new Date())}`, `DTSTART:${stamp(when)}`, `DTEND:${stamp(end)}`,
+      `SUMMARY:Cox & Kings — booking call (${quoteRef})`,
+      `DESCRIPTION:Your travel designer will call you on ${q.phone} to confirm Essence Japan with Hakone, quote ${quoteRef}.`,
+      `LOCATION:${PHONE_DISPLAY}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = `Cox-and-Kings-call-${quoteRef}.ics`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }, [callSlot, quoteRef, q.phone]);
 
   return (
     <>
@@ -931,85 +1456,152 @@ export default function JapanTourLuxe5() {
             </div>
           </section>
 
-          {/* ============ DATES & PRICES / BOOK ============ */}
-          <section className="lxjt-book" id="dates">
-            <div className="lx2i-container lxjt-book__grid">
-              <div className="lxjt-book__intro lx2i-reveal">
-                <span className="lx2i-eyebrow">// RESERVE YOUR DATES</span>
-                <h2 className="lx2i-h2">Reserve your <strong>seats</strong></h2>
-                <p className="lxjt-lead">Pick one of our set 2026 departures and confirm your seats with a 20% deposit &mdash; the balance comes later.</p>
-                <ul className="lxjt-book__perks">
-                  <li><Check size={16} strokeWidth={2.4} /> Expert-guided from the moment you land to the day you fly home</li>
-                  <li><Check size={16} strokeWidth={2.4} /> All-inclusive: flights, visa, insurance, stays, meals and transfers</li>
-                  <li><Check size={16} strokeWidth={2.4} /> A small group of no more than 20 like-minded travellers</li>
-                </ul>
-                <div className="lxjt-confidence">
-                  <ShieldCheck size={24} strokeWidth={1.7} />
-                  <div>
-                    <strong>Book with confidence</strong>
-                    <p>Encrypted checkout. Your 20% deposit is protected, and you can talk to a curator first &mdash; free.</p>
-                  </div>
-                </div>
-                <ul className="lxjt-safety" aria-label="How your booking is protected">
-                  {SAFETY.map(({ icon: Icon, label, note }) => (
-                    <li key={label} className="lxjt-safety__item">
-                      <span className="lxjt-safety__ic"><Icon size={17} strokeWidth={1.8} /></span>
-                      <span className="lxjt-safety__txt"><strong>{label}</strong><small>{note}</small></span>
-                    </li>
-                  ))}
-                </ul>
+          {/* ============ YOUR DATES / BOOK ============
+
+               Same design language as before — centred head, beige
+               confidence band, one white card walking numbered steps, all
+               of it lifted from /tour-detail-thailand-2. The CONTENT is now
+               a private journey's rather than a group tour's.
+
+               Two steps, not three. Thailand's third step is "choose how to
+               pay", which it can ask because it takes the payment. This card
+               cannot: the journey is priced by hand from the brief. Asking
+               "20% deposit or pay in full?" against a price that does not
+               exist yet was theatre, so the card asks only what it can act
+               on — when, and who — and hands the rest to the drawer.
+               ============================================================ */}
+          <section className="lxjt-book lxjt5-book" id="dates">
+            <div className="lx2i-container lxjt5-book__wrap">
+              <div className="lxjt-head lxjt-head--center lx2i-reveal">
+                <span className="lx2i-eyebrow">// PRIVATE JOURNEY · YOUR DATES</span>
+                <h2 className="lx2i-h2">Travel on <strong>your</strong> dates</h2>
+                <p className="lxjt5-book__lede">
+                  This journey is private, so there is no coach to fill and no group to join &mdash; it runs when
+                  you want it to. Pick a day, tell us who&rsquo;s coming, and a Japan specialist prices it by hand.
+                </p>
               </div>
 
-              <aside className="lxjt-card lx2i-reveal" style={{ '--d': '.08s' }}>
-                <div className="lxjt-card__top">
-                  <span className="lxjt-card__frm">from <strong>{inr(PRICE)}</strong> <small>pp</small></span>
-                  <span className="lxjt-card__live"><span className="lxjt-card__dot" aria-hidden="true" /> Live availability</span>
-                </div>
+              <ul className="lxjt5-book__perks lx2i-reveal">
+                <li><Check size={16} strokeWidth={2.4} /> Just your party &mdash; your own guide, your own car, no strangers</li>
+                <li><Check size={16} strokeWidth={2.4} /> Any day of the year, at whatever pace suits you</li>
+                <li><Check size={16} strokeWidth={2.4} /> Flights, visa, stays, meals and transfers &mdash; in or out, your call</li>
+              </ul>
 
-                <div className="lxjt-card__fields">
-                  <label className="lxjt-fld lxjt-fld--dep">
-                    <span className="lxjt-fld__lbl">Departure</span>
-                    <div className="lxjt-select">
-                      <select value={selectedDep} onChange={(e) => setSelectedDep(Number(e.target.value))} aria-label="Departure date">
-                        {DEPARTURES.map((d, i) => <option key={d.date} value={i}>{d.date}</option>)}
-                      </select>
-                      <ChevronDown size={16} aria-hidden="true" />
+              {/* The reassurance that actually applies to an enquiry */}
+              <div className="lxjt5-conf lx2i-reveal">
+                <span className="lxjt5-conf__ic"><ShieldCheck size={22} strokeWidth={2} /></span>
+                <div className="lxjt5-conf__tx">
+                  <h3>Priced by a person, not a price engine</h3>
+                  <p>
+                    Nothing is charged to ask. A Japan specialist builds the itinerary around your date and your
+                    party, and you can talk the whole thing through before a single rupee moves.
+                  </p>
+                </div>
+              </div>
+
+              <div className="lxjt5-bcard lx2i-reveal">
+                <div className="lxjt5-bcard__col">
+                  <div className="lxjt5-bstep">
+                    <span className="lxjt5-bstep__n">1</span>
+                    <h3 className="lxjt5-bstep__t">Pick your start date</h3>
+                  </div>
+
+                  <PrivateCalendar
+                    value={startDate}
+                    onChange={setStartDate}
+                    minDate={minDate}
+                    maxDate={maxDate}
+                  />
+
+                  {/* What they chose, echoed back in the card language the rest
+                      of the page speaks — and what it means, which on a Japan
+                      trip is the whole point of choosing a date at all. */}
+                  {picked ? (
+                    <div className="lxjt5-picked">
+                      <span className="lxjt5-picked__ic" aria-hidden="true"><Check size={14} strokeWidth={3} /></span>
+                      <span className="lxjt5-picked__tx">
+                        <strong>{longDate(picked)}</strong>
+                        <small>{TRIP_DAYS} days &middot; home on {longDate(homeOn)}</small>
+                      </span>
+                      <span className={`lxjt5-picked__season ${season.peak ? 'is-peak' : ''}`}>{season.label}</span>
                     </div>
-                    <small className={`lxjt-fld__seats ${DEPARTURES[selectedDep].tight ? 'is-tight' : ''}`}>{DEPARTURES[selectedDep].seats}</small>
-                  </label>
+                  ) : (
+                    <p className="lxjt5-cal__empty">
+                      Pick any day above. There are no set departures to choose between &mdash; the journey runs on your date.
+                    </p>
+                  )}
 
-                  <label className="lxjt-fld lxjt-fld--trav">
-                    <span className="lxjt-fld__lbl">Travellers</span>
-                    <div className="lxjt-stepper">
-                      <button type="button" aria-label="Fewer travellers" onClick={() => setTravellers((n) => Math.max(1, n - 1))} disabled={travellers <= 1}><Minus size={15} /></button>
-                      <span className="lxjt-stepper__val">{travellers}</span>
-                      <button type="button" aria-label="More travellers" onClick={() => setTravellers((n) => Math.min(20, n + 1))} disabled={travellers >= 20}><Plus size={15} /></button>
+                  {picked && <p className="lxjt5-cal__season">{season.note}</p>}
+
+                  <p className="lxjt5-cal__lead">
+                    <Clock size={13} strokeWidth={2} />
+                    A private journey takes about three weeks to build, so the earliest we can set off is {longDate(minDate)}.
+                  </p>
+                </div>
+
+                <div className="lxjt5-bcard__col">
+                  <div className="lxjt5-bstep">
+                    <span className="lxjt5-bstep__n">2</span>
+                    <h3 className="lxjt5-bstep__t">Who&rsquo;s travelling?</h3>
+                  </div>
+                  <div className="lxjt5-travs">
+                    <div className="lxjt5-travrow">
+                      <span className="lxjt5-travrow__lbl">Adults <small>12 and over</small></span>
+                      <div className="lxjt-stepper">
+                        <button type="button" aria-label="Fewer adults" onClick={() => setTravellers((n) => Math.max(1, n - 1))} disabled={travellers <= 1}><Minus size={15} /></button>
+                        <span className="lxjt-stepper__val">{travellers}</span>
+                        <button type="button" aria-label="More adults" onClick={() => setTravellers((n) => Math.min(20, n + 1))} disabled={travellers >= 20}><Plus size={15} /></button>
+                      </div>
                     </div>
-                  </label>
-                </div>
+                    <div className="lxjt5-travrow">
+                      <span className="lxjt5-travrow__lbl">Children <small>2&ndash;11 years</small></span>
+                      <div className="lxjt-stepper">
+                        <button type="button" aria-label="Fewer children" onClick={() => qSet('children')(Math.max(0, q.children - 1))} disabled={q.children <= 0}><Minus size={15} /></button>
+                        <span className="lxjt-stepper__val">{q.children}</span>
+                        <button type="button" aria-label="More children" onClick={() => qSet('children')(Math.min(10, q.children + 1))} disabled={q.children >= 10}><Plus size={15} /></button>
+                      </div>
+                    </div>
+                  </div>
 
-                <div className="lxjt-pay" role="radiogroup" aria-label="Payment option">
-                  <button type="button" role="radio" aria-checked={payMode === 'deposit'} className={`lxjt-pay__opt ${payMode === 'deposit' ? 'is-on' : ''}`} onClick={() => setPayMode('deposit')}>
-                    <span className="lxjt-pay__title">20% deposit</span>
-                    <span className="lxjt-pay__amt">{inr(depositTotal)}</span>
-                  </button>
-                  <button type="button" role="radio" aria-checked={payMode === 'full'} className={`lxjt-pay__opt ${payMode === 'full' ? 'is-on' : ''}`} onClick={() => setPayMode('full')}>
-                    <span className="lxjt-pay__title">Pay in full</span>
-                    <span className="lxjt-pay__amt">{inr(total)}</span>
-                  </button>
-                </div>
+                  {/* The price anchor. A from-figure is the only number this
+                      card can honestly show, so it shows that and says plainly
+                      where the real one comes from. */}
+                  <div className="lxjt5-anchor">
+                    <span className="lxjt5-anchor__frm">
+                      Private journeys from <strong>{inr(PRICE)}</strong> <small>per person</small>
+                    </span>
+                    <p className="lxjt5-anchor__note">
+                      There is no shelf price for a private trip. Yours is built from the date, the party and what
+                      you want included &mdash; it takes about a minute to ask, and nothing is charged for it.
+                    </p>
+                  </div>
 
-                <div className="lxjt-due">
-                  <div className="lxjt-due__row"><span>Due today</span><strong>{inr(dueToday)}</strong></div>
-                  <span className="lxjt-due__sub">{payMode === 'deposit' ? `Balance ${inr(balance)} due 45 days before travel` : `${travellers} × ${inr(PRICE)}, paid in full`}</span>
+                  <div className="lxjt5-bcard__go">
+                    <button type="button" className="lxjt5-cta" onClick={openQuote} disabled={!picked}>
+                      {quoteRef
+                        ? <><FileText size={17} /> View your quote &middot; {quoteRef}</>
+                        : <><FileText size={17} /> Get my tailor-made quote <ArrowRight size={17} /></>}
+                    </button>
+                    {/* A disabled button that doesn't say why is a dead end. */}
+                    {!picked && <p className="lxjt5-cta__why">Pick a start date and we can price it.</p>}
+                    <p className="lxjt5-secure">
+                      <Lock size={14} /> {quoteRef
+                        ? `Held until ${validUntil} · nothing charged yet`
+                        : 'About a minute to fill in · priced in 15 seconds · no payment'}
+                    </p>
+                    <a href={PHONE_TEL} className="lxjt-card__talk">Prefer to talk? Call a curator, free <ArrowRight size={14} /></a>
+                  </div>
                 </div>
+              </div>
 
-                <button type="button" className="lx2i-btn lx2i-btn--primary lx2i-btn--lg lxjt-card__go">
-                  <MessageCircle size={17} /> Enquire Now
-                </button>
-                <p className="lxjt-card__secure"><Lock size={13} /> Secure encrypted checkout · deposit protected</p>
-                <a href={PHONE_TEL} className="lxjt-card__talk">Prefer to talk? Call a curator, free <ArrowRight size={14} /></a>
-              </aside>
+              <ul className="lxjt-safety lxjt5-safety lx2i-reveal" aria-label="How your enquiry is protected">
+                {SAFETY.map(({ icon: Icon, label, note }) => (
+                  <li key={label} className="lxjt-safety__item">
+                    <span className="lxjt-safety__ic"><Icon size={17} strokeWidth={1.8} /></span>
+                    <span className="lxjt-safety__txt"><strong>{label}</strong><small>{note}</small></span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
 
@@ -1210,16 +1802,23 @@ export default function JapanTourLuxe5() {
           </footer>
         </main>
 
-        {/* ============ MOBILE THUMB-REACH BAR — talk to a human ============ */}
-        <div className="lxjt-thumbbar">
-          <div className="lxjt-thumbbar__nudge">
-            <small>Got questions about Japan?</small>
-            <strong>A specialist can help — free</strong>
-          </div>
-          <button type="button" className="lxjt-thumbbar__chat" onClick={() => setChatOpen(true)}>
-            <MessageCircle size={18} /> Chat with a specialist
+        {/* ============ MOBILE THUMB-REACH BAR ============
+             Floating dark-glass bar, matching the /new3 homepage. The quote is
+             the primary action and carries the label; WhatsApp is the secondary
+             and needs no label — the glyph is the whole message. */}
+        <div className="lxjt5-tbar">
+          <button type="button" className="lxjt5-tbar__cta" onClick={openQuote}>
+            <FileText size={17} /> Get a free quote
           </button>
-          <a href={PHONE_TEL} className="lxjt-thumbbar__ico" aria-label="Call a specialist"><Phone size={20} /></a>
+          <a
+            href={WHATSAPP}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="lxjt5-tbar__wa"
+            aria-label="Chat with a specialist on WhatsApp"
+          >
+            <WaIcon size={23} />
+          </a>
         </div>
 
         {/* ============ FLOATING AI BUTTON (desktop) ============ */}
@@ -1301,6 +1900,388 @@ export default function JapanTourLuxe5() {
                 </>
               )}
             </div>
+          </div>
+        )}
+
+        {/* ============ QUOTE DRAWER ============
+
+            The /tour-detail-thailand-2 drawer design: a right-edge panel
+            rather than a centred modal, with a pinned head, a scrolling
+            middle and a pinned foot — so the action never scrolls out of
+            reach however long the form (or the quote) runs.
+
+            The content is japan-5's five-stage quote flow, unchanged:
+            details → the 15-second pricing wait → the quote → book the call
+            → booked. Each stage fills the same three slots.
+            ============================================================ */}
+        {quoteOpen && (
+          <div className="lxjt5-qd" role="dialog" aria-modal="true" aria-label={QUOTE_STAGE_LABEL[qStage]}>
+            <div className="lxjt5-qd__scrim" onClick={() => setQuoteOpen(false)} />
+            <aside className="lxjt5-qd__panel" ref={quotePanelRef}>
+              <button className="lxjt5-qd__close" aria-label="Close" onClick={() => setQuoteOpen(false)}><X size={18} /></button>
+
+              {/* ---------- 1 · DETAILS ---------- */}
+              {qStage === 'details' && (
+                <form className="lxjt5-qd__form" onSubmit={(e) => { e.preventDefault(); setQStage('pricing'); }}>
+                  <header className="lxjt5-qd__head">
+                    <span className="lx2i-eyebrow">// PRIVATE DEPARTURE · STEP 1 OF 3</span>
+                    <h3 className="lxjt5-qd__title">Tell us who&rsquo;s travelling</h3>
+                    <p className="lxjt5-qd__sub">
+                      This journey is private and tailor-made, so the price follows the party &mdash; who&rsquo;s coming, how you want the rooms,
+                      and what you want included. Answer these and we&rsquo;ll price it while you wait. No payment at this step.
+                    </p>
+                  </header>
+
+                  <div className="lxjt5-qd__body">
+                    {/* ---- When ----
+                        The card's calendar already asks this, and normally the
+                        answer arrives here already filled in. But the mobile
+                        bottom bar opens this drawer straight from anywhere on
+                        the page, so the drawer cannot assume a date exists —
+                        it has to be able to ask for one itself. Same state, so
+                        the two controls can never disagree. */}
+                    <fieldset className="lxjt5-q__set">
+                      <legend>When you&rsquo;d like to go</legend>
+                      <label className="lx2i-cb__field">
+                        <span>Start date <small>{TRIP_DAYS} days, {TRIP_DAYS - 1} nights</small></span>
+                        <input
+                          type="date"
+                          required
+                          min={toISO(minDate)}
+                          max={toISO(maxDate)}
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                        />
+                      </label>
+                      {picked && (
+                        <p className="lxjt5-q__ctx">
+                          <Calendar size={14} strokeWidth={2} />
+                          <span>
+                            <strong>{season.label}</strong> &middot; home on {longDate(homeOn)} &middot; from {inr(PRICE)} pp
+                          </span>
+                        </p>
+                      )}
+                    </fieldset>
+
+                    {/* ---- Lead traveller ---- */}
+                    <fieldset className="lxjt5-q__set">
+                      <legend>Lead traveller</legend>
+                      <div className="lxjt5-q__row lxjt5-q__row--name">
+                        <label className="lx2i-cb__field">
+                          <span>Title</span>
+                          <select value={q.prefix} onChange={(e) => qSet('prefix')(e.target.value)}>
+                            {['Mr', 'Mrs', 'Ms', 'Mx', 'Dr', 'Prof'].map((p) => <option key={p}>{p}</option>)}
+                          </select>
+                        </label>
+                        <label className="lx2i-cb__field">
+                          <span>First name</span>
+                          <input type="text" autoComplete="given-name" placeholder="e.g. Priya" required
+                            value={q.first} onChange={(e) => qSet('first')(e.target.value)} />
+                        </label>
+                        <label className="lx2i-cb__field">
+                          <span>Last name</span>
+                          <input type="text" autoComplete="family-name" placeholder="e.g. Sharma" required
+                            value={q.last} onChange={(e) => qSet('last')(e.target.value)} />
+                        </label>
+                      </div>
+                      <div className="lxjt5-q__row lxjt5-q__row--2">
+                        <label className="lx2i-cb__field">
+                          <span>Email &mdash; we send the quote here</span>
+                          <input type="email" autoComplete="email" inputMode="email" placeholder="priya@example.com" required
+                            value={q.email} onChange={(e) => qSet('email')(e.target.value)} />
+                        </label>
+                        <label className="lx2i-cb__field">
+                          <span>Phone</span>
+                          <input type="tel" autoComplete="tel" inputMode="tel" placeholder="+91  XXXXX XXXXX" required
+                            value={q.phone} onChange={(e) => qSet('phone')(e.target.value)} />
+                        </label>
+                      </div>
+                    </fieldset>
+
+                    {/* ---- The party ---- */}
+                    <fieldset className="lxjt5-q__set">
+                      <legend>Who&rsquo;s coming</legend>
+                      <div className="lxjt5-q__row lxjt5-q__row--2">
+                        <QStep label="Adults" hint="12 and over" value={travellers} onChange={setTravellers} min={1} max={20} />
+                        <QStep label="Children" hint="2–11 years" value={q.children} onChange={qSet('children')} min={0} max={10} />
+                      </div>
+                      <div className="lxjt5-q__togs">
+                        <QToggle icon={Baby} label="Baby on board" hint="Under 2 — we'll arrange a cot and a bassinet seat"
+                          checked={q.infant} onChange={qSet('infant')} />
+                        <QToggle icon={Accessibility} label="Senior citizens travelling" hint="We'll pace the days and flag step-free rooms"
+                          checked={q.seniors} onChange={qSet('seniors')} />
+                      </div>
+                    </fieldset>
+
+                    {/* ---- Rooms & beds ---- */}
+                    <fieldset className="lxjt5-q__set">
+                      <legend>Rooms &amp; beds</legend>
+                      <div className="lxjt5-q__row lxjt5-q__row--2">
+                        <QStep label="Rooms" value={q.rooms} onChange={qSet('rooms')} min={1} max={10} />
+                        <QStep label="Extra beds" hint="Rollaway, per room" value={q.extraBeds} onChange={qSet('extraBeds')} min={0} max={6} />
+                      </div>
+                      <div className="lx2i-cb__field">
+                        <span>Bed preference</span>
+                        <div className="lxjt5-q__seg" role="radiogroup" aria-label="Bed preference">
+                          {[
+                            { id: 'twin', label: 'Twin beds' },
+                            { id: 'double', label: 'One double' },
+                            { id: 'mix', label: 'A mix' },
+                          ].map((b) => (
+                            <button key={b.id} type="button" role="radio" aria-checked={q.bed === b.id}
+                              className={`lxjt5-q__segbtn ${q.bed === b.id ? 'is-on' : ''}`}
+                              onClick={() => qSet('bed')(b.id)}>
+                              <BedDouble size={15} strokeWidth={1.8} /> {b.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </fieldset>
+
+                    {/* ---- What the quote should cover ---- */}
+                    <fieldset className="lxjt5-q__set">
+                      <legend>What should the quote include?</legend>
+                      <div className="lxjt5-q__togs">
+                        <QToggle icon={Plane} label="Include flights" hint="Return economy from your home city"
+                          checked={q.flights} onChange={qSet('flights')} />
+                        <QToggle icon={Stamp} label="Include visa assistance" hint="Japan tourist visa — paperwork handled for you"
+                          checked={q.visa} onChange={qSet('visa')} />
+                      </div>
+                    </fieldset>
+
+                    {/* ---- Anything else ---- */}
+                    <label className="lx2i-cb__field">
+                      <span>Anything else we should know? <small>Optional</small></span>
+                      <textarea rows={3} className="lxjt5-q__ta"
+                        placeholder="Dietary needs, an anniversary, a city you'd like to add, mobility needs…"
+                        value={q.comments} onChange={(e) => qSet('comments')(e.target.value)} />
+                    </label>
+                  </div>
+
+                  <footer className="lxjt5-qd__foot">
+                    <button type="submit" className="lxjt5-cta">
+                      <FileText size={15} /> Get a Quote
+                    </button>
+                    <p className="lxjt5-qd__footnote">Takes about 15 seconds &middot; or talk to us on <a href={PHONE_TEL}>{PHONE_DISPLAY}</a></p>
+                  </footer>
+                </form>
+              )}
+
+              {/* ---------- 2 · PRICING (the ~15s wait) ----------
+                  Determinate, named and cancellable. A spinner for fifteen
+                  seconds reads as a hang; a bar that visibly moves through
+                  work the traveller recognises as their own reads as care. */}
+              {qStage === 'pricing' && (
+                <div className="lxjt5-qd__form">
+                  <header className="lxjt5-qd__head">
+                    <span className="lx2i-eyebrow">// PRIVATE DEPARTURE · STEP 2 OF 3</span>
+                    <h3 className="lxjt5-qd__title">Pricing your journey</h3>
+                    <p className="lxjt5-qd__sub">
+                      A private departure is priced by hand, not pulled off a shelf &mdash; it takes about 15 seconds.
+                      Stay with us and you&rsquo;ll have the full quote on screen.
+                    </p>
+                  </header>
+
+                  <div className="lxjt5-qd__body lxjt5-q__wait">
+                    <div className="lxjt5-q__bar"
+                      role="progressbar"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={pct}
+                      aria-label="Pricing your journey">
+                      <span className="lxjt5-q__barfill" style={{ width: `${pct}%` }} />
+                    </div>
+                    <p className="lxjt5-q__pct">{pct}%<small>about {Math.max(1, Math.ceil(QUOTE_SECONDS - elapsed))}s left</small></p>
+
+                    {/* Politeness matters: an assertive region would interrupt a
+                        screen reader every few seconds for fifteen seconds. */}
+                    <ul className="lxjt5-q__steps" role="status" aria-live="polite">
+                      {stages.map((s) => {
+                        const done = elapsed >= s.at + 3;
+                        const now = !done && elapsed >= s.at;
+                        return (
+                          <li key={s.label} className={`lxjt5-q__step2 ${done ? 'is-done' : ''} ${now ? 'is-now' : ''}`}>
+                            <span className="lxjt5-q__stepic" aria-hidden="true">
+                              {done ? <Check size={13} strokeWidth={3} /> : <span className="lxjt5-q__dot" />}
+                            </span>
+                            {s.label}
+                          </li>
+                        );
+                      })}
+                    </ul>
+
+                    <p className="lxjt5-q__waitnote">
+                      <Lock size={13} /> Nothing is booked or charged by this. {stageLabel}.
+                    </p>
+                  </div>
+
+                  {/* The way out. A wait you cannot leave is a trap, and the
+                      details survive the trip back. */}
+                  <footer className="lxjt5-qd__foot">
+                    <button type="button" className="lx2i-btn lx2i-btn--outline lxjt5-q__cancel" onClick={() => setQStage('details')}>
+                      <ArrowLeft size={14} /> Cancel and change my details
+                    </button>
+                  </footer>
+                </div>
+              )}
+
+              {/* ---------- 3 · THE QUOTE ---------- */}
+              {qStage === 'quote' && (
+                <div className="lxjt5-qd__form">
+                  <header className="lxjt5-qd__head">
+                    <span className="lx2i-eyebrow">// QUOTE {quoteRef}</span>
+                    <h3 className="lxjt5-qd__title lxjt5-q__resulth">Your quote is ready</h3>
+                    <p className="lxjt5-qd__sub">
+                      Priced for {q.prefix} {q.first} {q.last} &mdash; {partySummary}, departing {dateLabel}.
+                      We&rsquo;ll hold these rates until <strong>{validUntil}</strong>.
+                    </p>
+                  </header>
+
+                  <div className="lxjt5-qd__body">
+                    <div className="lxjt5-q__lines">
+                      {quote.lines.map((l) => (
+                        <div key={l.label} className="lxjt5-q__line">
+                          <span className="lxjt5-q__linelbl"><strong>{l.label}</strong><small>{l.note}</small></span>
+                          <span className="lxjt5-q__lineamt">{inr(l.amount)}</span>
+                        </div>
+                      ))}
+                      <div className="lxjt5-q__line lxjt5-q__line--sub">
+                        <span className="lxjt5-q__linelbl"><strong>GST (5%)</strong></span>
+                        <span className="lxjt5-q__lineamt">{inr(quote.gst)}</span>
+                      </div>
+                      <div className="lxjt5-q__line lxjt5-q__line--tot">
+                        <span className="lxjt5-q__linelbl">
+                          <strong>Total</strong>
+                          <small>{inr(quote.perPerson)} per person, all in</small>
+                        </span>
+                        <span className="lxjt5-q__lineamt">{inr(quote.total)}</span>
+                      </div>
+                    </div>
+
+                    {/* What is NOT in the number, said before they ask — the
+                       omission is what erodes trust, not the exclusion. */}
+                    <details className="lxjt5-q__excl">
+                      <summary>What this price does not cover</summary>
+                      <ul>{quote.excluded.map((x) => <li key={x}>{x}</li>)}</ul>
+                    </details>
+
+                    <div className="lxjt5-q__dl">
+                      <button type="button" className="lx2i-btn lx2i-btn--outline" onClick={downloadQuote}>
+                        <Download size={15} /> Download quote
+                      </button>
+                      <button type="button" className="lx2i-btn lx2i-btn--outline" onClick={downloadItinerary}>
+                        <Download size={15} /> Download full itinerary
+                      </button>
+                    </div>
+                    <p className="lxjt5-q__dlnote">Both open print-ready &mdash; save as PDF from your browser&rsquo;s print dialog.</p>
+                  </div>
+
+                  <footer className="lxjt5-qd__foot">
+                    <button type="button" className="lxjt5-cta" onClick={() => setQStage('call')}>
+                      <PhoneCall size={15} /> Confirm &amp; book on a call
+                    </button>
+                    <p className="lxjt5-qd__footnote">
+                      Something not right? <button type="button" className="lxjt5-q__link" onClick={() => setQStage('details')}>Adjust the details and re-price</button>
+                    </p>
+                  </footer>
+                </div>
+              )}
+
+              {/* ---------- 4 · BOOK THE CALL ---------- */}
+              {qStage === 'call' && (
+                <div className="lxjt5-qd__form">
+                  <header className="lxjt5-qd__head">
+                    <span className="lx2i-eyebrow">// PRIVATE DEPARTURE · STEP 3 OF 3</span>
+                    <h3 className="lxjt5-qd__title">Book it on a call</h3>
+                    <p className="lxjt5-qd__sub">
+                      A private departure is confirmed with a person, not a checkout &mdash; so we hold quote <strong>{quoteRef}</strong>,
+                      walk you through the detail, and take the deposit on the call. Tell us when suits.
+                    </p>
+                  </header>
+
+                  <div className="lxjt5-qd__body">
+                    <a href={PHONE_TEL} className="lx2i-btn lx2i-btn--primary lx2i-btn--lg lxjt5-q__callnow">
+                      <Phone size={16} /> Call now &mdash; {PHONE_DISPLAY}
+                    </a>
+                    <p className="lxjt5-q__or2"><span>or have us call you</span></p>
+
+                    <div className="lxjt5-q__slots">
+                      <div className="lx2i-cb__field">
+                        <span>Which day?</span>
+                        <div className="lxjt5-q__seg" role="radiogroup" aria-label="Which day should we call?">
+                          {[{ id: 'today', label: 'Today' }, { id: 'tomorrow', label: 'Tomorrow' }].map((d) => (
+                            <button key={d.id} type="button" role="radio" aria-checked={callSlot.day === d.id}
+                              className={`lxjt5-q__segbtn ${callSlot.day === d.id ? 'is-on' : ''}`}
+                              onClick={() => setCallSlot((s) => ({ ...s, day: d.id }))}>
+                              <Calendar size={15} strokeWidth={1.8} /> {d.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="lx2i-cb__field">
+                        <span>What time? <small>IST</small></span>
+                        <div className="lxjt5-q__seg lxjt5-q__seg--3" role="radiogroup" aria-label="What time should we call?">
+                          {['9am–12pm', '12pm–5pm', '5pm–9pm'].map((t) => (
+                            <button key={t} type="button" role="radio" aria-checked={callSlot.time === t}
+                              className={`lxjt5-q__segbtn ${callSlot.time === t ? 'is-on' : ''}`}
+                              onClick={() => setCallSlot((s) => ({ ...s, time: t }))}>
+                              <Clock size={15} strokeWidth={1.8} /> {t}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="lxjt5-q__ctx">
+                      <Phone size={14} strokeWidth={2} />
+                      <span>We&rsquo;ll call <strong>{q.phone}</strong> &mdash; the number you gave us.</span>
+                    </p>
+                  </div>
+
+                  {/* Disabled buttons that don't say why are an anti-pattern, so
+                      the reason sits next to it rather than in a tooltip. */}
+                  <footer className="lxjt5-qd__foot">
+                    <button type="button" className="lxjt5-cta"
+                      disabled={!callSlot.time} onClick={() => setQStage('booked')}>
+                      <PhoneCall size={15} /> Confirm this call
+                    </button>
+                    {!callSlot.time && <p className="lxjt5-q__hint">Pick a time window and we&rsquo;ll confirm it.</p>}
+                    <p className="lxjt5-qd__footnote">
+                      <button type="button" className="lxjt5-q__link" onClick={() => setQStage('quote')}>Back to my quote</button>
+                    </p>
+                  </footer>
+                </div>
+              )}
+
+              {/* ---------- 5 · BOOKED ---------- */}
+              {qStage === 'booked' && (
+                <div className="lxjt5-qd__form">
+                  <div className="lxjt5-qd__body">
+                    <div className="lx2i-cb__done lxjt5-qd__done">
+                      <span className="lx2i-cb__doneic"><CheckCircle2 size={34} strokeWidth={1.5} /></span>
+                      <h3>Your call is booked</h3>
+                      <p>
+                        A travel designer will call <strong>{q.phone}</strong> {callSlot.day}, <strong>{callSlot.time}</strong>,
+                        holding quote <strong>{quoteRef}</strong> at <strong>{inr(quote.total)}</strong>. They&rsquo;ll confirm the
+                        detail and take the deposit on the call &mdash; nothing has been charged yet.
+                      </p>
+                      <div className="lxjt5-q__dl">
+                        <button type="button" className="lx2i-btn lx2i-btn--outline" onClick={downloadCallInvite}>
+                          <Calendar size={15} /> Add call to calendar
+                        </button>
+                        <button type="button" className="lx2i-btn lx2i-btn--outline" onClick={downloadQuote}>
+                          <Download size={15} /> Download quote
+                        </button>
+                      </div>
+                      <div className="lx2i-cb__nowrow">
+                        <a href={PHONE_TEL} className="lx2i-btn lx2i-btn--primary"><Phone size={14} /> Call now instead</a>
+                        <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="lx2i-btn lx2i-btn--outline"><MessageCircle size={14} /> WhatsApp</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </aside>
           </div>
         )}
       </div>

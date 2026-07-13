@@ -5,14 +5,104 @@
    Only the booking/payment section differs from v1. It becomes a single
    centred column: a "Book with confidence" card above a white booking
    card that holds a simplified departure list, two payment-choice cards
-   and a solid sienna "Pay now and secure seat" CTA — matching the
-   supplied reference. Everything is scoped under .tha2 so v1 (.tha) is
-   untouched, and all colours/radii come from design.md tokens.
+   and a solid sienna CTA. That CTA opens the traveller-details dialog
+   (.tha2-bd, at the foot of this file) rather than charging the card —
+   passport name, flights, beds and the visa exclusion are settled there
+   first. Everything is scoped under .tha2 so v1 (.tha) is untouched, and
+   all colours/radii come from design.md tokens.
    ============================================================ */
 
 /* One consistent corner radius for all rounded SURFACES (cards, rows,
    payment options); action buttons stay at the 4px system radius. */
 .tha2 { --tha2-round: 12px; }
+
+/* Display serif for this page only — the rest of the site stays on Zodiak.
+   The page root is <div class="lx2i lxjt … tha tha2">, so .lx2i declares
+   --serif: Zodiak on the very same element. Qualifying with .lx2i (0,2,0)
+   beats it on specificity rather than on import order, which a production
+   CSS bundle is free to reshuffle.
+
+   The nav chrome sits in a NESTED <div class="h26"> inside that root, and
+   .h26 re-declares --serif: Zodiak for its whole subtree — inheritance from
+   the root can't reach past it, so the flyout blurbs and mobile-menu links
+   need their own override. */
+.lx2i.tha2,
+.tha2 .h26 {
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+}
+
+/* ------------------------------------------------------------------
+   Heading weight ramp for Cormorant Garamond.
+
+   Cormorant is only loaded at 400–700 (index.html), so the shared
+   stylesheets' `font-weight: 300` headings round up to 400 — the same
+   weight as the 400 card titles. Without this ramp, display, section
+   and card headings all land on one identical weight and the hierarchy
+   flattens.
+
+   The ramp runs *heavier as the type gets smaller*. Cormorant is a
+   high-contrast garamond: its hairlines thin out optically at display
+   sizes but collapse at card sizes, so a single weight across the range
+   looks light at 17px and heavy at 80px. Weight compensates for optical
+   size; rank is carried by size + colour.
+
+   Serif set as *body* — pull-quotes, reel captions, the review
+   blockquote — is deliberately left light.
+   ------------------------------------------------------------------ */
+
+/* Level 1–2 — display + section headings (56–81px). */
+.tha2 .lxjt-hero__title,
+.tha2 .h26-h2,
+.tha2 .lx2i-h2,
+.tha2 .lx2i-cta__title,
+.tha2 .lx2i-reels__title,
+.tha2 .lx2i-arch__name {
+  font-weight: 500;
+}
+
+/* Level 3 — card, panel and modal headings (17–29px). These sit directly
+   on top of body copy and carry the most weight in the ramp. */
+.tha2 .lxjt-stop__body h3,
+.tha2 .lxjt-incl__h,
+.tha2 .lxjt-sim__body h3,
+.tha2 .lxjt-tc__title,
+.tha2 .lxjt2-day__title,
+.tha2 .lxjt2-media__meta h3,
+.tha2 .lxjt4-imgcap h3,
+.tha2 .lx2i-tour__body h3,
+.tha2 .lx2i-stay__head h3,
+.tha2 .lx2i-heritage__card h4,
+.tha2 .lx2i-cb__title,
+.tha2 .lx2i-cb__done h3,
+.tha2 .tha2-confidence__tx h3,
+.tha2 .tha2-card__h,
+.tha2 .tha2-step__t,
+.tha2 .tha2-payopt__t,
+/* Display figures — prices, deposits and step numerals read as headings,
+   and numerals need weight to hold up at small sizes. */
+.tha2 .tha2-dep__date,
+.tha2 .tha2-dep__price,
+.tha2 .tha2-payopt__amt,
+.tha2 .lxjt2-day__node,
+.tha2 .lxjt-stop__num,
+.tha2 .lxjt-subnav__from strong,
+.tha2 .lxjt-card__frm strong,
+.tha2 .lxjt-pay__amt,
+.tha2 .lxjt-due__row strong,
+.tha2 .lxjt3-tier__charge,
+.tha2 .lx2i-stay__price strong,
+.tha2 .lx2i-reviews__agg strong,
+.tha2 .lx2i-stat__num,
+.tha2 .lx2i-designer__stat b {
+  font-weight: 600;
+}
+
+/* Nav chrome: the flyout blurb (14px) and mobile-menu links (26px) are
+   serif at 300. Cormorant disappears at those sizes on a tinted panel. */
+.tha2 .hi-nav-blurb,
+.tha2 .h26-menu-primary a {
+  font-weight: 500;
+}
 
 /* ---- Hero CTAs ----
    "Book now" stays the system primary (blue). The secondary is a transparent
@@ -32,6 +122,50 @@
 /* ---- Mobile thumb-bar "Check Availability" → brand sienna ---- */
 .tha2 .lxjt-thumbbar__book { background: var(--sienna, #BD4011); }
 .tha2 .lxjt-thumbbar__book:active { background: var(--sienna-700, #97330E); }
+
+/* ---- Desktop floating "Book now" ----
+   The thumb-bar carries the booking CTA below 640px, but on desktop the only
+   way back to the card was the header pill. This rides the same right rail as
+   the Ask Enaya button (.lx2i-aifab: right 24px / bottom 24px, ~46px tall) and
+   sits directly above it — both are position:fixed, so neither moves on scroll.
+   Hidden at the same width Enaya is, so the two never disagree. */
+.tha2-bookfab {
+  position: fixed;
+  right: 24px;
+  bottom: 82px;                      /* 24px rail + Enaya's height + a 12px gap */
+  z-index: 150;                      /* same layer as .lx2i-aifab */
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 20px;
+  border-radius: 100px;
+  background: var(--sienna, #BD4011);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 18px 40px -16px rgba(189, 64, 17, 0.75);
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease),
+              background 0.2s var(--ease), opacity 0.3s var(--ease);
+}
+.tha2-bookfab:hover {
+  background: var(--sienna-700, #97330E);
+  transform: translateY(-3px);
+  box-shadow: 0 24px 50px -18px rgba(189, 64, 17, 0.85);
+}
+.tha2-bookfab__px { font-weight: 400; opacity: 0.85; }
+/* Chat drawer takes the same corner — step out of its way. */
+.tha2-bookfab.is-hidden { opacity: 0; pointer-events: none; transform: scale(0.8); }
+
+@media (max-width: 860px) { .tha2-bookfab { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .tha2-bookfab { transition: opacity 0.2s ease; }
+  .tha2-bookfab:hover { transform: none; }
+}
 
 .tha2 .tha2-section { background: var(--paper-50, #F8F7F1); }
 .tha2-wrap { max-width: 620px; }
@@ -235,6 +369,10 @@
 
 /* ---- CTA + secure line ---- */
 .tha2-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
   width: 100%;
   border: none;
   border-radius: var(--radius, 4px);
@@ -250,6 +388,7 @@
   transition: background 0.25s var(--ease);
 }
 .tha2-cta:hover { background: var(--sienna-700, #97330E); }
+.tha2-cta:disabled { background: var(--paper-200, #D9D7CB); color: var(--ink-600, #5C5C55); cursor: not-allowed; }
 .tha2-secure {
   display: flex;
   align-items: center;
@@ -340,4 +479,475 @@
 
   .tha2-cta { padding: 14px 20px; font-size: 14px; }
   .tha2-secure { font-size: 12px; margin-top: 11px; }
+}
+
+/* ============================================================
+   TRAVELLER DETAILS DRAWER
+
+   Opens from the booking card's "Fill in traveller details" CTA. The
+   booking card stays a three-step summary (date · party · pay mode);
+   everything that needs typing or a decision — passport names, phone
+   numbers, flights, beds, and what the price does and doesn't cover —
+   lives here, so the traveller sees the visa exclusion BEFORE they pay
+   rather than after.
+
+   A right-edge drawer rather than a centred modal: the party can grow to
+   twenty people, so this is a long form, and a full-height column gives
+   the traveller cards room without the panel fighting the viewport. Head
+   and pay footer are pinned; only the middle scrolls, so the amount due
+   never scrolls out of reach.
+   ============================================================ */
+.tha2-bd {
+  position: fixed;
+  inset: 0;
+  z-index: 200;                        /* over the fixed CTA rail (150) */
+  display: flex;
+  justify-content: flex-end;           /* drawer hugs the right edge */
+}
+.tha2-bd__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 36, 71, 0.58);   /* Blue/deep at low alpha */
+  backdrop-filter: blur(3px);
+  animation: tha2-bd-fade 0.25s var(--ease, ease) both;
+}
+.tha2-bd__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(780px, 100%);
+  height: 100%;
+  background: var(--paper-50, #F8F7F1);
+  box-shadow: -30px 0 80px rgba(2, 19, 48, 0.3);
+  animation: tha2-bd-slide 0.34s var(--ease, ease) both;
+}
+@keyframes tha2-bd-fade { from { opacity: 0; } }
+@keyframes tha2-bd-slide { from { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .tha2-bd__scrim, .tha2-bd__panel { animation: none; }
+}
+
+/* Head · scrolling body · pay footer */
+.tha2-bd__form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;                       /* let the body, not the form, scroll */
+  flex: 1;
+}
+.tha2-bd__head {
+  flex: none;
+  /* Right pad clears the close button, which floats over this corner. */
+  padding: 30px 58px 18px clamp(20px, 3.5vw, 40px);
+  border-bottom: 1px solid var(--paper-200, #D9D7CB);
+  background: var(--paper-50, #F8F7F1);
+}
+.tha2-bd__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px clamp(20px, 3.5vw, 40px) 24px;
+}
+.tha2-bd__foot {
+  flex: none;
+  padding: 16px clamp(20px, 3.5vw, 40px) calc(18px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--paper-200, #D9D7CB);
+  background: #fff;
+  box-shadow: 0 -12px 30px -22px rgba(2, 19, 48, 0.5);
+}
+
+.tha2-bd__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--paper-200, #D9D7CB);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink-700, #4E4E48);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.tha2-bd__close:hover { background: var(--paper-100, #F1EFE2); color: var(--ink-900, #1F2A36); }
+
+.tha2-bd__title {
+  font-family: var(--serif);
+  font-size: clamp(1.7rem, 1.3rem + 1.4vw, 2.2rem);
+  line-height: 1.15;
+  color: var(--ink-900, #1F2A36);
+  margin: 8px 0 4px;
+}
+.tha2-bd__sub {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink-600, #5C5C55);
+  margin: 0;
+}
+/* Explains the asterisk once, up front, instead of per field. */
+.tha2-bd__reqkey { white-space: nowrap; }
+.tha2-bd__star,
+.tha2-bd__reqkey i {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--sienna, #BD4011);
+}
+
+/* ---- Grouped sections ---- */
+.tha2-bd__set {
+  border: none;
+  border-top: 1px solid var(--paper-200, #D9D7CB);
+  padding: 20px 0 0;
+  margin: 0 0 20px;
+}
+/* The head's border already closes the gap above the first group. */
+.tha2-bd__set--first { border-top: none; padding-top: 18px; }
+.tha2-bd__set legend {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-900, #1F2A36);
+  padding: 0 10px 0 0;
+}
+.tha2-bd__hint {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-600, #5C5C55);
+  margin: 6px 0 14px;
+}
+
+/* ---- Name row: title select + first + last ---- */
+.tha2-bd__namerow {
+  display: grid;
+  grid-template-columns: 92px 1fr 1fr;
+  gap: 10px;
+}
+.tha2-bd__field { display: flex; flex-direction: column; gap: 6px; }
+.tha2-bd__field > span {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-700, #4E4E48);
+}
+.tha2-bd__field input,
+.tha2-bd__field select {
+  width: 100%;
+  padding: 12px 12px;
+  border: 1px solid var(--paper-200, #D9D7CB);
+  border-radius: var(--radius, 4px);
+  background: #fff;
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink-900, #1F2A36);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.tha2-bd__field input:focus-visible,
+.tha2-bd__field select:focus-visible {
+  outline: none;
+  border-color: var(--blue, #0B5AB1);
+  box-shadow: 0 0 0 3px rgba(11, 90, 177, 0.15);
+}
+
+/* ---- One card per traveller ----
+   The party is built here, not with steppers: adding a person and naming
+   them is the same act, so an empty card can never sit behind a count. */
+.tha2-bd__guest {
+  padding: 14px 16px 16px;
+  border: 1px solid var(--paper-200, #D9D7CB);
+  border-radius: var(--tha2-round, 12px);
+  background: #fff;
+}
+.tha2-bd__guest + .tha2-bd__guest { margin-top: 12px; }
+/* The lead owns the booking — mark them out from the rest of the party. */
+.tha2-bd__guest.is-lead {
+  border-color: var(--blue, #0B5AB1);
+  box-shadow: 0 0 0 3px rgba(11, 90, 177, 0.08);
+}
+
+.tha2-bd__guesthd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.tha2-bd__guestwho {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-900, #1F2A36);
+}
+.tha2-bd__guestwho svg { color: var(--blue, #0B5AB1); flex: none; }
+.tha2-bd__guestwho small { font-weight: 400; color: var(--ink-600, #5C5C55); }
+.tha2-bd__guesttag {
+  flex: none;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(11, 90, 177, 0.1);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue, #0B5AB1);
+}
+.tha2-bd__drop {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-600, #5C5C55);
+  cursor: pointer;
+  transition: color 0.2s var(--ease), background 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.tha2-bd__drop:hover {
+  color: var(--sienna, #BD4011);
+  background: rgba(189, 64, 17, 0.07);
+  border-color: rgba(189, 64, 17, 0.25);
+}
+
+.tha2-bd__field--phone { margin-top: 10px; }
+/* "Optional" reads as the counterweight to the required star. */
+.tha2-bd__opt-lbl {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--ink-600, #5C5C55);
+}
+
+/* ---- Add a person ---- */
+.tha2-bd__addrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+.tha2-bd__add {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px dashed var(--paper-200, #D9D7CB);
+  border-radius: var(--tha2-round, 12px);
+  background: none;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--blue, #0B5AB1);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.tha2-bd__add:hover:not(:disabled) {
+  border-color: var(--blue, #0B5AB1);
+  background: rgba(11, 90, 177, 0.05);
+}
+.tha2-bd__add:disabled { opacity: 0.45; cursor: not-allowed; }
+.tha2-bd__hint--cap { margin: 12px 0 0; color: var(--sienna, #BD4011); }
+
+/* ---- Flight / extra-bed opt-ins ----
+   Whole row is the hit target; the native checkbox stays in the DOM for
+   keyboard and screen readers but the painted box is the span. */
+.tha2-bd__opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--paper-200, #D9D7CB);
+  border-radius: var(--tha2-round, 12px);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.tha2-bd__opt + .tha2-bd__opt { margin-top: 10px; }
+.tha2-bd__opt:hover { border-color: var(--ink-600, #5C5C55); }
+.tha2-bd__opt.is-on { border-color: var(--blue, #0B5AB1); background: rgba(11, 90, 177, 0.04); }
+.tha2-bd__opt input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.tha2-bd__optbox {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border: 1.5px solid var(--paper-200, #D9D7CB);
+  border-radius: 4px;
+  background: #fff;
+  color: transparent;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.tha2-bd__opt.is-on .tha2-bd__optbox {
+  background: var(--blue, #0B5AB1);
+  border-color: var(--blue, #0B5AB1);
+  color: #fff;
+}
+.tha2-bd__opt input:focus-visible + .tha2-bd__optbox {
+  outline: 2px solid var(--blue, #0B5AB1);
+  outline-offset: 2px;
+}
+.tha2-bd__opttx { display: flex; flex-direction: column; gap: 4px; }
+.tha2-bd__optt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-900, #1F2A36);
+}
+.tha2-bd__optt svg { color: var(--blue, #0B5AB1); }
+.tha2-bd__opts {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-600, #5C5C55);
+}
+
+/* ---- Included / not-included points ---- */
+.tha2-bd__points { list-style: none; margin: 0; padding: 0; }
+.tha2-bd__point {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-700, #4E4E48);
+}
+.tha2-bd__point + .tha2-bd__point { border-top: 1px dashed var(--paper-200, #D9D7CB); }
+.tha2-bd__pointic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border-radius: 999px;
+  color: #fff;
+}
+.tha2-bd__point--on .tha2-bd__pointic { background: #337D64; }   /* Success/500 */
+.tha2-bd__point--off .tha2-bd__pointic { background: var(--sienna, #BD4011); }
+/* The exclusions are the ones people miss, so they carry the darker ink. */
+.tha2-bd__point--off { color: var(--ink-900, #1F2A36); }
+
+/* ---- Live bill ---- */
+.tha2-bd__bill {
+  padding: 16px 18px;
+  border-radius: var(--tha2-round, 12px);
+  background: var(--paper-100, #F1EFE2);
+  margin: 0 0 18px;
+}
+.tha2-bd__billrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink-700, #4E4E48);
+}
+.tha2-bd__billrow--credit { color: #337D64; }
+.tha2-bd__billrow--total {
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--paper-200, #D9D7CB);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-900, #1F2A36);
+}
+.tha2-bd__billrow--due {
+  font-weight: 600;
+  color: var(--sienna, #BD4011);
+}
+.tha2-bd__billrow--due span:last-child { font-size: 18px; }
+.tha2-bd__balance {
+  margin: 8px 0 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-600, #5C5C55);
+}
+
+.tha2-bd__submit { margin-top: 4px; }
+.tha2-bd__req {
+  margin: 10px 0 0;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink-600, #5C5C55);
+}
+
+/* ---- Confirmation ---- */
+.tha2-bd__done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  text-align: center;
+  padding: 30px 0;
+}
+.tha2-bd__doneic {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 16px;
+  border-radius: 999px;
+  background: rgba(51, 125, 100, 0.12);
+  color: #337D64;
+}
+.tha2-bd__done h3 {
+  font-family: var(--serif);
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 1.9rem);
+  color: var(--ink-900, #1F2A36);
+  margin: 0 0 10px;
+}
+.tha2-bd__done p {
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-700, #4E4E48);
+  margin: 0 auto 20px;
+  max-width: 46ch;
+}
+.tha2-bd__donerow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+@media (max-width: 560px) {
+  /* Phone: the drawer becomes the whole screen. */
+  .tha2-bd__panel { width: 100%; }
+  .tha2-bd__head { padding-top: 24px; }
+  .tha2-bd__guest { padding: 12px 13px 14px; }
+  /* Title drops onto its own line so the names keep a usable width. */
+  .tha2-bd__namerow { grid-template-columns: 92px 1fr; }
+  .tha2-bd__field--title { grid-column: 1 / -1; }
+  .tha2-bd__namerow .tha2-bd__field--title { grid-column: 1 / 2; }
+  .tha2-bd__add { flex-basis: 100%; }
 }

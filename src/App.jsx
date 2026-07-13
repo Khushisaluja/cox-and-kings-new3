@@ -42,11 +42,17 @@ import JapanJourneys2 from './pages/JapanJourneys2';
 import CityJourneys from './pages/CityJourneys';
 import New from './pages/New';
 import New2 from './pages/New2';
+import New3 from './pages/New3';
 import Home from './pages/Home';
 import Tours from './pages/Tours';
 import TourDetail from './pages/TourDetail';
 import Destinations from './pages/Destinations';
 import About from './pages/About';
+import AboutLedger from './pages/AboutLedger';
+import AboutUs from './pages/AboutUs';
+import AboutUs3 from './pages/AboutUs3';
+import AboutUs4 from './pages/AboutUs4';
+import Team from './pages/Team';
 import Contact from './pages/Contact';
 
 function ScrollToTop() {
@@ -89,6 +95,38 @@ export default function App() {
         {/* New composite page is now the default homepage */}
         <Route path="/" element={<New />} />
 
+        {/* About Us — "The Ledger". Standalone page built around a pinned,
+            scroll-scrubbed horizontal GSAP timeline (1758 → today) on which all
+            268 years are real ticks. Leads with the 2020 insolvency and the 2024
+            Wilson & Hughes acquisition rather than burying them. The old classic
+            /about is left untouched below. */}
+        <Route path="/about-us1" element={<AboutLedger />} />
+
+        {/* About Us — the scroll-scrubbed horizontal GSAP timeline version
+            (1758 → today), C&K India pillars, Wilson & Hughes, team + "View
+            all" specialists. Cormorant Garamond + Work Sans, design.md tokens. */}
+        <Route path="/about-us2" element={<AboutUs />} />
+
+        {/* About Us v3 — /about-us2 with ONE section rebuilt: the history
+            timeline is now "The Long Passage", a pinned, scroll-scrubbed
+            cinematic chapter stack with four parallax depth layers per era
+            (blurred bleed / counter-drifting ghost year / clip-path-wiped
+            plate / copy) plus a clickable year spine. Every other section is
+            identical to /about-us2. */}
+        <Route path="/about-us3" element={<AboutUs3 />} />
+
+        {/* About Us v4 — "The Riffle". Same fix, second attempt: /about-us3
+            gave each era its own viewport (~10 screens of scrolling, one
+            layout repeated 11×). Here the eras are a 3D deck of plates
+            receding in depth — five or six visible at once — so the section
+            costs ~4.5 viewports instead of ten, and a clickable year ruler +
+            "Skip to today" let an uninterested visitor leave immediately. */}
+        <Route path="/about-us4" element={<AboutUs4 />} />
+
+        {/* Full team — the detail page behind the About page's leadership
+            section. About shows the Director + 4 heads; this carries everyone. */}
+        <Route path="/about-us2/team" element={<Team />} />
+
         {/* Previous scroll-activated homepage — still reachable */}
         <Route path="/home2026" element={<Home2026 />} />
 
@@ -109,6 +147,12 @@ export default function App() {
             + an "Accolades & Achievements" award band in the heritage
             section. The original /new is untouched. */}
         <Route path="/new2" element={<New2 />} />
+
+        {/* New3 — /new-homepage with the /luxe2-improved HERO in place of the
+            /improved one: ken-burns photo + veil, bottom-anchored headline,
+            glass search bar with the typewriter "Where to?" field, rotating
+            stat chips. Same navbar, fonts and sections as /new-homepage. */}
+        <Route path="/new3" element={<New3 />} />
 
         {/* Journeys — tour LISTING page (design language shared with /improved).
             Opened by clicking a destination or searching on /improved.

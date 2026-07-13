@@ -1,9 +1,10 @@
 /* ============================================================
    Journeys4 — layered LAST, on top of Journeys.css + Journeys2.css.
 
-   Two scoped jobs (everything else inherited from /journeys2):
-     1. Card CTAs → PRIMARY (Voyager Blue) so the actions lead the eye.
-     2. A refined "Private Tour" / "Group Tour" tag on every card,
+   Three scoped jobs (everything else inherited from /journeys2):
+     1. Display serif → Cormorant Garamond instead of Zodiak.
+     2. Card CTAs → PRIMARY (Voyager Blue) so the actions lead the eye.
+     3. A refined "Private Tour" / "Group Tour" tag on every card,
         pulled into the SECONDARY (Sienna Flame) family so the two
         badges complement — never compete with — the blue CTAs.
    Both variants live in one warm palette but read distinctly:
@@ -11,6 +12,52 @@
    one. Scoped under .jl4 so /journeys2 keeps its original look.
    Tokens (--blue, --blue-d, --sienna, --sienna-d) come from .h26.
    ============================================================ */
+
+/* ---------------- DISPLAY SERIF → CORMORANT GARAMOND ---------------- */
+/* .h26 declares --serif: 'Zodiak'; .jl4 sits on the same element, so this
+   re-declaration wins on source order and every var(--serif) consumer on
+   the page follows. Cormorant Garamond is already loaded in index.html
+   (400–700), so no @font-face is needed. */
+.jl4 {
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+}
+
+/* Heading weight ramp — the same system the homepage runs in
+   NewTypography.css; keep the two in step if either is retuned.
+
+   Cormorant has no 300, so the shared jl-/jl2- stylesheets' Light-300
+   headings round up to 400 — the identical weight as the 400 card
+   titles, which flattens the hierarchy. The ramp runs *heavier as the
+   type gets smaller*: Cormorant is a high-contrast garamond whose
+   hairlines merely thin out at display sizes but collapse at card
+   sizes, so weight compensates for optical size while rank stays
+   carried by size and colour. */
+
+/* Level 1–2 — display + section headings (25–64px). */
+.jl4 .jl-hero-title,
+.jl4 .jl-shelf-title,
+.jl4 .jl-cta-title,
+.jl4 .jl-empty h2 {
+  font-weight: 500;
+}
+
+/* Level 3 — card, sidebar and lightbox headings (18–26px). These sit
+   directly on body copy and carry the most weight in the ramp. */
+.jl4 .jl-card-title,
+.jl4 .jl2-sidebar-title,
+.jl4 .jl-lb-title {
+  font-weight: 600;
+}
+
+/* Italic accent words inside headings — they inherit the heading weight
+   and Cormorant's italic is delicate enough to disappear at 500. */
+.jl4 .jl-hero-title .wr-accent,
+.jl4 .jl-cta-title strong {
+  font-weight: 700;
+}
+
+/* Serif set as body — card prices, the calendar month — stays light, per
+   the homepage rule. Left untouched deliberately. */
 
 /* ---------------- CARD CTAs → PRIMARY (Voyager Blue) ---------------- */
 /* "Enquire Now" — filled primary. */

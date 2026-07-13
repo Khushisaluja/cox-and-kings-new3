@@ -18,6 +18,90 @@
 /* ---- Tokens local to this page (design.md warm/paper scale). ---- */
 .jj2 { --beige-150: #E5E3D7; } /* Neutrals / 150 */
 
+/* Display serif for this page only — the rest of the site stays on Zodiak.
+   The page root is <div class="h26 jl jl2 jp jj2">, so .h26 declares
+   --serif: Zodiak on the very same element. Qualifying with .h26 (0,2,0)
+   beats it on specificity rather than on import order, which a production
+   CSS bundle is free to reshuffle. */
+.h26.jj2 {
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+}
+
+/* ------------------------------------------------------------------
+   Heading weight ramp for Cormorant Garamond.
+
+   Cormorant is only loaded at 400–700 (index.html), so the shared
+   stylesheets' `font-weight: 300` headings round up to 400 — the same
+   weight as the 400 card titles. Without this ramp, display, section
+   and card headings all land on one identical weight and the hierarchy
+   flattens.
+
+   The ramp runs *heavier as the type gets smaller*. Cormorant is a
+   high-contrast garamond: its hairlines thin out optically at display
+   sizes but collapse at card sizes, so a single weight across the range
+   looks light at 17px and heavy at 100px. Weight compensates for optical
+   size; rank is carried by size + colour.
+
+   Serif set as *body* — ledes, subs, prices — is deliberately left light.
+   ------------------------------------------------------------------ */
+
+/* Level 1–2 — display + section headings (30–64px). */
+.jj2 .jl-hero-title,
+.jj2 .jl-cta-title,
+.jj2 .jl-shelf-title,
+.jj2 .h26-h2,
+.jj2 .jp-title,
+.jj2 .jj2-where-head .jj2-where-title,
+.jj2 .jj2-choose__title,
+.jj2 .jj2-pav-title {
+  font-weight: 500;
+}
+
+/* Italic accent words inside those headings inherit the 500 above; in
+   Cormorant's italic that still reads thin against the roman, so give
+   them a touch more presence. The hero sets its accent through the
+   animated WordReveal span rather than an <em>. */
+.jj2 .jl-hero-title em,
+.jj2 .jl-hero-title .wr-accent,
+.jj2 .jl-cta-title em,
+.jj2 .jp-title em,
+.jj2 .jj2-where-head .jj2-where-title em {
+  font-weight: 600;
+}
+
+/* Hero headline runs larger than the shared /journeys hero (which tops out
+   at 4rem). Cormorant's small optical size gives the display line room to
+   grow before it starts competing with the sub; the tighter leading keeps
+   the two-line lockup from opening up as the size climbs.
+
+   `balance` is what stops "Japan, at your own pace" breaking as
+   "Japan, at your own" / "pace" — a one-word widow. It evens the two lines
+   out to "Japan, at your" / "own pace" without changing the line count, and
+   it re-solves the break at every width, so no hand-tuned ch cap to drift.
+   `max-width` stays as the two-line guarantee; balance does the splitting. */
+.jj2 .jl-hero-title {
+  font-size: clamp(2.9rem, 6.8vw, 5.2rem);
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+/* Level 3 — card, panel and modal headings (16–27px). These sit directly
+   on top of body copy and carry the most weight in the ramp. */
+.jj2 .jl-card-title,
+.jj2 .jl-lb-title,
+.jj2 .jl-empty h2,
+.jj2 .jl2-sidebar-title,
+.jj2 .jp-hl-name,
+.jj2 .jp-dish-name,
+.jj2 .jp-resto-name,
+.jj2 .jj2-pick__title,
+.jj2 .jj2-pav-name,
+/* Prices read as display figures, and numerals need weight to hold up
+   at small sizes. */
+.jj2 .jl-card-price {
+  font-weight: 600;
+}
+
 /* ============================================================
    1 · THE JAPAN JOURNEYS — filter rail + sortable grid
    ============================================================ */

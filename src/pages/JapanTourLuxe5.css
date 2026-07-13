@@ -63,5 +63,1084 @@
 }
 .lxjt5 .lxjt5-rating-link:hover { opacity: 0.92; }
 
-/* Bottom thumb-bar CTA: square-ish 4px corners (japan-5 only) */
-.lxjt5 .lxjt-thumbbar__chat { border-radius: 4px; }
+/* ============================================================
+   MOBILE BOTTOM BAR (japan-5 only)
+
+   The shared .lxjt-thumbbar is a light, edge-to-edge paper strip with a
+   nudge line, a chat button and a phone icon. This variant drops it for
+   the /new3 homepage's bar instead: a floating dark-glass slab inset from
+   all three edges, carrying one labelled primary action and one icon-only
+   secondary. Same geometry as .h26-thumbbar (Home2026.css) so the two
+   pages read as one product — but the actions are the ones that matter on
+   a tour page: get priced, or ask a human on WhatsApp.
+
+   Fresh .lxjt5-tbar classnames rather than a re-skin of .lxjt-thumbbar,
+   because that one is shared with variants 1–4 and both Thailand pages.
+   ============================================================ */
+.lxjt5 .lxjt5-tbar { display: none; }
+
+@media (max-width: 680px) {
+  .lxjt5 .lxjt5-tbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    /* Clears the iOS home indicator without the bar drifting up on Android. */
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 150;
+    padding: 10px;
+    border-radius: 16px;
+    background: rgba(4, 36, 71, 0.72); /* --blue-800 at 72% */
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 20px 50px -18px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Primary: takes the remaining width, so the label never truncates. */
+  .lxjt5 .lxjt5-tbar__cta {
+    flex: 1;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 52px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 11px;
+    background: var(--sienna);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .lxjt5 .lxjt5-tbar__cta svg { flex: none; }
+  .lxjt5 .lxjt5-tbar__cta:active { background: var(--sienna-700); }
+
+  /* Secondary: WhatsApp green. Icon-only — a 52px square, so it stays a
+     legitimate touch target while the quote keeps the visual weight. */
+  .lxjt5 .lxjt5-tbar__wa {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 11px;
+    border: none;
+    background: #1FAF54;
+    color: #fff;
+    text-decoration: none;
+  }
+  .lxjt5 .lxjt5-tbar__wa:active { background: #178A42; }
+
+  .lxjt5 .lxjt5-tbar__cta:focus-visible,
+  .lxjt5 .lxjt5-tbar__wa:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  /* Keep the last of the page clear of the floating bar. The shared rule
+     only reaches to 640px, and this bar starts at 680px. */
+  .lxjt5 .lx2i-footer { padding-bottom: 96px; }
+}
+
+/* Enaya has to survive the swap. The old bar's "Chat with a specialist"
+   button was her only door on a phone — Luxe2Improved.css hides the
+   floating FAB from 860px down — and the new bar goes to the quote and to
+   WhatsApp instead. So bring the FAB back on small screens rather than
+   quietly losing the assistant on mobile. */
+@media (max-width: 860px) {
+  .lxjt5 .lx2i-aifab {
+    display: inline-flex;
+    padding: 11px 16px;
+    font-size: 13px;
+  }
+}
+
+/* Once the bar is on screen, the FAB has to clear it. */
+@media (max-width: 680px) {
+  .lxjt5 .lx2i-aifab {
+    right: 12px;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+
+/* ============================================================
+   TYPE — primary/display face is Cormorant Garamond (was Zodiak).
+
+   Two scopes declare --serif: Zodiak inside this page, and both have
+   to be answered on SPECIFICITY rather than import order (a production
+   CSS bundle is free to reshuffle the file order):
+     · the page root <div class="lx2i lxjt lxjt2 lxjt3 lxjt4 lxjt5">,
+       where .lx2i (0,1,0) sets it on the very same element;
+     · the nested <div class="h26"> header, where .h26 (0,1,0) resets
+       it for that subtree.
+   Qualifying each with .lxjt5 (0,2,0) wins both. Work Sans stays the
+   secondary/UI face. Both families already load from Google Fonts in
+   index.html, so no @font-face is needed.
+   ============================================================ */
+.lx2i.lxjt5,
+.lxjt5 .h26 {
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+}
+
+/* ------------------------------------------------------------------
+   Heading weight ramp for Cormorant Garamond.
+
+   Cormorant is only loaded at 400–700 (index.html), so the shared
+   stylesheets' `font-weight: 300` headings round up to 400 — the same
+   weight as the 400 card titles. Without this ramp, hero, section and
+   card headings all land on one identical weight and the hierarchy
+   flattens.
+
+   The ramp runs *heavier as the type gets smaller*. Cormorant is a
+   high-contrast garamond: its hairlines thin out optically at display
+   sizes but collapse at card sizes, so a single weight across the range
+   looks light at 16px and heavy at 74px. Weight compensates for optical
+   size; rank is carried by size + colour.
+
+   Serif set as *body* — the review copy and nav blurb — is left light.
+   ------------------------------------------------------------------ */
+
+/* Level 1–2 — hero + section headings (32–74px). */
+.lxjt5 .lxjt-hero__title,
+.lxjt5 .lx2i-h2,
+.lxjt5 .lx2i-cta__title,
+.lxjt5 .h26-h2 {
+  font-weight: 500;
+}
+
+/* Italic accent words in those headings ship at 600 roman-weight, which
+   in Cormorant's italic still reads thin against the roman around it. */
+.lxjt5 .lx2i-h2 strong,
+.lxjt5 .lx2i-cta__title strong {
+  font-weight: 700;
+}
+
+/* Serif nav links sit between display and body; 500 keeps them from
+   reading as copy without turning them into headings. */
+.lxjt5 .h26-menu-primary a {
+  font-weight: 500;
+}
+
+/* Level 3 — card, panel and modal headings (16–27px). These sit directly
+   on top of body copy and carry the most weight in the ramp. */
+.lxjt5 .lxjt-stop__body h3,
+.lxjt5 .lxjt-incl__h,
+.lxjt5 .lxjt-sim__body h3,
+.lxjt5 .lxjt-tc__title,
+.lxjt5 .lxjt2-day__title,
+.lxjt5 .lxjt2-railcard__city,
+.lxjt5 .lxjt4-imgcap h3,
+.lxjt5 .lx2i-cb__title,
+.lxjt5 .lx2i-cb__done h3,
+.lxjt5 .lxjt5-qd__title,
+.lxjt5 .lxjt5-conf__tx h3,
+.lxjt5 .lxjt5-bstep__t,
+.lxjt5 .lxjt5-cal__title,
+/* Prices, ratings, day/stop numerals and the like read as display
+   figures, and numerals need weight to hold up at small sizes. */
+.lxjt5 .lxjt-stop__num,
+.lxjt5 .lxjt2-day__node,
+.lxjt5 .lxjt2-media__count,
+.lxjt5 .lxjt5-anchor__frm strong,
+.lxjt5 .lxjt5-picked__tx strong,
+.lxjt5 .lxjt3-tier__charge,
+.lxjt5 .hi-rtrust-overall > strong {
+  font-weight: 600;
+}
+
+/* ============================================================
+   BOOKING SECTION — the /tour-detail-thailand-2 design
+
+   Thailand-2's booking block, rebuilt for japan-5's content. The design
+   moves: a centred head, a beige "book with confidence" band, then one
+   white card that runs three NUMBERED STEPS — pick a date, say who's
+   coming, choose how to pay — going two-column on desktop so the card
+   fills the measure instead of hiding in a 400px rail.
+
+   Re-implemented under .lxjt5 rather than importing ThailandEscape2.css,
+   whose every rule is scoped to .tha2 and would not apply here anyway.
+
+   The one honest departure from Thailand-2: its departure rows carry a
+   per-date price, because its dates are priced differently. Japan's four
+   departures are all one price, so repeating it four times would be noise
+   — the "from ₹X pp" line sits above the list instead, and the rows carry
+   the date and the seat count, which is what actually decides the choice.
+   ============================================================ */
+.lxjt5 .lxjt5-book { background: var(--paper-50); }
+.lxjt5-book__wrap { max-width: 620px; }
+.lxjt5 .lxjt5-book .lxjt-head { margin-bottom: 22px; }
+/* Keeps "Reserve your seats" from orphaning its last word when centred. */
+.lxjt5 .lxjt5-book .lx2i-h2 { text-wrap: balance; }
+
+.lxjt5-book__lede {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-600);
+  max-width: 54ch;
+  margin: 10px auto 0;
+}
+
+/* The three promises. Centred under the head, above the card. */
+.lxjt5-book__perks {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.lxjt5-book__perks li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--ink-900);
+}
+.lxjt5-book__perks svg { flex-shrink: 0; color: var(--sienna); margin-top: 3px; }
+
+/* ---- "Book with confidence" band ---- */
+.lxjt5-conf {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background: #E5E3D7;              /* Neutrals/150 — the tha2 beige */
+}
+.lxjt5-conf__ic { flex: none; color: #337D64; margin-top: 3px; }  /* Success — the lock reads "secure" */
+.lxjt5-conf__tx h3 {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.3;
+  color: var(--ink-900);
+  margin: 0 0 6px;
+}
+.lxjt5-conf__tx p {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-600);
+  margin: 0;
+}
+
+/* ---- The card ---- */
+.lxjt5-bcard {
+  background: #fff;
+  border: 1px solid var(--paper-200);
+  border-radius: 12px;
+  padding: 26px 24px;
+  box-shadow: 0 30px 70px -40px rgba(2, 19, 48, 0.4);
+}
+
+/* ---- Numbered step headers ---- */
+.lxjt5-bstep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.lxjt5-bstep__n {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sienna);
+  color: var(--paper-100);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1;
+}
+.lxjt5-bstep__t {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--ink-900);
+  margin: 0;
+}
+
+/* ---- The calendar ----
+   Same design language as the departure cards it replaces — beige surface,
+   sienna for the chosen thing, Cormorant for the numerals — just arranged
+   as a month rather than a list. */
+.lxjt5-cal {
+  padding: 14px 14px 10px;
+  border-radius: 10px;
+  background: #E5E3D7;                /* Neutrals/150 — the same beige */
+  margin-bottom: 14px;
+}
+.lxjt5-cal__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.lxjt5-cal__title {
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--ink-900);
+  margin: 0;
+  text-align: center;
+}
+.lxjt5-cal__nav {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ink-800);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.lxjt5-cal__nav:hover:not(:disabled) { background: #fff; border-color: var(--sienna); color: var(--sienna); }
+.lxjt5-cal__nav:disabled { opacity: 0.35; cursor: not-allowed; }
+.lxjt5-cal__nav:focus-visible { outline: 2px solid var(--sienna); outline-offset: 2px; }
+
+.lxjt5-cal__wk,
+.lxjt5-cal__row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.lxjt5-cal__wk {
+  margin-bottom: 4px;
+}
+.lxjt5-cal__wk span {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-600);
+  text-align: center;
+  padding-bottom: 4px;
+}
+.lxjt5-cal__grid { display: grid; gap: 2px; }
+
+.lxjt5-cal__day {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;   /* Cormorant needs the weight at this size — see the ramp */
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.lxjt5-cal__day:hover:not(:disabled):not(.is-on) { background: #fff; border-color: #D78C70; }
+/* A day we cannot build in. Muted AND struck, never colour alone. */
+.lxjt5-cal__day:disabled {
+  color: var(--ink-600);
+  opacity: 0.38;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+.lxjt5-cal__day.is-on {
+  background: var(--sienna);
+  border-color: var(--sienna);
+  color: #fff;
+}
+.lxjt5-cal__day:focus-visible { outline: 2px solid var(--ink-900); outline-offset: 1px; }
+.lxjt5-cal__pad { display: block; }
+
+/* ---- What they picked, and what it means ---- */
+.lxjt5-picked {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  background: #fff;
+  border: 2px solid var(--sienna);
+  margin-bottom: 10px;
+}
+.lxjt5-picked__ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--sienna);
+  color: #fff;
+}
+.lxjt5-picked__tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; margin-right: auto; }
+.lxjt5-picked__tx strong { font-family: var(--serif); font-size: 19px; font-weight: 600; line-height: 1.15; color: var(--ink-900); }
+.lxjt5-picked__tx small { font-family: var(--sans); font-size: 12.5px; color: var(--ink-600); }
+.lxjt5-picked__season {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--paper-100);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-700);
+  white-space: nowrap;
+}
+/* The two peaks want more notice — say so on the badge, not in a footnote. */
+.lxjt5-picked__season.is-peak { background: rgba(189, 64, 17, 0.1); color: var(--sienna); }
+
+.lxjt5-cal__season,
+.lxjt5-cal__empty {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-700);
+  margin: 0 0 10px;
+}
+.lxjt5-cal__empty { color: var(--ink-600); }
+.lxjt5-cal__lead {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-600);
+}
+.lxjt5-cal__lead svg { flex: none; margin-top: 2px; }
+
+/* ---- Travellers ---- */
+.lxjt5-travs { display: flex; flex-direction: column; gap: 12px; margin: 0 0 22px; }
+.lxjt5-travrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.lxjt5-travrow__lbl {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-900);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.lxjt5-travrow__lbl small { font-weight: 400; font-size: 12px; color: var(--ink-600); }
+/* Japan's own control radii — the shared stepper is otherwise square. */
+.lxjt5 .lxjt-stepper { border-radius: 10px; }
+.lxjt5 .lxjt-stepper button { border-radius: 8px; }
+
+/* ---- The price anchor ----
+   Where "Due today ₹1,18,000" used to sit. A private journey has no shelf
+   price, so the only honest number here is the from-figure — and the note
+   says where the real one comes from. */
+.lxjt5-anchor {
+  padding: 14px 16px;
+  margin: 0 0 18px;
+  border-radius: 10px;
+  background: var(--paper-100);
+  border: 1px solid var(--paper-200);
+}
+.lxjt5-anchor__frm {
+  display: block;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-700);
+  margin-bottom: 6px;
+}
+.lxjt5-anchor__frm strong { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--ink-900); }
+.lxjt5-anchor__frm small { font-size: 12px; }
+.lxjt5-anchor__note {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-600);
+}
+
+/* ---- CTA + the two reassurances under it ---- */
+.lxjt5-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 16px 22px;
+  border: none;
+  border-radius: 4px;
+  background: var(--sienna);
+  color: var(--paper-100);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s var(--ease);
+}
+.lxjt5-cta:hover:not(:disabled) { background: var(--sienna-700); }
+.lxjt5-cta:disabled { background: var(--paper-200); color: var(--ink-600); cursor: not-allowed; }
+.lxjt5-cta:focus-visible { outline: 2px solid var(--ink-900); outline-offset: 2px; }
+.lxjt5-cta svg { flex: none; }
+
+.lxjt5-secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 13px 0 0;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--ink-600);
+  text-align: center;
+}
+.lxjt5-secure svg { flex: none; color: #337D64; }
+.lxjt5 .lxjt5-bcard__go .lxjt-card__talk { margin-top: 10px; }
+
+/* The CTA is disabled until a date exists. Saying why, next to the button,
+   is the difference between a locked door and a sign. */
+.lxjt5-cta__why {
+  display: block;
+  margin: 10px 0 0;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--sienna);
+  text-align: center;
+}
+
+/* ---- The four protections, under the card ---- */
+.lxjt5 .lxjt5-safety { margin-top: 22px; }
+
+/* Desktop: the card goes two-column and the section widens to hold it. */
+@media (min-width: 900px) {
+  .lxjt5-book__wrap { max-width: 1040px; }
+  .lxjt5-book__perks {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 28px;
+    margin-bottom: 24px;
+  }
+  .lxjt5-bcard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 34px;
+    align-items: stretch;
+    padding: 32px 34px;
+  }
+  .lxjt5-bcard__col { display: flex; flex-direction: column; }
+  /* Steps 2 and 3 stack down the right column; the CTA is pushed to its
+     foot so both columns finish level however long the date list runs. */
+  .lxjt5-bcard__go { margin-top: auto; padding-top: 4px; }
+  .lxjt5 .lxjt5-safety { grid-template-columns: repeat(4, 1fr); margin-top: 26px; }
+}
+
+@media (max-width: 560px) {
+  /* The card's own padding comes off so the calendar keeps its width — a
+     day cell that shrinks below the 44px touch floor is unusable, and on a
+     360px screen seven of them plus 18px each side is already tight. */
+  .lxjt5-bcard { padding: 22px 14px; }
+  .lxjt5-conf { padding: 16px 18px; gap: 12px; }
+  .lxjt5-conf__tx h3 { font-size: 19px; }
+  .lxjt5-cal { padding: 12px 8px 8px; }
+  .lxjt5-cal__title { font-size: 17px; }
+  .lxjt5-cal__day { font-size: 15px; border-radius: 7px; }
+  .lxjt5-picked { flex-wrap: wrap; gap: 10px; }
+  .lxjt5-picked__tx strong { font-size: 17px; }
+  .lxjt5-cta { padding: 14px 18px; font-size: 14px; }
+}
+
+/* ============================================================
+   THE QUOTE DRAWER (japan-5 only)
+
+   Thailand-2's traveller-details drawer, carrying japan-5's five-stage
+   quote flow. A right-edge drawer rather than a centred modal: the
+   details form is long, and a full-height column gives it room without
+   fighting the viewport. Head and foot are pinned and only the middle
+   scrolls, so the action of the moment — "Get a Quote", "Confirm this
+   call" — never scrolls out of reach.
+
+   The inner controls (.lxjt5-q__set / __tog / __seg / __lines …) are the
+   ones this page already had; only the shell around them changed, from
+   the .lx2i-cb modal to this drawer.
+   ============================================================ */
+.lxjt5-qd {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;                      /* over the bottom bar (150) */
+  display: flex;
+  justify-content: flex-end;          /* the drawer hugs the right edge */
+}
+.lxjt5-qd__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 36, 71, 0.58);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: lxjt5-qd-fade 0.25s var(--ease) both;
+}
+.lxjt5-qd__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(720px, 100%);
+  height: 100%;
+  background: var(--paper-50);
+  box-shadow: -30px 0 80px rgba(2, 19, 48, 0.3);
+  animation: lxjt5-qd-slide 0.34s var(--ease) both;
+}
+@keyframes lxjt5-qd-fade { from { opacity: 0; } }
+@keyframes lxjt5-qd-slide { from { transform: translateX(100%); } }
+
+/* Head · scrolling body · pinned foot */
+.lxjt5-qd__form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;                      /* let the body scroll, not the form */
+}
+.lxjt5-qd__head {
+  flex: none;
+  /* Right pad clears the close button, which floats over that corner. */
+  padding: 30px 58px 18px clamp(20px, 3.5vw, 40px);
+  border-bottom: 1px solid var(--paper-200);
+}
+.lxjt5-qd__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px clamp(20px, 3.5vw, 40px) 24px;
+}
+.lxjt5-qd__foot {
+  flex: none;
+  padding: 16px clamp(20px, 3.5vw, 40px) calc(18px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--paper-200);
+  background: #fff;
+  box-shadow: 0 -12px 30px -22px rgba(2, 19, 48, 0.5);
+}
+
+.lxjt5-qd__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--paper-200);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink-700);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.lxjt5-qd__close:hover { background: var(--paper-100); color: var(--ink-900); }
+
+.lxjt5-qd__title {
+  font-family: var(--serif);
+  font-size: clamp(1.7rem, 1.3rem + 1.4vw, 2.15rem);
+  line-height: 1.15;
+  color: var(--ink-900);
+  margin: 8px 0 6px;
+}
+.lxjt5-qd__title:focus { outline: none; }  /* focus lands here for screen readers */
+.lxjt5-qd__sub {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-600);
+  margin: 0;
+}
+.lxjt5-qd__sub strong { font-weight: 600; color: var(--ink-800); }
+
+/* The line under a pinned CTA — "takes 15 seconds", "back to my quote". */
+.lxjt5-qd__footnote {
+  margin: 11px 0 0;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink-600);
+  text-align: center;
+}
+.lxjt5-qd__footnote a { color: var(--blue-700); }
+
+/* The confirmation has no form and no pinned action — centre it in the
+   column rather than leaving it stranded at the top of a tall drawer. */
+.lxjt5-qd__done { margin: auto 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lxjt5-qd__scrim, .lxjt5-qd__panel { animation: none; }
+}
+
+/* Departure echo: carries the card's chosen date into the drawer so the
+   traveller isn't left wondering which departure they're pricing. */
+.lxjt5-q__ctx {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 10px 13px;
+  border-radius: 10px;
+  border: 1px solid var(--paper-200);
+  background: rgba(255,255,255,0.6);
+  font-size: 13px;
+  color: var(--ink-800);
+}
+.lxjt5-q__ctx svg { color: var(--blue-500); flex: none; }
+.lxjt5-q__ctx strong { font-weight: 600; color: var(--ink-900); }
+
+/* ---- Fieldsets: the drawer's groups ---- */
+.lxjt5-q__set {
+  border: 0;
+  border-top: 1px solid var(--paper-200);
+  margin: 0;
+  padding: 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lxjt5-q__set:first-of-type { border-top: 0; padding-top: 0; }
+.lxjt5-q__set legend {
+  padding: 0;
+  font-family: var(--serif);
+  font-weight: 600; /* Cormorant needs the weight at this size — see the ramp above */
+  font-size: 17px;
+  color: var(--ink-900);
+}
+
+/* ---- Rows ---- */
+.lxjt5-q__row { display: grid; gap: 12px; }
+.lxjt5-q__row--2 { grid-template-columns: 1fr 1fr; }
+/* Title is a narrow select; the two names take the rest. */
+.lxjt5-q__row--name { grid-template-columns: 88px 1fr 1fr; }
+
+/* ---- Stepper row (label + the card's stepper control) ---- */
+.lxjt5-q__step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--paper-200);
+  border-radius: 10px;
+  background: #fff;
+}
+.lxjt5-q__steplbl {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-900);
+}
+.lxjt5-q__steplbl small { font-size: 11.5px; font-weight: 400; color: var(--ink-600); }
+
+/* ---- Switch rows ---- */
+.lxjt5-q__togs { display: grid; gap: 10px; }
+.lxjt5-q__tog {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 13px;
+  border: 1px solid var(--paper-200);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .22s ease, background .22s ease;
+}
+.lxjt5-q__tog:hover { border-color: var(--blue-500); }
+.lxjt5-q__tog.is-on { border-color: var(--blue-500); background: rgba(11,90,177,0.05); }
+.lxjt5-q__togic { flex: none; display: flex; color: var(--ink-600); transition: color .22s ease; }
+.lxjt5-q__tog.is-on .lxjt5-q__togic { color: var(--blue-500); }
+.lxjt5-q__togtxt { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lxjt5-q__togtxt strong { font-size: 13.5px; font-weight: 500; color: var(--ink-900); }
+.lxjt5-q__togtxt small { font-size: 11.5px; line-height: 1.35; color: var(--ink-600); }
+
+/* The switch itself. Sized off the track so the knob travel is exact. */
+.lxjt5-q__switch {
+  flex: none;
+  position: relative;
+  width: 40px;
+  height: 23px;
+  border-radius: 999px;
+  background: var(--paper-200);
+  transition: background .22s ease;
+}
+.lxjt5-q__switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(2,19,48,0.28);
+  transition: transform .22s var(--ease);
+}
+.lxjt5-q__tog.is-on .lxjt5-q__switch { background: var(--blue-500); }
+.lxjt5-q__tog.is-on .lxjt5-q__switch::after { transform: translateX(17px); }
+
+/* ---- Segmented control (bed preference) ---- */
+.lxjt5-q__seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.lxjt5-q__segbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 8px;
+  border: 1px solid var(--paper-200);
+  border-radius: 10px;
+  background: #fff;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-800);
+  cursor: pointer;
+  transition: border-color .22s ease, background .22s ease, color .22s ease;
+}
+.lxjt5-q__segbtn:hover { border-color: var(--blue-500); }
+.lxjt5-q__segbtn.is-on { border-color: var(--blue-500); background: rgba(11,90,177,0.05); color: var(--blue-700); }
+.lxjt5-q__segbtn svg { flex: none; }
+
+/* ---- Free-text ---- */
+.lxjt5-q__ta {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-900);
+  background: #fff;
+  border: 1px solid var(--paper-200);
+  border-radius: 9px;
+  padding: 12px 13px;
+  outline: none;
+  resize: vertical;
+  transition: border-color .25s, box-shadow .25s;
+}
+.lxjt5-q__ta:focus { border-color: var(--blue-500); box-shadow: 0 0 0 3px rgba(11,90,177,0.14); }
+.lxjt5-qd .lx2i-cb__field span small { font-weight: 400; color: var(--ink-600); text-transform: none; letter-spacing: 0; }
+
+/* Keyboard focus has to stay visible on the custom controls, which are
+   buttons with their own backgrounds rather than native inputs. */
+.lxjt5-q__tog:focus-visible,
+.lxjt5-q__segbtn:focus-visible,
+.lxjt5-q__step .lxjt-stepper button:focus-visible {
+  outline: 2px solid var(--blue-500);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   THE 15-SECOND WAIT
+
+   The server prices a private departure by hand, and that takes about
+   fifteen seconds — past the ~10s mark where attention wanders and a
+   screen starts to read as broken. So the wait is DETERMINATE (a bar
+   that visibly moves), NAMED (each stage says what is being done, in
+   the traveller's own numbers), and ESCAPABLE (cancel returns to the
+   form with every answer intact). No spinner: a spinner for fifteen
+   seconds says "hung", not "working".
+   ============================================================ */
+.lxjt5-q__wait { padding-bottom: 4px; }
+
+.lxjt5-q__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--paper-200);
+  overflow: hidden;
+  margin: 4px 0 8px;
+}
+.lxjt5-q__barfill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blue-500), var(--blue-700));
+  /* Matches the 250ms tick, so the bar glides between ticks instead of
+     stepping — the movement is what says "still working". */
+  transition: width .25s linear;
+}
+.lxjt5-q__pct {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 0 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue-700);
+  font-variant-numeric: tabular-nums;
+}
+.lxjt5-q__pct small { font-weight: 400; color: var(--ink-600); }
+
+/* Stage list — done / in-progress / still to come. State is carried by the
+   icon and the text colour together, never by colour alone. */
+.lxjt5-q__steps { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 9px; }
+.lxjt5-q__step2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--ink-600);
+  opacity: 0.55;
+  transition: opacity .3s ease, color .3s ease;
+}
+.lxjt5-q__step2.is-now { opacity: 1; color: var(--ink-900); font-weight: 500; }
+.lxjt5-q__step2.is-done { opacity: 1; color: var(--ink-700); }
+.lxjt5-q__stepic {
+  flex: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper-200);
+  color: #fff;
+  transition: background .3s ease;
+}
+.lxjt5-q__step2.is-done .lxjt5-q__stepic { background: #2E8B57; }
+.lxjt5-q__step2.is-now .lxjt5-q__stepic { background: var(--blue-500); }
+.lxjt5-q__dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+/* Only the *current* stage pulses — one moving thing, not six. */
+.lxjt5-q__step2.is-now .lxjt5-q__dot { animation: lxjt5-pulse 1.4s ease-in-out infinite; }
+@keyframes lxjt5-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.lxjt5-q__waitnote {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 0 16px;
+  font-size: 12.5px;
+  color: var(--ink-600);
+}
+.lxjt5-q__waitnote svg { flex: none; color: var(--ink-600); }
+.lxjt5-q__cancel { width: 100%; justify-content: center; }
+
+/* ============================================================
+   THE QUOTE, THE CALL, AND THE CONFIRMATION
+   ============================================================ */
+.lxjt5-q__resulth:focus { outline: none; } /* focus moves here for screen readers; no ring on a heading */
+
+/* ---- Priced line items ---- */
+.lxjt5-q__lines {
+  border: 1px solid var(--paper-200);
+  border-radius: 12px;
+  background: #fff;
+  padding: 4px 14px;
+  margin: 0 0 12px;
+}
+.lxjt5-q__line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--paper-100, #EDEBE1);
+}
+.lxjt5-q__line:last-child { border-bottom: 0; }
+.lxjt5-q__linelbl { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lxjt5-q__linelbl strong { font-size: 13.5px; font-weight: 500; color: var(--ink-900); }
+.lxjt5-q__linelbl small { font-size: 11.5px; line-height: 1.35; color: var(--ink-600); }
+.lxjt5-q__lineamt {
+  flex: none;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+.lxjt5-q__line--sub .lxjt5-q__lineamt { font-size: 14px; color: var(--ink-700); }
+/* The total is the one number they came for — it gets the weight. */
+.lxjt5-q__line--tot { border-top: 2px solid var(--ink-900); border-bottom: 0; margin-top: 2px; padding-top: 13px; }
+.lxjt5-q__line--tot .lxjt5-q__linelbl strong { font-size: 15px; font-weight: 600; }
+.lxjt5-q__line--tot .lxjt5-q__lineamt { font-size: 24px; color: var(--blue-700); }
+
+/* ---- Exclusions: stated, not buried ---- */
+.lxjt5-q__excl { margin: 0 0 18px; }
+.lxjt5-q__excl summary {
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-700);
+  padding: 8px 0;
+}
+.lxjt5-q__excl summary:hover { color: var(--blue-700); }
+.lxjt5-q__excl summary:focus-visible { outline: 2px solid var(--blue-500); outline-offset: 2px; border-radius: 4px; }
+.lxjt5-q__excl ul { margin: 2px 0 0; padding-left: 18px; }
+.lxjt5-q__excl li { font-size: 12.5px; line-height: 1.5; color: var(--ink-600); margin-bottom: 4px; }
+
+/* ---- Downloads ---- */
+.lxjt5-q__dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 8px; }
+.lxjt5-q__dl .lx2i-btn { justify-content: center; font-size: 13px; }
+.lxjt5-q__dlnote { margin: 0 0 18px; font-size: 11.5px; color: var(--ink-600); text-align: center; }
+
+/* ---- Book-the-call step ---- */
+.lxjt5-q__callnow { width: 100%; justify-content: center; }
+/* "or" rule between the two ways to reach a human. */
+.lxjt5-q__or2 {
+  display: flex; align-items: center; gap: 12px;
+  margin: 16px 0;
+  font-size: 12px;
+  color: var(--ink-600);
+}
+.lxjt5-q__or2::before, .lxjt5-q__or2::after {
+  content: ''; flex: 1; height: 1px; background: var(--paper-200);
+}
+.lxjt5-q__slots { display: grid; gap: 14px; margin-bottom: 16px; }
+.lxjt5-q__seg--3 { grid-template-columns: repeat(3, 1fr); }
+.lxjt5-q__hint { margin: 6px 0 0; font-size: 12px; color: var(--ink-600); text-align: center; }
+
+/* A button rendered as a link — for "adjust the details", which is a
+   navigation, not a form control. */
+.lxjt5-q__link {
+  background: none; border: 0; padding: 0;
+  font: inherit;
+  color: var(--blue-700);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.lxjt5-q__link:hover { color: var(--blue-500); }
+.lxjt5-q__link:focus-visible { outline: 2px solid var(--blue-500); outline-offset: 2px; border-radius: 3px; }
+
+/* Motion is decoration here, never information — the bar still fills and the
+   stage list still advances, they just stop animating. */
+@media (prefers-reduced-motion: reduce) {
+  .lxjt5-q__barfill { transition: none; }
+  .lxjt5-q__step2.is-now .lxjt5-q__dot { animation: none; }
+}
+
+/* ---- Narrow screens: everything goes single-column ---- */
+@media (max-width: 620px) {
+  /* On a phone the drawer is the whole screen, so it is a sheet in all but
+     name — drop the slide-in from the right for a plain fade. */
+  .lxjt5-qd__panel { animation-name: lxjt5-qd-fade; }
+  .lxjt5-qd__head { padding: 24px 56px 16px 18px; }
+  .lxjt5-qd__body { padding: 18px 18px 22px; }
+  .lxjt5-qd__foot { padding: 14px 18px calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .lxjt5-q__row--2 { grid-template-columns: 1fr; }
+  .lxjt5-q__row--name { grid-template-columns: 76px 1fr; }
+  /* Last name drops to its own full-width line under title + first name. */
+  .lxjt5-q__row--name > :last-child { grid-column: 1 / -1; }
+  .lxjt5-q__seg { grid-template-columns: 1fr; }
+  .lxjt5-q__segbtn { justify-content: flex-start; }
+  /* The two downloads stack — side by side they'd fall under the 44px
+     touch-target floor at this width. */
+  .lxjt5-q__dl { grid-template-columns: 1fr; }
+  .lxjt5-q__seg--3 { grid-template-columns: 1fr; }
+  .lxjt5-q__line--tot .lxjt5-q__lineamt { font-size: 21px; }
+}

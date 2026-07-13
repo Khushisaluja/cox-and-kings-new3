@@ -32,3 +32,61 @@
 .new-typo .lx2i-cta__title strong {
   font-weight: 700;
 }
+
+/* ------------------------------------------------------------------
+   Heading weight ramp.
+
+   Cormorant Garamond is only loaded at 400–700 (index.html), so the
+   shared stylesheets' `font-weight: 300` headings round up to 400 —
+   the same weight as the 400 card titles. Result: display, section
+   and card headings all rendered at one identical weight, and small
+   headings such as "Design it around you" read as body copy.
+
+   The ramp below runs *heavier as the type gets smaller*. Cormorant is
+   a high-contrast garamond: its hairlines thin out optically at display
+   sizes but collapse at card sizes, so a single weight across the range
+   looks light at 17px and heavy at 102px. Weight therefore compensates
+   for optical size, and rank is carried by size + colour.
+
+   Serif set as *body* — pull-quotes, leads, prices, press lines — is
+   deliberately left light.
+   ------------------------------------------------------------------ */
+
+/* Level 1–2 — display + section headings (37–102px) */
+.new-typo .h26-display,
+.new-typo .h26-h2,
+.new-typo .h26-statement,
+.new-typo .h26-plan-title,
+.new-typo .h26-cta2-title,
+.new-typo .h26-contact-title,
+.new-typo .jl-shelf-title,
+.new-typo .lx2i-h2,
+.new-typo .lx2i-cta__title {
+  font-weight: 500;
+}
+
+/* Level 3 — card, panel and modal headings (16–27px). These sit
+   directly on top of body copy and carry the most weight in the ramp. */
+.new-typo .hi-lane-body h3,
+.new-typo .hi-safety h3,
+.new-typo .h26-path h3,
+.new-typo .h26-dest-body h3,
+.new-typo .h26-way-body h3,
+.new-typo .h26-jrn-body h3,
+.new-typo .h26-cur-body h3,
+.new-typo .h26-reel-body h3,
+.new-typo .h26-reelplayer-info h3,
+.new-typo .jl-card-title,
+.new-typo .bf-q,
+.new-typo .bf-match h3,
+.new-typo .bf-sample h4,
+.new-typo .h26-heritage-card strong,
+.new-typo .lx2i-heritage__card h4,
+/* Display figures — stat bands, hero pills and heritage numerals read
+   as headings, and numerals need weight to hold up at small sizes. */
+.new-typo .h26-stat strong,
+.new-typo .h26-statband-item strong,
+.new-typo .h26-pill strong,
+.new-typo .lx2i-stat__num {
+  font-weight: 600;
+}
