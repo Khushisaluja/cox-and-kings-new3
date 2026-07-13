@@ -92,8 +92,10 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
-        {/* New composite page is now the default homepage */}
-        <Route path="/" element={<New />} />
+        {/* New3 is the default homepage for this deploy. Every other route is
+            kept so the pages the homepage links into (journeys, tour details,
+            About Us, contact) all resolve. */}
+        <Route path="/" element={<New3 />} />
 
         {/* About Us — "The Ledger". Standalone page built around a pinned,
             scroll-scrubbed horizontal GSAP timeline (1758 → today) on which all
