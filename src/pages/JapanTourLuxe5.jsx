@@ -619,11 +619,15 @@ function useReveal() {
 /* ============================================================
    QUOTE ENGINE
 
-   The private departure is priced by hand on the server (~15s), so the
-   numbers below are what the dialog renders once it comes back. Every
-   line is derived from what the traveller actually answered, which is
+   The quote is COMPUTED, here, from the traveller's own answers — the
+   15-second wait stands in for a server round-trip, not for a human
+   doing sums. The copy must not claim otherwise (it used to), because
+   the traveller watches a progress bar do the work.
+
+   Every line is derived from something they actually chose, which is
    the whole point of a quote: they should recognise their own choices
-   in it, not read a generic price list.
+   in it, not read a generic price list. A specialist confirms the
+   number on the call afterwards — that is where the person comes in.
    ============================================================ */
 const QUOTE_SECONDS = 15;   // how long the server takes to price a private departure
 
@@ -1833,10 +1837,11 @@ export default function JapanTourLuxe5() {
 
                Two steps, not three. Thailand's third step is "choose how to
                pay", which it can ask because it takes the payment. This card
-               cannot: the journey is priced by hand from the brief. Asking
-               "20% deposit or pay in full?" against a price that does not
-               exist yet was theatre, so the card asks only what it can act
-               on — when, and who — and hands the rest to the drawer.
+               cannot: the price does not exist until the drawer has the brief,
+               and it is settled with a specialist on a call rather than at a
+               checkout. Asking "20% deposit or pay in full?" against a price
+               that does not exist yet was theatre, so the card asks only what
+               it can act on — when, and who — and hands the rest to the drawer.
                ============================================================ */}
           <section className="lxjt-book lxjt5-book" id="dates">
             <div className="lx2i-container lxjt5-book__wrap">
@@ -1845,7 +1850,7 @@ export default function JapanTourLuxe5() {
                 <h2 className="lx2i-h2">Travel on <strong>your</strong> dates</h2>
                 <p className="lxjt5-book__lede">
                   This journey is private, so there is no coach to fill and no group to join &mdash; it runs when
-                  you want it to. Pick a day, tell us who&rsquo;s coming, and a Japan specialist prices it by hand.
+                  you want it to. Pick your dates, tell us who&rsquo;s coming, and we&rsquo;ll price it around you.
                 </p>
               </div>
 
@@ -1855,14 +1860,26 @@ export default function JapanTourLuxe5() {
                 <li><Check size={16} strokeWidth={2.4} /> Flights, visa, stays, meals and transfers &mdash; in or out, your call</li>
               </ul>
 
-              {/* The reassurance that actually applies to an enquiry */}
+              {/* The reassurance that actually applies to an enquiry.
+
+                  This used to be headed "Priced by a person, not a price engine",
+                  which was not true — the quote is computed from the form, on the
+                  spot, and the page says so itself two screens later ("priced in
+                  15 seconds"). Claiming a human did the sums, on the one page
+                  where the traveller can watch a progress bar do them, buys
+                  nothing and costs the rest of the page its credibility.
+
+                  What IS true is the part that was doing the actual reassuring:
+                  asking is free, and a person confirms it before any money
+                  moves. So the panel keeps that and drops the boast. */}
               <div className="lxjt5-conf lx2i-reveal">
                 <span className="lxjt5-conf__ic"><ShieldCheck size={22} strokeWidth={2} /></span>
                 <div className="lxjt5-conf__tx">
-                  <h3>Priced by a person, not a price engine</h3>
+                  <h3>Nothing is charged to ask</h3>
                   <p>
-                    Nothing is charged to ask. A Japan specialist builds the itinerary around your date and your
-                    party, and you can talk the whole thing through before a single rupee moves.
+                    Your quote is built from what you tell us &mdash; your dates, your party, what you want
+                    included. A Japan specialist confirms it with you on a call, and you can talk the whole
+                    thing through before a single rupee moves.
                   </p>
                 </div>
               </div>
@@ -2622,8 +2639,8 @@ export default function JapanTourLuxe5() {
                     <span className="lx2i-eyebrow">// PRIVATE DEPARTURE · STEP 2 OF 3</span>
                     <h3 className="lxjt5-qd__title">Pricing your journey</h3>
                     <p className="lxjt5-qd__sub">
-                      A private departure is priced by hand, not pulled off a shelf &mdash; it takes about 15 seconds.
-                      Stay with us and you&rsquo;ll have the full quote on screen.
+                      A private departure is costed from your own answers, not pulled off a shelf &mdash; it takes
+                      about 15 seconds. Stay with us and you&rsquo;ll have the full quote on screen.
                     </p>
                   </header>
 
