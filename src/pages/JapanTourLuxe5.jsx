@@ -881,6 +881,8 @@ export default function JapanTourLuxe5() {
   const [mobileSection, setMobileSection] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  /* Whether the hero has scrolled off. Gates the floating quote CTA. */
+  const [pastHero, setPastHero] = useState(false);
   const [activeDay, setActiveDay] = useState(0);     // desktop: drives the sticky itinerary picture
   const [openDay, setOpenDay] = useState(-1);        // mobile: which day's accordion is expanded
   /* The traveller's own start date, as a local ISO day. Empty until they
@@ -973,6 +975,17 @@ export default function JapanTourLuxe5() {
 
   /* Reset the drawer's open section when it closes. */
   useEffect(() => { if (!menuOpen) setMobileSection(null); }, [menuOpen]);
+
+  /* The hero already carries a CTA into the booking card — the floating one
+     only earns its place once that has scrolled away, so the two never sit on
+     screen at once. */
+  useEffect(() => {
+    const hero = document.querySelector('.lxjt-hero');
+    if (!hero) return;
+    const io = new IntersectionObserver(([e]) => setPastHero(!e.isIntersecting), { threshold: 0 });
+    io.observe(hero);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!callbackOpen && !termsModalOpen && !quoteOpen) return;
@@ -1950,6 +1963,24 @@ export default function JapanTourLuxe5() {
             <WaIcon size={23} />
           </a>
         </div>
+
+        {/* ============ FLOATING QUOTE CTA (desktop) ============
+             The /tour-detail-thailand-2 book-now button. Below 680px the
+             thumb-bar carries this action; above it, nothing did once the hero
+             was gone. Scrolls to the booking card rather than opening the quote
+             dialog outright — the dialog cannot price a journey without a start
+             date, and the card is where that date gets picked. */}
+        <a
+          href="#dates"
+          onClick={navClick('#dates')}
+          className={`lxjt5-bookfab ${chatOpen || !pastHero ? 'is-hidden' : ''}`}
+          aria-hidden={chatOpen || !pastHero}
+          tabIndex={chatOpen || !pastHero ? -1 : undefined}
+        >
+          <Calendar size={17} strokeWidth={2} />
+          <span>Get a quote</span>
+          <span className="lxjt5-bookfab__px">from {inr(PRICE)} pp</span>
+        </a>
 
         {/* ============ FLOATING AI BUTTON (desktop) ============ */}
         <button className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Enaya, the AI travel assistant" onClick={() => setChatOpen(true)}>
