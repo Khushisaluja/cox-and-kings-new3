@@ -273,6 +273,10 @@ const MAX_NIGHTS = 21;               // beyond this it is a different conversati
 
 /* Whole nights between two days. */
 const nightsBetween = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / 86400000);
+/* Math.min/max coerce Dates to numbers and hand back a number, not a Date —
+   which then breaks every date method downstream. These keep them Dates. */
+const minDay = (a, b) => (a <= b ? a : b);
+const maxDay = (a, b) => (a >= b ? a : b);
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
@@ -923,20 +927,34 @@ function QToggle({ icon: Icon, label, hint, checked, onChange }) {
    is the composite-widget pattern a screen-reader user expects of a
    calendar, and it is what WCAG's roving-tabindex guidance asks for.
    -------------------------------------------------------------------- */
-/* Used for both ends of the trip now, so the labels can't stay hardcoded to
-   the start date — a screen reader on the return calendar was being told it
-   was choosing a departure. */
-function PrivateCalendar({
-  value,
-  onChange,
-  minDate,
-  maxDate,
-  gridLabel = 'Choose your start date',
-  shutReason = 'too soon to build a private journey',
-}) {
-  const selected = fromISO(value);
-  const [cursor, setCursor] = useState(() => firstOfMonth(selected ?? minDate));
-  const [focusDay, setFocusDay] = useState(() => selected ?? minDate);
+/* ---------- ONE calendar, both ends of the trip ----------
+   This was a single-date picker, and the trip length was a fixed 8 days the
+   traveller never chose. Then it became a date picker plus a second one for the
+   return, seeded seven nights out. Both were wrong in the same way: the length
+   of a tailor-made journey is the traveller's decision, and a pre-filled answer
+   is still an answer we put in their mouth — most people who come here want to
+   shape the trip, not accept ours.
+
+   So: one grid, two ends, nothing chosen until they choose it. First click sets
+   the departure, second sets the return, and the nights between light up so the
+   length is something they can SEE rather than count. Clicking again starts the
+   range over, which is what every booking calendar on the internet does and
+   therefore what the hand expects.
+
+   While the return is being picked, days that would make an impossible trip
+   (under MIN_NIGHTS, over MAX_NIGHTS) are shut, so the range cannot be dragged
+   into a journey we would then have to refuse. */
+function PrivateCalendar({ start, end, onChange, minDate, maxDate }) {
+  const from = fromISO(start);
+  const to = fromISO(end);
+  /* True once a departure is down and we are waiting on the return. */
+  const picking = Boolean(from && !to);
+
+  const [cursor, setCursor] = useState(() => firstOfMonth(from ?? minDate));
+  const [focusDay, setFocusDay] = useState(() => from ?? minDate);
+  /* The day under the pointer while the return is open — this is what paints
+     the range before it is committed, so the length is legible mid-gesture. */
+  const [hoverDay, setHoverDay] = useState(null);
   const gridRef = useRef(null);
   /* Only pull focus when the user actually drove the grid with the keyboard
      — never on first paint, which would yank the page down to the calendar. */
@@ -948,18 +966,24 @@ function PrivateCalendar({
     gridRef.current?.querySelector('[data-roving="true"]')?.focus();
   }, [focusDay]);
 
-  /* The drawer's date field writes to the same state. If it lands on another
-     month, the calendar has to follow it there — otherwise the grid sits on
-     March while the summary underneath reads October. */
+  /* The card and the drawer render this same calendar off the same state. If a
+     date lands from the other one and it is in another month, the grid has to
+     follow it there — otherwise it sits on March while the summary underneath
+     reads October. */
   useEffect(() => {
-    const next = fromISO(value);
-    if (!next) return;
-    setCursor(firstOfMonth(next));
-    setFocusDay(next);
-  }, [value]);
+    if (!from) return;
+    setCursor(firstOfMonth(from));
+    setFocusDay(from);
+  }, [start]);
 
-  const clamp = (d) => (d < minDate ? minDate : d > maxDate ? maxDate : d);
+  /* Once a departure is down, the return can only fall inside the window this
+     journey can actually run in. Before that, the whole booking horizon is
+     open. */
+  const lo = picking ? addDays(from, MIN_NIGHTS) : minDate;
+  const hi = picking ? minDay(addDays(from, MAX_NIGHTS), maxDate) : maxDate;
+  const isOpen = (d) => d >= lo && d <= hi;
 
+  const clamp = (d) => (d < lo ? lo : d > hi ? hi : d);
   const moveTo = (d) => {
     const next = clamp(d);
     grabFocus.current = true;
@@ -975,6 +999,21 @@ function PrivateCalendar({
     if (e.key === 'Home') { e.preventDefault(); moveTo(addDays(focusDay, -mondayIndex(focusDay))); return; }
     if (e.key === 'End') { e.preventDefault(); moveTo(addDays(focusDay, 6 - mondayIndex(focusDay))); }
   };
+
+  /* Three states, one handler:
+       nothing down, or a whole range already down → this is a new departure
+       a departure down, waiting on a return       → this is the return */
+  const pick = (d) => {
+    setFocusDay(d);
+    setHoverDay(null);
+    if (picking) onChange({ start, end: toISO(d) });
+    else onChange({ start: toISO(d), end: '' });
+  };
+
+  /* The far end of the range as it currently reads — committed, or merely
+     hovered. Lets the in-between days paint before the second click lands. */
+  const far = to ?? (picking && hoverDay && isOpen(hoverDay) ? hoverDay : null);
+  const inRange = (d) => from && far && d > minDay(from, far) && d < maxDay(from, far);
 
   const prevMonth = addMonths(cursor, -1);
   const nextMonth = addMonths(cursor, 1);
@@ -1007,32 +1046,60 @@ function PrivateCalendar({
         </button>
       </div>
 
+      {/* Which half of the gesture they are in. Without this the grid silently
+          changes meaning between the first click and the second. */}
+      <p className="lxjt5-cal__step" role="status">
+        {picking
+          ? <><span className="lxjt5-cal__stepn">2</span> Now pick the day you come home &mdash; {MIN_NIGHTS} to {MAX_NIGHTS} nights.</>
+          : <><span className="lxjt5-cal__stepn">1</span> {to ? 'Pick a new day to start over.' : 'Pick the day you leave.'}</>}
+      </p>
+
       <div className="lxjt5-cal__wk" aria-hidden="true">
         {WEEKDAY_NAMES.map((w) => <span key={w}>{w}</span>)}
       </div>
 
-      <div className="lxjt5-cal__grid" role="grid" aria-label={gridLabel}
-        ref={gridRef} onKeyDown={onKeyDown}>
+      <div className="lxjt5-cal__grid" role="grid"
+        aria-label={picking ? 'Choose the day you come home' : 'Choose the day you leave'}
+        ref={gridRef} onKeyDown={onKeyDown} onMouseLeave={() => setHoverDay(null)}>
         {weeks.map((week, wi) => (
           <div className="lxjt5-cal__row" role="row" key={wi}>
             {week.map((d, di) => {
               if (!d) return <span className="lxjt5-cal__pad" role="gridcell" key={di} />;
-              const open = d >= minDate && d <= maxDate;
-              const on = sameDay(d, selected);
+              const open = isOpen(d);
+              const isFrom = sameDay(d, from);
+              const isTo = sameDay(d, far);
+              const mid = inRange(d);
+              const on = isFrom || isTo;
               const roving = sameDay(d, focusDay);
+
+              /* A bare numeral tells a screen reader nothing. Each day carries
+                 the whole date, its role in the range, and — when it is shut —
+                 the reason, rather than leaving that a mystery. */
+              const label = !open
+                ? `${longDate(d)} — ${picking
+                  ? `outside the ${MIN_NIGHTS}–${MAX_NIGHTS} nights this journey can run`
+                  : 'too soon to build a private journey'}`
+                : isFrom && to ? `${longDate(d)} — the day you leave`
+                  : isTo && to ? `${longDate(d)} — the day you come home, ${nightsBetween(from, to)} nights`
+                    : picking ? `${longDate(d)} — come home here, ${nightsBetween(from, d)} nights`
+                      : `${longDate(d)} — leave here`;
+
               return (
-                <span role="gridcell" aria-selected={on} key={di}>
+                <span
+                  role="gridcell"
+                  aria-selected={on}
+                  key={di}
+                  className={`lxjt5-cal__cell${mid ? ' is-mid' : ''}${isFrom && far ? ' is-from' : ''}${isTo && from && !sameDay(from, far) ? ' is-to' : ''}`}
+                >
                   <button
                     type="button"
                     data-roving={roving ? 'true' : undefined}
                     tabIndex={roving ? 0 : -1}
                     disabled={!open}
-                    className={`lxjt5-cal__day ${on ? 'is-on' : ''}`}
-                    onClick={() => { setFocusDay(d); onChange(toISO(d)); }}
-                    /* The visible label is a bare numeral; the accessible one
-                       has to carry the whole date, and the reason a day is
-                       shut rather than leaving it a mystery. */
-                    aria-label={open ? longDate(d) : `${longDate(d)} — ${shutReason}`}
+                    className={`lxjt5-cal__day${on ? ' is-on' : ''}${mid ? ' is-mid' : ''}`}
+                    onClick={() => pick(d)}
+                    onMouseEnter={() => picking && setHoverDay(d)}
+                    aria-label={label}
                   >
                     {d.getDate()}
                   </button>
@@ -1133,44 +1200,40 @@ export default function JapanTourLuxe5() {
   const season = useMemo(() => (picked ? seasonFor(picked) : null), [picked]);
 
   /* ---- How long they are actually going for ----
-     `homeOn` used to be start + a fixed TRIP_DAYS. It is now whatever return
-     date they chose, and the nights between the two are the number the quote
-     is built on. Until a start date exists there is no window to return in. */
+     Nothing here is defaulted. `homeOn` was once start + a fixed TRIP_DAYS, and
+     then briefly a return date seeded seven nights out — but a pre-filled answer
+     is still an answer we put in their mouth, and the length of a tailor-made
+     journey is the whole thing they came here to decide. Both ends stay empty
+     until they mark them on the calendar, and `nights` is null until then. */
   const homeOn = useMemo(() => fromISO(endDate), [endDate]);
-  const minEnd = useMemo(() => (picked ? addDays(picked, MIN_NIGHTS) : null), [picked]);
-  const maxEnd = useMemo(() => (picked ? addDays(picked, MAX_NIGHTS) : null), [picked]);
   const nights = useMemo(
-    () => (picked && homeOn ? nightsBetween(picked, homeOn) : CORE_NIGHTS),
+    () => (picked && homeOn ? nightsBetween(picked, homeOn) : null),
     [picked, homeOn]
   );
-  /* The route as written is CORE_NIGHTS. Anything inside the window is a real
-     trip we can price; outside it, it is not this journey any more. */
-  const nightsOk = nights >= MIN_NIGHTS && nights <= MAX_NIGHTS;
+  /* A whole range, inside the window this journey can run in. The calendar
+     already refuses to mark anything else, so this is the belt to its braces —
+     and what the CTA and the quote gate on. */
+  const rangeOk = nights !== null && nights >= MIN_NIGHTS && nights <= MAX_NIGHTS;
 
-  /* Picking a start date seeds the return at the length the itinerary actually
-     runs, so the common case is already answered and they only touch it if they
-     want a different trip. Moving the start date drags the return with it,
-     keeping the length they chose rather than silently resetting it. */
-  useEffect(() => {
-    if (!picked) { setEndDate(''); return; }
-    setEndDate((prev) => {
-      const cur = fromISO(prev);
-      if (!cur) return toISO(addDays(picked, CORE_NIGHTS));
-      const held = nightsBetween(picked, cur);
-      if (held >= MIN_NIGHTS && held <= MAX_NIGHTS) return prev;   // still valid — leave it
-      return toISO(addDays(picked, CORE_NIGHTS));                  // start moved past it
-    });
-  }, [picked]);
+  /* The two ends move as one. Marking a new departure clears the return, so the
+     grid can never show a range the traveller did not draw. */
+  const setRange = useCallback(({ start, end }) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
 
   /* Everything downstream — the wait, the quote, the PDF — says the date in
-     one voice, and degrades gracefully if they somehow got here without one. */
+     one voice, and degrades gracefully if they somehow got here without one.
+     `quoteNights` is only ever READ once rangeOk is true; the fallback exists
+     so the memo below has a number to work with on the first render. */
   const dateLabel = picked ? longDate(picked) : 'your chosen dates';
-  const tripLabel = `${nights + 1} days, ${nights} nights`;
+  const quoteNights = nights ?? CORE_NIGHTS;
+  const tripLabel = `${quoteNights + 1} days, ${quoteNights} nights`;
 
-  const quote = useMemo(() => priceQuote(q, travellers, nights), [q, travellers, nights]);
+  const quote = useMemo(() => priceQuote(q, travellers, quoteNights), [q, travellers, quoteNights]);
   const stages = useMemo(
-    () => quoteStages(q, travellers, dateLabel, nights),
-    [q, travellers, dateLabel, nights]
+    () => quoteStages(q, travellers, dateLabel, quoteNights),
+    [q, travellers, dateLabel, quoteNights]
   );
   const stageLabel = [...stages].reverse().find((s) => elapsed >= s.at)?.label ?? stages[0].label;
   const pct = Math.min(100, Math.round((elapsed / QUOTE_SECONDS) * 100));
@@ -1888,31 +1951,40 @@ export default function JapanTourLuxe5() {
                 <div className="lxjt5-bcard__col">
                   <div className="lxjt5-bstep">
                     <span className="lxjt5-bstep__n">1</span>
-                    <h3 className="lxjt5-bstep__t">Pick your start date</h3>
+                    <h3 className="lxjt5-bstep__t">Mark your dates</h3>
                   </div>
 
+                  {/* One grid, both ends. The card used to own the departure and
+                      the drawer owned the return, which split one decision — how
+                      long am I going for? — across two screens. */}
                   <PrivateCalendar
-                    value={startDate}
-                    onChange={setStartDate}
+                    start={startDate}
+                    end={endDate}
+                    onChange={setRange}
                     minDate={minDate}
                     maxDate={maxDate}
                   />
 
-                  {/* What they chose, echoed back in the card language the rest
+                  {/* What they marked, echoed back in the card language the rest
                       of the page speaks — and what it means, which on a Japan
                       trip is the whole point of choosing a date at all. */}
-                  {picked ? (
+                  {rangeOk ? (
                     <div className="lxjt5-picked">
                       <span className="lxjt5-picked__ic" aria-hidden="true"><Check size={14} strokeWidth={3} /></span>
                       <span className="lxjt5-picked__tx">
-                        <strong>{longDate(picked)}</strong>
-                        <small>{tripLabel}{homeOn ? ` · home on ${longDate(homeOn)}` : ''}</small>
+                        <strong>{longDate(picked)} &rarr; {longDate(homeOn)}</strong>
+                        <small>{tripLabel}</small>
                       </span>
                       <span className={`lxjt5-picked__season ${season.peak ? 'is-peak' : ''}`}>{season.label}</span>
                     </div>
+                  ) : picked ? (
+                    <p className="lxjt5-cal__empty">
+                      <strong>{longDate(picked)}</strong> &mdash; now mark the day you come home, and we&rsquo;ll price the nights in between.
+                    </p>
                   ) : (
                     <p className="lxjt5-cal__empty">
-                      Pick any day above. There are no set departures to choose between &mdash; the journey runs on your date.
+                      Mark the day you leave, then the day you come home. There are no set departures and no set
+                      length &mdash; the journey runs on your dates, for as long as you want it to.
                     </p>
                   )}
 
@@ -1956,19 +2028,23 @@ export default function JapanTourLuxe5() {
                       Private journeys from <strong>{inr(PRICE)}</strong> <small>per person</small>
                     </span>
                     <p className="lxjt5-anchor__note">
-                      There is no shelf price for a private trip. Yours is built from the date, the party and what
+                      There is no shelf price for a private trip. Yours is built from your dates, the party and what
                       you want included &mdash; it takes about a minute to ask, and nothing is charged for it.
                     </p>
                   </div>
 
                   <div className="lxjt5-bcard__go">
-                    <button type="button" className="lxjt5-cta" onClick={openQuote} disabled={!picked}>
+                    <button type="button" className="lxjt5-cta" onClick={openQuote} disabled={!rangeOk}>
                       {quoteRef
                         ? <><FileText size={17} /> View your quote &middot; {quoteRef}</>
                         : <><FileText size={17} /> Get my tailor-made quote <ArrowRight size={17} /></>}
                     </button>
                     {/* A disabled button that doesn't say why is a dead end. */}
-                    {!picked && <p className="lxjt5-cta__why">Pick a start date and we can price it.</p>}
+                    {!rangeOk && (
+                      <p className="lxjt5-cta__why">
+                        {picked ? 'Mark the day you come home and we can price it.' : 'Mark your dates and we can price it.'}
+                      </p>
+                    )}
                     <p className="lxjt5-secure">
                       <Lock size={14} /> {quoteRef
                         ? `Held until ${validUntil} · nothing charged yet`
@@ -2341,82 +2417,56 @@ export default function JapanTourLuxe5() {
 
                   <div className="lxjt5-qd__body">
                     {/* ---- When, and for how long ----
-                        Both ends, on the page's own calendar. The native
-                        <input type="date"> that used to sit here was the one
-                        control on the page wearing the browser's clothes rather
-                        than ours — and on most machines it renders the date
-                        month-first, which for an Indian traveller reading
-                        04/08/2026 is not a cosmetic problem.
+                        ONE grid, both ends, on the page's own calendar.
 
-                        The card's calendar already asks the start date, and
-                        normally the answer arrives here filled in. But the
-                        mobile bottom bar opens this drawer from anywhere on the
-                        page, so it cannot assume one exists. Same state, so the
-                        two can never disagree. */}
+                        This started as a native <input type="date">, which was
+                        the one control on the page wearing the browser's clothes
+                        rather than ours — and which renders the date month-first,
+                        so an Indian traveller read 04/08/2026 and had to guess.
+                        Then it was two calendars, one per end, with the return
+                        seeded seven nights out. Both were the same mistake in
+                        different clothes: the length of the trip is the decision
+                        this page exists to let them make, and it was either being
+                        made for them or split across two controls.
+
+                        The card renders this same component off this same state,
+                        so the two can never disagree — and the drawer, which the
+                        mobile bar can open from anywhere on the page, can still
+                        ask for the dates itself. */}
                     <fieldset className="lxjt5-q__set">
                       <legend>When you&rsquo;d like to go</legend>
 
-                      <div className="lxjt5-q__dates">
-                        <div className="lxjt5-q__date">
-                          <span className="lxjt5-q__datelbl">
-                            Leaving
-                            <strong>{picked ? longDate(picked) : 'Pick a day'}</strong>
-                          </span>
-                          <PrivateCalendar
-                            value={startDate}
-                            onChange={setStartDate}
-                            minDate={minDate}
-                            maxDate={maxDate}
-                            gridLabel="Choose the day you leave"
-                            shutReason="too soon to build a private journey"
-                          />
-                        </div>
+                      <PrivateCalendar
+                        start={startDate}
+                        end={endDate}
+                        onChange={setRange}
+                        minDate={minDate}
+                        maxDate={maxDate}
+                      />
 
-                        {/* The return calendar has nothing to offer until there
-                            is a departure to count from, so it says so instead
-                            of showing a grid where every day is dead. */}
-                        <div className="lxjt5-q__date">
-                          <span className="lxjt5-q__datelbl">
-                            Coming home
-                            <strong>{homeOn ? longDate(homeOn) : '—'}</strong>
-                          </span>
-                          {picked ? (
-                            <PrivateCalendar
-                              value={endDate}
-                              onChange={setEndDate}
-                              minDate={minEnd}
-                              maxDate={maxEnd}
-                              gridLabel="Choose the day you come home"
-                              shutReason={`outside the ${MIN_NIGHTS}–${MAX_NIGHTS} nights this journey can run`}
-                            />
-                          ) : (
-                            <p className="lxjt5-q__datewait">
-                              Pick the day you leave and we&rsquo;ll open the return dates around it.
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* The length is the number the quote is built on, so it
-                          is stated outright rather than left to be counted. */}
-                      {picked && homeOn && (
-                        <p className={`lxjt5-q__ctx ${nightsOk ? '' : 'is-bad'}`} role="status">
+                      {/* The length is the number the quote is built on, so it is
+                          stated outright rather than left to be counted off the
+                          grid. */}
+                      {rangeOk ? (
+                        <p className="lxjt5-q__ctx" role="status">
                           <Calendar size={14} strokeWidth={2} />
-                          {nightsOk ? (
-                            <span>
-                              <strong>{tripLabel}</strong> &middot; {season.label}
-                              {nights === CORE_NIGHTS
-                                ? ' · the itinerary exactly as it is written'
-                                : nights > CORE_NIGHTS
-                                  ? ` · ${nights - CORE_NIGHTS} night${nights - CORE_NIGHTS === 1 ? '' : 's'} added to the written route`
-                                  : ` · ${CORE_NIGHTS - nights} night${CORE_NIGHTS - nights === 1 ? '' : 's'} shorter than the written route`}
-                            </span>
-                          ) : (
-                            <span>
-                              <strong>{nights} nights</strong> &mdash; this journey runs between {MIN_NIGHTS} and {MAX_NIGHTS} nights.
-                              Move the return date, or tell us below and we&rsquo;ll build something else around it.
-                            </span>
-                          )}
+                          <span>
+                            <strong>{longDate(picked)} &rarr; {longDate(homeOn)}</strong> &middot; {tripLabel} &middot; {season.label}
+                            {nights === CORE_NIGHTS
+                              ? ' · the itinerary exactly as it is written'
+                              : nights > CORE_NIGHTS
+                                ? ` · ${nights - CORE_NIGHTS} night${nights - CORE_NIGHTS === 1 ? '' : 's'} added to the written route`
+                                : ` · ${CORE_NIGHTS - nights} night${CORE_NIGHTS - nights === 1 ? '' : 's'} shorter than the written route`}
+                          </span>
+                        </p>
+                      ) : (
+                        <p className="lxjt5-q__ctx is-wait" role="status">
+                          <Calendar size={14} strokeWidth={2} />
+                          <span>
+                            {picked
+                              ? <>Leaving <strong>{longDate(picked)}</strong> &mdash; now mark the day you come home.</>
+                              : <>Mark the day you leave, then the day you come home. The nights in between are what we price.</>}
+                          </span>
                         </p>
                       )}
 
@@ -2615,13 +2665,15 @@ export default function JapanTourLuxe5() {
                   <footer className="lxjt5-qd__foot">
                     {/* Same words as the card's button, because it is the same
                         act — the two used to say different things. */}
-                    <button type="submit" className="lxjt5-cta" disabled={!picked || !nightsOk}>
+                    <button type="submit" className="lxjt5-cta" disabled={!rangeOk}>
                       <FileText size={15} /> Get my tailor-made quote
                     </button>
-                    {!picked && <p className="lxjt5-q__hint">Pick the day you leave and we can price it.</p>}
-                    {picked && !nightsOk && (
+                    {/* A disabled button that doesn't say why is a dead end. */}
+                    {!rangeOk && (
                       <p className="lxjt5-q__hint">
-                        This journey runs between {MIN_NIGHTS} and {MAX_NIGHTS} nights &mdash; move the return date and we can price it.
+                        {picked
+                          ? 'Mark the day you come home and we can price it.'
+                          : 'Mark your dates on the calendar and we can price it.'}
                       </p>
                     )}
                     <p className="lxjt5-qd__footnote">Takes about 15 seconds &middot; or talk to us on <a href={PHONE_TEL}>{PHONE_DISPLAY}</a></p>

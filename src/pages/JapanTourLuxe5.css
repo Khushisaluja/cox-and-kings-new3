@@ -500,6 +500,72 @@
 .lxjt5-cal__day:focus-visible { outline: 2px solid var(--ink-900); outline-offset: 1px; }
 .lxjt5-cal__pad { display: block; }
 
+/* ---- The range ----------------------------------------------------------
+   The two ends are solid sienna; the nights between them are a wash of it. The
+   wash is painted on the CELL, not the button, and bled out by the grid's 2px
+   gap on each side, so the run reads as one continuous band rather than a row
+   of separate tinted squares with gaps punched through it. The two end cells
+   paint only the half that faces into the range, so the band starts and stops
+   flush with the middle of the marked day rather than overshooting it. */
+.lxjt5-cal__cell { position: relative; }
+.lxjt5-cal__cell.is-mid,
+.lxjt5-cal__cell.is-from,
+.lxjt5-cal__cell.is-to {
+  background: rgba(189, 64, 17, 0.1);   /* --sienna at 10% */
+}
+.lxjt5-cal__cell.is-mid {
+  margin-inline: -2px;                  /* close the grid gap on both sides */
+  padding-inline: 2px;
+}
+.lxjt5-cal__cell.is-from {
+  margin-right: -2px;
+  padding-right: 2px;
+  border-radius: 8px 0 0 8px;
+}
+.lxjt5-cal__cell.is-to {
+  margin-left: -2px;
+  padding-left: 2px;
+  border-radius: 0 8px 8px 0;
+}
+/* The in-between days stay legible on the wash and read as chosen, not merely
+   hovered — they are part of the trip, they are just not its edges. */
+.lxjt5-cal__day.is-mid {
+  color: var(--sienna-700, #97330E);
+  border-color: transparent;
+}
+.lxjt5-cal__day.is-mid:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: #D78C70;
+}
+
+/* ---- Which half of the gesture they are in ----
+   Without this the grid silently changes meaning between the first click and
+   the second, and a calendar that has quietly become a different question is
+   the fastest way to make someone mark the wrong day. */
+.lxjt5-cal__step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-700);
+}
+.lxjt5-cal__stepn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--sienna);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---- What they picked, and what it means ---- */
 .lxjt5-picked {
   display: flex;
@@ -1257,73 +1323,26 @@
    were missing from it.
    ============================================================ */
 
-/* ---- Both ends of the trip, side by side ----
-   The drawer used to ask for a start date through a native
-   <input type="date">: the one control on the page wearing the browser's
-   chrome instead of ours, and on most machines rendering the date month-first
-   (04/08/2026), which for an Indian traveller is not a cosmetic problem. Both
-   ends now use the page's own calendar — the same one the booking card has
-   always used, so the drawer and the card speak with one voice. */
-.lxjt5-q__dates {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.lxjt5-q__date {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;                       /* let the calendar grid shrink, not overflow */
-}
-.lxjt5-q__datelbl {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-family: var(--sans);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-600);
-}
-/* The chosen day, in the serif the rest of the page states facts in. */
-.lxjt5-q__datelbl strong {
-  font-family: var(--serif);
-  font-size: 19px;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--ink-900);
-}
-/* The return grid has nothing to offer until there is a departure to count
-   from, so it says so rather than showing a month of dead days. */
-.lxjt5-q__datewait {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  margin: 0;
-  padding: 18px;
-  border: 1px dashed var(--paper-200);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.5);
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--ink-600);
-}
-/* Two calendars in a 720px drawer: tighten the day cells so neither wraps. */
-.lxjt5-q__dates .lxjt5-cal { padding: 12px 10px 10px; }
-.lxjt5-q__dates .lxjt5-cal__day { font-size: 12.5px; }
+/* ---- The trip, on one grid ----
+   The drawer asked for a start date through a native <input type="date"> — the
+   one control on the page wearing the browser's chrome instead of ours, and one
+   that renders the date month-first, so an Indian traveller read 04/08/2026 and
+   had to guess. It then briefly ran two calendars side by side, one per end.
 
-/* The length is the number the quote is built on, so when it falls outside
-   what this journey can be, the summary says so in its own right — not with
-   colour alone (WCAG 1.4.1), which is why the copy changes too. */
-.lxjt5-q__ctx.is-bad {
-  border-color: rgba(189, 64, 17, 0.35);
-  background: rgba(189, 64, 17, 0.06);
-  color: var(--sienna, #BD4011);
+   Both were the same mistake: the length of the trip is the decision this page
+   exists to let the traveller make, and it was either being defaulted for them
+   or split across two controls. Now it is one range on one grid, the same
+   component the booking card renders off the same state — so the card and the
+   drawer cannot disagree, and there is only ever one calendar to learn. */
+.lxjt5-q__set .lxjt5-cal { margin-bottom: 0; }
+
+/* Waiting on the second mark. The summary line is still there — it just has
+   nothing to report yet, so it says what to do instead of sitting empty. */
+.lxjt5-q__ctx.is-wait {
+  border-style: dashed;
+  color: var(--ink-600);
 }
-.lxjt5-q__ctx.is-bad svg,
-.lxjt5-q__ctx.is-bad strong { color: var(--sienna, #BD4011); }
+.lxjt5-q__ctx.is-wait svg { color: var(--ink-600); }
 
 /* ---- Children, by age ----
    A child was priced at a flat 85% of the adult fare whether they were three
@@ -1425,7 +1444,6 @@
 /* The drawer is 720px at most and the two calendars need room; below this they
    stack, which is also what happens on every phone. */
 @media (max-width: 620px) {
-  .lxjt5-q__dates { grid-template-columns: 1fr; }
   .lxjt5-q__agerow { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
   .lxjt5-q__seg--3 { grid-template-columns: 1fr; }
 }
