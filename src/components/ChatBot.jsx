@@ -591,7 +591,7 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
 
                     {msg.widget === 'done_cta' && (
                       <div className="chat-widget chat-done-actions">
-                        <Link to="/tours" className="chat-done-cta" onClick={() => { setOpen(false); setExpanded(false); }}>
+                        <Link to="/journeys4" className="chat-done-cta" onClick={() => { setOpen(false); setExpanded(false); }}>
                           Browse all tours <ArrowRight size={14} />
                         </Link>
                       </div>

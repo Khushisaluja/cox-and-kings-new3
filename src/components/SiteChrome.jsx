@@ -65,7 +65,7 @@ const NAV_MENU = [
       { group: 'By destination', label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys4?where=Italy' },
       { group: 'By destination', label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys4?where=Northern Lights' },
       { group: 'By destination', label: 'African Safari', desc: 'Big-five wilderness', to: '/journeys4?where=Africa Safari' },
-      { group: 'Signature journeys', label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/tour-detail-japan-4' },
+      { group: 'Signature journeys', label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/tour-detail-japan-5' },
       { group: 'Signature journeys', label: 'Relaxed-pace journeys', desc: 'A calm vacation, handled', to: '/journeys4?pace=Relaxed' },
     ],
     all: { label: 'All destinations', meta: '31 journeys', to: '/journeys4' },
@@ -202,7 +202,7 @@ export function SiteNav() {
           <div className="h26-menu-divider" />
 
           <div className="h26-menu-secondary">
-            <Link to="/journeys" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
+            <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
             <Link to="/about-us2" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
             <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
           </div>
@@ -245,10 +245,10 @@ export function SiteFooter() {
         <div className="h26-footer-cols">
           <div>
             <h4>Travel</h4>
-            <Link to="/journeys">Group tours</Link>
+            <Link to="/journeys4">Group tours</Link>
             <Link to={CALLBACK}>Bespoke holidays</Link>
-            <Link to="/journeys">Luxury journeys</Link>
-            <Link to="/journeys">Destinations</Link>
+            <Link to="/journeys4">Luxury journeys</Link>
+            <Link to="/journeys4">Destinations</Link>
           </div>
           <div>
             <h4>Company</h4>

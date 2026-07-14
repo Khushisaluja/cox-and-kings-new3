@@ -177,7 +177,7 @@ export default function PrivateItaly({ mobile = false }) {
       <header className="nh-header">
         <div className="nh-utility">
           <div className="nh-utility__inner">
-            <Link to="/final2" className="nh-logo" aria-label="Cox & Kings home">
+            <Link to="/" className="nh-logo" aria-label="Cox & Kings home">
               <img src="/cox-logo.svg" alt="Cox & Kings" />
             </Link>
             <span className="nh-utility__tag">The World's Most Experienced Travel Company · Est. 1758</span>
@@ -187,12 +187,12 @@ export default function PrivateItaly({ mobile = false }) {
           <nav className="nh-mainnav__inner" aria-label="Primary">
             {navItems.map((n) => (
               <div className="nh-mainnav__item" key={n.label}>
-                <Link to="/tours" aria-haspopup={n.children ? 'true' : undefined}>
+                <Link to="/journeys4" aria-haspopup={n.children ? 'true' : undefined}>
                   {n.label} {n.children && <ChevronDown size={14} className="nh-mainnav__caret" aria-hidden="true" />}
                 </Link>
                 {n.children && (
                   <div className="nh-dropdown">
-                    {n.children.map((c) => <Link key={c} to="/tours">{c}</Link>)}
+                    {n.children.map((c) => <Link key={c} to="/journeys4">{c}</Link>)}
                   </div>
                 )}
               </div>
@@ -553,12 +553,12 @@ export default function PrivateItaly({ mobile = false }) {
             <button className="nh-picks__arrow" onClick={() => scrollPicks(1)} aria-label="Scroll right">
               <ChevronRight size={20} />
             </button>
-            <Link to="/tours" className="nh-textlink nh-picks__all">View all trips <ArrowRight size={15} /></Link>
+            <Link to="/journeys4" className="nh-textlink nh-picks__all">View all trips <ArrowRight size={15} /></Link>
           </div>
         </div>
         <div className="nh-picks__track" ref={picksRef}>
           {otherPicks.map((p) => (
-            <Link to="/tours" key={p.id} className="nh-pick">
+            <Link to="/journeys4" key={p.id} className="nh-pick">
               <div className="nh-pick__img">
                 <div className="nh-pick__imgbg" style={{ backgroundImage: `url(${p.image})` }} />
                 <span className="nh-pick__cat">{p.category}</span>
@@ -608,10 +608,10 @@ export default function PrivateItaly({ mobile = false }) {
           <div className="nh-footer__cols">
             <div>
               <span className="nh-footer__h">EXPLORE</span>
-              <Link to="/tours">International Immersions</Link>
-              <Link to="/tours">All Inclusive Vacations</Link>
-              <Link to="/tours">Indian Getaways</Link>
-              <Link to="/tours">Tailormade Journeys</Link>
+              <Link to="/journeys4">International Immersions</Link>
+              <Link to="/journeys4">All Inclusive Vacations</Link>
+              <Link to="/journeys4">Indian Getaways</Link>
+              <Link to="/journeys4">Tailormade Journeys</Link>
               <span className="nh-footer__h nh-footer__h--gap">QUICK LINKS</span>
               <a href="#">Sitemap</a>
               <a href="#">Refund Policy</a>
@@ -619,8 +619,8 @@ export default function PrivateItaly({ mobile = false }) {
             </div>
             <div>
               <span className="nh-footer__h">ABOUT</span>
-              <Link to="/classic">About Us</Link>
-              <Link to="/classic">Contact Us</Link>
+              <Link to="/about-us2">About Us</Link>
+              <a href="#book">Contact Us</a>
               <a href="#">Inspiration Station</a>
               <a href="#">Testimonials</a>
               <a href="#">Press &amp; Media</a>

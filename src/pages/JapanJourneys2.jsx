@@ -209,34 +209,34 @@ const TripAdvisorOwl = () => (
 
 /* ---- People also view — other CK journeys, linking into /journeys. ---- */
 const SIMILAR = [
-  { title: 'Summer in Switzerland', region: 'Switzerland', nights: '10 nights', season: 'Jun–Sep', price: '₹2.45L', image: U('1530122037265-a5f1f91d3b99'), to: '/journeys?where=Switzerland' },
-  { title: 'Slow Italy: Coast to Art', region: 'Italy', nights: '9 nights', season: 'Apr–Oct', price: '₹2.4L', image: U('1534445867742-43195f401b6c'), to: '/journeys?where=Italy' },
-  { title: 'Chasing the Northern Lights', region: 'Scandinavia', nights: '7 nights', season: 'Oct–Mar', price: '₹2.75L', image: U('1483347756197-71ef80e95f73'), to: '/journeys?where=Northern Lights' },
-  { title: 'Vietnam & Cambodia Discovery', region: 'Southeast Asia', nights: '12 nights', season: 'Oct–Apr', price: '₹1.2L', image: U('1528181304800-259b08848526'), to: '/journeys?where=Southeast Asia' },
+  { title: 'Summer in Switzerland', region: 'Switzerland', nights: '10 nights', season: 'Jun–Sep', price: '₹2.45L', image: U('1530122037265-a5f1f91d3b99'), to: '/journeys4?where=Switzerland' },
+  { title: 'Slow Italy: Coast to Art', region: 'Italy', nights: '9 nights', season: 'Apr–Oct', price: '₹2.4L', image: U('1534445867742-43195f401b6c'), to: '/journeys4?where=Italy' },
+  { title: 'Chasing the Northern Lights', region: 'Scandinavia', nights: '7 nights', season: 'Oct–Mar', price: '₹2.75L', image: U('1483347756197-71ef80e95f73'), to: '/journeys4?where=Northern Lights' },
+  { title: 'Vietnam & Cambodia Discovery', region: 'Southeast Asia', nights: '12 nights', season: 'Oct–Apr', price: '₹1.2L', image: U('1528181304800-259b08848526'), to: '/journeys4?where=Southeast Asia' },
 ];
 
 /* ---- Nav megamenu — Japan items route into THIS page / its tours. ---- */
 const NAV_MENU = [
   {
-    label: 'Ways to travel', href: '/journeys',
+    label: 'Ways to travel', href: '/journeys4',
     blurb: 'Two ways to see the world — pick the one that fits you.',
     items: [
-      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys?style=Group Tour' },
-      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys?style=Bespoke Private' },
-      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys?style=Luxury' },
+      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
+      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
+      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
       { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
     ],
   },
   {
-    label: 'Destinations', href: '/journeys',
+    label: 'Destinations', href: '/journeys4',
     blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
     items: [
       { label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
-      { label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys?where=Switzerland' },
-      { label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys?where=Italy' },
-      { label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys?where=Northern Lights' },
-      { label: 'Africa Safari', desc: 'Big-five wilderness', to: '/journeys?where=Africa Safari' },
-      { label: 'All destinations', desc: 'Browse every journey', to: '/journeys' },
+      { label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys4?where=Switzerland' },
+      { label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys4?where=Italy' },
+      { label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys4?where=Northern Lights' },
+      { label: 'Africa Safari', desc: 'Big-five wilderness', to: '/journeys4?where=Africa Safari' },
+      { label: 'All destinations', desc: 'Browse every journey', to: '/journeys4' },
     ],
   },
   {
@@ -831,11 +831,11 @@ export default function JapanJourneys2() {
             <Link to="/journeys/japan-2" onClick={() => setMenuOpen(false)}>Japan journeys<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
             <Link to="/tour-detail-japan-5" onClick={() => setMenuOpen(false)}>Cherry Blossom Japan<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
             <Link to="/tour-detail-japan-5" onClick={() => setMenuOpen(false)}>Essence of Japan<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
-            <Link to="/journeys" onClick={() => setMenuOpen(false)}>All destinations<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
+            <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All destinations<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
           </nav>
           <div className="h26-menu-divider" />
           <div className="h26-menu-secondary">
-            <Link to="/journeys" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
+            <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
             <Link to="/" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
             <Link to="/about-us2" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
             <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
@@ -1256,7 +1256,7 @@ export default function JapanJourneys2() {
               </Reveal>
             </div>
             <Reveal as="div" delay={0.06}>
-              <Link to="/journeys" className="jj2-pav-link">Browse all journeys <ArrowUpRight size={16} aria-hidden="true" /></Link>
+              <Link to="/journeys4" className="jj2-pav-link">Browse all journeys <ArrowUpRight size={16} aria-hidden="true" /></Link>
             </Reveal>
           </div>
           <div className="jj2-pav-grid">
@@ -1320,7 +1320,7 @@ export default function JapanJourneys2() {
               <Link to="/tour-detail-japan-5">Cherry Blossom Japan</Link>
               <Link to="/tour-detail-japan-5">Essence of Japan</Link>
               <Link to="/journeys/japan-2">All Japan journeys</Link>
-              <Link to="/journeys">Other destinations</Link>
+              <Link to="/journeys4">Other destinations</Link>
             </div>
             <div>
               <h4>Company</h4>

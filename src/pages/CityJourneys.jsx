@@ -245,34 +245,34 @@ function buildCity(slug) {
 /* Nav megamenu — Japan-scoped, mirrors the country page. */
 const NAV_MENU = [
   {
-    label: 'Ways to travel', href: '/journeys',
+    label: 'Ways to travel', href: '/journeys4',
     blurb: 'Two ways to see the world — pick the one that fits you.',
     items: [
-      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys?style=Group Tour' },
-      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys?style=Bespoke Private' },
-      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys?style=Luxury' },
+      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
+      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
+      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
       { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
     ],
   },
   {
-    label: 'Japan', href: '/journeys/japan',
+    label: 'Japan', href: '/journeys/japan-2',
     blurb: 'Cherry blossom to neon — explore Japan by city.',
     items: [
       { label: 'Tokyo', desc: 'Neon, sushi & calm gardens', to: '/journeys/japan/tokyo' },
       { label: 'Kyoto', desc: 'Temples, tea & tradition', to: '/journeys/japan/kyoto' },
       { label: 'Mt Fuji & Hakone', desc: 'Onsen & the sacred cone', to: '/journeys/japan/hakone' },
       { label: 'Osaka', desc: 'Street food & neon', to: '/journeys/japan/osaka' },
-      { label: 'All Japan journeys', desc: 'Back to the country page', to: '/journeys/japan' },
+      { label: 'All Japan journeys', desc: 'Back to the country page', to: '/journeys/japan-2' },
     ],
   },
   {
-    label: 'Destinations', href: '/journeys',
+    label: 'Destinations', href: '/journeys4',
     blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
     items: [
-      { label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan' },
-      { label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys?where=Switzerland' },
-      { label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys?where=Italy' },
-      { label: 'All destinations', desc: 'Browse every journey', to: '/journeys' },
+      { label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
+      { label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys4?where=Switzerland' },
+      { label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys4?where=Italy' },
+      { label: 'All destinations', desc: 'Browse every journey', to: '/journeys4' },
     ],
   },
   {
@@ -529,7 +529,7 @@ export default function CityJourneys() {
   }, [menuOpen, lightbox]);
 
   /* Unknown city → fall back to the Japan country page. */
-  if (!city) return <Navigate to="/journeys/japan" replace />;
+  if (!city) return <Navigate to="/journeys/japan-2" replace />;
 
   return (
     <div className="h26 jl jp jc">
@@ -593,8 +593,8 @@ export default function CityJourneys() {
           </nav>
           <div className="h26-menu-divider" />
           <div className="h26-menu-secondary">
-            <Link to="/journeys/japan" onClick={() => setMenuOpen(false)}>All Japan <ArrowUpRight size={13} /></Link>
-            <Link to="/journeys" onClick={() => setMenuOpen(false)}>All destinations <ArrowUpRight size={13} /></Link>
+            <Link to="/journeys/japan-2" onClick={() => setMenuOpen(false)}>All Japan <ArrowUpRight size={13} /></Link>
+            <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All destinations <ArrowUpRight size={13} /></Link>
             <Link to="/" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
             <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
           </div>
@@ -620,9 +620,9 @@ export default function CityJourneys() {
         <div className="jl-hero-inner">
           {/* Breadcrumb — shows the country → city hierarchy and a way back. */}
           <Reveal className="jc-crumb" as="nav" aria-label="Breadcrumb">
-            <Link to="/journeys">Journeys</Link>
+            <Link to="/journeys4">Journeys</Link>
             <ChevronRight size={13} aria-hidden="true" />
-            <Link to="/journeys/japan">Japan</Link>
+            <Link to="/journeys/japan-2">Japan</Link>
             <ChevronRight size={13} aria-hidden="true" />
             <span aria-current="page">{city.name}</span>
           </Reveal>

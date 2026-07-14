@@ -857,7 +857,7 @@ export default function AboutUs() {
             <Link to={CALLBACK} className="h26-btn h26-btn-accent h26-btn-lg">
               Talk to a specialist <ArrowRight size={15} />
             </Link>
-            <Link to="/journeys" className="h26-btn h26-btn-glass">
+            <Link to="/journeys4" className="h26-btn h26-btn-glass">
               Browse journeys
             </Link>
           </div>
