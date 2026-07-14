@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
+import { Fragment, useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { SmartLink as Link, CALLBACK, useScheduleCall } from '../components/ScheduleCall';
 import {
   Menu, X, ArrowRight, ArrowLeft, ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight,
   Star, MapPin, Calendar, Users, Plane, Check, Plus, Minus, Lock, Quote,
@@ -19,6 +19,11 @@ import './JapanTourLuxe2.css';
 import './JapanTourLuxe3.css';
 import './JapanTourLuxe4.css';
 import './JapanTourLuxe5.css';
+/* The header and footer are the /new3 ones, verbatim. Both stylesheets are
+   fully scoped (.new-typo / .n3), so importing them here cannot leak into the
+   rest of this page — only the two wrappers that carry those classes. */
+import './NewTypography.css';
+import './New3.css';
 
 /* ============================================================
    Cox & Kings — "Essence Japan with Hakone" tour-detail page,
@@ -34,10 +39,16 @@ const sizedUnsplash = (id, w = 1200) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 /* ---------- Human contact (matches the homepage) ---------- */
-const PHONE_DISPLAY = '+91 85560 01700';
+/* Spaced as /new3 spaces it. The navbar and footer are that page's, verbatim,
+   and a number that regrouped its digits between the header and the booking
+   card would read as two different numbers. */
+const PHONE_DISPLAY = '+91 8556001700';
 const PHONE_TEL = 'tel:+918556001700';
 const WHATSAPP = 'https://wa.me/918556001700?text=Hi%20Cox%20%26%20Kings%2C%20I%27d%20like%20to%20plan%20the%20Essence%20Japan%20with%20Hakone%20journey.';
-const EMAIL = 'holidays@coxandkings.com';
+/* The address /new3 publishes (data/v3content CONTACT). Same reason as the
+   phone: the footer here IS that page's footer, and the site should not hand a
+   traveller two different addresses depending on which page they landed on. */
+const EMAIL = 'journeys@coxandkings.com';
 const OFFICE_SHORT = 'Fort, Mumbai 400001';
 const OFFICE_FULL = 'Turner Morrison House, 16 Bank Street, Fort, Mumbai 400001';
 const HOME = '/';
@@ -50,40 +61,61 @@ const WaIcon = ({ size = 15 }) => (
   </svg>
 );
 
-/* Desktop nav megamenus — same shape as the /new homepage (hover flyouts),
-   remapped to the sections that exist on this tour-detail page. */
+/* ---------- Desktop nav megamenus — the /new3 navbar, verbatim ----------
+   Same four groups, same blurbs, same rows, same grouped "Destinations" menu
+   and the same catch-all, so the chrome does not change shape when a traveller
+   crosses from the homepage into a tour.
+
+   The one difference is forced: /new3's top-level entries point at ITS OWN
+   sections (#paths, #destinations, #relaxed), and those sections do not exist
+   on a tour-detail page — left as bare hashes they would be dead links. They
+   are rebased onto HOME, so they still land on the same section, on the page
+   that actually has it. */
 const NAV_MENU = [
   {
-    label: 'This tour', href: '#highlights',
-    blurb: 'Everything about the Essence Japan with Hakone journey.',
+    label: 'Ways to travel', href: `${HOME}#paths`,
+    blurb: 'Two ways to see the world. Pick the one that fits you.',
     items: [
-      { label: 'Highlights', desc: 'What makes this trip special', href: '#highlights' },
-      { label: 'Your route', desc: 'Five cities, coast to coast', href: '#route' },
-      { label: 'Day by day', desc: 'The full itinerary', href: '#itinerary' },
-      { label: 'Dates & prices', desc: 'Departures and fares', href: '#dates' },
+      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
+      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
+      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
+      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
     ],
   },
   {
-    label: 'Journeys', href: `${HOME}#curated`,
-    blurb: 'Signature itineraries, ready to make your own.',
+    label: 'Destinations', href: `${HOME}#destinations`,
+    blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
     items: [
-      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', href: `${HOME}#curated` },
-      { label: 'Tailor-made trips', desc: 'Designed entirely around you', href: `${HOME}#curated` },
-      { label: 'Honeymoons & milestones', desc: 'Celebrate something special', href: `${HOME}#curated` },
-      { label: 'All destinations', desc: 'Browse the full map', href: `${HOME}#destinations` },
+      { group: 'By destination', label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys4?where=Japan' },
+      { group: 'By destination', label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys4?where=Switzerland' },
+      { group: 'By destination', label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys4?where=Italy' },
+      { group: 'By destination', label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys4?where=Northern Lights' },
+      { group: 'By destination', label: 'African Safari', desc: 'Big-five wilderness', to: '/journeys4?where=Africa Safari' },
+      { group: 'Signature journeys', label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/tour-detail-japan-5' },
+      { group: 'Signature journeys', label: 'Relaxed-pace journeys', desc: 'A calm vacation, handled', to: '/journeys4?pace=Relaxed' },
     ],
+    all: { label: 'All destinations', meta: '31 journeys', to: '/journeys4' },
   },
   {
-    label: 'Why us', href: `${HOME}#heritage`,
-    blurb: 'Specialists, not salespeople — and 260 years behind every trip.',
+    label: 'Indian Getaways', href: `${HOME}#relaxed`,
+    blurb: 'Closer to home, and no less of a journey.',
     items: [
-      { label: 'Since 1758', desc: 'Heritage you can lean on', href: `${HOME}#heritage` },
-      { label: 'Why Cox & Kings', desc: 'How we plan differently', href: `${HOME}#curated` },
-      { label: 'Real reviews', desc: '640 verified travellers', href: '#reviews' },
-      { label: 'Press & awards', desc: 'The press that covers us', href: `${HOME}#reviews` },
+      { label: 'Golden Triangle & the Taj', desc: '8 nights · Delhi, Agra, Jaipur', to: '/journeys4?where=India&style=Group Tour' },
+      { label: 'Rajasthan: palaces & forts', desc: 'Udaipur, Jodhpur & the Thar', to: '/journeys4?where=India&style=Luxury' },
+      { label: 'Kerala backwaters', desc: 'Houseboats, tea country, coast', to: '/journeys4?where=India&style=Bespoke Private' },
+    ],
+    all: { label: 'All Indian journeys', meta: '5 journeys', to: '/journeys4?where=India' },
+  },
+  {
+    label: 'About us', to: '/about-us2',
+    blurb: 'Specialists, not salespeople, with 260 years behind every trip.',
+    items: [
+      { label: 'Our story', desc: 'Since 1758, and what came after', to: '/about-us2' },
+      { label: 'Real reviews', desc: '2,400+ verified travellers', href: `${HOME}#reviews` },
+      { label: 'As featured in', desc: 'The press that covers us', href: `${HOME}#press` },
+      { label: 'Talk to an expert', desc: 'Pick a time, we call you back', action: 'callback' },
     ],
   },
-  { label: 'Reviews', href: '#reviews' },
 ];
 
 /* ---------- Tour data (Essence Japan with Hakone) ---------- */
@@ -845,6 +877,8 @@ function PrivateCalendar({ value, onChange, minDate, maxDate }) {
 
 export default function JapanTourLuxe5() {
   const [menuOpen, setMenuOpen] = useState(false);
+  /* Which NAV_MENU group is expanded in the mobile drawer (one at a time). */
+  const [mobileSection, setMobileSection] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDay, setActiveDay] = useState(0);     // desktop: drives the sticky itinerary picture
@@ -937,6 +971,9 @@ export default function JapanTourLuxe5() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen, callbackOpen, termsModalOpen, quoteOpen]);
 
+  /* Reset the drawer's open section when it closes. */
+  useEffect(() => { if (!menuOpen) setMobileSection(null); }, [menuOpen]);
+
   useEffect(() => {
     if (!callbackOpen && !termsModalOpen && !quoteOpen) return;
     const onKey = (e) => { if (e.key === 'Escape') { setCallbackOpen(false); setTermsModalOpen(false); setQuoteOpen(false); } };
@@ -970,6 +1007,14 @@ export default function JapanTourLuxe5() {
   }, []);
 
   const openCallback = useCallback((e) => { if (e) e.preventDefault(); setMenuOpen(false); setCallbackSent(false); setCallbackOpen(true); }, []);
+
+  /* The navbar and footer open the SITE-WIDE schedule-a-call dialog (the one
+     <ScheduleCallProvider> owns and every other page's chrome uses), not this
+     page's local callback sheet — that is what makes the chrome identical to
+     /new3 in behaviour and not just in looks. The tour's own CTAs below keep
+     the local sheet, which is tied to this journey. */
+  const openScheduleCall = useScheduleCall();
+  const openNavCallback = useCallback(() => { setMenuOpen(false); openScheduleCall(); }, [openScheduleCall]);
 
   /* Re-opening never throws work away: if a quote already came back, the
      dialog returns to it rather than to an empty form. */
@@ -1094,8 +1139,11 @@ export default function JapanTourLuxe5() {
         <div className="lx2i-grain" aria-hidden="true" />
         <a className="lxjt-skip" href="#main">Skip to content</a>
 
-        {/* ============ HEADER + MOBILE MENU (matches the /new homepage) ============ */}
-        <div className="h26">
+        {/* ============ HEADER + MOBILE MENU (the /new3 navbar, verbatim) ============
+             `new-typo n3` are what New3.css and NewTypography.css hang their rules
+             off. Both are scoped to those classes, so putting them on this wrapper
+             (rather than the page root) styles the chrome and nothing else. */}
+        <div className="h26 new-typo n3">
           <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
             <Link to={HOME} className="h26-brand" aria-label="Cox & Kings — home">
               <img src="/cox-logo-new.png" alt="Cox & Kings" />
@@ -1103,27 +1151,59 @@ export default function JapanTourLuxe5() {
             <nav className="h26-links hi-nav" aria-label="Primary">
               {NAV_MENU.map((group) => (
                 <div className="hi-nav-group" key={group.label}>
-                  <a href={group.href} onClick={navClick(group.href)} className="hi-nav-top" aria-haspopup={group.items ? 'true' : undefined}>
-                    {group.label}
-                    {group.items && <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />}
-                  </a>
-                  {group.items && (
-                    <div className="hi-nav-flyout" role="menu">
-                      <div className="hi-nav-flyout-inner">
-                        <p className="hi-nav-blurb">{group.blurb}</p>
-                        <ul className="hi-nav-list">
-                          {group.items.map((it) => (
-                            <li key={it.label}>
-                              <a href={it.href} onClick={navClick(it.href)} role="menuitem" className="hi-nav-item">
-                                <span className="hi-nav-item-label">{it.label}</span>
-                                <span className="hi-nav-item-desc">{it.desc}</span>
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
+                  {group.to ? (
+                    <Link to={group.to} className="hi-nav-top" aria-haspopup="true">
+                      {group.label}
+                      <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
+                    </Link>
+                  ) : (
+                    <a href={group.href} className="hi-nav-top" aria-haspopup="true">
+                      {group.label}
+                      <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
+                    </a>
                   )}
+                  <div className="hi-nav-flyout" role="menu">
+                    <div className="hi-nav-flyout-inner">
+                      <p className="hi-nav-blurb">{group.blurb}</p>
+                      <ul className="hi-nav-list">
+                        {group.items.map((it, idx) => (
+                          <Fragment key={it.label}>
+                            {/* Section rule wherever the KIND of item changes. */}
+                            {it.group && group.items[idx - 1]?.group !== it.group && (
+                              <li className="n3-navgroup" aria-hidden="true"><span>{it.group}</span></li>
+                            )}
+                            <li>
+                              {it.action === 'callback' ? (
+                                <button type="button" role="menuitem" className="hi-nav-item n3-nav-action" onClick={openNavCallback}>
+                                  <span className="hi-nav-item-label">{it.label}</span>
+                                  <span className="hi-nav-item-desc">{it.desc}</span>
+                                </button>
+                              ) : it.to ? (
+                                <Link to={it.to} role="menuitem" className="hi-nav-item">
+                                  <span className="hi-nav-item-label">{it.label}</span>
+                                  <span className="hi-nav-item-desc">{it.desc}</span>
+                                </Link>
+                              ) : (
+                                <a href={it.href} role="menuitem" className="hi-nav-item">
+                                  <span className="hi-nav-item-label">{it.label}</span>
+                                  <span className="hi-nav-item-desc">{it.desc}</span>
+                                </a>
+                              )}
+                            </li>
+                          </Fragment>
+                        ))}
+                      </ul>
+                      {/* The catch-all sits OUTSIDE the list: it is not one more thing
+                          to choose between, it is the way past the choosing. */}
+                      {group.all && (
+                        <Link to={group.all.to} role="menuitem" className="n3-navall">
+                          <span className="n3-navall-label">{group.all.label}</span>
+                          <span className="n3-navall-meta">{group.all.meta}</span>
+                          <ArrowRight size={15} className="n3-navall-arrow" aria-hidden="true" />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </nav>
@@ -1131,14 +1211,15 @@ export default function JapanTourLuxe5() {
               <a href={PHONE_TEL} className="h26-phone">
                 <Phone size={15} /> <span>{PHONE_DISPLAY}</span>
               </a>
-              <a href="#callback" onClick={openCallback} className="h26-btn h26-btn-pill">Talk to an expert</a>
+              <Link to={CALLBACK} className="h26-btn h26-btn-pill">Talk to an expert</Link>
               <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
                 <Menu size={22} />
               </button>
             </div>
           </header>
 
-          {/* Mobile slide-in menu */}
+          {/* Mobile slide-in menu — driven by the SAME NAV_MENU as the desktop
+              flyouts, so the two cannot drift apart. One section open at a time. */}
           <div className={`h26-menu${menuOpen ? ' is-open' : ''}`} aria-hidden={!menuOpen}>
             <div className="h26-menu-scrim" onClick={() => setMenuOpen(false)} />
             <div className="h26-menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
@@ -1146,15 +1227,59 @@ export default function JapanTourLuxe5() {
                 <button className="h26-menu-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={20} /></button>
                 <img className="h26-menu-logo" src="/cox-logo-new.png" alt="Cox & Kings — Est. 1758" />
               </div>
-              <nav className="h26-menu-primary" aria-label="Mobile primary">
-                {[
-                  { label: 'Highlights', href: '#highlights' },
-                  { label: 'Your route', href: '#route' },
-                  { label: 'Day by day', href: '#itinerary' },
-                  { label: 'Dates & prices', href: '#dates' },
-                  { label: 'Reviews', href: '#reviews' },
-                ].map((n) => (
-                  <a key={n.label} href={n.href} onClick={navClick(n.href)}>
+              <nav className="h26-menu-primary n3-macc" aria-label="Mobile primary">
+                {NAV_MENU.map((g) => {
+                  const open = mobileSection === g.label;
+                  return (
+                    <div key={g.label} className={`n3-macc-item${open ? ' is-open' : ''}`}>
+                      <button
+                        type="button"
+                        className="n3-macc-head"
+                        aria-expanded={open}
+                        onClick={() => setMobileSection(open ? null : g.label)}
+                      >
+                        {g.label}
+                        <span className="h26-menu-chev n3-macc-chev"><ChevronDown size={16} /></span>
+                      </button>
+                      <div className="n3-macc-panel" hidden={!open}>
+                        {g.items.map((it, idx) => (
+                          <Fragment key={it.label}>
+                            {it.group && g.items[idx - 1]?.group !== it.group && (
+                              <span className="n3-macc-group">{it.group}</span>
+                            )}
+                            {it.action === 'callback' ? (
+                              <button type="button" className="n3-macc-link n3-nav-action" onClick={openNavCallback}>
+                                <span className="n3-macc-lbl">{it.label}</span>
+                                <span className="n3-macc-desc">{it.desc}</span>
+                              </button>
+                            ) : it.to ? (
+                              <Link to={it.to} className="n3-macc-link" onClick={() => setMenuOpen(false)}>
+                                <span className="n3-macc-lbl">{it.label}</span>
+                                <span className="n3-macc-desc">{it.desc}</span>
+                              </Link>
+                            ) : (
+                              <a href={it.href} className="n3-macc-link" onClick={() => setMenuOpen(false)}>
+                                <span className="n3-macc-lbl">{it.label}</span>
+                                <span className="n3-macc-desc">{it.desc}</span>
+                              </a>
+                            )}
+                          </Fragment>
+                        ))}
+                        {g.all && (
+                          <Link to={g.all.to} className="n3-navall n3-macc-all" onClick={() => setMenuOpen(false)}>
+                            <span className="n3-navall-label">{g.all.label}</span>
+                            <span className="n3-navall-meta">{g.all.meta}</span>
+                            <ArrowRight size={15} className="n3-navall-arrow" aria-hidden="true" />
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                {/* In-page sections, which have no submenu to open. On /new3 these
+                    are Clips and Reviews; here, the two the tour itself has. */}
+                {[{ label: 'Itinerary', href: '#itinerary' }, { label: 'Reviews', href: '#reviews' }].map((n) => (
+                  <a key={n.label} href={n.href} className="n3-macc-plain" onClick={navClick(n.href)}>
                     {n.label}
                     <span className="h26-menu-chev"><ArrowRight size={16} /></span>
                   </a>
@@ -1162,13 +1287,14 @@ export default function JapanTourLuxe5() {
               </nav>
               <div className="h26-menu-divider" />
               <div className="h26-menu-secondary">
-                <a href={HOME} onClick={navClick(HOME)}>All journeys <ArrowUpRight size={13} /></a>
-                <a href={`${HOME}#destinations`} onClick={navClick(`${HOME}#destinations`)}>Destinations <ArrowUpRight size={13} /></a>
-                <a href={`${HOME}#heritage`} onClick={navClick(`${HOME}#heritage`)}>Our story <ArrowUpRight size={13} /></a>
+                <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
+                <Link to="/journeys4" onClick={() => setMenuOpen(false)}>Destinations <ArrowUpRight size={13} /></Link>
+                <Link to="/about-us2" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
+                <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
               </div>
-              <a href="#callback" className="h26-btn h26-btn-pill h26-menu-cta" onClick={openCallback}>
-                <Phone size={16} /> Speak to an expert
-              </a>
+              <button type="button" className="h26-btn h26-btn-pill h26-menu-cta" onClick={openNavCallback}>
+                <Phone size={16} /> Schedule a call
+              </button>
               <div className="h26-menu-foot">
                 <span className="h26-menu-eyebrow">Follow the journey</span>
                 <div className="h26-menu-social">
@@ -1758,48 +1884,52 @@ export default function JapanTourLuxe5() {
             </div>
           </section>
 
-          {/* ============ FOOTER (reuses homepage lx2i-footer) ============ */}
-          <footer className="lx2i-footer">
-            <div className="lx2i-container lx2i-footer__top">
-              <div className="lx2i-footer__brand">
-                <img src="/cox-logo-new.png" alt="Cox & Kings — Est. 1758" />
-                <p>The world&rsquo;s most experienced travel company.<br />Trusted by generations since 1758.</p>
-                <div className="lx2i-footer__social">
-                  <a href="#" aria-label="Instagram"><Instagram size={17} /></a>
-                  <a href="#" aria-label="Facebook"><Facebook size={17} /></a>
-                  <a href="#" aria-label="YouTube"><Youtube size={17} /></a>
-                  <a href="#" aria-label="LinkedIn"><Linkedin size={17} /></a>
+          {/* ============ FOOTER (the /new3 footer, verbatim) ============
+               Same wrapper as the header: .h26 carries the colour tokens the
+               footer's rules resolve against, `new-typo n3` the type and the
+               gutter. In-page anchors are rebased onto HOME for the same reason
+               as the nav's — #heritage and #press live on the homepage. */}
+          <div className="h26 new-typo n3">
+            <footer className="h26-footer">
+              <div className="h26-footer-top">
+                <div className="h26-footer-brand">
+                  <img src="/cox-logo-new.png" alt="Cox & Kings" />
+                  <p>The world&apos;s most experienced travel company. Established 1758.</p>
+                  <div className="h26-footer-contact">
+                    <a href={PHONE_TEL}><Phone size={15} /> {PHONE_DISPLAY}</a>
+                    <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+                  </div>
+                </div>
+                <div className="h26-footer-cols">
+                  <div>
+                    <h4>Travel</h4>
+                    <Link to="/journeys4">Group tours</Link>
+                    <Link to={CALLBACK}>Bespoke holidays</Link>
+                    <Link to="/journeys4">Luxury journeys</Link>
+                    <Link to="/journeys4">Destinations</Link>
+                  </div>
+                  <div>
+                    <h4>Company</h4>
+                    <Link to="/about-us2">Our story</Link>
+                    <Link to="/about-us2">Specialists</Link>
+                    <Link to={CALLBACK}>Contact</Link>
+                    <a href={`${HOME}#heritage`}>Why Cox &amp; Kings</a>
+                  </div>
+                  <div>
+                    <h4>Assurance</h4>
+                    <a href={`${HOME}#heritage`}>Trust &amp; safety</a>
+                    <a href="#reviews" onClick={navClick('#reviews')}>Reviews</a>
+                    <Link to={CALLBACK}>Refund policy</Link>
+                    <Link to={CALLBACK}>Speak to an expert</Link>
+                  </div>
                 </div>
               </div>
-              <div className="lx2i-footer__cols">
-                <div>
-                  <span className="lx2i-eyebrow">EXPLORE</span>
-                  <Link to={`${HOME}#destinations`}>Destinations</Link>
-                  <Link to={`${HOME}#curated`}>Curated Journeys</Link>
-                  <Link to={`${HOME}#heritage`}>Our Heritage</Link>
-                  <a href="#reviews" onClick={navClick('#reviews')}>Reviews</a>
-                </div>
-                <div>
-                  <span className="lx2i-eyebrow">COMPANY</span>
-                  <a href={PHONE_TEL}>Speak to an Expert</a>
-                  <a href="#">About Us</a>
-                  <a href="#">Press Room</a>
-                  <a href="#">Careers</a>
-                </div>
-                <div>
-                  <span className="lx2i-eyebrow">SPEAK TO A HUMAN</span>
-                  <a href={PHONE_TEL}><Phone size={13} /> {PHONE_DISPLAY}</a>
-                  <a href={WHATSAPP} target="_blank" rel="noopener noreferrer"><MessageCircle size={13} /> Chat on WhatsApp</a>
-                  <a href="#" onClick={openCallback}><PhoneCall size={13} /> Request a callback</a>
-                  <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
-                </div>
+              <div className="h26-footer-bottom">
+                <span>© {new Date().getFullYear()} Cox &amp; Kings. Travelling the world since 1758.</span>
+                <span className="h26-footer-assoc">IATA · TAAI · ASTA</span>
               </div>
-            </div>
-            <div className="lx2i-container lx2i-footer__bottom">
-              <p>© 2026 Cox &amp; Kings. Est. 1758.</p>
-              <div className="lx2i-footer__legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
-            </div>
-          </footer>
+            </footer>
+          </div>
         </main>
 
         {/* ============ MOBILE THUMB-REACH BAR ============

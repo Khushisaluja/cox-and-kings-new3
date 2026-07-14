@@ -226,9 +226,38 @@
 }
 
 /* Serif nav links sit between display and body; 500 keeps them from
-   reading as copy without turning them into headings. */
-.lxjt5 .h26-menu-primary a {
+   reading as copy without turning them into headings.
+
+   Scoped to the plain rows only. The drawer is now the /new3 accordion, whose
+   rows (.n3-macc-link) are Work Sans label + description pairs with their own
+   weights — a blanket `a { font-weight: 500 }` would fight them. */
+.lxjt5 .h26-menu-primary .n3-macc-plain {
   font-weight: 500;
+}
+
+/* ---- The /new3 chrome wrappers ------------------------------------------
+   New3.css sets `.h26.n3 { background: #000207 }` because on /new3 that class
+   pair IS the page root, and the near-black is the hero's own colour showing
+   through the sheet's rounded corners. Here the pair sits on two chrome-only
+   wrappers — the fixed header and the footer — with the page's own background
+   behind them, so the near-black would be a stray dark band under the footer.
+   (0,3,0) to beat New3.css's (0,2,0). */
+.lxjt5 .h26.n3 {
+  background: transparent;
+}
+
+/* ---- The header has to outrank the sticky sub-nav -----------------------
+   .h26-nav ships at z-index 50 and its megamenu flyout is position:absolute
+   INSIDE it, so the flyout can never escape the header's stacking context.
+   /new3 has nothing above 50 to collide with — this page does: .lxjt-subnav is
+   a sticky bar at 90. So the sub-nav painted straight through the open flyout,
+   slicing a white band across the Destinations menu.
+
+   100 clears the sub-nav (90) while staying under the thumb bar (150), the
+   mobile drawer (200) and the dialogs (1100+), which must all still cover the
+   header. */
+.lxjt5 .h26-nav {
+  z-index: 100;
 }
 
 /* Level 3 — card, panel and modal headings (16–27px). These sit directly
