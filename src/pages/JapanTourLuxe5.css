@@ -1173,3 +1173,69 @@
   .lxjt5-q__seg--3 { grid-template-columns: 1fr; }
   .lxjt5-q__line--tot .lxjt5-q__lineamt { font-size: 21px; }
 }
+
+/* ============================================================
+   FLOATING QUOTE CTA (desktop) — the /tour-detail-thailand-2
+   .tha2-bookfab, brought over to this page.
+
+   Below 680px the thumb-bar carries the booking CTA. Above it, once
+   the hero has scrolled away, the only route back to the booking card
+   was the header pill — so the page's whole reason for existing left
+   the screen. This rides the same right rail as Ask Enaya
+   (.lx2i-aifab: right 24px / bottom 24px, ~46px tall) and sits
+   directly above it. Both are position:fixed, so neither moves.
+
+   The label is this page's action, not Thailand's. Thailand sells a
+   fixed group departure off a shelf price, so "Book now" is literally
+   what its button does. This journey is private and tailor-made — the
+   card itself says "there is no shelf price for a private trip" — and
+   nothing on the page can be booked in one tap. It gets priced. So the
+   button says what it does, and the from-price stays an anchor rather
+   than a promise.
+   ============================================================ */
+.lxjt5-bookfab {
+  position: fixed;
+  right: 24px;
+  bottom: 82px;                      /* 24px rail + Enaya's height + a 12px gap */
+  z-index: 150;                      /* same layer as .lx2i-aifab */
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 20px;
+  border-radius: 100px;
+  background: var(--sienna, #BD4011);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 18px 40px -16px rgba(189, 64, 17, 0.75);
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease),
+              background 0.2s var(--ease), opacity 0.3s var(--ease);
+}
+.lxjt5-bookfab:hover {
+  background: var(--sienna-700, #97330E);
+  transform: translateY(-3px);
+  box-shadow: 0 24px 50px -18px rgba(189, 64, 17, 0.85);
+}
+.lxjt5-bookfab__px { font-weight: 400; opacity: 0.85; }
+/* The chat drawer takes the same corner — step out of its way. */
+.lxjt5-bookfab.is-hidden { opacity: 0; pointer-events: none; transform: scale(0.8); }
+
+/* Enaya is hidden from 860px down (Luxe2Improved.css), so from there the rail
+   below this button is empty — drop it onto the base rail rather than leaving
+   it hovering above nothing. */
+@media (max-width: 860px) {
+  .lxjt5-bookfab { bottom: 24px; }
+}
+/* At 680px the thumb-bar appears and takes the booking CTA over. */
+@media (max-width: 680px) {
+  .lxjt5-bookfab { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lxjt5-bookfab { transition: opacity 0.2s ease; }
+  .lxjt5-bookfab:hover { transform: none; }
+}

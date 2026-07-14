@@ -237,3 +237,18 @@
     transition: none;
   }
 }
+
+/* ---- The /new3 chrome wrappers ------------------------------------------
+   The navbar and the footer are /new3's, verbatim, and they carry that page's
+   classes (`h26 new-typo n3`) on two chrome-only wrappers so New3.css and
+   NewTypography.css can style them without touching the listing itself.
+
+   One rule has to be undone. New3.css sets `.h26.n3 { background: #000207 }`
+   because on /new3 that class pair IS the page root, and the near-black is the
+   hero's own colour showing through the sheet's rounded corners. Here the pair
+   sits on a wrapper with the listing's own background behind it, so the
+   near-black would be a stray dark band under the footer. (0,3,0) to beat
+   New3.css's (0,2,0). */
+.jl4 .h26.n3 {
+  background: transparent;
+}
