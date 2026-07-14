@@ -21,7 +21,7 @@
    ========================================================================== */
 
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, ArrowUpRight, Phone, Mail } from 'lucide-react';
@@ -457,6 +457,19 @@ function Timeline() {
 export default function AboutUs() {
   const heroRef = useRef(null);
 
+  /* Land at the top, every time. ScrollTrigger remembers the scroll position
+     it last saw and restores it on refresh() — arriving here from halfway down
+     a long homepage, that memory is what was dropping the visitor into the
+     middle of the timeline. Clear it before any trigger is built, and re-assert
+     the top after the first paint, once the pinned section has claimed its
+     height. Must run before the GSAP effect below, hence the order. */
+  useEffect(() => {
+    ScrollTrigger.clearScrollMemory('manual');
+    window.scrollTo(0, 0);
+    const raf = requestAnimationFrame(() => window.scrollTo(0, 0));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   /* Hero entrance + the gentle reveals down the page. */
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -841,7 +854,7 @@ export default function AboutUs() {
             it from there.
           </p>
           <div className="ab-cta-actions">
-            <Link to="/contact" className="h26-btn h26-btn-accent h26-btn-lg">
+            <Link to={CALLBACK} className="h26-btn h26-btn-accent h26-btn-lg">
               Talk to a specialist <ArrowRight size={15} />
             </Link>
             <Link to="/journeys" className="h26-btn h26-btn-glass">

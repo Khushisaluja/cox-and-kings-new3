@@ -15,7 +15,7 @@
    and layers JapanJourneys.css for the about + food sections.
    ============================================================ */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
   Phone, PhoneCall, MessageCircle, ArrowUpRight, ArrowRight,
@@ -67,18 +67,18 @@ const T = (o) => ({
 });
 /* Escorted, tour-manager-led departures — the "group tours" rail. */
 const GROUP_TOURS = [
-  T({ id: 'jp-blossom', title: 'Cherry Blossom Japan', blurb: 'Tokyo neon to Kyoto temple gardens, timed to the petals.', style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 13, season: 'Mar–Apr', price: 295000, image: U('1522383225653-ed111181a951'), to: '/japan' }),
-  T({ id: 'jp-essence', title: 'Essence of Japan with Hakone', blurb: 'The classic first loop — Tokyo, Mt Fuji and old Kyoto.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 8, season: 'Mar–Nov', price: 265000, image: U('1490806843957-31f4c9a91c65'), to: '/essence-japan' }),
-  T({ id: 'jp-highlights', title: 'Highlights of Japan', blurb: 'Tokyo, Kyoto, Hiroshima and Osaka, linked by bullet train.', style: 'Group Tour', pace: 'Active', rating: 4.7, nights: 11, season: 'Year-round', price: 250000, image: U('1540959733332-eab4deabeeaf'), to: '/japan' }),
-  T({ id: 'jp-autumn', title: 'Japan in Autumn Colours', blurb: 'Fire-red maples across Kyoto, Nikko and the Fuji lakes.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 12, season: 'Oct–Nov', price: 285000, image: U('1528360983277-13d401cdc186'), to: '/japan' }),
+  T({ id: 'jp-blossom', title: 'Cherry Blossom Japan', blurb: 'Tokyo neon to Kyoto temple gardens, timed to the petals.', style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 13, season: 'Mar–Apr', price: 295000, image: U('1522383225653-ed111181a951'), to: '/tour-detail-japan-5' }),
+  T({ id: 'jp-essence', title: 'Essence of Japan with Hakone', blurb: 'The classic first loop — Tokyo, Mt Fuji and old Kyoto.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 8, season: 'Mar–Nov', price: 265000, image: U('1490806843957-31f4c9a91c65'), to: '/tour-detail-japan-5' }),
+  T({ id: 'jp-highlights', title: 'Highlights of Japan', blurb: 'Tokyo, Kyoto, Hiroshima and Osaka, linked by bullet train.', style: 'Group Tour', pace: 'Active', rating: 4.7, nights: 11, season: 'Year-round', price: 250000, image: U('1540959733332-eab4deabeeaf'), to: '/tour-detail-japan-5' }),
+  T({ id: 'jp-autumn', title: 'Japan in Autumn Colours', blurb: 'Fire-red maples across Kyoto, Nikko and the Fuji lakes.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 12, season: 'Oct–Nov', price: 285000, image: U('1528360983277-13d401cdc186'), to: '/tour-detail-japan-5' }),
 ];
 
 /* Tailor-made & private-guided trips — the "private tours" rail. */
 const PRIVATE_TOURS = [
-  T({ id: 'jp-first', title: 'Japan for First-Timers', blurb: 'Tokyo, Hakone and Kyoto with a private guide and a ryokan night.', style: 'Bespoke Private', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Any date', price: 310000, image: U('1492571350019-22de08371fd3'), to: '/japan' }),
-  T({ id: 'jp-luxe', title: 'Ryokans & Art Islands', blurb: 'Design hotels, private onsen and the Naoshima art islands.', style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/japan' }),
-  T({ id: 'jp-kyoto', title: 'Tailor-made Kyoto & Kanazawa', blurb: 'Old capitals, craft studios and quiet gardens, at your pace.', style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 8, season: 'Year-round', price: 335000, image: U('1522383225653-ed111181a951'), to: '/japan' }),
-  T({ id: 'jp-rail', title: 'Luxury Japan by Rail', blurb: 'First-class Shinkansen and the finest stays, end to end.', style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 11, season: 'Apr–Oct', price: 480000, image: U('1490806843957-31f4c9a91c65'), to: '/japan' }),
+  T({ id: 'jp-first', title: 'Japan for First-Timers', blurb: 'Tokyo, Hakone and Kyoto with a private guide and a ryokan night.', style: 'Bespoke Private', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Any date', price: 310000, image: U('1492571350019-22de08371fd3'), to: '/tour-detail-japan-5' }),
+  T({ id: 'jp-luxe', title: 'Ryokans & Art Islands', blurb: 'Design hotels, private onsen and the Naoshima art islands.', style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/tour-detail-japan-5' }),
+  T({ id: 'jp-kyoto', title: 'Tailor-made Kyoto & Kanazawa', blurb: 'Old capitals, craft studios and quiet gardens, at your pace.', style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 8, season: 'Year-round', price: 335000, image: U('1522383225653-ed111181a951'), to: '/tour-detail-japan-5' }),
+  T({ id: 'jp-rail', title: 'Luxury Japan by Rail', blurb: 'First-class Shinkansen and the finest stays, end to end.', style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 11, season: 'Apr–Oct', price: 480000, image: U('1490806843957-31f4c9a91c65'), to: '/tour-detail-japan-5' }),
 ];
 
 const TOUR_COUNT = GROUP_TOURS.length + PRIVATE_TOURS.length;
@@ -129,7 +129,7 @@ const NAV_MENU = [
       { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys?style=Group Tour' },
       { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys?style=Bespoke Private' },
       { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: '/contact' },
+      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
     ],
   },
   {
@@ -148,9 +148,9 @@ const NAV_MENU = [
     label: 'Japan', href: '/journeys/japan',
     blurb: 'Cherry blossom to neon — our most-loved country, four ways.',
     items: [
-      { label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/japan' },
-      { label: 'Japan for First-Timers', desc: '10 nights · any date', to: '/japan' },
-      { label: 'Ryokans & Art Islands', desc: '9 nights · slow luxury', to: '/japan' },
+      { label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/tour-detail-japan-5' },
+      { label: 'Japan for First-Timers', desc: '10 nights · any date', to: '/tour-detail-japan-5' },
+      { label: 'Ryokans & Art Islands', desc: '9 nights · slow luxury', to: '/tour-detail-japan-5' },
       { label: 'All Japan journeys', desc: 'The full collection', to: '/journeys/japan' },
     ],
   },
@@ -161,7 +161,7 @@ const NAV_MENU = [
       { label: 'Our specialists', desc: 'The people who plan your trip', to: '/improved#trust' },
       { label: 'Since 1758', desc: 'Heritage you can lean on', to: '/improved#trust' },
       { label: 'Real reviews', desc: '2,400+ verified travellers', to: '/improved#reviews' },
-      { label: 'Talk to an expert', desc: 'We pick up the phone', to: '/contact' },
+      { label: 'Talk to an expert', desc: 'We pick up the phone', to: CALLBACK },
     ],
   },
 ];
@@ -503,7 +503,7 @@ export default function JapanJourneys() {
           <a href={CONTACT.phoneHref} className="h26-phone">
             <Phone size={15} /> <span>{CONTACT.phoneDisplay}</span>
           </a>
-          <Link to="/contact" className="h26-btn h26-btn-pill">Talk to an expert</Link>
+          <Link to={CALLBACK} className="h26-btn h26-btn-pill">Talk to an expert</Link>
           <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
             <Menu size={22} />
           </button>
@@ -520,8 +520,8 @@ export default function JapanJourneys() {
           </div>
           <nav className="h26-menu-primary" aria-label="Mobile primary">
             <Link to="/journeys/japan" onClick={() => setMenuOpen(false)}>Japan journeys<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
-            <Link to="/japan" onClick={() => setMenuOpen(false)}>Cherry Blossom Japan<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
-            <Link to="/essence-japan" onClick={() => setMenuOpen(false)}>Essence of Japan<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
+            <Link to="/tour-detail-japan-5" onClick={() => setMenuOpen(false)}>Cherry Blossom Japan<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
+            <Link to="/tour-detail-japan-5" onClick={() => setMenuOpen(false)}>Essence of Japan<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
             <Link to="/journeys" onClick={() => setMenuOpen(false)}>All destinations<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
           </nav>
           <div className="h26-menu-divider" />
@@ -529,7 +529,7 @@ export default function JapanJourneys() {
             <Link to="/journeys" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
             <Link to="/improved" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
-            <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
+            <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
           </div>
           <a href={CONTACT.phoneHref} className="h26-btn h26-btn-pill h26-menu-cta" onClick={() => setMenuOpen(false)}>
             <Phone size={16} /> Speak to an expert
@@ -696,7 +696,7 @@ export default function JapanJourneys() {
           </Reveal>
           <Reveal className="jl-cta-actions" delay={0.12}>
             <a href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer" className="h26-btn h26-btn-accent h26-btn-lg"><MessageCircle size={17} /> WhatsApp us</a>
-            <Link to="/contact" className="h26-btn h26-btn-glass h26-btn-lg"><PhoneCall size={16} /> Schedule a callback</Link>
+            <Link to={CALLBACK} className="h26-btn h26-btn-glass h26-btn-lg"><PhoneCall size={16} /> Schedule a callback</Link>
           </Reveal>
           <Reveal as="p" className="jl-cta-hours" delay={0.18}>Travel experts available 9am–9pm IST, every day.</Reveal>
         </div>
@@ -716,8 +716,8 @@ export default function JapanJourneys() {
           <div className="h26-footer-cols">
             <div>
               <h4>Japan</h4>
-              <Link to="/japan">Cherry Blossom Japan</Link>
-              <Link to="/essence-japan">Essence of Japan</Link>
+              <Link to="/tour-detail-japan-5">Cherry Blossom Japan</Link>
+              <Link to="/tour-detail-japan-5">Essence of Japan</Link>
               <Link to="/journeys/japan">All Japan journeys</Link>
               <Link to="/journeys">Other destinations</Link>
             </div>
@@ -725,15 +725,15 @@ export default function JapanJourneys() {
               <h4>Company</h4>
               <Link to="/about">Our story</Link>
               <Link to="/about">Specialists</Link>
-              <Link to="/contact">Contact</Link>
+              <Link to={CALLBACK}>Contact</Link>
               <Link to="/improved#trust">Why Cox &amp; Kings</Link>
             </div>
             <div>
               <h4>Assurance</h4>
               <Link to="/improved#trust">Trust &amp; safety</Link>
               <Link to="/improved#trust">Awards</Link>
-              <Link to="/contact">Refund policy</Link>
-              <Link to="/contact">Speak to an expert</Link>
+              <Link to={CALLBACK}>Refund policy</Link>
+              <Link to={CALLBACK}>Speak to an expert</Link>
             </div>
           </div>
         </div>

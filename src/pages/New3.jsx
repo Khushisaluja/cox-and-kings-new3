@@ -19,7 +19,8 @@
    ============================================================ */
 import { Fragment, useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK, useScheduleCall } from '../components/ScheduleCall';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
   Phone, MessageCircle, ArrowRight, ArrowUpRight, Star, Search, MapPin,
@@ -65,7 +66,7 @@ const NAV_MENU = [
       { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
       { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
       { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: '/contact' },
+      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
     ],
   },
   {
@@ -97,7 +98,9 @@ const NAV_MENU = [
     all: { label: 'All Indian journeys', meta: '5 journeys', to: '/journeys4?where=India' },
   },
   {
-    label: 'About us', href: '#heritage',
+    /* `to` rather than `href`: the label itself opens the About page at its
+       top, instead of scrolling this page down to the heritage section. */
+    label: 'About us', to: '/about-us2',
     blurb: 'Specialists, not salespeople, with 260 years behind every trip.',
     items: [
       { label: 'Our story', desc: 'Since 1758, and what came after', to: '/about-us2' },
@@ -370,158 +373,6 @@ const IMP_EXPERT_PHOTOS = {
   'Nisha Verma': 'https://images.unsplash.com/photo-1759840278361-f1adc75529a1',
 };
 const EXPERTS_IMP = EXPERTS.map((e) => ({ ...e, photo: IMP_EXPERT_PHOTOS[e.name] || e.photo }));
-
-/* ---- "Schedule a callback" popup (opened from the mobile call icon) ---- */
-const CB_PURPOSES = [
-  'Plan a new trip',
-  'Get a price quote',
-  'An existing booking',
-  'Group / family tour',
-  'Bespoke / tailor-made journey',
-  'Other',
-];
-const CB_TIMES = [
-  'As soon as possible',
-  '9–11 AM',
-  '11 AM–1 PM',
-  '1–3 PM',
-  '3–5 PM',
-  '5–7 PM',
-  '7–9 PM',
-];
-
-function ScheduleCallback({ onClose }) {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  /* Purpose starts EMPTY rather than pre-selected on "Plan a new trip": it is
-     optional, and a pre-filled dropdown quietly answers for the traveller and
-     sends us data they never actually chose. */
-  const [purpose, setPurpose] = useState('');
-  const [purposeOther, setPurposeOther] = useState('');
-  const [time, setTime] = useState(CB_TIMES[0]);
-  const [sent, setSent] = useState(false);
-
-  const phoneValid = phone.replace(/\D/g, '').length >= 7;
-  /* Optional — but if it IS filled in, it has to be usable, or we promise to
-     write back to an address that bounces. */
-  const emailValid = email.trim() === '' || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
-  const purposeText = purpose === 'Other' ? purposeOther.trim() : purpose;
-
-  /* Only what we genuinely need to make the call: who you are, where to ring,
-     and when. Email and purpose are nice to have and never block the request. */
-  const canSubmit = name.trim().length > 1 && phoneValid && !!time && emailValid;
-
-  const waHref = `${CONTACT_IMP.whatsappHref}?text=${encodeURIComponent(
-    [
-      'Hi Cox & Kings, please schedule a callback.',
-      `Name: ${name}`,
-      `Phone: ${phone}`,
-      email.trim() ? `Email: ${email.trim()}` : null,
-      purposeText ? `About: ${purposeText}` : null,
-      `Preferred time: ${time}`,
-    ].filter(Boolean).join('\n'),
-  )}`;
-
-  const submit = (e) => {
-    e.preventDefault();
-    if (canSubmit) setSent(true);
-  };
-
-  return (
-    <motion.div
-      className="bf h26-cb" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }} onClick={onClose}
-    >
-      <motion.div
-        className="bf-panel cb-panel" role="dialog" aria-modal="true" aria-label="Schedule a callback"
-        initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.97 }}
-        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }} onClick={(e) => e.stopPropagation()}
-      >
-        <button className="bf-close" aria-label="Close" onClick={onClose}><X size={20} /></button>
-
-        {!sent ? (
-          <form className="cb-form" onSubmit={submit}>
-            <span className="bf-eyebrow"><Phone size={13} /> Schedule a callback</span>
-            <h3 className="bf-q cb-title">A specialist will call you back</h3>
-            <p className="cb-intro">Leave your details and a time that suits you. We'll call, no charge and no obligation.</p>
-
-            <label className="cb-field">
-              <span className="cb-label">Your name <abbr className="cb-req" title="Required">*</abbr></span>
-              <input className="cb-input" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Priya Sharma" autoComplete="name" required />
-            </label>
-
-            <label className="cb-field">
-              <span className="cb-label">Phone number <abbr className="cb-req" title="Required">*</abbr></span>
-              <input className="cb-input" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. +91 98765 43210" autoComplete="tel" required />
-            </label>
-
-            <label className="cb-field">
-              <span className="cb-label">Email <span className="cb-opt">(optional)</span></span>
-              <input
-                className="cb-input"
-                type="email"
-                inputMode="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. priya@email.com"
-                autoComplete="email"
-                aria-invalid={!emailValid}
-              />
-              {!emailValid && <span className="cb-err">That doesn&apos;t look like an email address.</span>}
-            </label>
-
-            <label className="cb-field">
-              <span className="cb-label">What&apos;s it about? <span className="cb-opt">(optional)</span></span>
-              <span className="cb-select-wrap">
-                <select className="cb-input cb-select" value={purpose} onChange={(e) => setPurpose(e.target.value)} aria-label="Purpose of callback">
-                  <option value="">Tell us if you like</option>
-                  {CB_PURPOSES.map((pp) => <option key={pp} value={pp}>{pp}</option>)}
-                </select>
-                <ChevronDown size={16} className="cb-select-chev" aria-hidden="true" />
-              </span>
-            </label>
-
-            {purpose === 'Other' && (
-              <label className="cb-field">
-                <span className="cb-label">Tell us a little more <span className="cb-opt">(optional)</span></span>
-                <input className="cb-input" type="text" value={purposeOther} onChange={(e) => setPurposeOther(e.target.value)} placeholder="In a few words…" />
-              </label>
-            )}
-
-            <div className="cb-field">
-              <span className="cb-label">Preferred time to call <abbr className="cb-req" title="Required">*</abbr></span>
-              <div className="bf-chips cb-times">
-                {CB_TIMES.map((t) => (
-                  <button key={t} type="button" className={`bf-chip${time === t ? ' on' : ''}`} onClick={() => setTime(t)}>{t}</button>
-                ))}
-              </div>
-            </div>
-
-            <p className="cb-legend"><abbr className="cb-req" title="Required">*</abbr> Required</p>
-
-            <button type="submit" className="h26-btn h26-btn-accent cb-submit" disabled={!canSubmit}>
-              Request my callback <ArrowRight size={16} />
-            </button>
-          </form>
-        ) : (
-          <div className="cb-done">
-            <span className="cb-done-ic"><Check size={26} /></span>
-            <h3 className="bf-q cb-title">You're all set, {name.trim().split(' ')[0]}.</h3>
-            <p className="cb-intro">
-              A Cox &amp; Kings specialist will call you on <strong>{phone}</strong>, <strong>{time.toLowerCase()}</strong>
-              {purposeText ? <>, about <strong>{purposeText.toLowerCase()}</strong></> : null}.
-            </p>
-            <div className="cb-done-actions">
-              <a href={waHref} target="_blank" rel="noopener noreferrer" className="h26-btn h26-btn-accent"><MessageCircle size={16} /> Send details on WhatsApp</a>
-              <button type="button" className="h26-btn h26-btn-ghost" onClick={onClose}>Done</button>
-            </div>
-          </div>
-        )}
-      </motion.div>
-    </motion.div>
-  );
-}
 
 /* Full-screen vertical reel player — YouTube-Shorts style (from /improved). */
 function ReelPlayer({ reels, index, setIndex, onClose }) {
@@ -964,14 +815,14 @@ const J = (o) => ({
 /* The relaxed-pace journeys shown on this page's shelf. */
 const RELAXED_JOURNEYS = [
   J({ id: 'jp-luxe', title: 'Japan: Ryokans & Art Islands', blurb: 'Slow luxury, with design hotels, private onsen and the Naoshima art islands.', regions: ['Japan'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/tour-detail-japan-5' }),
-  J({ id: 'ch-summer', title: 'Summer in Switzerland', blurb: 'Glacier trains and alpine lakes across Lucerne, Zermatt and the Jungfrau region.', regions: ['Switzerland', 'Europe'], style: 'Group Tour', pace: 'Relaxed', rating: 4.8, nights: 10, season: 'Jun–Sep', price: 245000, image: U('1530122037265-a5f1f91d3b99'), to: '/contact' }),
-  J({ id: 'ch-rail', title: 'Swiss Alps Private Rail Journey', blurb: 'The Glacier Express and Bernina line, first-class, with elevated stays throughout.', regions: ['Switzerland', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 8, season: 'May–Oct', price: 360000, image: U('1530122037265-a5f1f91d3b99'), to: '/contact' }),
-  J({ id: 'it-slow', title: 'Slow Italy: Coast to Art', blurb: 'Rome after-hours, a Tuscan villa and a hidden Amalfi cove, designed around you.', regions: ['Italy', 'Europe'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Apr–Oct', price: 240000, image: U('1534445867742-43195f401b6c'), to: '/contact' }),
-  J({ id: 'it-amalfi', title: 'Amalfi & the Southern Coast', blurb: 'A private skipper, cliffside stays and long lunches above the Tyrrhenian.', regions: ['Italy', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.8, nights: 7, season: 'May–Sep', price: 280000, image: U('1534445867742-43195f401b6c'), to: '/contact' }),
-  J({ id: 'it-family', title: 'Italy for Families', blurb: 'Gladiator schools in Rome, gelato trails and a slow Tuscan farmhouse week.', regions: ['Italy', 'Europe'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 10, season: 'Apr–Oct', price: 215000, image: U('1534445867742-43195f401b6c'), to: '/contact' }),
-  J({ id: 'au-family', title: 'Australia for Families', blurb: 'Reef, beaches and easy days, with snorkelling, Rotorua and time to breathe.', regions: ['Australia & NZ'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 14, season: 'Year-round', price: 340000, image: U('1506973035872-a4ec16b8e8d9'), to: '/contact' }),
+  J({ id: 'ch-summer', title: 'Summer in Switzerland', blurb: 'Glacier trains and alpine lakes across Lucerne, Zermatt and the Jungfrau region.', regions: ['Switzerland', 'Europe'], style: 'Group Tour', pace: 'Relaxed', rating: 4.8, nights: 10, season: 'Jun–Sep', price: 245000, image: U('1530122037265-a5f1f91d3b99'), to: CALLBACK }),
+  J({ id: 'ch-rail', title: 'Swiss Alps Private Rail Journey', blurb: 'The Glacier Express and Bernina line, first-class, with elevated stays throughout.', regions: ['Switzerland', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 8, season: 'May–Oct', price: 360000, image: U('1530122037265-a5f1f91d3b99'), to: CALLBACK }),
+  J({ id: 'it-slow', title: 'Slow Italy: Coast to Art', blurb: 'Rome after-hours, a Tuscan villa and a hidden Amalfi cove, designed around you.', regions: ['Italy', 'Europe'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Apr–Oct', price: 240000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
+  J({ id: 'it-amalfi', title: 'Amalfi & the Southern Coast', blurb: 'A private skipper, cliffside stays and long lunches above the Tyrrhenian.', regions: ['Italy', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.8, nights: 7, season: 'May–Sep', price: 280000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
+  J({ id: 'it-family', title: 'Italy for Families', blurb: 'Gladiator schools in Rome, gelato trails and a slow Tuscan farmhouse week.', regions: ['Italy', 'Europe'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 10, season: 'Apr–Oct', price: 215000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
+  J({ id: 'au-family', title: 'Australia for Families', blurb: 'Reef, beaches and easy days, with snorkelling, Rotorua and time to breathe.', regions: ['Australia & NZ'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 14, season: 'Year-round', price: 340000, image: U('1506973035872-a4ec16b8e8d9'), to: CALLBACK }),
   J({ id: 'sea-srilanka', title: 'Sri Lanka: Tea Trails & Coast', blurb: 'Hill-country tea estates, ancient cities and a slow finish by the sea.', regions: ['Southeast Asia'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Year-round', price: 130000, image: U('1546708973-b339540b5162'), to: '/tour-detail-thailand-2' }),
-  J({ id: 'mv-overwater', title: 'Maldives Overwater Escape', blurb: 'Overwater calm, with a private villa, a house reef and nowhere to be.', regions: ['Maldives'], style: 'Honeymoon', pace: 'Relaxed', rating: 4.9, nights: 5, season: 'Year-round', price: 140000, image: U('1514282401047-d79a71a590e8'), to: '/contact' }),
+  J({ id: 'mv-overwater', title: 'Maldives Overwater Escape', blurb: 'Overwater calm, with a private villa, a house reef and nowhere to be.', regions: ['Maldives'], style: 'Honeymoon', pace: 'Relaxed', rating: 4.9, nights: 5, season: 'Year-round', price: 140000, image: U('1514282401047-d79a71a590e8'), to: CALLBACK }),
 ];
 const RELAXED_COL = {
   key: 'relaxed',
@@ -1167,7 +1018,6 @@ export default function New3() {
      corner from the floating FAB. */
   const [chatCentred, setChatCentred] = useState(false);
   const [activeReel, setActiveReel] = useState(null);
-  const [callbackOpen, setCallbackOpen] = useState(false);
   const [statsRun, setStatsRun] = useState(false);
   const statsRef = useRef(null);
 
@@ -1245,10 +1095,10 @@ export default function New3() {
 
   /* Lock body scroll while a modal surface is open. */
   useEffect(() => {
-    const lock = menuOpen || activeReel !== null || callbackOpen;
+    const lock = menuOpen || activeReel !== null;
     document.body.style.overflow = lock ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [menuOpen, activeReel, callbackOpen]);
+  }, [menuOpen, activeReel]);
 
   /* Keyboard control for the reel player. */
   useEffect(() => {
@@ -1477,8 +1327,10 @@ export default function New3() {
   const openEnaya = useCallback(() => { setChatCentred(true); setChatOpen(true); }, []);
 
   /* Every "talk to us" CTA opens the same callback dialog (name, number,
-     purpose, time slot) instead of firing a tel: link. */
-  const openCallback = useCallback(() => { setMenuOpen(false); setCallbackOpen(true); }, []);
+     purpose, time slot) instead of firing a tel: link. The dialog itself lives
+     in <ScheduleCallProvider>, so every page shares one copy of it. */
+  const openScheduleCall = useScheduleCall();
+  const openCallback = useCallback(() => { setMenuOpen(false); openScheduleCall(); }, [openScheduleCall]);
 
   /* Reset the drawer's open section when it closes. */
   useEffect(() => { if (!menuOpen) setMobileSection(null); }, [menuOpen]);
@@ -1505,10 +1357,17 @@ export default function New3() {
         <nav className="h26-links hi-nav" aria-label="Primary">
           {NAV_MENU.map((group) => (
             <div className="hi-nav-group" key={group.label}>
-              <a href={group.href} className="hi-nav-top" aria-haspopup="true">
-                {group.label}
-                <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
-              </a>
+              {group.to ? (
+                <Link to={group.to} className="hi-nav-top" aria-haspopup="true">
+                  {group.label}
+                  <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
+                </Link>
+              ) : (
+                <a href={group.href} className="hi-nav-top" aria-haspopup="true">
+                  {group.label}
+                  <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
+                </a>
+              )}
               <div className="hi-nav-flyout" role="menu">
                 <div className="hi-nav-flyout-inner">
                   <p className="hi-nav-blurb">{group.blurb}</p>
@@ -1558,7 +1417,7 @@ export default function New3() {
           <a href={CONTACT_IMP.phoneHref} className="h26-phone">
             <Phone size={15} /> <span>{CONTACT_IMP.phoneDisplay}</span>
           </a>
-          <Link to="/contact" className="h26-btn h26-btn-pill">Talk to an expert</Link>
+          <Link to={CALLBACK} className="h26-btn h26-btn-pill">Talk to an expert</Link>
           <button
             className="h26-burger"
             aria-label="Menu"
@@ -1643,7 +1502,7 @@ export default function New3() {
             <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
             <Link to="/journeys4" onClick={() => setMenuOpen(false)}>Destinations <ArrowUpRight size={13} /></Link>
             <Link to="/about-us2" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
-            <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
+            <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
           </div>
           <button type="button" className="h26-btn h26-btn-pill h26-menu-cta" onClick={openCallback}>
             <Phone size={16} /> Schedule a call
@@ -2144,7 +2003,7 @@ export default function New3() {
               <div>
                 <h4>Travel</h4>
                 <Link to="/journeys4">Group tours</Link>
-                <Link to="/contact">Bespoke holidays</Link>
+                <Link to={CALLBACK}>Bespoke holidays</Link>
                 <Link to="/journeys4">Luxury journeys</Link>
                 <Link to="/journeys4">Destinations</Link>
               </div>
@@ -2152,15 +2011,15 @@ export default function New3() {
                 <h4>Company</h4>
                 <Link to="/about-us2">Our story</Link>
                 <Link to="/about-us2">Specialists</Link>
-                <Link to="/contact">Contact</Link>
+                <Link to={CALLBACK}>Contact</Link>
                 <a href="#heritage">Why Cox &amp; Kings</a>
               </div>
               <div>
                 <h4>Assurance</h4>
                 <a href="#heritage">Trust &amp; safety</a>
                 <a href="#reviews">Reviews</a>
-                <Link to="/contact">Refund policy</Link>
-                <Link to="/contact">Speak to an expert</Link>
+                <Link to={CALLBACK}>Refund policy</Link>
+                <Link to={CALLBACK}>Speak to an expert</Link>
               </div>
             </div>
           </div>
@@ -2197,11 +2056,6 @@ export default function New3() {
         <span>Ask Enaya</span>
       </button>
 
-
-      {/* Schedule-a-callback popup (mobile call icon) */}
-      <AnimatePresence>
-        {callbackOpen && <ScheduleCallback onClose={() => setCallbackOpen(false)} />}
-      </AnimatePresence>
 
       {/* Reel / shorts player */}
       <AnimatePresence>

@@ -13,7 +13,7 @@
    ========================================================================== */
 
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowLeft, ArrowRight, Phone, Mail } from 'lucide-react';
@@ -123,7 +123,7 @@ export default function Team() {
             work, we would like to hear it.
           </p>
           <div className="tm-cta-actions">
-            <Link to="/contact" className="h26-btn h26-btn-accent h26-btn-lg">
+            <Link to={CALLBACK} className="h26-btn h26-btn-accent h26-btn-lg">
               Get in touch <ArrowRight size={15} />
             </Link>
             <Link to="/about-us2" className="h26-btn h26-btn-glass">

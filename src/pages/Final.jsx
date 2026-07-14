@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import {
   Search, Phone, X, ChevronDown, ChevronRight, ChevronLeft, ArrowRight, Star, ZoomIn,
   Facebook, Youtube, Linkedin, Instagram, Mail, Quote,
@@ -186,7 +186,7 @@ export default function Final() {
               <img src="/cox-logo.svg" alt="Cox & Kings" />
             </Link>
             <span className="nh-utility__tag">The World's Most Experienced Travel Company · Est. 1758</span>
-            <Link to="/contact" className="nh-nav__cta">
+            <Link to={CALLBACK} className="nh-nav__cta">
               <span className="nh-nav__cta-full">Speak to a Travel Expert</span>
               <span className="nh-nav__cta-short">Talk to an Expert</span>
             </Link>

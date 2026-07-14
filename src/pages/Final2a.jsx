@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import {
   Search, Phone, X, Menu, Headset, ChevronDown, ChevronRight, ChevronLeft, ArrowRight, Star, ZoomIn,
   Facebook, Youtube, Linkedin, Instagram, Mail, Quote, MapPin, Compass, Calendar,
@@ -314,7 +314,7 @@ export default function Final2a({ variant = 'pill', ds = false }) {
               <img src="/cox-logo.svg" alt="Cox & Kings" />
             </Link>
             <span className="nh-utility__tag">The World's Most Experienced Travel Company · Est. 1758</span>
-            <Link to="/contact" className="nh-nav__cta">
+            <Link to={CALLBACK} className="nh-nav__cta">
               <span className="nh-nav__cta-full">Speak to a Travel Expert</span>
               <span className="nh-nav__cta-short">Talk to an Expert</span>
             </Link>
@@ -383,7 +383,7 @@ export default function Final2a({ variant = 'pill', ds = false }) {
               </div>
             ))}
           </nav>
-          <Link to="/contact" className="nh-mobnav__cta" onClick={() => setMenuOpen(false)}>
+          <Link to={CALLBACK} className="nh-mobnav__cta" onClick={() => setMenuOpen(false)}>
             <Phone size={16} aria-hidden="true" /> Speak to a Travel Expert
           </Link>
         </div>
@@ -392,7 +392,7 @@ export default function Final2a({ variant = 'pill', ds = false }) {
       {/* ===================== MOBILE CTA — variant-driven ===================== */}
       {/* Option A: scroll-aware floating pill (bottom-centre) */}
       {variant === 'pill' && (
-        <Link to="/contact" className={`f2a-var__pill ${showPill ? 'is-visible' : ''}`}>
+        <Link to={CALLBACK} className={`f2a-var__pill ${showPill ? 'is-visible' : ''}`}>
           <Phone size={17} aria-hidden="true" />
           <span>Speak to a Travel Expert</span>
         </Link>
@@ -400,7 +400,7 @@ export default function Final2a({ variant = 'pill', ds = false }) {
       {/* Variant "stack": premium concierge button, right-aligned, docked
           just above the AI chat launcher (deliberately styled to contrast it) */}
       {variant === 'stack' && (
-        <Link to="/contact" className={`f2a-var__dock ${showPill ? 'is-visible' : ''}`}>
+        <Link to={CALLBACK} className={`f2a-var__dock ${showPill ? 'is-visible' : ''}`}>
           <Headset size={16} aria-hidden="true" />
           <span>Speak to an Expert</span>
         </Link>
@@ -408,7 +408,7 @@ export default function Final2a({ variant = 'pill', ds = false }) {
       {/* Option B: slim sticky single-action bar */}
       {variant === 'bar' && (
         <div className="f2a-var__bar" role="region" aria-label="Contact">
-          <Link to="/contact" className="f2a-var__bar-cta">
+          <Link to={CALLBACK} className="f2a-var__bar-cta">
             <Phone size={18} aria-hidden="true" />
             <span>Speak to a Travel Expert</span>
           </Link>
@@ -565,7 +565,7 @@ export default function Final2a({ variant = 'pill', ds = false }) {
               <p className="f2a-var__band-eyebrow">Not sure where to begin?</p>
               <h2 className="f2a-var__band-title">Let an expert plan it for you</h2>
               <p className="f2a-var__band-sub">Our travel specialists craft tailor-made journeys around how you like to travel.</p>
-              <Link to="/contact" className="f2a-var__band-cta">
+              <Link to={CALLBACK} className="f2a-var__band-cta">
                 <Phone size={17} aria-hidden="true" /> Speak to a Travel Expert
               </Link>
             </div>

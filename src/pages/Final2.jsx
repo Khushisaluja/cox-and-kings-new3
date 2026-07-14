@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import {
   Search, Phone, X, Menu, Home, Compass, ChevronDown, ChevronRight, ChevronLeft, ArrowRight, Star, ZoomIn,
   Facebook, Youtube, Linkedin, Instagram, Mail, Quote,
@@ -236,7 +236,7 @@ export default function Final2() {
               <img src="/cox-logo.svg" alt="Cox & Kings" />
             </Link>
             <span className="nh-utility__tag">The World's Most Experienced Travel Company · Est. 1758</span>
-            <Link to="/contact" className="nh-nav__cta">
+            <Link to={CALLBACK} className="nh-nav__cta">
               <span className="nh-nav__cta-full">Speak to a Travel Expert</span>
               <span className="nh-nav__cta-short">Talk to an Expert</span>
             </Link>
@@ -295,7 +295,7 @@ export default function Final2() {
               </div>
             ))}
           </nav>
-          <Link to="/contact" className="nh-mobnav__cta" onClick={() => setMenuOpen(false)}>
+          <Link to={CALLBACK} className="nh-mobnav__cta" onClick={() => setMenuOpen(false)}>
             <Phone size={16} aria-hidden="true" /> Speak to a Travel Expert
           </Link>
         </div>
@@ -322,7 +322,7 @@ export default function Final2() {
           <Menu size={21} aria-hidden="true" />
           <span>Menu</span>
         </button>
-        <Link to="/contact" className="nh-botnav__cta">
+        <Link to={CALLBACK} className="nh-botnav__cta">
           <Phone size={18} aria-hidden="true" />
           <span>Talk to Expert</span>
         </Link>

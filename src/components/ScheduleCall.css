@@ -1,0 +1,15 @@
+/* Host for the schedule-a-call dialog. It is portaled to <body> and carries
+   the .h26 / .n3 classes so the design tokens and the New3 refinements apply
+   on any page — but it must not inherit .h26's page background or layout,
+   hence the double-class overrides below. */
+.h26.sc-host {
+  position: static;
+  background: none;
+  min-height: 0;
+  color: inherit;
+}
+
+/* A link that opens the dialog instead of navigating. Rendered as an <a> with
+   no href so the surrounding `a`-based styles (footer columns, menu rows)
+   still match it — the only thing missing is the pointer cursor. */
+.sc-link { cursor: pointer; }

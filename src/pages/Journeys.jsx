@@ -18,7 +18,8 @@
    design.md token set. Self-contained: brings its own nav + footer.
    ============================================================ */
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
   Phone, PhoneCall, MessageCircle, ArrowUpRight, ArrowRight, Search, MapPin,
@@ -145,41 +146,41 @@ const J = (o) => ({
   gallery: buildGallery(o),
 });
 const ALL_JOURNEYS = [
-  J({ id: 'jp-blossom', title: 'Cherry Blossom Japan', blurb: 'Two weeks, one fleeting bloom — Tokyo neon to Kyoto temple gardens, timed to the petals.', regions: ['Japan'], style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 13, season: 'Mar–Apr', price: 295000, image: U('1522383225653-ed111181a951'), to: '/japan' }),
-  J({ id: 'jp-first', title: 'Japan for First-Timers', blurb: 'Tokyo, Hakone and Kyoto with a private guide and a night in a traditional ryokan.', regions: ['Japan'], style: 'Bespoke Private', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Any date', price: 310000, image: U('1492571350019-22de08371fd3'), to: '/japan' }),
-  J({ id: 'jp-luxe', title: 'Japan: Ryokans & Art Islands', blurb: 'Slow luxury — design hotels, private onsen and the Naoshima art islands.', regions: ['Japan'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/japan' }),
+  J({ id: 'jp-blossom', title: 'Cherry Blossom Japan', blurb: 'Two weeks, one fleeting bloom — Tokyo neon to Kyoto temple gardens, timed to the petals.', regions: ['Japan'], style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 13, season: 'Mar–Apr', price: 295000, image: U('1522383225653-ed111181a951'), to: '/tour-detail-japan-5' }),
+  J({ id: 'jp-first', title: 'Japan for First-Timers', blurb: 'Tokyo, Hakone and Kyoto with a private guide and a night in a traditional ryokan.', regions: ['Japan'], style: 'Bespoke Private', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Any date', price: 310000, image: U('1492571350019-22de08371fd3'), to: '/tour-detail-japan-5' }),
+  J({ id: 'jp-luxe', title: 'Japan: Ryokans & Art Islands', blurb: 'Slow luxury — design hotels, private onsen and the Naoshima art islands.', regions: ['Japan'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/tour-detail-japan-5' }),
 
-  J({ id: 'ch-summer', title: 'Summer in Switzerland', blurb: 'Glacier trains and alpine lakes — Lucerne, Zermatt and the Jungfrau region.', regions: ['Switzerland', 'Europe'], style: 'Group Tour', pace: 'Relaxed', rating: 4.8, nights: 10, season: 'Jun–Sep', price: 245000, image: U('1530122037265-a5f1f91d3b99'), to: '/contact' }),
-  J({ id: 'ch-it-grand', title: 'Grand Switzerland & Italy', blurb: 'Lakeside Lucerne, the Matterhorn, then Venice to Rome — paced so you actually savour it.', regions: ['Switzerland', 'Italy', 'Europe'], style: 'Group Tour', pace: 'Balanced', rating: 4.7, nights: 13, season: 'Apr–Sep', price: 245000, image: U('1530122037265-a5f1f91d3b99'), to: '/contact' }),
-  J({ id: 'ch-rail', title: 'Swiss Alps Private Rail Journey', blurb: 'The Glacier Express and Bernina line, first-class, with elevated stays throughout.', regions: ['Switzerland', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 8, season: 'May–Oct', price: 360000, image: U('1530122037265-a5f1f91d3b99'), to: '/contact' }),
+  J({ id: 'ch-summer', title: 'Summer in Switzerland', blurb: 'Glacier trains and alpine lakes — Lucerne, Zermatt and the Jungfrau region.', regions: ['Switzerland', 'Europe'], style: 'Group Tour', pace: 'Relaxed', rating: 4.8, nights: 10, season: 'Jun–Sep', price: 245000, image: U('1530122037265-a5f1f91d3b99'), to: CALLBACK }),
+  J({ id: 'ch-it-grand', title: 'Grand Switzerland & Italy', blurb: 'Lakeside Lucerne, the Matterhorn, then Venice to Rome — paced so you actually savour it.', regions: ['Switzerland', 'Italy', 'Europe'], style: 'Group Tour', pace: 'Balanced', rating: 4.7, nights: 13, season: 'Apr–Sep', price: 245000, image: U('1530122037265-a5f1f91d3b99'), to: CALLBACK }),
+  J({ id: 'ch-rail', title: 'Swiss Alps Private Rail Journey', blurb: 'The Glacier Express and Bernina line, first-class, with elevated stays throughout.', regions: ['Switzerland', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 8, season: 'May–Oct', price: 360000, image: U('1530122037265-a5f1f91d3b99'), to: CALLBACK }),
 
-  J({ id: 'it-slow', title: 'Slow Italy: Coast to Art', blurb: 'Rome after-hours, a Tuscan villa and a hidden Amalfi cove — designed around you.', regions: ['Italy', 'Europe'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Apr–Oct', price: 240000, image: U('1534445867742-43195f401b6c'), to: '/contact' }),
-  J({ id: 'it-amalfi', title: 'Amalfi & the Southern Coast', blurb: 'A private skipper, cliffside stays and long lunches above the Tyrrhenian.', regions: ['Italy', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.8, nights: 7, season: 'May–Sep', price: 280000, image: U('1534445867742-43195f401b6c'), to: '/contact' }),
-  J({ id: 'it-family', title: 'Italy for Families', blurb: 'Gladiator schools in Rome, gelato trails and a slow Tuscan farmhouse week.', regions: ['Italy', 'Europe'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 10, season: 'Apr–Oct', price: 215000, image: U('1534445867742-43195f401b6c'), to: '/contact' }),
+  J({ id: 'it-slow', title: 'Slow Italy: Coast to Art', blurb: 'Rome after-hours, a Tuscan villa and a hidden Amalfi cove — designed around you.', regions: ['Italy', 'Europe'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Apr–Oct', price: 240000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
+  J({ id: 'it-amalfi', title: 'Amalfi & the Southern Coast', blurb: 'A private skipper, cliffside stays and long lunches above the Tyrrhenian.', regions: ['Italy', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.8, nights: 7, season: 'May–Sep', price: 280000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
+  J({ id: 'it-family', title: 'Italy for Families', blurb: 'Gladiator schools in Rome, gelato trails and a slow Tuscan farmhouse week.', regions: ['Italy', 'Europe'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 10, season: 'Apr–Oct', price: 215000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
 
-  J({ id: 'nl-chase', title: 'Chasing the Northern Lights', blurb: 'Arctic Scandinavia after dark — aurora hunts, huskies and snowbound nights.', regions: ['Northern Lights', 'Europe'], style: 'Group Tour', pace: 'Active', rating: 4.7, nights: 7, season: 'Oct–Mar', price: 275000, image: U('1483347756197-71ef80e95f73'), to: '/contact' }),
-  J({ id: 'nl-ice', title: 'Arctic Scandinavia & Ice Hotels', blurb: 'A night in an ice hotel, glass-roofed cabins and the aurora overhead.', regions: ['Northern Lights', 'Europe'], style: 'Luxury', pace: 'Balanced', rating: 4.8, nights: 8, season: 'Dec–Mar', price: 340000, image: U('1483347756197-71ef80e95f73'), to: '/contact' }),
+  J({ id: 'nl-chase', title: 'Chasing the Northern Lights', blurb: 'Arctic Scandinavia after dark — aurora hunts, huskies and snowbound nights.', regions: ['Northern Lights', 'Europe'], style: 'Group Tour', pace: 'Active', rating: 4.7, nights: 7, season: 'Oct–Mar', price: 275000, image: U('1483347756197-71ef80e95f73'), to: CALLBACK }),
+  J({ id: 'nl-ice', title: 'Arctic Scandinavia & Ice Hotels', blurb: 'A night in an ice hotel, glass-roofed cabins and the aurora overhead.', regions: ['Northern Lights', 'Europe'], style: 'Luxury', pace: 'Balanced', rating: 4.8, nights: 8, season: 'Dec–Mar', price: 340000, image: U('1483347756197-71ef80e95f73'), to: CALLBACK }),
 
-  J({ id: 'nz-road', title: 'New Zealand by Road', blurb: 'The South Island end to end — fjords, glaciers and open mountain roads.', regions: ['Australia & NZ'], style: 'Bespoke Private', pace: 'Active', rating: 4.9, nights: 12, season: 'Oct–Apr', price: 320000, image: U('1469521669194-babb45599def'), to: '/contact' }),
-  J({ id: 'au-family', title: 'Australia for Families', blurb: 'Reef, beaches and easy days — snorkelling, Rotorua and time to breathe.', regions: ['Australia & NZ'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 14, season: 'Year-round', price: 340000, image: U('1506973035872-a4ec16b8e8d9'), to: '/contact' }),
+  J({ id: 'nz-road', title: 'New Zealand by Road', blurb: 'The South Island end to end — fjords, glaciers and open mountain roads.', regions: ['Australia & NZ'], style: 'Bespoke Private', pace: 'Active', rating: 4.9, nights: 12, season: 'Oct–Apr', price: 320000, image: U('1469521669194-babb45599def'), to: CALLBACK }),
+  J({ id: 'au-family', title: 'Australia for Families', blurb: 'Reef, beaches and easy days — snorkelling, Rotorua and time to breathe.', regions: ['Australia & NZ'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 14, season: 'Year-round', price: 340000, image: U('1506973035872-a4ec16b8e8d9'), to: CALLBACK }),
 
-  J({ id: 'af-migration', title: 'African Safari: Great Migration', blurb: 'The Maasai Mara in migration season — game drives at first and last light.', regions: ['Africa Safari'], style: 'Group Tour', pace: 'Active', rating: 4.9, nights: 8, season: 'Jul–Oct', price: 310000, image: U('1516426122078-c23e76319801'), to: '/contact' }),
-  J({ id: 'af-private', title: 'Kenya Private Conservancy Safari', blurb: 'Private Maasai Mara camps, few vehicles and a naturalist to yourself.', regions: ['Africa Safari'], style: 'Safari', pace: 'Balanced', rating: 4.9, nights: 8, season: 'Jul–Oct', price: 420000, image: U('1516426122078-c23e76319801'), to: '/contact' }),
-  J({ id: 'af-tanzania', title: 'Tanzania: Serengeti & Ngorongoro', blurb: 'The Serengeti plains and the Ngorongoro crater, in classic tented camps.', regions: ['Africa Safari'], style: 'Safari', pace: 'Active', rating: 4.8, nights: 9, season: 'Jun–Oct', price: 380000, image: U('1547471080-7cc2caa01a7e'), to: '/contact' }),
-  J({ id: 'af-southafrica', title: 'South Africa: Cape & Kruger', blurb: 'Cape Town, the winelands and big-five days in a private Kruger reserve.', regions: ['Africa Safari'], style: 'Safari', pace: 'Balanced', rating: 4.7, nights: 11, season: 'Year-round', price: 325000, image: U('1516426122078-c23e76319801'), to: '/contact' }),
+  J({ id: 'af-migration', title: 'African Safari: Great Migration', blurb: 'The Maasai Mara in migration season — game drives at first and last light.', regions: ['Africa Safari'], style: 'Group Tour', pace: 'Active', rating: 4.9, nights: 8, season: 'Jul–Oct', price: 310000, image: U('1516426122078-c23e76319801'), to: CALLBACK }),
+  J({ id: 'af-private', title: 'Kenya Private Conservancy Safari', blurb: 'Private Maasai Mara camps, few vehicles and a naturalist to yourself.', regions: ['Africa Safari'], style: 'Safari', pace: 'Balanced', rating: 4.9, nights: 8, season: 'Jul–Oct', price: 420000, image: U('1516426122078-c23e76319801'), to: CALLBACK }),
+  J({ id: 'af-tanzania', title: 'Tanzania: Serengeti & Ngorongoro', blurb: 'The Serengeti plains and the Ngorongoro crater, in classic tented camps.', regions: ['Africa Safari'], style: 'Safari', pace: 'Active', rating: 4.8, nights: 9, season: 'Jun–Oct', price: 380000, image: U('1547471080-7cc2caa01a7e'), to: CALLBACK }),
+  J({ id: 'af-southafrica', title: 'South Africa: Cape & Kruger', blurb: 'Cape Town, the winelands and big-five days in a private Kruger reserve.', regions: ['Africa Safari'], style: 'Safari', pace: 'Balanced', rating: 4.7, nights: 11, season: 'Year-round', price: 325000, image: U('1516426122078-c23e76319801'), to: CALLBACK }),
 
-  J({ id: 'eu-grand', title: 'Grand Europe', blurb: 'Many countries, one effortless journey — the classic capitals, seamlessly linked.', regions: ['Europe'], style: 'Group Tour', pace: 'Active', rating: 4.6, nights: 15, season: 'Apr–Sep', price: 185000, image: U('1467269204594-9661b134dd2b'), to: '/contact' }),
-  J({ id: 'eu-iberia', title: 'Portugal & Spain: Iberian Journey', blurb: 'Lisbon and Porto, Seville and Madrid — tiles, tapas and Atlantic light.', regions: ['Europe'], style: 'Group Tour', pace: 'Balanced', rating: 4.7, nights: 12, season: 'Apr–Oct', price: 195000, image: U('1467269204594-9661b134dd2b'), to: '/contact' }),
-  J({ id: 'eu-xmas', title: 'European Christmas Markets', blurb: 'Mulled wine and old-town lights across the festive heart of Europe.', regions: ['Europe'], style: 'Group Tour', pace: 'Balanced', rating: 4.7, nights: 9, season: 'Dec', price: 170000, image: U('1543349689-9a4d426bee8e'), to: '/contact' }),
+  J({ id: 'eu-grand', title: 'Grand Europe', blurb: 'Many countries, one effortless journey — the classic capitals, seamlessly linked.', regions: ['Europe'], style: 'Group Tour', pace: 'Active', rating: 4.6, nights: 15, season: 'Apr–Sep', price: 185000, image: U('1467269204594-9661b134dd2b'), to: CALLBACK }),
+  J({ id: 'eu-iberia', title: 'Portugal & Spain: Iberian Journey', blurb: 'Lisbon and Porto, Seville and Madrid — tiles, tapas and Atlantic light.', regions: ['Europe'], style: 'Group Tour', pace: 'Balanced', rating: 4.7, nights: 12, season: 'Apr–Oct', price: 195000, image: U('1467269204594-9661b134dd2b'), to: CALLBACK }),
+  J({ id: 'eu-xmas', title: 'European Christmas Markets', blurb: 'Mulled wine and old-town lights across the festive heart of Europe.', regions: ['Europe'], style: 'Group Tour', pace: 'Balanced', rating: 4.7, nights: 9, season: 'Dec', price: 170000, image: U('1543349689-9a4d426bee8e'), to: CALLBACK }),
 
-  J({ id: 'sea-islands', title: 'Islands & Temples of Southeast Asia', blurb: 'Bangkok street food, Angkor at dawn and slow days on the islands.', regions: ['Southeast Asia'], style: 'Bespoke Private', pace: 'Balanced', rating: 4.7, nights: 11, season: 'Year-round', price: 95000, image: U('1528181304800-259b08848526'), to: '/contact' }),
-  J({ id: 'sea-srilanka', title: 'Sri Lanka: Tea Trails & Coast', blurb: 'Hill-country tea estates, ancient cities and a slow finish by the sea.', regions: ['Southeast Asia'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Year-round', price: 130000, image: U('1546708973-b339540b5162'), to: '/contact' }),
-  J({ id: 'sea-vietnam', title: 'Vietnam & Cambodia Discovery', blurb: 'Hanoi to Halong Bay, the Mekong and the temples of Angkor.', regions: ['Southeast Asia'], style: 'Group Tour', pace: 'Balanced', rating: 4.6, nights: 12, season: 'Oct–Apr', price: 120000, image: U('1528181304800-259b08848526'), to: '/contact' }),
+  J({ id: 'sea-islands', title: 'Islands & Temples of Southeast Asia', blurb: 'Bangkok street food, Angkor at dawn and slow days on the islands.', regions: ['Southeast Asia'], style: 'Bespoke Private', pace: 'Balanced', rating: 4.7, nights: 11, season: 'Year-round', price: 95000, image: U('1528181304800-259b08848526'), to: CALLBACK }),
+  J({ id: 'sea-srilanka', title: 'Sri Lanka: Tea Trails & Coast', blurb: 'Hill-country tea estates, ancient cities and a slow finish by the sea.', regions: ['Southeast Asia'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Year-round', price: 130000, image: U('1546708973-b339540b5162'), to: CALLBACK }),
+  J({ id: 'sea-vietnam', title: 'Vietnam & Cambodia Discovery', blurb: 'Hanoi to Halong Bay, the Mekong and the temples of Angkor.', regions: ['Southeast Asia'], style: 'Group Tour', pace: 'Balanced', rating: 4.6, nights: 12, season: 'Oct–Apr', price: 120000, image: U('1528181304800-259b08848526'), to: CALLBACK }),
 
-  J({ id: 'mv-overwater', title: 'Maldives Overwater Escape', blurb: 'Overwater calm — a private villa, a house reef and nowhere to be.', regions: ['Maldives'], style: 'Honeymoon', pace: 'Relaxed', rating: 4.9, nights: 5, season: 'Year-round', price: 140000, image: U('1514282401047-d79a71a590e8'), to: '/contact' }),
+  J({ id: 'mv-overwater', title: 'Maldives Overwater Escape', blurb: 'Overwater calm — a private villa, a house reef and nowhere to be.', regions: ['Maldives'], style: 'Honeymoon', pace: 'Relaxed', rating: 4.9, nights: 5, season: 'Year-round', price: 140000, image: U('1514282401047-d79a71a590e8'), to: CALLBACK }),
 
-  J({ id: 'us-coast', title: 'USA Coast to Coast', blurb: 'The great national parks and iconic cities, linked into one road-trip arc.', regions: ['USA'], style: 'Bespoke Private', pace: 'Active', rating: 4.7, nights: 14, season: 'May–Oct', price: 220000, image: U('1501594907352-04cda38ebc29'), to: '/contact' }),
-  J({ id: 'us-canada', title: 'Canadian Rockies & Rail', blurb: 'Banff, Lake Louise and the Rocky Mountaineer through the mountains.', regions: ['USA'], style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Jun–Sep', price: 295000, image: U('1503614472-8c93d56e92ce'), to: '/contact' }),
+  J({ id: 'us-coast', title: 'USA Coast to Coast', blurb: 'The great national parks and iconic cities, linked into one road-trip arc.', regions: ['USA'], style: 'Bespoke Private', pace: 'Active', rating: 4.7, nights: 14, season: 'May–Oct', price: 220000, image: U('1501594907352-04cda38ebc29'), to: CALLBACK }),
+  J({ id: 'us-canada', title: 'Canadian Rockies & Rail', blurb: 'Banff, Lake Louise and the Rocky Mountaineer through the mountains.', regions: ['USA'], style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Jun–Sep', price: 295000, image: U('1503614472-8c93d56e92ce'), to: CALLBACK }),
 ];
 
 /* ---- Themed browse collections (shown when no filter is active). Each
@@ -272,7 +273,7 @@ const NAV_MENU = [
       { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys?style=Group Tour' },
       { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys?style=Bespoke Private' },
       { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: '/contact' },
+      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
     ],
   },
   {
@@ -298,13 +299,13 @@ const NAV_MENU = [
     ],
   },
   {
-    label: 'Why us', href: '/improved#trust',
+    label: 'Why us', href: '/#heritage',
     blurb: 'Specialists, not salespeople — and 260 years behind every trip.',
     items: [
-      { label: 'Our specialists', desc: 'The people who plan your trip', to: '/improved#trust' },
-      { label: 'Since 1758', desc: 'Heritage you can lean on', to: '/improved#trust' },
-      { label: 'Real reviews', desc: '2,400+ verified travellers', to: '/improved#reviews' },
-      { label: 'Talk to an expert', desc: 'We pick up the phone', to: '/contact' },
+      { label: 'Our specialists', desc: 'The people who plan your trip', to: '/#heritage' },
+      { label: 'Since 1758', desc: 'Heritage you can lean on', to: '/#heritage' },
+      { label: 'Real reviews', desc: '2,400+ verified travellers', to: '/#reviews' },
+      { label: 'Talk to an expert', desc: 'We pick up the phone', to: CALLBACK },
     ],
   },
 ];
@@ -661,7 +662,7 @@ export default function Journeys() {
 
       {/* ---------- NAV (shared /improved chrome) ---------- */}
       <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
-        <Link to="/improved" className="h26-brand">
+        <Link to="/" className="h26-brand">
           <img src="/cox-logo-new.png" alt="Cox & Kings" />
         </Link>
         <nav className="h26-links hi-nav" aria-label="Primary">
@@ -693,7 +694,7 @@ export default function Journeys() {
           <a href={CONTACT.phoneHref} className="h26-phone">
             <Phone size={15} /> <span>{CONTACT.phoneDisplay}</span>
           </a>
-          <Link to="/contact" className="h26-btn h26-btn-pill">Talk to an expert</Link>
+          <Link to={CALLBACK} className="h26-btn h26-btn-pill">Talk to an expert</Link>
           <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
             <Menu size={22} />
           </button>
@@ -719,9 +720,9 @@ export default function Journeys() {
           <div className="h26-menu-divider" />
           <div className="h26-menu-secondary">
             <Link to="/journeys" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
-            <Link to="/improved" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
-            <Link to="/about" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
-            <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
+            <Link to="/" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
+            <Link to="/about-us2" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
+            <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
           </div>
           <a href={CONTACT.phoneHref} className="h26-btn h26-btn-pill h26-menu-cta" onClick={() => setMenuOpen(false)}>
             <Phone size={16} /> Speak to an expert
@@ -1061,7 +1062,7 @@ export default function Journeys() {
           </Reveal>
           <Reveal className="jl-cta-actions" delay={0.12}>
             <a href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer" className="h26-btn h26-btn-accent h26-btn-lg"><MessageCircle size={17} /> WhatsApp us</a>
-            <Link to="/contact" className="h26-btn h26-btn-glass h26-btn-lg"><PhoneCall size={16} /> Schedule a callback</Link>
+            <Link to={CALLBACK} className="h26-btn h26-btn-glass h26-btn-lg"><PhoneCall size={16} /> Schedule a callback</Link>
           </Reveal>
           <Reveal as="p" className="jl-cta-hours" delay={0.18}>Travel experts available 9am–9pm IST, every day.</Reveal>
         </div>
@@ -1088,17 +1089,17 @@ export default function Journeys() {
             </div>
             <div>
               <h4>Company</h4>
-              <Link to="/about">Our story</Link>
-              <Link to="/about">Specialists</Link>
-              <Link to="/contact">Contact</Link>
-              <Link to="/improved#trust">Why Cox &amp; Kings</Link>
+              <Link to="/about-us2">Our story</Link>
+              <Link to="/about-us2">Specialists</Link>
+              <Link to={CALLBACK}>Contact</Link>
+              <Link to="/#heritage">Why Cox &amp; Kings</Link>
             </div>
             <div>
               <h4>Assurance</h4>
-              <Link to="/improved#trust">Trust &amp; safety</Link>
-              <Link to="/improved#trust">Awards</Link>
-              <Link to="/contact">Refund policy</Link>
-              <Link to="/contact">Speak to an expert</Link>
+              <Link to="/#heritage">Trust &amp; safety</Link>
+              <Link to="/#heritage">Awards</Link>
+              <Link to={CALLBACK}>Refund policy</Link>
+              <Link to={CALLBACK}>Speak to an expert</Link>
             </div>
           </div>
         </div>

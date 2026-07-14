@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { Award, Globe, Users, Shield } from 'lucide-react';
 import './About.css';
 
@@ -136,7 +136,7 @@ export default function About() {
                 <div className="about-page__team-info">
                   <h3 className="about-page__team-name">{member.name} Specialist</h3>
                   <p className="about-page__team-years">{member.years} experience</p>
-                  <Link to="/contact" className="about-page__team-cta">Speak to me →</Link>
+                  <Link to={CALLBACK} className="about-page__team-cta">Speak to me →</Link>
                 </div>
               </div>
             ))}
@@ -152,7 +152,7 @@ export default function About() {
           <p className="about-page__cta-sub">Let our specialists craft your perfect itinerary — tailor-made for you.</p>
           <div className="about-page__cta-actions">
             <Link to="/tours" className="btn-gold">Browse All Tours</Link>
-            <Link to="/contact" className="about-page__cta-outline">Speak to a Specialist</Link>
+            <Link to={CALLBACK} className="about-page__cta-outline">Speak to a Specialist</Link>
           </div>
         </div>
       </section>

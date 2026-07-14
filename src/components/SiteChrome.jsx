@@ -20,7 +20,7 @@
    ========================================================================== */
 
 import { Fragment, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from './ScheduleCall';
 import {
   ChevronDown, Phone, Menu, X, ArrowRight, ArrowUpRight,
   Instagram, Facebook, Youtube,
@@ -44,7 +44,7 @@ export const CONTACT_CK = {
 /* The /new3 mega-menu, verbatim: four groups, the Destinations panel split by
    KIND with section rules, and a catch-all row that sits outside the list.
    /new3's "Talk to an expert" is an in-place callback dialog that only exists
-   on that page — here it resolves to /contact rather than dead-ending. */
+   on that page — here it opens the schedule-a-call dialog rather than dead-ending. */
 const NAV_MENU = [
   {
     label: 'Ways to travel', to: '/journeys4',
@@ -53,7 +53,7 @@ const NAV_MENU = [
       { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
       { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
       { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: '/contact' },
+      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
     ],
   },
   {
@@ -87,7 +87,7 @@ const NAV_MENU = [
       { label: 'Our story', desc: 'Since 1758, and what came after', to: '/about-us2' },
       { label: 'The team', desc: 'The people rebuilding it', to: '/about-us2/team' },
       { label: 'Wilson & Hughes', desc: 'Who owns us now', to: '/about-us2' },
-      { label: 'Talk to an expert', desc: 'Pick a time, we call you back', to: '/contact' },
+      { label: 'Talk to an expert', desc: 'Pick a time, we call you back', to: CALLBACK },
     ],
   },
 ];
@@ -172,7 +172,7 @@ export function SiteNav() {
           <a href={CONTACT_CK.phoneHref} className="h26-phone">
             <Phone size={15} /> <span>{CONTACT_CK.phoneDisplay}</span>
           </a>
-          <Link to="/contact" className="h26-btn h26-btn-pill">Talk to an expert</Link>
+          <Link to={CALLBACK} className="h26-btn h26-btn-pill">Talk to an expert</Link>
           <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
             <Menu size={22} />
           </button>
@@ -204,7 +204,7 @@ export function SiteNav() {
           <div className="h26-menu-secondary">
             <Link to="/journeys" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
             <Link to="/about-us2" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
-            <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
+            <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
           </div>
 
           <a
@@ -246,7 +246,7 @@ export function SiteFooter() {
           <div>
             <h4>Travel</h4>
             <Link to="/journeys">Group tours</Link>
-            <Link to="/contact">Bespoke holidays</Link>
+            <Link to={CALLBACK}>Bespoke holidays</Link>
             <Link to="/journeys">Luxury journeys</Link>
             <Link to="/journeys">Destinations</Link>
           </div>
@@ -254,15 +254,15 @@ export function SiteFooter() {
             <h4>Company</h4>
             <Link to="/about-us2">Our story</Link>
             <Link to="/about-us2/team">The team</Link>
-            <Link to="/contact">Contact</Link>
+            <Link to={CALLBACK}>Contact</Link>
             <Link to="/about-us2">Why Cox &amp; Kings</Link>
           </div>
           <div>
             <h4>Assurance</h4>
             <Link to="/about-us2">Trust &amp; safety</Link>
             <Link to="/about-us2">Our history</Link>
-            <Link to="/contact">Refund policy</Link>
-            <Link to="/contact">Speak to an expert</Link>
+            <Link to={CALLBACK}>Refund policy</Link>
+            <Link to={CALLBACK}>Speak to an expert</Link>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../ScheduleCall';
 import { Phone, ChevronDown, Menu, X } from 'lucide-react';
 import { CONTACT } from '../../data/v3content';
 import HeritageMark from './HeritageMark';
@@ -7,10 +7,10 @@ import './V3Header.css';
 
 const NAV = [
   { label: 'Group Tours', to: '/tours', children: ['Europe', 'Japan', 'Australia & NZ', 'Africa Safaris'] },
-  { label: 'Bespoke Holidays', to: '/contact', children: ['Honeymoons', 'Family Holidays', 'Luxury Journeys'] },
+  { label: 'Bespoke Holidays', to: CALLBACK, children: ['Honeymoons', 'Family Holidays', 'Luxury Journeys'] },
   { label: 'Destinations', to: '/tours' },
   { label: 'Experiences', to: '/tours' },
-  { label: 'About', to: '/contact' },
+  { label: 'About', to: CALLBACK },
 ];
 
 export default function V3Header({ brandLink = '/final3a' }) {
@@ -44,7 +44,7 @@ export default function V3Header({ brandLink = '/final3a' }) {
               <Phone size={15} aria-hidden="true" />
               <span>{CONTACT.phoneDisplay}</span>
             </a>
-            <Link to="/contact" className="v3-btn v3-btn--primary v3hdr__cta">
+            <Link to={CALLBACK} className="v3-btn v3-btn--primary v3hdr__cta">
               <span className="v3hdr__cta-full">Speak to a Travel Expert</span>
               <span className="v3hdr__cta-short">Talk to an Expert</span>
             </Link>

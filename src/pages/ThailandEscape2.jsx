@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import {
   Menu, X, ArrowRight, ArrowLeft, ArrowUpRight, ChevronDown,
   Star, MapPin, Calendar, Users, Check, Plus, Minus, Lock, Quote,
@@ -41,7 +41,7 @@ const PHONE_DISPLAY = '+91 85560 01700';
 const PHONE_TEL = 'tel:+918556001700';
 const WHATSAPP = 'https://wa.me/918556001700?text=Hi%20Cox%20%26%20Kings%2C%20I%27d%20like%20to%20book%20the%20Pattaya%20%26%20Bangkok%20Escape.';
 const EMAIL = 'holidays@coxandkings.com';
-const HOME = '/luxe2-improved';
+const HOME = '/';
 
 /* Desktop nav megamenus — same shape as the /new homepage, remapped
    to the sections on this tour-detail page. */

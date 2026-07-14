@@ -31,7 +31,7 @@
    ========================================================================== */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
@@ -491,7 +491,7 @@ function Ledger() {
                         <p className="led-e-copy led-anim">
                           The line is still running. The next entry on it hasn’t been written.
                         </p>
-                        <Link to="/contact" className="ckl-btn ckl-btn--gold led-anim">
+                        <Link to={CALLBACK} className="ckl-btn ckl-btn--gold led-anim">
                           Start it with a specialist <ArrowRight size={15} aria-hidden="true" />
                         </Link>
                       </>
@@ -748,7 +748,7 @@ export default function AboutLedger() {
             <a href={CONTACT.phoneHref} className="ckl-nav-phone">
               <Phone size={15} aria-hidden="true" /> <span>{CONTACT.phoneDisplay}</span>
             </a>
-            <Link to="/contact" className="ckl-btn ckl-btn--gold">Talk to a specialist</Link>
+            <Link to={CALLBACK} className="ckl-btn ckl-btn--gold">Talk to a specialist</Link>
             <button type="button" className="ckl-burger" aria-label="Open menu" onClick={() => setMenu(true)}>
               <Menu size={22} aria-hidden="true" />
             </button>
@@ -803,7 +803,7 @@ export default function AboutLedger() {
                 of the last two hundred and sixty-eight.
               </p>
               <div className="ckl-hero-ctas ckl-hero-rise">
-                <Link to="/contact" className="ckl-btn ckl-btn--gold ckl-btn--lg">Talk to a specialist</Link>
+                <Link to={CALLBACK} className="ckl-btn ckl-btn--gold ckl-btn--lg">Talk to a specialist</Link>
                 <a href="#timeline" className="ckl-btn ckl-btn--ghost ckl-btn--lg">
                   Walk the 268 years <ArrowRight size={16} aria-hidden="true" />
                 </a>
@@ -1082,7 +1082,7 @@ export default function AboutLedger() {
               <Link to="/journeys">Journeys</Link>
               <Link to="/journeys2">Destinations</Link>
               <a href="#team">The team</a>
-              <Link to="/contact">Contact</Link>
+              <Link to={CALLBACK}>Contact</Link>
             </nav>
             <div className="ckl-foot-contact">
               <a href={CONTACT.phoneHref}>{CONTACT.phoneDisplay}</a>

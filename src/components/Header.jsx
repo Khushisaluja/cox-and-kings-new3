@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from './ScheduleCall';
 import { Search, Menu, X, Phone, ChevronDown, Globe } from 'lucide-react';
 import './Header.css';
 
@@ -40,7 +41,7 @@ const navItems = [
     ],
   },
   { label: 'About Us', href: '/about' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Contact', to: CALLBACK },
 ];
 
 export default function Header() {
@@ -84,7 +85,7 @@ export default function Header() {
                 <Phone size={13} /> +44 (0) 330 880 8440
               </a>
               <span className="header__topbar-sep">|</span>
-              <Link to="/contact" className="header__topbar-link">Request a Brochure</Link>
+              <Link to={CALLBACK} className="header__topbar-link">Request a Brochure</Link>
             </div>
           </div>
         </div>
@@ -135,7 +136,7 @@ export default function Header() {
               >
                 {searchOpen ? <X size={20} /> : <Search size={20} />}
               </button>
-              <Link to="/contact" className="header__cta btn-primary">
+              <Link to={CALLBACK} className="header__cta btn-primary">
                 Speak to an Expert
               </Link>
               <button
@@ -209,7 +210,7 @@ export default function Header() {
           ))}
         </nav>
         <div className="mobile-drawer__footer">
-          <Link to="/contact" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+          <Link to={CALLBACK} className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
             Speak to an Expert
           </Link>
           <a href="tel:+443308808440" style={{ textAlign: 'center', marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--color-text-light)', fontSize: '0.9rem' }}>

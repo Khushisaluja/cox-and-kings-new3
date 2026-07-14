@@ -1,4 +1,5 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { Star, Clock, Users, MapPin, CheckCircle, ArrowLeft, Calendar, Phone } from 'lucide-react';
 import { tours } from '../data/tours';
 import './TourDetail.css';
@@ -155,7 +156,7 @@ export default function TourDetail() {
               </div>
             </div>
 
-            <Link to="/contact" className="btn-primary tour-detail__booking-btn">
+            <Link to={CALLBACK} className="btn-primary tour-detail__booking-btn">
               Enquire & Book Now
             </Link>
 
@@ -178,7 +179,7 @@ export default function TourDetail() {
             <div>
               <h4 className="tour-detail__specialist-name">{tour.destination} Specialist</h4>
               <p className="tour-detail__specialist-text">Have a question? Our destination expert has personally visited every site on this tour.</p>
-              <Link to="/contact" className="tour-detail__specialist-link">Chat with me →</Link>
+              <Link to={CALLBACK} className="tour-detail__specialist-link">Chat with me →</Link>
             </div>
           </div>
         </aside>

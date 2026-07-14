@@ -30,7 +30,7 @@
    ========================================================================== */
 
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, ArrowUpRight, Phone, Mail } from 'lucide-react';
@@ -880,7 +880,7 @@ export default function AboutUs3() {
             it from there.
           </p>
           <div className="ab-cta-actions">
-            <Link to="/contact" className="h26-btn h26-btn-accent h26-btn-lg">
+            <Link to={CALLBACK} className="h26-btn h26-btn-accent h26-btn-lg">
               Talk to a specialist <ArrowRight size={15} />
             </Link>
             <Link to="/journeys" className="h26-btn h26-btn-glass">

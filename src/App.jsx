@@ -22,7 +22,6 @@ import ModernVariant2 from './pages/ModernVariant2';
 import ModernVariant3 from './pages/ModernVariant3';
 import PrivateItaly from './pages/PrivateItaly';
 import GroupJapan from './pages/GroupJapan';
-import JapanTour from './pages/JapanTour';
 import JapanTourLuxe from './pages/JapanTourLuxe';
 import JapanTourLuxe2 from './pages/JapanTourLuxe2';
 import JapanTourLuxe3 from './pages/JapanTourLuxe3';
@@ -31,7 +30,6 @@ import JapanTourLuxe5 from './pages/JapanTourLuxe5';
 import JapanTourLuxe6 from './pages/JapanTourLuxe6';
 import ThailandEscape from './pages/ThailandEscape';
 import ThailandEscape2 from './pages/ThailandEscape2';
-import EssenceJapan from './pages/EssenceJapan';
 import EssenceJapan2 from './pages/EssenceJapan2';
 import Journeys from './pages/Journeys';
 import Journeys2 from './pages/Journeys2';
@@ -53,13 +51,29 @@ import AboutUs from './pages/AboutUs';
 import AboutUs3 from './pages/AboutUs3';
 import AboutUs4 from './pages/AboutUs4';
 import Team from './pages/Team';
-import Contact from './pages/Contact';
+import { ScheduleCallProvider } from './components/ScheduleCall';
 
+/* A new route always starts at the top — except when the link carried a hash
+   ("/#reviews"), where we scroll to that section once it has been painted.
+   Browser scroll restoration is turned off: on the GSAP-pinned pages it would
+   otherwise drop an arriving visitor into the middle of the page. */
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
+    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
+  }, []);
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo(0, 0);
+      return undefined;
+    }
     window.scrollTo(0, 0);
-  }, [pathname]);
+    const raf = requestAnimationFrame(() => {
+      const el = document.querySelector(hash);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pathname, hash]);
   return null;
 }
 
@@ -91,6 +105,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      {/* There is no /contact page: every "talk to us" CTA on the site opens
+          the schedule-a-callback dialog this provider owns. */}
+      <ScheduleCallProvider>
       <Routes>
         {/* New composite page is now the default homepage */}
         <Route path="/" element={<New />} />
@@ -188,16 +205,9 @@ export default function App() {
             Same design language; data-driven by the :city param. */}
         <Route path="/journeys/japan/:city" element={<CityJourneys />} />
 
-        {/* Tour / product detail — escorted Japan cherry-blossom journey.
-            Opens from the Japan package card on the improved homepage. */}
-        <Route path="/tours/japan" element={<JapanTour />} />
-        <Route path="/japan" element={<JapanTour />} />
-
-        {/* Essence Japan with Hakone — fresh product / tour-detail page,
-            self-contained, navbar consistent with /improved. Mirrors the
-            live URL path so it reads like the real site. */}
-        <Route path="/group-tours/essence-japan-with-hakone" element={<EssenceJapan />} />
-        <Route path="/essence-japan" element={<EssenceJapan />} />
+        {/* The older Japan tour-detail pages (/japan, /tours/japan and
+            /essence-japan) are retired: /tour-detail-japan-5 is the one Japan
+            product page now, and every Japan card and menu entry points there. */}
 
         {/* Essence Japan 2 — alternate layout: itinerary + pictures fused
             into one synced section (timeline left, sticky photo right),
@@ -310,7 +320,6 @@ export default function App() {
           <Route path="/destinations" element={<Destinations />} />
           <Route path="/destinations/:name" element={<Destinations />} />
           <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/experiences" element={<Tours />} />
           <Route path="/privacy" element={<NotFound />} />
           <Route path="/terms" element={<NotFound />} />
@@ -318,6 +327,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      </ScheduleCallProvider>
     </BrowserRouter>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import {
   Menu, X, ArrowRight, ArrowLeft, ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight,
   Star, MapPin, Calendar, Users, Plane, Check, Plus, Minus, Lock, Quote,
@@ -40,7 +40,7 @@ const WHATSAPP = 'https://wa.me/918556001700?text=Hi%20Cox%20%26%20Kings%2C%20I%
 const EMAIL = 'holidays@coxandkings.com';
 const OFFICE_SHORT = 'Fort, Mumbai 400001';
 const OFFICE_FULL = 'Turner Morrison House, 16 Bank Street, Fort, Mumbai 400001';
-const HOME = '/luxe2-improved';
+const HOME = '/';
 
 /* WhatsApp glyph (lucide ships no brand icons) — same path as the homepage. */
 const WaIcon = ({ size = 15 }) => (
@@ -1704,7 +1704,7 @@ export default function JapanTourLuxe5() {
               </div>
             </div>
             <div className="h26-reviews-more lx2i-reveal">
-              <Link to="/improved#reviews" className="h26-btn h26-btn-pill">View all reviews <ArrowUpRight size={16} /></Link>
+              <Link to="/#reviews" className="h26-btn h26-btn-pill">View all reviews <ArrowUpRight size={16} /></Link>
             </div>
           </section>
 

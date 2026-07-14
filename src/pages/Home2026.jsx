@@ -12,7 +12,7 @@
    the shared chrome or any other route.
    ============================================================ */
 import { useRef, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { motion, useScroll, useTransform, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
   Phone, MessageCircle, ArrowRight, ArrowUpRight, Star, Play,
@@ -211,7 +211,7 @@ export default function Home2026() {
             <Link to="/tours" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
             <Link to="/destinations" onClick={() => setMenuOpen(false)}>Destinations <ArrowUpRight size={13} /></Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
-            <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
+            <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
           </div>
           <a href={CONTACT.phoneHref} className="h26-btn h26-btn-pill h26-menu-cta" onClick={() => setMenuOpen(false)}>
             <Phone size={16} /> Speak to an expert
@@ -534,7 +534,7 @@ export default function Home2026() {
                         {expert && <em>{expert.region} · {expert.years}</em>}
                       </span>
                     </div>
-                    <Link to="/contact" className="h26-cur-cta">Request this trip <ArrowRight size={15} /></Link>
+                    <Link to={CALLBACK} className="h26-cur-cta">Request this trip <ArrowRight size={15} /></Link>
                   </div>
                 </Reveal>
               );
@@ -622,7 +622,7 @@ export default function Home2026() {
             <Reveal className="h26-cta2-actions" delay={0.15}>
               <a href={CONTACT.phoneHref} className="h26-btn h26-btn-accent h26-btn-lg"><Phone size={17} /> {CONTACT.phoneDisplay}</a>
               <a href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer" className="h26-btn h26-btn-glass h26-btn-lg"><MessageCircle size={16} /> WhatsApp us</a>
-              <Link to="/contact" className="h26-btn h26-btn-glass h26-btn-lg"><Phone size={16} /> Request a callback</Link>
+              <Link to={CALLBACK} className="h26-btn h26-btn-glass h26-btn-lg"><Phone size={16} /> Request a callback</Link>
             </Reveal>
             <Reveal as="p" className="h26-cta2-hours" delay={0.2}>Travel experts available 9am–9pm IST, every day · or browse journeys below</Reveal>
           </div>
@@ -643,7 +643,7 @@ export default function Home2026() {
               <div>
                 <h4>Travel</h4>
                 <Link to="/tours">Group tours</Link>
-                <Link to="/contact">Bespoke holidays</Link>
+                <Link to={CALLBACK}>Bespoke holidays</Link>
                 <Link to="/tours">Luxury journeys</Link>
                 <Link to="/destinations">Destinations</Link>
               </div>
@@ -651,15 +651,15 @@ export default function Home2026() {
                 <h4>Company</h4>
                 <Link to="/about">Our story</Link>
                 <Link to="/about">Specialists</Link>
-                <Link to="/contact">Contact</Link>
+                <Link to={CALLBACK}>Contact</Link>
                 <a href="#trust">Why Cox &amp; Kings</a>
               </div>
               <div>
                 <h4>Assurance</h4>
                 <a href="#trust">Trust &amp; safety</a>
                 <a href="#trust">Awards</a>
-                <Link to="/contact">Refund policy</Link>
-                <Link to="/contact">Speak to an expert</Link>
+                <Link to={CALLBACK}>Refund policy</Link>
+                <Link to={CALLBACK}>Speak to an expert</Link>
               </div>
             </div>
           </div>
@@ -710,7 +710,7 @@ export default function Home2026() {
               <div className="h26-chat-quick">
                 <a href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer"><MessageCircle size={15} /> Chat on WhatsApp</a>
                 <a href={CONTACT.phoneHref}><Phone size={15} /> Call a specialist</a>
-                <Link to="/contact"><Send size={15} /> Send an enquiry</Link>
+                <Link to={CALLBACK}><Send size={15} /> Send an enquiry</Link>
               </div>
             </div>
           </motion.div>

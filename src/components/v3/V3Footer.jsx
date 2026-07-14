@@ -1,13 +1,13 @@
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../ScheduleCall';
 import { Phone, Mail, MessageCircle, Star } from 'lucide-react';
 import { CONTACT, ASSOCIATIONS, RATING } from '../../data/v3content';
 import HeritageMark from './HeritageMark';
 import './V3Footer.css';
 
 const COLUMNS = [
-  { title: 'Explore', links: [['Group Tours', '/tours'], ['Bespoke Holidays', '/contact'], ['Destinations', '/tours'], ['Luxury Journeys', '/tours'], ['Experiences', '/tours']] },
-  { title: 'Company', links: [['About Cox & Kings', '/contact'], ['Our Specialists', '/contact'], ['Traveller Stories', '/contact'], ['Press & Awards', '/contact'], ['Careers', '/contact']] },
-  { title: 'Plan', links: [['Talk to an Expert', '/contact'], ['Find My Perfect Trip', '#v3-plan'], ['Visa Support', '/contact'], ['Travel Insurance', '/contact'], ['FAQs', '/contact']] },
+  { title: 'Explore', links: [['Group Tours', '/tours'], ['Bespoke Holidays', CALLBACK], ['Destinations', '/tours'], ['Luxury Journeys', '/tours'], ['Experiences', '/tours']] },
+  { title: 'Company', links: [['About Cox & Kings', CALLBACK], ['Our Specialists', CALLBACK], ['Traveller Stories', CALLBACK], ['Press & Awards', CALLBACK], ['Careers', CALLBACK]] },
+  { title: 'Plan', links: [['Talk to an Expert', CALLBACK], ['Find My Perfect Trip', '#v3-plan'], ['Visa Support', CALLBACK], ['Travel Insurance', CALLBACK], ['FAQs', CALLBACK]] },
 ];
 
 export default function V3Footer() {
@@ -47,9 +47,9 @@ export default function V3Footer() {
       <div className="v3ftr__legal v3-container">
         <span>© {new Date().getFullYear()} Cox & Kings. Established 1758.</span>
         <span className="v3ftr__legal-links">
-          <Link to="/contact">Privacy</Link>
-          <Link to="/contact">Terms</Link>
-          <Link to="/contact">Cookies</Link>
+          <Link to={CALLBACK}>Privacy</Link>
+          <Link to={CALLBACK}>Terms</Link>
+          <Link to={CALLBACK}>Cookies</Link>
         </span>
       </div>
     </footer>

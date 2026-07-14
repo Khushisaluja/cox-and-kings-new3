@@ -242,7 +242,12 @@
   min-height: 100svh;
   display: flex;
   align-items: flex-end;
-  padding: 0 0 88px;
+  /* The nav is fixed and transparent over this hero (46px logo + 22px padding
+     each side = 90px). On a narrow screen the title and lede wrap enough that
+     the hero outgrows the viewport, and with no top padding the eyebrow rides
+     up under the logo. Reserving the nav's height keeps them apart; on a wide
+     screen the content is short, sits at the bottom, and never sees it. */
+  padding: 114px 0 88px;
   background: var(--dark);
   overflow: hidden;
 }
@@ -1247,7 +1252,7 @@
   .ab-nav-links { display: none; }
   .ab-nav-cta { margin-left: auto; padding: 10px 16px; font-size: 12px; }
 
-  .ab-hero { padding-bottom: 64px; }
+  .ab-hero { padding-top: 104px; padding-bottom: 64px; }
   .ab-hero-inner { padding: 0 20px; }
 
   .ab-purpose { padding: 84px 0 76px; }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../ScheduleCall';
 import { Star, ArrowRight, X, Repeat2 } from 'lucide-react';
 import { REVIEWS, RATING, img } from '../../data/v3content';
 import './Proof.css';
@@ -138,7 +138,7 @@ export default function Proof() {
 
         {/* ── CTA ── */}
         <div className="v3proof__cta">
-          <Link to="/contact" className="v3-link">
+          <Link to={CALLBACK} className="v3-link">
             Read More Reviews <ArrowRight size={15} aria-hidden="true" />
           </Link>
         </div>

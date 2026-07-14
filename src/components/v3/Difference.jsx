@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../ScheduleCall';
 import { UserCheck, Briefcase, Headphones, Phone, ArrowRight } from 'lucide-react';
 import { DIFFERENCE, ASSURANCE, EXPERTS, CONTACT, img } from '../../data/v3content';
 import './Difference.css';
@@ -74,7 +74,7 @@ export default function Difference() {
             </p>
           </div>
           <div className="v3diff__concierge-ctas">
-            <Link to="/contact" className="v3-link v3diff__talk">
+            <Link to={CALLBACK} className="v3-link v3diff__talk">
               Talk to an Expert
               <ArrowRight size={15} aria-hidden="true" />
             </Link>

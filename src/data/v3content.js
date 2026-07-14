@@ -7,6 +7,13 @@
    photography before launch. Helper `img()` keeps request sizes sane.
    ============================================================ */
 
+/* Destination sentinel for "open the schedule-a-call dialog" rather than
+   "navigate to a page" — there is no /contact page. Lives here, not in the
+   component, so content data can reference it without importing UI (and
+   ScheduleCall.jsx, which reads CONTACT below, would otherwise be circular).
+   Consumed by <SmartLink to={…}> in components/ScheduleCall.jsx. */
+export const CALLBACK = '#schedule-call';
+
 export const img = (url, w = 1100) =>
   `${url}${url.includes('?') ? '&' : '?'}auto=format&fit=crop&w=${w}&q=80`;
 
@@ -53,7 +60,7 @@ export const PATHS = [
     title: 'Design It Around You',
     desc: 'A bespoke private holiday shaped one-to-one with a destination specialist. Your pace, your people, your way.',
     cta: 'Design a Bespoke Holiday',
-    to: '/contact',
+    to: CALLBACK,
     accent: false,
   },
   {
@@ -67,7 +74,7 @@ export const PATHS = [
     title: 'Just Talk to Someone',
     desc: 'Skip the browsing. Speak to a real travel expert who’ll plan it with you — by phone or WhatsApp.',
     cta: 'Talk to an Expert',
-    to: '/contact',
+    to: CALLBACK,
     accent: false,
   },
 ];
@@ -89,7 +96,7 @@ export const DESTINATIONS = [
 /* ---- How We Travel (Section 5) ---- */
 export const WAYS = [
   { key: 'group', size: 'large', title: 'Escorted Group Tours', desc: 'Travel in fine company with an expert tour manager who handles every detail. Premium hotels, paced for comfort, Indian meals on request.', cta: 'Explore Group Tours', to: '/tours', image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828' },
-  { key: 'bespoke', size: 'large', title: 'Bespoke Private Holidays', desc: 'Your itinerary, your pace, designed one-to-one with a destination specialist. Nothing off-the-shelf.', cta: 'Design a Bespoke Holiday', to: '/contact', image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800' },
+  { key: 'bespoke', size: 'large', title: 'Bespoke Private Holidays', desc: 'Your itinerary, your pace, designed one-to-one with a destination specialist. Nothing off-the-shelf.', cta: 'Design a Bespoke Holiday', to: CALLBACK, image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800' },
   { key: 'luxury', size: 'small', title: 'Luxury Journeys', desc: 'The finest stays, private guides and exclusive access in the world’s most extraordinary places.', cta: 'Explore Luxury', to: '/tours', image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b' },
   { key: 'family', size: 'small', title: 'Special Interest & Family', desc: 'Honeymoons, multi-gen family trips, safaris and cruises — built around the people travelling.', cta: 'Find My Trip', to: '#v3-plan', image: 'https://images.unsplash.com/photo-1602002418082-a4443e081dd1' },
 ];

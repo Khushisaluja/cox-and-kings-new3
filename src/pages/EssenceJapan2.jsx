@@ -15,7 +15,7 @@
    styles live in EssenceJapan2.css (.ej2-* classes).
    ============================================================ */
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import {
   Phone, MessageCircle, ArrowRight, ArrowUpRight, Menu, X, ChevronDown, Plus,
@@ -45,7 +45,7 @@ const NAV_MENU = [
       { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', href: '/journeys?style=Group' },
       { label: 'Tailor-made journeys', desc: 'Designed entirely around you', href: '/journeys?style=Tailor-made' },
       { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', href: '/journeys?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', href: '/contact' },
+      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
     ],
   },
   {
@@ -64,7 +64,7 @@ const NAV_MENU = [
     blurb: 'Signature itineraries, ready to make your own.',
     items: [
       { label: 'Essence Japan with Hakone', desc: '8 days · escorted', href: '/essence-japan-2' },
-      { label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', href: '/tours/japan' },
+      { label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', href: '/tour-detail-japan-5' },
       { label: 'Splendours of Japan', desc: 'Private, tailor-made', href: '/tour-detail-japan' },
       { label: 'Ready when you are', desc: 'Hand-picked departures', href: '/journeys' },
     ],
@@ -76,7 +76,7 @@ const NAV_MENU = [
       { label: 'Our specialists', desc: 'The people who plan your trip', href: '/improved' },
       { label: 'Since 1758', desc: 'Heritage you can lean on', href: '/improved' },
       { label: 'Real reviews', desc: '2,400+ verified travellers', href: '/improved' },
-      { label: 'Talk to an expert', desc: 'We pick up the phone', href: '/contact' },
+      { label: 'Talk to an expert', desc: 'We pick up the phone', to: CALLBACK },
     ],
   },
 ];
@@ -228,7 +228,7 @@ const FAQS = [
 ];
 
 const SIMILAR = [
-  { title: 'Cherry Blossom Japan', region: 'Japan · private', nights: '13 nights', priceFrom: '₹3,10,000', img: 'https://images.unsplash.com/photo-1522383225653-ed111181a951', to: '/tours/japan' },
+  { title: 'Cherry Blossom Japan', region: 'Japan · private', nights: '13 nights', priceFrom: '₹3,10,000', img: 'https://images.unsplash.com/photo-1522383225653-ed111181a951', to: '/tour-detail-japan-5' },
   { title: 'Splendours of Japan', region: 'Japan · tailor-made', nights: '10 nights', priceFrom: '₹3,45,000', img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e', to: '/tour-detail-japan' },
   { title: 'Essential South Korea', region: 'South Korea · group', nights: '8 nights', priceFrom: '₹2,25,000', img: 'https://images.unsplash.com/photo-1538485399081-7191377e8241', to: '/journeys' },
   { title: 'Vietnam, North to South', region: 'Vietnam · group', nights: '11 nights', priceFrom: '₹1,95,000', img: 'https://images.unsplash.com/photo-1528127269322-539801943592', to: '/journeys' },
@@ -372,7 +372,7 @@ export default function EssenceJapan2() {
           <div className="ej-menu-secondary">
             <Link to="/journeys" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
             <Link to="/improved" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
-            <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
+            <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
             <a href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}>WhatsApp <ArrowUpRight size={13} /></a>
           </div>
           <a href={CONTACT.phoneHref} className="ej-btn ej-btn-pill ej-menu-cta" onClick={() => setMenuOpen(false)}>
@@ -766,12 +766,12 @@ export default function EssenceJapan2() {
               <h4>Explore</h4>
               <Link to="/journeys">All journeys</Link>
               <Link to="/journeys?where=Japan">Japan</Link>
-              <Link to="/tours/japan">Cherry Blossom Japan</Link>
+              <Link to="/tour-detail-japan-5">Cherry Blossom Japan</Link>
               <Link to="/improved">Our story</Link>
             </div>
             <div>
               <h4>Company</h4>
-              <Link to="/contact">Contact</Link>
+              <Link to={CALLBACK}>Contact</Link>
               <Link to="/improved">Why Cox &amp; Kings</Link>
               <a href={CONTACT.phoneHref}>{CONTACT.phoneDisplay}</a>
               <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>

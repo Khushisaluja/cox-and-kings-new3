@@ -12,7 +12,8 @@
    and styles are shared with JapanJourneys (design.md tokens).
    ============================================================ */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
   Phone, PhoneCall, MessageCircle, ArrowUpRight, ArrowRight,
@@ -250,7 +251,7 @@ const NAV_MENU = [
       { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys?style=Group Tour' },
       { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys?style=Bespoke Private' },
       { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: '/contact' },
+      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
     ],
   },
   {
@@ -275,13 +276,13 @@ const NAV_MENU = [
     ],
   },
   {
-    label: 'Why us', href: '/improved#trust',
+    label: 'Why us', href: '/#heritage',
     blurb: 'Specialists, not salespeople — and 260 years behind every trip.',
     items: [
-      { label: 'Our specialists', desc: 'The people who plan your trip', to: '/improved#trust' },
-      { label: 'Since 1758', desc: 'Heritage you can lean on', to: '/improved#trust' },
-      { label: 'Real reviews', desc: '2,400+ verified travellers', to: '/improved#reviews' },
-      { label: 'Talk to an expert', desc: 'We pick up the phone', to: '/contact' },
+      { label: 'Our specialists', desc: 'The people who plan your trip', to: '/#heritage' },
+      { label: 'Since 1758', desc: 'Heritage you can lean on', to: '/#heritage' },
+      { label: 'Real reviews', desc: '2,400+ verified travellers', to: '/#reviews' },
+      { label: 'Talk to an expert', desc: 'We pick up the phone', to: CALLBACK },
     ],
   },
 ];
@@ -394,7 +395,7 @@ function JourneyCard({ j, i, cityName, onPhotos }) {
   return (
     <Reveal className="jl-card" delay={(i % 3) * 0.05} y={24} as="article">
       <div className="jl-card-media">
-        <Link to="/contact" className="jl-card-media-link" aria-label={`${j.title} — enquire`}>
+        <Link to={CALLBACK} className="jl-card-media-link" aria-label={`${j.title} — enquire`}>
           <img src={img(j.image, 800)} alt={j.title} loading="lazy" />
         </Link>
         <span className="jl-card-style">{j.style}</span>
@@ -407,7 +408,7 @@ function JourneyCard({ j, i, cityName, onPhotos }) {
         )}
       </div>
       <div className="jl-card-body">
-        <h3 className="jl-card-title"><Link to="/contact">{j.title}</Link></h3>
+        <h3 className="jl-card-title"><Link to={CALLBACK}>{j.title}</Link></h3>
         <span className="jl-card-group"><Users size={13} aria-hidden="true" /> {j.group}</span>
         <p className="jl-card-blurb">{j.blurb}</p>
         <div className="jl-card-meta">
@@ -418,7 +419,7 @@ function JourneyCard({ j, i, cityName, onPhotos }) {
         <div className="jl-card-foot">
           <span className="jl-card-price"><small>from</small> {j.priceLabel} <small>/ person</small></span>
           <div className="jl-card-ctas">
-            <Link to="/contact" className="jl-cbtn jl-cbtn-view">View Itinerary <ArrowRight size={15} aria-hidden="true" /></Link>
+            <Link to={CALLBACK} className="jl-cbtn jl-cbtn-view">View Itinerary <ArrowRight size={15} aria-hidden="true" /></Link>
             <a href={waHref} target="_blank" rel="noopener noreferrer" className="jl-cbtn jl-cbtn-wa" aria-label={`Enquire about ${j.title} on WhatsApp`}>
               <WaIcon size={15} /> Enquire Now
             </a>
@@ -536,7 +537,7 @@ export default function CityJourneys() {
 
       {/* ---------- NAV (shared /improved chrome) ---------- */}
       <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
-        <Link to="/improved" className="h26-brand">
+        <Link to="/" className="h26-brand">
           <img src="/cox-logo-new.png" alt="Cox & Kings" />
         </Link>
         <nav className="h26-links hi-nav" aria-label="Primary">
@@ -568,7 +569,7 @@ export default function CityJourneys() {
           <a href={CONTACT.phoneHref} className="h26-phone">
             <Phone size={15} /> <span>{CONTACT.phoneDisplay}</span>
           </a>
-          <Link to="/contact" className="h26-btn h26-btn-pill">Talk to an expert</Link>
+          <Link to={CALLBACK} className="h26-btn h26-btn-pill">Talk to an expert</Link>
           <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
             <Menu size={22} />
           </button>
@@ -594,8 +595,8 @@ export default function CityJourneys() {
           <div className="h26-menu-secondary">
             <Link to="/journeys/japan" onClick={() => setMenuOpen(false)}>All Japan <ArrowUpRight size={13} /></Link>
             <Link to="/journeys" onClick={() => setMenuOpen(false)}>All destinations <ArrowUpRight size={13} /></Link>
-            <Link to="/improved" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
-            <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
+            <Link to="/" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
+            <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
           </div>
           <a href={CONTACT.phoneHref} className="h26-btn h26-btn-pill h26-menu-cta" onClick={() => setMenuOpen(false)}>
             <Phone size={16} /> Speak to an expert
@@ -749,7 +750,7 @@ export default function CityJourneys() {
           </Reveal>
           <Reveal className="jl-cta-actions" delay={0.12}>
             <a href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer" className="h26-btn h26-btn-accent h26-btn-lg"><MessageCircle size={17} /> WhatsApp us</a>
-            <Link to="/contact" className="h26-btn h26-btn-glass h26-btn-lg"><PhoneCall size={16} /> Schedule a callback</Link>
+            <Link to={CALLBACK} className="h26-btn h26-btn-glass h26-btn-lg"><PhoneCall size={16} /> Schedule a callback</Link>
           </Reveal>
           <Reveal as="p" className="jl-cta-hours" delay={0.18}>Travel experts available 9am–9pm IST, every day.</Reveal>
         </div>
@@ -776,17 +777,17 @@ export default function CityJourneys() {
             </div>
             <div>
               <h4>Company</h4>
-              <Link to="/about">Our story</Link>
-              <Link to="/about">Specialists</Link>
-              <Link to="/contact">Contact</Link>
-              <Link to="/improved#trust">Why Cox &amp; Kings</Link>
+              <Link to="/about-us2">Our story</Link>
+              <Link to="/about-us2">Specialists</Link>
+              <Link to={CALLBACK}>Contact</Link>
+              <Link to="/#heritage">Why Cox &amp; Kings</Link>
             </div>
             <div>
               <h4>Assurance</h4>
-              <Link to="/improved#trust">Trust &amp; safety</Link>
-              <Link to="/improved#trust">Awards</Link>
-              <Link to="/contact">Refund policy</Link>
-              <Link to="/contact">Speak to an expert</Link>
+              <Link to="/#heritage">Trust &amp; safety</Link>
+              <Link to="/#heritage">Awards</Link>
+              <Link to={CALLBACK}>Refund policy</Link>
+              <Link to={CALLBACK}>Speak to an expert</Link>
             </div>
           </div>
         </div>
