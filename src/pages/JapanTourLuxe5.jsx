@@ -253,6 +253,27 @@ const TRIP_DAYS = 8;              // eight days, seven nights
 const MIN_LEAD_DAYS = 21;         // the least notice a private journey can be built in
 const BOOK_HORIZON_MONTHS = 18;   // how far ahead the calendar will look
 
+/* ---------- HOW LONG THE TRIP RUNS ----------
+   The page used to ask only for a start date and derive the return from a
+   fixed TRIP_DAYS. On an escorted departure that is right — the coach leaves
+   and comes back on set days, and the traveller has no say. But this journey
+   is private and tailor-made, which is exactly the thing that means the length
+   is theirs to choose. Asking only "when do you leave?" and then quoting one
+   price no matter what was the tell: the form was not really pricing THEIR
+   trip.
+
+   So both ends are now asked for, and the nights between them are what the
+   quote is built on. The itinerary as written runs CORE_NIGHTS; go longer and
+   the extra nights are added at a per-night rate, go shorter and stops come
+   out of it at the same rate. Outside [MIN_NIGHTS, MAX_NIGHTS] it stops being
+   this journey, so the form says so rather than quoting nonsense. */
+const CORE_NIGHTS = TRIP_DAYS - 1;   // 7 — the itinerary exactly as it is written
+const MIN_NIGHTS = 5;                // below this, the route cannot be built
+const MAX_NIGHTS = 21;               // beyond this it is a different conversation
+
+/* Whole nights between two days. */
+const nightsBetween = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / 86400000);
+
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 const WEEKDAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -616,33 +637,162 @@ const QUOTE_STAGE_LABEL = {
   booked: 'Your call is booked',
 };
 
+/* ---------- What the traveller can actually choose ----------
+   Each of these is a question the form asks, and each one moves the number.
+   That is the test a field has to pass to be on the form at all: either a
+   travel designer cannot build the trip without it, or it changes the price.
+   Anything that does neither is just friction between them and their quote. */
+
+/* Where they fly from. The form already promised "return economy from your
+   home city" and then never asked which city — so the flight line was being
+   priced from nowhere. Metro fares differ enough to matter. */
+const DEPARTURE_CITIES = [
+  { id: 'BOM', label: 'Mumbai', add: 0 },
+  { id: 'DEL', label: 'Delhi', add: 0 },
+  { id: 'BLR', label: 'Bengaluru', add: 4000 },
+  { id: 'MAA', label: 'Chennai', add: 4000 },
+  { id: 'HYD', label: 'Hyderabad', add: 5500 },
+  { id: 'CCU', label: 'Kolkata', add: 3000 },
+  { id: 'PNQ', label: 'Pune', add: 7000 },
+  { id: 'AMD', label: 'Ahmedabad', add: 7000 },
+  { id: 'COK', label: 'Kochi', add: 8500 },
+  { id: 'OTH', label: 'Somewhere else in India', add: 9500 },
+];
+
+/* Cabin. Economy was hardcoded — on a ₹3-lakh journey the cabin is one of the
+   largest single swings in the whole quote, and plenty of this page's audience
+   are not flying economy. */
+const CABINS = [
+  { id: 'economy', label: 'Economy', pp: 62000 },
+  { id: 'premium', label: 'Premium economy', pp: 104000 },
+  { id: 'business', label: 'Business', pp: 168000 },
+];
+
+/* What they sleep in. The single biggest lever on a tailor-made land price,
+   and the page sells a ryokan night as a headline — so it has to be askable. */
+const HOTEL_TIERS = [
+  { id: 'comfort', label: '4-star comfort', mult: 0.88, note: 'Well-located, dependable' },
+  { id: 'signature', label: '5-star signature', mult: 1, note: 'As the itinerary is written' },
+  { id: 'luxury', label: 'Luxury & ryokan', mult: 1.32, note: 'The best room in the house' },
+];
+
+/* How firm the dates are. Costs nothing to ask and can save them a great deal
+   — shoulder days either side of a blossom weekend are a different fare. */
+const DATE_FLEX = [
+  { id: 'exact', label: 'Exact dates' },
+  { id: 'few', label: '± 3 days' },
+  { id: 'week', label: '± a week' },
+];
+
+/* Why they are going. Does not move the price; does change the trip a designer
+   builds, and it is one tap. */
+const OCCASIONS = ['Just because', 'Honeymoon', 'Anniversary', 'A big birthday', 'Family holiday', 'Retirement trip'];
+
+/* Children are not one price. A 3-year-old sharing a bed and an 11-year-old on
+   an extra bed cost very differently, so the form asks the age rather than
+   averaging them into a single fiction. */
+const CHILD_BANDS = [
+  { max: 5, mult: 0.55, label: '2–5' },
+  { max: 11, mult: 0.85, label: '6–11' },
+];
+const childMult = (age) => (CHILD_BANDS.find((b) => age <= b.max) ?? CHILD_BANDS[1]).mult;
+
 const RATES = {
-  child: 0.85,        // of the adult land price, sharing with an adult
   privatePP: 24000,   // private departure — own guide, coach and dates
-  flightsPP: 62000,   // return economy from the home city
+  nightPP: 18500,     // one night added to, or taken out of, the written route
   visaPP: 8500,       // Japan tourist visa, paperwork handled
   extraBed: 9500,     // rollaway, per bed for the trip
   gst: 0.05,          // GST on the package
 };
 
-function priceQuote(q, adults) {
+/* `PRICE` is the from-price for the route exactly as written: CORE_NIGHTS, at
+   the signature hotel tier. Everything the traveller changes moves off it. */
+function landPerAdult(q, nights) {
+  const tier = HOTEL_TIERS.find((h) => h.id === q.hotel) ?? HOTEL_TIERS[1];
+  const written = Math.round(PRICE * tier.mult);
+  return written + (nights - CORE_NIGHTS) * RATES.nightPP;
+}
+
+function priceQuote(q, adults, nights) {
   const heads = adults + q.children;
-  const childPP = Math.round(PRICE * RATES.child);
+  const tier = HOTEL_TIERS.find((h) => h.id === q.hotel) ?? HOTEL_TIERS[1];
+  const cabin = CABINS.find((c) => c.id === q.cabin) ?? CABINS[0];
+  const city = DEPARTURE_CITIES.find((c) => c.id === q.from);
+
+  /* The written route, priced at their hotel tier — the number every other
+     line is a departure from. */
+  const writtenPP = Math.round(PRICE * tier.mult);
   const lines = [
-    { label: `Land journey — ${adults} adult${adults === 1 ? '' : 's'}`, note: `${inr(PRICE)} per adult`, amount: PRICE * adults },
+    {
+      key: 'land',
+      label: `Land journey — ${adults} adult${adults === 1 ? '' : 's'}`,
+      note: `${inr(writtenPP)} per adult · ${CORE_NIGHTS} nights, ${tier.label.toLowerCase()}`,
+      amount: writtenPP * adults,
+    },
   ];
-  if (q.children > 0) {
-    lines.push({ label: `Children — ${q.children}`, note: `${inr(childPP)} each, sharing with an adult`, amount: childPP * q.children });
+
+  /* The nights they added or took out, shown as their own line rather than
+     folded silently into the land price — this is the thing they changed, so
+     it is the thing they should be able to see. */
+  const extra = nights - CORE_NIGHTS;
+  if (extra !== 0) {
+    const n = Math.abs(extra);
+    lines.push({
+      key: 'nights',
+      label: extra > 0
+        ? `${n} extra night${n === 1 ? '' : 's'} — ${adults} adult${adults === 1 ? '' : 's'}`
+        : `${n} night${n === 1 ? '' : 's'} fewer — ${adults} adult${adults === 1 ? '' : 's'}`,
+      note: extra > 0
+        ? `${inr(RATES.nightPP)} per person per night, hotel, transfers and guiding`
+        : `${inr(RATES.nightPP)} per person per night, taken back out`,
+      amount: extra * RATES.nightPP * adults,
+    });
   }
-  lines.push({ label: 'Private departure', note: 'Your own guide, coach and dates — not a shared group', amount: RATES.privatePP * adults });
+
+  /* One line per child, because each is priced off their own age. */
+  q.childAges.slice(0, q.children).forEach((age, i) => {
+    const pp = Math.round(landPerAdult(q, nights) * childMult(age));
+    lines.push({
+      key: `child-${i}`,
+      label: `Child ${i + 1} — age ${age}`,
+      note: `${inr(pp)}, sharing with an adult`,
+      amount: pp,
+    });
+  });
+
+  lines.push({
+    key: 'private',
+    label: 'Private departure',
+    note: 'Your own guide, coach and dates — not a shared group',
+    amount: RATES.privatePP * adults,
+  });
+
   if (q.extraBeds > 0) {
-    lines.push({ label: `Extra beds — ${q.extraBeds}`, note: `${inr(RATES.extraBed)} each, for the eight nights`, amount: RATES.extraBed * q.extraBeds });
+    lines.push({
+      key: 'beds',
+      label: `Extra beds — ${q.extraBeds}`,
+      note: `${inr(RATES.extraBed)} each, across the ${nights} nights`,
+      amount: RATES.extraBed * q.extraBeds,
+    });
   }
+
   if (q.flights) {
-    lines.push({ label: `Return flights — ${heads} traveller${heads === 1 ? '' : 's'}`, note: 'Economy, from your home city', amount: RATES.flightsPP * heads });
+    const pp = cabin.pp + (city?.add ?? 0);
+    lines.push({
+      key: 'flights',
+      label: `Return flights — ${heads} traveller${heads === 1 ? '' : 's'}`,
+      note: `${cabin.label}${city ? `, from ${city.label}` : ''} · ${inr(pp)} each`,
+      amount: pp * heads,
+    });
   }
+
   if (q.visa) {
-    lines.push({ label: `Visa assistance — ${heads}`, note: 'Japan tourist visa, paperwork handled for you', amount: RATES.visaPP * heads });
+    lines.push({
+      key: 'visa',
+      label: `Visa assistance — ${heads}`,
+      note: 'Japan tourist visa, paperwork handled for you',
+      amount: RATES.visaPP * heads,
+    });
   }
 
   const subtotal = lines.reduce((sum, l) => sum + l.amount, 0);
@@ -662,12 +812,19 @@ function priceQuote(q, adults) {
 
 /* The wait is ~15s of real server work. Naming each stage — and echoing the
    traveller's own answers back into it — is what stops it reading as a hang. */
-function quoteStages(q, adults, departure) {
+function quoteStages(q, adults, departure, nights) {
+  const city = DEPARTURE_CITIES.find((c) => c.id === q.from);
+  const tier = HOTEL_TIERS.find((h) => h.id === q.hotel) ?? HOTEL_TIERS[1];
   return [
     { at: 0, label: `Checking availability for ${departure}` },
     { at: 3, label: `Pricing ${adults} adult${adults === 1 ? '' : 's'}${q.children ? ` and ${q.children} child${q.children === 1 ? '' : 'ren'}` : ''}` },
-    { at: 6, label: `Holding ${q.rooms} room${q.rooms === 1 ? '' : 's'} across the eight nights` },
-    { at: 9, label: q.flights ? 'Fetching live flight fares from your home city' : 'Costing the land journey, without flights' },
+    { at: 6, label: `Holding ${q.rooms} room${q.rooms === 1 ? '' : 's'} across ${nights} nights — ${tier.label.toLowerCase()}` },
+    {
+      at: 9,
+      label: q.flights
+        ? `Fetching live fares from ${city ? city.label : 'your home city'}`
+        : 'Costing the land journey, without flights',
+    },
     { at: 12, label: 'Applying your private-departure rates' },
     { at: 14, label: 'Preparing your quote document' },
   ];
@@ -762,7 +919,17 @@ function QToggle({ icon: Icon, label, hint, checked, onChange }) {
    is the composite-widget pattern a screen-reader user expects of a
    calendar, and it is what WCAG's roving-tabindex guidance asks for.
    -------------------------------------------------------------------- */
-function PrivateCalendar({ value, onChange, minDate, maxDate }) {
+/* Used for both ends of the trip now, so the labels can't stay hardcoded to
+   the start date — a screen reader on the return calendar was being told it
+   was choosing a departure. */
+function PrivateCalendar({
+  value,
+  onChange,
+  minDate,
+  maxDate,
+  gridLabel = 'Choose your start date',
+  shutReason = 'too soon to build a private journey',
+}) {
   const selected = fromISO(value);
   const [cursor, setCursor] = useState(() => firstOfMonth(selected ?? minDate));
   const [focusDay, setFocusDay] = useState(() => selected ?? minDate);
@@ -840,7 +1007,7 @@ function PrivateCalendar({ value, onChange, minDate, maxDate }) {
         {WEEKDAY_NAMES.map((w) => <span key={w}>{w}</span>)}
       </div>
 
-      <div className="lxjt5-cal__grid" role="grid" aria-label="Choose your start date"
+      <div className="lxjt5-cal__grid" role="grid" aria-label={gridLabel}
         ref={gridRef} onKeyDown={onKeyDown}>
         {weeks.map((week, wi) => (
           <div className="lxjt5-cal__row" role="row" key={wi}>
@@ -861,7 +1028,7 @@ function PrivateCalendar({ value, onChange, minDate, maxDate }) {
                     /* The visible label is a bare numeral; the accessible one
                        has to carry the whole date, and the reason a day is
                        shut rather than leaving it a mystery. */
-                    aria-label={open ? longDate(d) : `${longDate(d)} — too soon to build a private journey`}
+                    aria-label={open ? longDate(d) : `${longDate(d)} — ${shutReason}`}
                   >
                     {d.getDate()}
                   </button>
@@ -889,6 +1056,10 @@ export default function JapanTourLuxe5() {
      pick one: a private journey has no default departure, and pre-filling
      a travel date would be putting words in their mouth. */
   const [startDate, setStartDate] = useState('');
+  /* And when they come home. Seeded from the start date the first time one is
+     picked (the route as written runs CORE_NIGHTS), then theirs to move — the
+     nights between the two are what the quote is actually built on. */
+  const [endDate, setEndDate] = useState('');
   const [activeSection, setActiveSection] = useState('highlights');
   const [callbackOpen, setCallbackOpen] = useState(false);
   const [callbackSent, setCallbackSent] = useState(false);
@@ -904,11 +1075,34 @@ export default function JapanTourLuxe5() {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [q, setQ] = useState({
     prefix: 'Mr', first: '', last: '', email: '', phone: '',
-    children: 0, rooms: 1, bed: 'twin', extraBeds: 0,
+    children: 0, childAges: [], rooms: 1, bed: 'twin', extraBeds: 0,
     flights: true, visa: true, infant: false, seniors: false,
+    /* Asked for now, rather than assumed: the flight line was being priced
+       from an unnamed city in an unnamed cabin, and the land price ignored
+       what they wanted to sleep in. */
+    from: 'BOM', cabin: 'economy', hotel: 'signature',
+    flex: 'exact', occasion: OCCASIONS[0], consent: false,
     comments: '',
   });
   const qSet = (key) => (val) => setQ((prev) => ({ ...prev, [key]: val }));
+
+  /* Children are priced off their real ages, so the age list has to follow the
+     count — grow it with a sensible default, shrink it without losing the ages
+     they already gave for the children who remain. */
+  const setChildren = useCallback((n) => {
+    setQ((prev) => {
+      const ages = prev.childAges.slice(0, n);
+      while (ages.length < n) ages.push(8);
+      return { ...prev, children: n, childAges: ages };
+    });
+  }, []);
+  const setChildAge = useCallback((i) => (age) => {
+    setQ((prev) => {
+      const ages = [...prev.childAges];
+      ages[i] = age;
+      return { ...prev, childAges: ages };
+    });
+  }, []);
 
   /* Where the traveller is in the quote flow:
        details → pricing (~15s on the server) → quote → call → booked
@@ -933,15 +1127,46 @@ export default function JapanTourLuxe5() {
   );
   const picked = useMemo(() => fromISO(startDate), [startDate]);
   const season = useMemo(() => (picked ? seasonFor(picked) : null), [picked]);
-  const homeOn = useMemo(() => (picked ? addDays(picked, TRIP_DAYS - 1) : null), [picked]);
+
+  /* ---- How long they are actually going for ----
+     `homeOn` used to be start + a fixed TRIP_DAYS. It is now whatever return
+     date they chose, and the nights between the two are the number the quote
+     is built on. Until a start date exists there is no window to return in. */
+  const homeOn = useMemo(() => fromISO(endDate), [endDate]);
+  const minEnd = useMemo(() => (picked ? addDays(picked, MIN_NIGHTS) : null), [picked]);
+  const maxEnd = useMemo(() => (picked ? addDays(picked, MAX_NIGHTS) : null), [picked]);
+  const nights = useMemo(
+    () => (picked && homeOn ? nightsBetween(picked, homeOn) : CORE_NIGHTS),
+    [picked, homeOn]
+  );
+  /* The route as written is CORE_NIGHTS. Anything inside the window is a real
+     trip we can price; outside it, it is not this journey any more. */
+  const nightsOk = nights >= MIN_NIGHTS && nights <= MAX_NIGHTS;
+
+  /* Picking a start date seeds the return at the length the itinerary actually
+     runs, so the common case is already answered and they only touch it if they
+     want a different trip. Moving the start date drags the return with it,
+     keeping the length they chose rather than silently resetting it. */
+  useEffect(() => {
+    if (!picked) { setEndDate(''); return; }
+    setEndDate((prev) => {
+      const cur = fromISO(prev);
+      if (!cur) return toISO(addDays(picked, CORE_NIGHTS));
+      const held = nightsBetween(picked, cur);
+      if (held >= MIN_NIGHTS && held <= MAX_NIGHTS) return prev;   // still valid — leave it
+      return toISO(addDays(picked, CORE_NIGHTS));                  // start moved past it
+    });
+  }, [picked]);
+
   /* Everything downstream — the wait, the quote, the PDF — says the date in
      one voice, and degrades gracefully if they somehow got here without one. */
   const dateLabel = picked ? longDate(picked) : 'your chosen dates';
+  const tripLabel = `${nights + 1} days, ${nights} nights`;
 
-  const quote = useMemo(() => priceQuote(q, travellers), [q, travellers]);
+  const quote = useMemo(() => priceQuote(q, travellers, nights), [q, travellers, nights]);
   const stages = useMemo(
-    () => quoteStages(q, travellers, dateLabel),
-    [q, travellers, dateLabel]
+    () => quoteStages(q, travellers, dateLabel, nights),
+    [q, travellers, dateLabel, nights]
   );
   const stageLabel = [...stages].reverse().find((s) => elapsed >= s.at)?.label ?? stages[0].label;
   const pct = Math.min(100, Math.round((elapsed / QUOTE_SECONDS) * 100));
@@ -1087,9 +1312,13 @@ export default function JapanTourLuxe5() {
       <h2>Your journey</h2>
       <table>
         <tr><td>Departing</td><td class="amt">${dateLabel}</td></tr>
+        <tr><td>Returning</td><td class="amt">${homeOn ? longDate(homeOn) : '—'}</td></tr>
+        <tr><td>Duration</td><td class="amt">${tripLabel}</td></tr>
         <tr><td>Travellers</td><td class="amt">${partySummary}</td></tr>
         <tr><td>Rooms</td><td class="amt">${q.rooms} · ${q.bed === 'twin' ? 'twin beds' : q.bed === 'double' ? 'one double' : 'a mix'}${q.extraBeds ? ` · ${q.extraBeds} extra bed(s)` : ''}</td></tr>
-        <tr><td>Duration</td><td class="amt">8 days · 7 nights</td></tr>
+        <tr><td>Hotels</td><td class="amt">${(HOTEL_TIERS.find((h) => h.id === q.hotel) ?? HOTEL_TIERS[1]).label}</td></tr>
+        ${q.flights ? `<tr><td>Flights</td><td class="amt">${(CABINS.find((c) => c.id === q.cabin) ?? CABINS[0]).label}, from ${(DEPARTURE_CITIES.find((c) => c.id === q.from) ?? {}).label ?? '—'}</td></tr>` : ''}
+        <tr><td>Dates</td><td class="amt">${(DATE_FLEX.find((f) => f.id === q.flex) ?? DATE_FLEX[0]).label}</td></tr>
       </table>
       <h2>The price</h2>
       <table>
@@ -1104,7 +1333,7 @@ export default function JapanTourLuxe5() {
       <ul>${quote.excluded.map((i) => `<li>${i}</li>`).join('')}</ul>
       ${q.comments ? `<h2>Your notes to us</h2><p>${q.comments}</p>` : ''}
     `));
-  }, [quote, quoteRef, validUntil, q, dateLabel, partySummary]);
+  }, [quote, quoteRef, validUntil, q, dateLabel, partySummary, homeOn, tripLabel]);
 
   const downloadItinerary = useCallback(() => {
     const days = ITINERARY.map((d) => `
@@ -1660,7 +1889,7 @@ export default function JapanTourLuxe5() {
                       <span className="lxjt5-picked__ic" aria-hidden="true"><Check size={14} strokeWidth={3} /></span>
                       <span className="lxjt5-picked__tx">
                         <strong>{longDate(picked)}</strong>
-                        <small>{TRIP_DAYS} days &middot; home on {longDate(homeOn)}</small>
+                        <small>{tripLabel}{homeOn ? ` · home on ${longDate(homeOn)}` : ''}</small>
                       </span>
                       <span className={`lxjt5-picked__season ${season.peak ? 'is-peak' : ''}`}>{season.label}</span>
                     </div>
@@ -1695,9 +1924,9 @@ export default function JapanTourLuxe5() {
                     <div className="lxjt5-travrow">
                       <span className="lxjt5-travrow__lbl">Children <small>2&ndash;11 years</small></span>
                       <div className="lxjt-stepper">
-                        <button type="button" aria-label="Fewer children" onClick={() => qSet('children')(Math.max(0, q.children - 1))} disabled={q.children <= 0}><Minus size={15} /></button>
+                        <button type="button" aria-label="Fewer children" onClick={() => setChildren(Math.max(0, q.children - 1))} disabled={q.children <= 0}><Minus size={15} /></button>
                         <span className="lxjt-stepper__val">{q.children}</span>
-                        <button type="button" aria-label="More children" onClick={() => qSet('children')(Math.min(10, q.children + 1))} disabled={q.children >= 10}><Plus size={15} /></button>
+                        <button type="button" aria-label="More children" onClick={() => setChildren(Math.min(10, q.children + 1))} disabled={q.children >= 10}><Plus size={15} /></button>
                       </div>
                     </div>
                   </div>
@@ -2086,42 +2315,109 @@ export default function JapanTourLuxe5() {
                 <form className="lxjt5-qd__form" onSubmit={(e) => { e.preventDefault(); setQStage('pricing'); }}>
                   <header className="lxjt5-qd__head">
                     <span className="lx2i-eyebrow">// PRIVATE DEPARTURE · STEP 1 OF 3</span>
-                    <h3 className="lxjt5-qd__title">Tell us who&rsquo;s travelling</h3>
+                    <h3 className="lxjt5-qd__title">Tell us about your trip</h3>
                     <p className="lxjt5-qd__sub">
-                      This journey is private and tailor-made, so the price follows the party &mdash; who&rsquo;s coming, how you want the rooms,
-                      and what you want included. Answer these and we&rsquo;ll price it while you wait. No payment at this step.
+                      This journey is private and tailor-made, so the price follows the trip &mdash; how long you go for, who&rsquo;s coming,
+                      where you sleep and what you want included. Answer these and we&rsquo;ll price it while you wait. No payment at this step.
                     </p>
                   </header>
 
                   <div className="lxjt5-qd__body">
-                    {/* ---- When ----
-                        The card's calendar already asks this, and normally the
-                        answer arrives here already filled in. But the mobile
-                        bottom bar opens this drawer straight from anywhere on
-                        the page, so the drawer cannot assume a date exists —
-                        it has to be able to ask for one itself. Same state, so
-                        the two controls can never disagree. */}
+                    {/* ---- When, and for how long ----
+                        Both ends, on the page's own calendar. The native
+                        <input type="date"> that used to sit here was the one
+                        control on the page wearing the browser's clothes rather
+                        than ours — and on most machines it renders the date
+                        month-first, which for an Indian traveller reading
+                        04/08/2026 is not a cosmetic problem.
+
+                        The card's calendar already asks the start date, and
+                        normally the answer arrives here filled in. But the
+                        mobile bottom bar opens this drawer from anywhere on the
+                        page, so it cannot assume one exists. Same state, so the
+                        two can never disagree. */}
                     <fieldset className="lxjt5-q__set">
                       <legend>When you&rsquo;d like to go</legend>
-                      <label className="lx2i-cb__field">
-                        <span>Start date <small>{TRIP_DAYS} days, {TRIP_DAYS - 1} nights</small></span>
-                        <input
-                          type="date"
-                          required
-                          min={toISO(minDate)}
-                          max={toISO(maxDate)}
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                        />
-                      </label>
-                      {picked && (
-                        <p className="lxjt5-q__ctx">
-                          <Calendar size={14} strokeWidth={2} />
-                          <span>
-                            <strong>{season.label}</strong> &middot; home on {longDate(homeOn)} &middot; from {inr(PRICE)} pp
+
+                      <div className="lxjt5-q__dates">
+                        <div className="lxjt5-q__date">
+                          <span className="lxjt5-q__datelbl">
+                            Leaving
+                            <strong>{picked ? longDate(picked) : 'Pick a day'}</strong>
                           </span>
+                          <PrivateCalendar
+                            value={startDate}
+                            onChange={setStartDate}
+                            minDate={minDate}
+                            maxDate={maxDate}
+                            gridLabel="Choose the day you leave"
+                            shutReason="too soon to build a private journey"
+                          />
+                        </div>
+
+                        {/* The return calendar has nothing to offer until there
+                            is a departure to count from, so it says so instead
+                            of showing a grid where every day is dead. */}
+                        <div className="lxjt5-q__date">
+                          <span className="lxjt5-q__datelbl">
+                            Coming home
+                            <strong>{homeOn ? longDate(homeOn) : '—'}</strong>
+                          </span>
+                          {picked ? (
+                            <PrivateCalendar
+                              value={endDate}
+                              onChange={setEndDate}
+                              minDate={minEnd}
+                              maxDate={maxEnd}
+                              gridLabel="Choose the day you come home"
+                              shutReason={`outside the ${MIN_NIGHTS}–${MAX_NIGHTS} nights this journey can run`}
+                            />
+                          ) : (
+                            <p className="lxjt5-q__datewait">
+                              Pick the day you leave and we&rsquo;ll open the return dates around it.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* The length is the number the quote is built on, so it
+                          is stated outright rather than left to be counted. */}
+                      {picked && homeOn && (
+                        <p className={`lxjt5-q__ctx ${nightsOk ? '' : 'is-bad'}`} role="status">
+                          <Calendar size={14} strokeWidth={2} />
+                          {nightsOk ? (
+                            <span>
+                              <strong>{tripLabel}</strong> &middot; {season.label}
+                              {nights === CORE_NIGHTS
+                                ? ' · the itinerary exactly as it is written'
+                                : nights > CORE_NIGHTS
+                                  ? ` · ${nights - CORE_NIGHTS} night${nights - CORE_NIGHTS === 1 ? '' : 's'} added to the written route`
+                                  : ` · ${CORE_NIGHTS - nights} night${CORE_NIGHTS - nights === 1 ? '' : 's'} shorter than the written route`}
+                            </span>
+                          ) : (
+                            <span>
+                              <strong>{nights} nights</strong> &mdash; this journey runs between {MIN_NIGHTS} and {MAX_NIGHTS} nights.
+                              Move the return date, or tell us below and we&rsquo;ll build something else around it.
+                            </span>
+                          )}
                         </p>
                       )}
+
+                      {/* Costs one tap and can genuinely save them money —
+                          shoulder days either side of a blossom weekend are a
+                          different fare altogether. */}
+                      <div className="lx2i-cb__field">
+                        <span>How firm are these dates?</span>
+                        <div className="lxjt5-q__seg lxjt5-q__seg--3" role="radiogroup" aria-label="How firm are these dates?">
+                          {DATE_FLEX.map((f) => (
+                            <button key={f.id} type="button" role="radio" aria-checked={q.flex === f.id}
+                              className={`lxjt5-q__segbtn ${q.flex === f.id ? 'is-on' : ''}`}
+                              onClick={() => qSet('flex')(f.id)}>
+                              <Calendar size={15} strokeWidth={1.8} /> {f.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </fieldset>
 
                     {/* ---- Lead traveller ---- */}
@@ -2164,8 +2460,31 @@ export default function JapanTourLuxe5() {
                       <legend>Who&rsquo;s coming</legend>
                       <div className="lxjt5-q__row lxjt5-q__row--2">
                         <QStep label="Adults" hint="12 and over" value={travellers} onChange={setTravellers} min={1} max={20} />
-                        <QStep label="Children" hint="2–11 years" value={q.children} onChange={qSet('children')} min={0} max={10} />
+                        <QStep label="Children" hint="2–11 years" value={q.children} onChange={setChildren} min={0} max={10} />
                       </div>
+
+                      {/* A child was being priced at a flat 85% of the adult
+                          fare whether they were three or eleven. They are not
+                          the same trip and they are not the same money, so the
+                          form asks — one row, only when there are children. */}
+                      {q.children > 0 && (
+                        <div className="lxjt5-q__ages">
+                          <span className="lxjt5-q__ageslbl">How old will they be when you travel?</span>
+                          <div className="lxjt5-q__agerow">
+                            {Array.from({ length: q.children }, (_, i) => (
+                              <label key={i} className="lxjt5-q__age">
+                                <span>Child {i + 1}</span>
+                                <select value={q.childAges[i] ?? 8} onChange={(e) => setChildAge(i)(Number(e.target.value))}>
+                                  {Array.from({ length: 10 }, (_, k) => k + 2).map((a) => (
+                                    <option key={a} value={a}>{a} years</option>
+                                  ))}
+                                </select>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="lxjt5-q__togs">
                         <QToggle icon={Baby} label="Baby on board" hint="Under 2 — we'll arrange a cot and a bassinet seat"
                           checked={q.infant} onChange={qSet('infant')} />
@@ -2197,32 +2516,97 @@ export default function JapanTourLuxe5() {
                           ))}
                         </div>
                       </div>
+
+                      {/* The single biggest lever on a tailor-made land price,
+                          and the page sells a ryokan night as a headline — so
+                          it cannot be a thing we decide for them. */}
+                      <div className="lx2i-cb__field">
+                        <span>Where you&rsquo;d like to stay</span>
+                        <div className="lxjt5-q__seg lxjt5-q__seg--3" role="radiogroup" aria-label="Where you'd like to stay">
+                          {HOTEL_TIERS.map((h) => (
+                            <button key={h.id} type="button" role="radio" aria-checked={q.hotel === h.id}
+                              className={`lxjt5-q__segbtn lxjt5-q__segbtn--stack ${q.hotel === h.id ? 'is-on' : ''}`}
+                              onClick={() => qSet('hotel')(h.id)}>
+                              <span className="lxjt5-q__seglbl"><Hotel size={15} strokeWidth={1.8} /> {h.label}</span>
+                              <small>{h.note}</small>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </fieldset>
 
                     {/* ---- What the quote should cover ---- */}
                     <fieldset className="lxjt5-q__set">
                       <legend>What should the quote include?</legend>
                       <div className="lxjt5-q__togs">
-                        <QToggle icon={Plane} label="Include flights" hint="Return economy from your home city"
+                        <QToggle icon={Plane} label="Include flights" hint="Return international flights, priced from your city"
                           checked={q.flights} onChange={qSet('flights')} />
                         <QToggle icon={Stamp} label="Include visa assistance" hint="Japan tourist visa — paperwork handled for you"
                           checked={q.visa} onChange={qSet('visa')} />
                       </div>
+
+                      {/* The form used to promise "return economy from your home
+                          city" and then never ask which city, or which cabin —
+                          so it was quoting a flight from nowhere, in a cabin
+                          nobody chose. Both only appear if flights are in. */}
+                      {q.flights && (
+                        <div className="lxjt5-q__row lxjt5-q__row--2 lxjt5-q__sub">
+                          <label className="lx2i-cb__field">
+                            <span>Flying from</span>
+                            <select value={q.from} onChange={(e) => qSet('from')(e.target.value)}>
+                              {DEPARTURE_CITIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                            </select>
+                          </label>
+                          <label className="lx2i-cb__field">
+                            <span>Cabin</span>
+                            <select value={q.cabin} onChange={(e) => qSet('cabin')(e.target.value)}>
+                              {CABINS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                            </select>
+                          </label>
+                        </div>
+                      )}
                     </fieldset>
 
-                    {/* ---- Anything else ---- */}
-                    <label className="lx2i-cb__field">
-                      <span>Anything else we should know? <small>Optional</small></span>
-                      <textarea rows={3} className="lxjt5-q__ta"
-                        placeholder="Dietary needs, an anniversary, a city you'd like to add, mobility needs…"
-                        value={q.comments} onChange={(e) => qSet('comments')(e.target.value)} />
-                    </label>
+                    {/* ---- Anything else ----
+                        Was a bare label floating outside the fieldset rhythm;
+                        it is a section like the others, so it looks like one. */}
+                    <fieldset className="lxjt5-q__set">
+                      <legend>Anything else we should know?</legend>
+                      <label className="lx2i-cb__field">
+                        <span>What&rsquo;s the occasion? <small>Optional</small></span>
+                        <select value={q.occasion} onChange={(e) => qSet('occasion')(e.target.value)}>
+                          {OCCASIONS.map((o) => <option key={o}>{o}</option>)}
+                        </select>
+                      </label>
+                      <label className="lx2i-cb__field">
+                        <span>Notes for your travel designer <small>Optional</small></span>
+                        <textarea rows={3} className="lxjt5-q__ta"
+                          placeholder="Dietary needs, a city you'd like to add, mobility needs, anything we should plan around…"
+                          value={q.comments} onChange={(e) => qSet('comments')(e.target.value)} />
+                      </label>
+
+                      {/* Unchecked, and it says what it is. A pre-ticked opt-in
+                          is a dark pattern and, for an EU-facing brand, not a
+                          legal one either. */}
+                      <label className="lxjt5-q__consent">
+                        <input type="checkbox" checked={q.consent} onChange={(e) => qSet('consent')(e.target.checked)} />
+                        <span>Send me journey ideas from Cox &amp; Kings now and then. Nothing else, and you can stop it in one click.</span>
+                      </label>
+                    </fieldset>
                   </div>
 
                   <footer className="lxjt5-qd__foot">
-                    <button type="submit" className="lxjt5-cta">
-                      <FileText size={15} /> Get a Quote
+                    {/* Same words as the card's button, because it is the same
+                        act — the two used to say different things. */}
+                    <button type="submit" className="lxjt5-cta" disabled={!picked || !nightsOk}>
+                      <FileText size={15} /> Get my tailor-made quote
                     </button>
+                    {!picked && <p className="lxjt5-q__hint">Pick the day you leave and we can price it.</p>}
+                    {picked && !nightsOk && (
+                      <p className="lxjt5-q__hint">
+                        This journey runs between {MIN_NIGHTS} and {MAX_NIGHTS} nights &mdash; move the return date and we can price it.
+                      </p>
+                    )}
                     <p className="lxjt5-qd__footnote">Takes about 15 seconds &middot; or talk to us on <a href={PHONE_TEL}>{PHONE_DISPLAY}</a></p>
                   </footer>
                 </form>
@@ -2293,7 +2677,8 @@ export default function JapanTourLuxe5() {
                     <span className="lx2i-eyebrow">// QUOTE {quoteRef}</span>
                     <h3 className="lxjt5-qd__title lxjt5-q__resulth">Your quote is ready</h3>
                     <p className="lxjt5-qd__sub">
-                      Priced for {q.prefix} {q.first} {q.last} &mdash; {partySummary}, departing {dateLabel}.
+                      Priced for {q.prefix} {q.first} {q.last} &mdash; {partySummary}, {tripLabel},
+                      leaving {dateLabel}{homeOn ? ` and home on ${longDate(homeOn)}` : ''}.
                       We&rsquo;ll hold these rates until <strong>{validUntil}</strong>.
                     </p>
                   </header>
@@ -2301,7 +2686,7 @@ export default function JapanTourLuxe5() {
                   <div className="lxjt5-qd__body">
                     <div className="lxjt5-q__lines">
                       {quote.lines.map((l) => (
-                        <div key={l.label} className="lxjt5-q__line">
+                        <div key={l.key} className="lxjt5-q__line">
                           <span className="lxjt5-q__linelbl"><strong>{l.label}</strong><small>{l.note}</small></span>
                           <span className="lxjt5-q__lineamt">{inr(l.amount)}</span>
                         </div>

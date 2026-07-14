@@ -842,17 +842,29 @@
   border: 0;
   border-top: 1px solid var(--paper-200);
   margin: 0;
-  padding: 16px 0 0;
+  padding: 26px 0 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 .lxjt5-q__set:first-of-type { border-top: 0; padding-top: 0; }
+/* A bare <legend> is the "rendered legend": the browser lifts it onto the
+   fieldset's top border and cuts a notch in it. That is why the section rules
+   used to run THROUGH the titles at mid-height, and why the first section —
+   which has no top border — had no rule at all while the rest did. Floating it
+   disqualifies it from that special treatment, so it lays out as an ordinary
+   flex item and the rule stays a clean, full-width separator above it. (The
+   float itself is then ignored, this being a flex container — which is exactly
+   what we want.) */
 .lxjt5-q__set legend {
+  float: left;
+  width: 100%;
   padding: 0;
+  margin: 0;
   font-family: var(--serif);
   font-weight: 600; /* Cormorant needs the weight at this size — see the ramp above */
-  font-size: 17px;
+  font-size: 18px;
+  line-height: 1.3;
   color: var(--ink-900);
 }
 
@@ -1238,4 +1250,182 @@
 @media (prefers-reduced-motion: reduce) {
   .lxjt5-bookfab { transition: opacity 0.2s ease; }
   .lxjt5-bookfab:hover { transform: none; }
+}
+
+/* ============================================================
+   QUOTE DRAWER — the trip-length range, and the fields that
+   were missing from it.
+   ============================================================ */
+
+/* ---- Both ends of the trip, side by side ----
+   The drawer used to ask for a start date through a native
+   <input type="date">: the one control on the page wearing the browser's
+   chrome instead of ours, and on most machines rendering the date month-first
+   (04/08/2026), which for an Indian traveller is not a cosmetic problem. Both
+   ends now use the page's own calendar — the same one the booking card has
+   always used, so the drawer and the card speak with one voice. */
+.lxjt5-q__dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.lxjt5-q__date {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;                       /* let the calendar grid shrink, not overflow */
+}
+.lxjt5-q__datelbl {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-600);
+}
+/* The chosen day, in the serif the rest of the page states facts in. */
+.lxjt5-q__datelbl strong {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-900);
+}
+/* The return grid has nothing to offer until there is a departure to count
+   from, so it says so rather than showing a month of dead days. */
+.lxjt5-q__datewait {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 18px;
+  border: 1px dashed var(--paper-200);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-600);
+}
+/* Two calendars in a 720px drawer: tighten the day cells so neither wraps. */
+.lxjt5-q__dates .lxjt5-cal { padding: 12px 10px 10px; }
+.lxjt5-q__dates .lxjt5-cal__day { font-size: 12.5px; }
+
+/* The length is the number the quote is built on, so when it falls outside
+   what this journey can be, the summary says so in its own right — not with
+   colour alone (WCAG 1.4.1), which is why the copy changes too. */
+.lxjt5-q__ctx.is-bad {
+  border-color: rgba(189, 64, 17, 0.35);
+  background: rgba(189, 64, 17, 0.06);
+  color: var(--sienna, #BD4011);
+}
+.lxjt5-q__ctx.is-bad svg,
+.lxjt5-q__ctx.is-bad strong { color: var(--sienna, #BD4011); }
+
+/* ---- Children, by age ----
+   A child was priced at a flat 85% of the adult fare whether they were three
+   or eleven. */
+.lxjt5-q__ages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--paper-200);
+  border-radius: 10px;
+  background: #fff;
+}
+.lxjt5-q__ageslbl {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-700);
+}
+.lxjt5-q__agerow {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 8px;
+}
+.lxjt5-q__age {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lxjt5-q__age > span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-600);
+}
+.lxjt5-q__age select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--paper-200);
+  border-radius: 8px;
+  background: var(--paper-50);
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-900);
+}
+
+/* ---- A segment that carries a second line ----
+   The hotel tiers need their note ("As the itinerary is written") to be
+   readable at a glance; the flat segment button has nowhere to put it. */
+.lxjt5-q__segbtn--stack {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 11px 12px;
+  text-align: left;
+}
+.lxjt5-q__seglbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+}
+.lxjt5-q__segbtn--stack small {
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--ink-600);
+}
+.lxjt5-q__segbtn--stack.is-on small { color: var(--blue-700); }
+
+/* Fields that only exist because a toggle above them is on — inset, so the
+   dependency reads at a glance instead of having to be inferred. */
+.lxjt5-q__sub {
+  padding-left: 14px;
+  border-left: 2px solid rgba(11, 90, 177, 0.22);
+}
+
+/* ---- Marketing opt-in ----
+   Unchecked, and it says exactly what it is. A pre-ticked consent box is a
+   dark pattern and, for a brand that sells into the EU, not a legal one. */
+.lxjt5-q__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-600);
+  cursor: pointer;
+}
+.lxjt5-q__consent input {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+  accent-color: var(--blue-500);
+  cursor: pointer;
+}
+
+/* The drawer is 720px at most and the two calendars need room; below this they
+   stack, which is also what happens on every phone. */
+@media (max-width: 620px) {
+  .lxjt5-q__dates { grid-template-columns: 1fr; }
+  .lxjt5-q__agerow { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+  .lxjt5-q__seg--3 { grid-template-columns: 1fr; }
 }
