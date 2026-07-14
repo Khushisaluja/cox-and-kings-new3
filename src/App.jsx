@@ -8,6 +8,9 @@ import JapanTourLuxe5 from './pages/JapanTourLuxe5';
 import ThailandEscape2 from './pages/ThailandEscape2';
 import AboutUs from './pages/AboutUs';
 import Team from './pages/Team';
+import VisionMission from './pages/VisionMission';
+import Inspiration from './pages/Inspiration';
+import InspirationArticle from './pages/InspirationArticle';
 import PrivateItaly from './pages/PrivateItaly';
 import GroupJapan from './pages/GroupJapan';
 import { ScheduleCallProvider } from './components/ScheduleCall';
@@ -89,6 +92,21 @@ export default function App() {
               (About shows the Director + 4 heads; this one carries everyone). */}
           <Route path="/about-us2" element={<AboutUs />} />
           <Route path="/about-us2/team" element={<Team />} />
+
+          {/* Vision & Mission — "The Standing Orders". The vision is one sentence
+              cut into a dark plate; the mission is six numbered orders in a ruled
+              ledger, each with the consequence it exists to prevent. Reached from
+              "About us" in the nav, the footer's Company column, and a button on
+              the About page. */}
+          <Route path="/vision-mission" element={<VisionMission />} />
+
+          {/* INSPIRATION — "Dispatches", the journal. The create-desire job given
+              its own room: a traveller who is inspired but undecided has nothing
+              to do on a listing page, because they do not yet know what they want.
+              /inspiration/:slug is the reading page behind every card on it, off
+              one corpus in src/data/dispatches.js. */}
+          <Route path="/inspiration" element={<Inspiration />} />
+          <Route path="/inspiration/:slug" element={<InspirationArticle />} />
 
           {/* Meta ad landing pages — message-matched, deliberately not linked
               from the site. Live campaign destinations: check the running ads

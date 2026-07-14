@@ -1,0 +1,746 @@
+/* ============================================================================
+   Cox & Kings India — Vision & Mission  (/vision-mission)
+
+   Tokens straight from design.md:
+     Voyager Blue 500   #0B5AB1   (primary — links, the pill CTA)
+     Sienna Flame 500   #BD4011   (accent — rules, numerals, italic accents)
+     Neutrals-Dark 900  #021330   (the dark plates)
+     Warm paper neutral scale     (every light surface)
+     4px radius · uppercase Work Sans Medium labels · tracking 4 on labels
+
+   Type: Cormorant Garamond (display) + Work Sans (body/UI), as on /new3.
+   Headings take their weight from SIZE, never from heaviness (design.md §6) —
+   the only bold on this page is the italic accent, which Cormorant otherwise
+   renders too thin to hold a colour.
+
+   ---------------------------------------------------------------------------
+   PAGE CADENCE — no two neighbouring sections share a surface, and every step
+   is on the warm Neutrals ramp or the dark. Pure white (#FFFFFF) is deliberately
+   NOT used as a surface: beside warm paper the eye adapts and reads it as a
+   cold blue-white (design.md §6, "warm neutrals, not cold greys").
+
+     HERO         photograph → Neutrals-Dark/900 veil
+     purpose      Neutrals/50        #F8F7F1
+     VISION       Neutrals-Dark/900  #021330   photograph beneath
+     mission      Neutrals/100       #F1EFE2
+     NICHE        Neutrals-Dark/900  #021330   pinned; nine plates → one
+     COMMITMENT   Neutrals-Dark/900  #021330   photograph beneath
+     the CTA      Neutrals/150       #E5E3D7
+
+   NICHE and COMMITMENT are both dark and adjacent — the only place the rule is
+   broken, and on purpose: the niche section ENDS as a single full-bleed
+   photograph, so the commitment reads as the caption that photograph earned.
+
+   ---------------------------------------------------------------------------
+   MOTION CONTRACT — nothing here is hidden in CSS. Every element's resting
+   state is its visible state, and GSAP sets the from-state itself, inside a
+   matchMedia gated on `prefers-reduced-motion: no-preference`. If the tweens
+   never run, the page is still the page. The one exception is `.vm-niche-scrim`,
+   which is decorative and starts transparent by design.
+   ========================================================================== */
+
+.vm {
+  /* Brand */
+  --blue: #0B5AB1;
+  --blue-800: #042447;
+  --sienna: #BD4011;
+  --sienna-300: #D78C70;
+  --sienna-100: #F2D9CF;
+
+  /* Warm paper neutrals */
+  --n50: #F8F7F1;
+  --n100: #F1EFE2;
+  --n150: #E5E3D7;
+  --n200: #D9D7CB;
+  --n400: #A9A79E;
+  --n600: #797871;
+  --n700: #60605A;
+  --n800: #484844;
+  --n900: #1F2A36;
+
+  /* Dark */
+  --dark: #021330;
+
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Work Sans', 'Helvetica Neue', Arial, sans-serif;
+
+  --r: 4px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --sec-y: clamp(88px, 11vw, 150px);
+
+  background: var(--n50);
+  color: var(--n900);
+  overflow-x: clip;
+}
+
+.vm-wrap {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---------------------------------------------------------------- primitives */
+
+/* design.md §3.3 — Work Sans Regular, 12px, tracking 4, uppercase. */
+.vm .vm-eyebrow {
+  display: block;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  line-height: 16px;
+  text-transform: uppercase;
+  color: var(--n600);
+  margin: 0 0 20px;
+}
+.vm .vm-eyebrow--light { color: var(--sienna-300); }
+
+.vm .vm-rule {
+  display: block;
+  width: 44px;
+  height: 1px;
+  background: var(--sienna);
+  margin-bottom: 18px;
+}
+
+/* The statement voice — Purpose and Mission are set in it. Big, light, serif;
+   the accent italic is the only weight in the type. */
+.vm .vm-statement {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.85rem, 3.5vw, 3.05rem);
+  line-height: 1.28;
+  letter-spacing: -0.005em;
+  color: var(--n900);
+  margin: 0;
+  text-wrap: balance;
+}
+.vm .vm-statement em,
+.vm .vm-cta-h em,
+.vm .vm-vision-h em,
+.vm .vm-niche-h em,
+.vm .vm-hero-h em {
+  font-style: italic;
+  font-weight: 700;
+  color: var(--sienna);
+}
+
+.vm .vm-statement-note {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--n700);
+  max-width: 46ch;
+  margin: 28px 0 0;
+  padding-left: 18px;
+  border-left: 1px solid var(--sienna-100);
+}
+
+.vm .vm-link-out {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--blue);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color 0.3s var(--ease), gap 0.3s var(--ease);
+}
+.vm .vm-link-out:hover { border-bottom-color: var(--blue); gap: 11px; }
+
+/* The clipped wrapper GSAP wipes open. Its resting state is fully uncovered. */
+.vm .vm-plate-clip {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--r);
+  clip-path: inset(0% 0% 0% 0%);
+}
+
+/* ==========================================================================
+   HERO — a photograph, held under the dark veil so the type stays legible.
+   The nav is the shared one, which is built for exactly this: transparent over
+   a dark hero, blue once you scroll past it. No override needed.
+   ========================================================================== */
+.vm-hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  padding: 160px 0 clamp(72px, 9vw, 112px);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--dark);
+}
+.vm-hero-media { position: absolute; inset: -6% 0; z-index: -2; }
+.vm-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--dark);
+}
+.vm-hero-veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(to top, rgba(2, 19, 48, 0.92) 0%, rgba(2, 19, 48, 0.5) 45%, rgba(2, 19, 48, 0.35) 100%),
+    linear-gradient(105deg, rgba(2, 19, 48, 0.7) 0%, rgba(2, 19, 48, 0.12) 65%);
+}
+
+.vm-hero-eyebrow { margin: 0 0 26px; }
+.vm-hero-eyebrow .vm-rule { background: var(--sienna-300); }
+
+.vm-hero-h {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(3.4rem, 9vw, 8rem);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--n50);
+  margin: 0 0 30px;
+}
+/* Mask per line — GSAP raises the inner span out of it. overflow: clip, not
+   hidden, so the descender on "y" is not shaved at the baseline. */
+.vm-hero-line { display: block; overflow: clip; padding-bottom: 0.06em; }
+.vm-hero-line > span { display: block; }
+
+.vm-hero-lede {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.85;
+  color: rgba(241, 239, 226, 0.82);
+  max-width: 48ch;
+  margin: 0 0 44px;
+}
+
+.vm-hero-cue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.6);
+  margin: 0;
+}
+.vm-cue-line {
+  display: block;
+  width: 52px;
+  height: 1px;
+  background: rgba(215, 140, 112, 0.7);
+  transform-origin: left center;
+  animation: vm-cue 2.4s var(--ease) infinite;
+}
+@keyframes vm-cue {
+  0%, 100% { transform: scaleX(0.35); opacity: 0.5; }
+  50%      { transform: scaleX(1);    opacity: 1; }
+}
+
+/* ==========================================================================
+   PURPOSE — the sentence turns on "and to themselves", so the copy sits beside
+   TWO plates that scroll at different speeds. The gap that opens between them
+   is the whole idea; they must be allowed to overlap, hence the offsets.
+   ========================================================================== */
+.vm-purpose {
+  background: var(--n50);
+  padding: var(--sec-y) 0;
+}
+/* The copy column is the WIDER one. At 1.05fr the statement column came out
+   ~560px, which at 49px Cormorant is ~13 characters a line — the sentence broke
+   into eight stubby lines. The plates can afford the space; the display type
+   cannot. */
+.vm-purpose-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: clamp(40px, 5vw, 76px);
+  align-items: center;
+}
+/* No `ch` cap here. Cormorant's zero is very narrow, so a ch-based measure
+   resolves to roughly half the width you would expect and the sentence broke
+   into eight two-word lines. The grid column is the measure. */
+.vm-purpose-copy { max-width: none; }
+.vm-purpose .vm-statement { font-size: clamp(1.75rem, 3vw, 2.7rem); }
+
+.vm-purpose-plates {
+  position: relative;
+  min-height: clamp(420px, 46vw, 620px);
+}
+.vm-purpose-plate {
+  position: absolute;
+  margin: 0;
+  border-radius: var(--r);
+}
+.vm-purpose-plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* The world — larger, higher, travels UP faster. */
+.vm-purpose-plate--world {
+  top: 0;
+  left: 0;
+  width: 62%;
+  aspect-ratio: 3 / 4;
+  z-index: 1;
+}
+/* Yourself — smaller, lower, overlaps, travels DOWN against it. */
+.vm-purpose-plate--self {
+  right: 0;
+  bottom: 0;
+  width: 55%;
+  aspect-ratio: 4 / 5;
+  z-index: 2;
+  box-shadow: 0 24px 60px rgba(2, 19, 48, 0.18);
+}
+.vm-purpose-plate .vm-plate-clip,
+.vm-purpose-plate .vm-plate-clip img { height: 100%; }
+.vm-purpose-plate .vm-plate-clip { height: 100%; }
+
+.vm-plate-cap {
+  position: absolute;
+  left: 0;
+  bottom: -26px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--n600);
+}
+.vm-purpose-plate--self .vm-plate-cap { left: auto; right: 0; }
+
+/* ==========================================================================
+   VISION — the dark plate. The photograph is held low and desaturated: the
+   CLAIM is the subject, not the picture.
+   ========================================================================== */
+.vm-vision {
+  position: relative;
+  background: var(--dark);
+  padding: clamp(110px, 13vw, 170px) 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+.vm-vision-media { position: absolute; inset: -8% 0; z-index: -2; }
+/* 0.45, not 0.3. Under the veil below, 0.3 left the torii as a smear you could
+   not identify — an image nobody can read is just noise on the surface. */
+.vm-vision-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.45;
+  filter: grayscale(0.35) contrast(1.05);
+  background: var(--dark);
+  /* GSAP scrubs this back to 1 across the section. */
+  transform: scale(1.14);
+}
+/* Heavy on the left where the type is, thin on the right where the picture is. */
+.vm-vision-veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(100deg, rgba(2, 19, 48, 0.93) 0%, rgba(2, 19, 48, 0.72) 48%, rgba(2, 19, 48, 0.28) 100%),
+    linear-gradient(to bottom, var(--dark), transparent 22%, transparent 80%, var(--dark));
+}
+
+.vm-vision-h {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 5.2vw, 4.6rem);
+  line-height: 1.16;
+  letter-spacing: -0.012em;
+  color: var(--n50);
+  margin: 0 0 clamp(48px, 6vw, 76px);
+  max-width: 16ch;
+  text-wrap: balance;
+}
+.vm-vision-h em { color: var(--sienna-300); }
+
+/* The three things the claim is made of. A ruled list, not cards: each is one
+   line of the sentence, and the rule is what it is entered against. */
+.vm-clauses {
+  list-style: none;
+  margin: 0 0 clamp(44px, 5vw, 64px);
+  padding: 0;
+  max-width: 900px;
+}
+.vm-clause {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  padding: 26px 0;
+}
+.vm-clause-rule {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(215, 140, 112, 0.5);
+}
+.vm-clause-k {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--sienna-300);
+  min-width: 150px;
+}
+.vm-clause-v {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+  line-height: 1.35;
+  color: var(--n50);
+}
+
+.vm-vision-close {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  line-height: 1.9;
+  color: rgba(241, 239, 226, 0.75);
+  max-width: 52ch;
+  margin: 0;
+  padding-left: 20px;
+  border-left: 1px solid rgba(215, 140, 112, 0.45);
+}
+
+/* ==========================================================================
+   MISSION — three verbs, three plates.
+   ========================================================================== */
+.vm-mission {
+  background: var(--n100);
+  padding: var(--sec-y) 0;
+  border-top: 1px solid var(--n200);
+  border-bottom: 1px solid var(--n200);
+}
+.vm-mission-head {
+  max-width: 62ch;
+  margin-bottom: clamp(56px, 7vw, 88px);
+}
+.vm-statement--mission { font-size: clamp(1.65rem, 2.9vw, 2.55rem); }
+
+.vm-pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(28px, 3.5vw, 52px);
+}
+.vm-pillar { margin: 0; }
+.vm-pillar-fig {
+  margin: 0 0 26px;
+  border-radius: var(--r);
+  overflow: hidden;
+}
+/* The frame is fixed; the photo inside is taller than it and drifts. */
+.vm-pillar-fig .vm-plate-clip { aspect-ratio: 4 / 5; }
+.vm-pillar-fig img {
+  width: 100%;
+  height: 112%;
+  object-fit: cover;
+  display: block;
+}
+
+.vm-pillar-n {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--sienna);
+  opacity: 0.5;
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.vm-pillar-h {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.4rem, 1.9vw, 1.7rem);
+  line-height: 1.3;
+  color: var(--n900);
+  margin: 0 0 12px;
+}
+.vm-pillar-p {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: var(--n700);
+  margin: 0;
+}
+
+/* ==========================================================================
+   NICHE — the pinned argument.
+
+   The stage is a full viewport. Nine plates sit in a row; GSAP scrubs eight of
+   them outwards and scales the ninth up until it fills the frame. Only
+   transform and opacity are animated, so the whole scrub stays on the
+   compositor and the pin does not judder.
+
+   The strip is CENTRED on the survivor, and the survivor scales from its own
+   centre — that is what makes the growth read as "one of these, gone into".
+   ========================================================================== */
+.vm-niche {
+  position: relative;
+  background: var(--dark);
+  /* The pin needs a full viewport to hold; the copy is absolutely placed. */
+  height: 100svh;
+  overflow: hidden;
+}
+.vm-niche-stage {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vm-niche-strip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 1.4vw, 20px);
+}
+.vm-tile {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(72px, 8.5vw, 132px);
+  aspect-ratio: 3 / 4;
+  border-radius: var(--r);
+  overflow: hidden;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.vm-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.vm-tile.is-survivor { z-index: 3; }
+
+/* The full-resolution plate the survivor opens into. It is NOT scaled — GSAP
+   clips it down to the survivor's footprint and wipes that clip open to the
+   whole frame, so the photograph is at native resolution at every size.
+   Transparent until GSAP turns it on (see the motion contract at the top). */
+.vm-niche-full {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  will-change: clip-path;
+}
+.vm-niche-full img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Darkens as the plate fills the frame, so the copy stays legible on it. */
+.vm-niche-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(2, 19, 48, 0.95) 0%, rgba(2, 19, 48, 0.66) 46%, rgba(2, 19, 48, 0.2) 100%);
+}
+
+/* Absolutely placed, not a flex child: the strip is centred in the stage and
+   the copy has to sit at the foot of the frame regardless of it. */
+.vm-niche-copy {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(56px, 8vw, 104px);
+  z-index: 5;
+}
+.vm-niche-h {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.6rem, 6.5vw, 5.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--n50);
+  margin: 0 0 22px;
+}
+.vm-niche-h em { color: var(--sienna-300); }
+.vm-niche-p {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.85;
+  color: rgba(241, 239, 226, 0.85);
+  max-width: 54ch;
+  margin: 0;
+}
+
+/* ==========================================================================
+   COMMITMENT — the refrain, arriving a word at a time as you scroll.
+   ========================================================================== */
+.vm-commit {
+  position: relative;
+  background: var(--dark);
+  padding: clamp(120px, 15vw, 200px) 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+.vm-commit-media { position: absolute; inset: -8% 0; z-index: -2; }
+.vm-commit-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.22;
+  filter: grayscale(0.6);
+  background: var(--dark);
+}
+.vm-commit-veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(120% 90% at 50% 50%, rgba(2, 19, 48, 0.65) 0%, rgba(2, 19, 48, 0.95) 70%);
+}
+.vm-commit-inner { text-align: center; }
+.vm-commit .vm-eyebrow { margin-bottom: 34px; }
+
+.vm-commit-q {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.1rem, 4.6vw, 4.1rem);
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  color: var(--n50);
+  margin: 0 auto;
+  max-width: 20ch;
+  text-wrap: balance;
+}
+.vm-commit-word { display: inline; }
+
+.vm-commit-sig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--sienna-300);
+  margin: clamp(44px, 5vw, 64px) 0 0;
+}
+.vm-commit-sig .vm-rule { background: var(--sienna-300); margin-bottom: 20px; }
+
+/* ==========================================================================
+   CTA — the deepest paper step. One primary action (design.md §6).
+   ========================================================================== */
+.vm-cta {
+  background: var(--n150);
+  padding: var(--sec-y) 0;
+  text-align: center;
+}
+.vm-cta-inner { display: flex; flex-direction: column; align-items: center; }
+.vm-cta-h {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2rem, 3.6vw, 3.1rem);
+  line-height: 1.2;
+  color: var(--n900);
+  margin: 0 0 20px;
+  max-width: 18ch;
+}
+.vm-cta-p {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(1rem, 1.2vw, 1.05rem);
+  line-height: 1.9;
+  color: var(--n700);
+  max-width: 52ch;
+  margin: 0 0 36px;
+}
+.vm-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+.vm-cta-foot { margin: 32px 0 0; }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1000px) {
+  .vm-purpose-inner { grid-template-columns: 1fr; gap: clamp(56px, 9vw, 80px); }
+  .vm-purpose-copy { max-width: 60ch; }
+  .vm-purpose-plates { min-height: clamp(400px, 78vw, 560px); }
+
+  .vm-pillars { grid-template-columns: 1fr; gap: 48px; }
+  /* One per row now, so the tall 4:5 frame would eat the screen — go wide. */
+  .vm-pillar-fig .vm-plate-clip { aspect-ratio: 16 / 10; }
+  .vm-pillar { display: grid; gap: 0; }
+}
+
+@media (max-width: 640px) {
+  .vm { --sec-y: 76px; }
+
+  .vm-hero { min-height: 92svh; padding-top: 128px; }
+
+  /* The two plates keep overlapping on a phone (the overlap IS the idea), but
+     they have to grow into the narrower column or the composition leaves a dead
+     pocket where the copy used to be. */
+  .vm-purpose-plates { min-height: 108vw; }
+  .vm-purpose-plate--world { width: 72%; }
+  .vm-purpose-plate--self { width: 62%; }
+
+  .vm-clause { padding: 20px 0; }
+  .vm-clause-k { min-width: 0; flex-basis: 100%; }
+
+  .vm-vision-close { padding-left: 16px; }
+
+  /* The pinned strip is the one thing that cannot survive a phone: nine tiles
+     across a 390px screen would be 30px wide, and a 3.15× scale on a 30px tile
+     is a 95px "hero". So on small screens the section drops the pin entirely
+     (see the JS: the ScrollTrigger is only created inside the desktop
+     matchMedia) and becomes a single, honest photograph with the copy on it. */
+  .vm-niche { height: auto; min-height: 0; padding: var(--sec-y) 0; }
+  .vm-niche-stage { display: block; }
+  .vm-niche-strip { position: relative; inset: auto; gap: 0; margin-bottom: 32px; }
+  .vm-tile:not(.is-survivor) { display: none; }
+  .vm-tile.is-survivor {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    box-shadow: none;
+    border-radius: var(--r);
+  }
+  .vm-niche-scrim { display: none; }
+  .vm-niche-copy { position: static; padding-bottom: 0; }
+
+  .vm-cta-row { flex-direction: column; align-self: stretch; }
+  .vm-cta-row > * { justify-content: center; }
+}
+
+/* CSS-only motion off as well — the GSAP tweens are already gated in JS. */
+@media (prefers-reduced-motion: reduce) {
+  .vm *,
+  .vm *::before,
+  .vm *::after {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}

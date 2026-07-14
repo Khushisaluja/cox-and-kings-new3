@@ -619,6 +619,14 @@ export default function AboutUs() {
               Our purpose is to recreate that feeling, for you and yours — when wonder came
               naturally, and the world felt full of possibility.
             </blockquote>
+
+            {/* The purpose is stated here in prose; the page behind this button
+                states it as a commitment — the vision, and the orders under it. */}
+            <div className="ab-purpose-more" data-reveal>
+              <Link to="/vision-mission" className="h26-btn h26-btn-ghost">
+                Cox &amp; Kings Vision &amp; Mission <ArrowRight size={15} />
+              </Link>
+            </div>
           </div>
 
           <div className="ab-purpose-art">

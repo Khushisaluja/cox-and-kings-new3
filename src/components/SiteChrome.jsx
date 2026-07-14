@@ -46,11 +46,7 @@ export const CONTACT_CK = {
 /* The routes on which the nav's in-page anchors actually resolve to a section. */
 const HOME_PATHS = ['/', '/new3'];
 
-/* TODO — placeholder. The Inspiration page does not exist yet; when it does,
-   change this to its route (e.g. '/inspiration') and the nav item starts
-   working everywhere, desktop and mobile, with no other edit. Until then it is
-   deliberately inert rather than pointing at a 404. */
-const INSPIRATION_TO = '#';
+const INSPIRATION_TO = '/inspiration';
 
 /* Four groups. "Destinations" is split by KIND — places, then the itineraries
    that used to live under a competing "Journeys" menu — with a section rule
@@ -94,6 +90,7 @@ const NAV_MENU = [
     blurb: 'Specialists, not salespeople, with 260 years behind every trip.',
     items: [
       { label: 'Our story', desc: 'Since 1758, and what came after', to: '/about-us2' },
+      { label: 'Vision & Mission', desc: 'What we promise, and what it prevents', to: '/vision-mission' },
       { label: 'The team', desc: 'The specialists you will actually deal with', to: '/about-us2/team' },
       { label: 'Real reviews', desc: '2,400+ verified travellers', href: '#reviews' },
       { label: 'As featured in', desc: 'The press that covers us', href: '#press' },
@@ -367,6 +364,7 @@ export function SiteFooter() {
             <div>
               <h4>Company</h4>
               <Link to="/about-us2">Our story</Link>
+              <Link to="/vision-mission">Vision &amp; Mission</Link>
               <Link to="/about-us2/team">Specialists</Link>
               <Link to={CALLBACK}>Contact</Link>
               {home

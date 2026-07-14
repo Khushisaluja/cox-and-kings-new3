@@ -1,0 +1,1401 @@
+/* ============================================================
+   Inspiration — "Dispatches", the Cox & Kings journal (/inspiration).
+
+   The page is a printed travel quarterly rendered in a browser: a
+   near-black masthead, a paper-white body, hairline rules, folio
+   numerals, and photography that behaves like a plate being laid onto
+   a page rather than a div being faded in.
+
+   THEME: the /new3 one. The page root carries `h26 new-typo n3`, so it
+   inherits that page's colour tokens (Home2026.css), its Cormorant
+   Garamond + Work Sans pairing and heading weight ramp
+   (NewTypography.css), and its gutter system (New3.css) — and the
+   navbar and footer are /new3's, verbatim, with no wrapper needed.
+
+   Everything below is scoped under `.insp`. Tokens (--ink, --paper,
+   --blue, --sienna, --navy, --border, --serif, --sans) come from .h26;
+   nothing here re-declares them, so a change in design.md flows through.
+   ============================================================ */
+
+/* ---- The page ground.
+   .h26 paints itself navy (it is a dark-hero homepage class) and
+   New3.css's `.h26.n3` paints near-black for the same reason. Here the
+   trio sits on a paper-white editorial page, so both are undone.
+   (0,3,0) to beat New3.css's (0,2,0). */
+.insp.h26.n3 {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.insp {
+  /* Editorial measure — narrower than the homepage's, because this page
+     is read rather than scanned. */
+  --insp-text: 68ch;
+  --insp-rule: 1px solid var(--border);
+  --insp-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ---- Radius, taken from /new3 rather than invented.
+     New3.css normalises the whole page to two values, and both are design.md's:
+     `.n3 .h26-btn { border-radius: 4px }` (§4 — 4px is the system default for
+     INTERACTIVE elements) and `.n3 .jl-card, .n3 .hi-lane { border-radius: 16px }`
+     for cards. This page had neither: first hard-edged squares everywhere, then
+     full pills. Both were wrong. */
+  --insp-r-card: 16px;   /* cards & photographic plates — as .n3 .jl-card */
+  --insp-r-ui: 4px;      /* chips, inputs — as .n3 .h26-btn (design.md §4) */
+}
+
+/* A hairline that draws itself left-to-right when it enters. */
+.insp [data-rule] {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--border);
+  transform-origin: left center;
+}
+
+/* Word-mask reveal — the span clips, the inner word slides up out of it. */
+.insp .insp-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.insp .insp-mask > span {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Shared editorial furniture ------------------------------------------- */
+
+/* Eyebrow / label — Work Sans, uppercase, tracking 4 (design.md §3.3). */
+.insp .insp-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.insp .insp-label::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: var(--sienna);
+}
+.insp .insp-label.is-light { color: rgba(241, 239, 226, 0.72); }
+
+/* Folio numeral — the small serif number that files a piece. */
+.insp .insp-folio {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--sienna);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Byline / metadata row. */
+.insp .insp-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--muted-2);
+}
+.insp .insp-meta .insp-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.insp .insp-meta time { font-variant-numeric: tabular-nums; }
+
+/* Section head — label + serif title + rule, used by every section. */
+.insp .insp-head {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: clamp(36px, 4vw, 60px);
+}
+.insp .insp-head-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.insp .insp-h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(34px, 4.4vw, 62px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.insp .insp-h2 em {
+  font-style: italic;
+  font-weight: 700;
+  color: var(--sienna);
+}
+.insp .insp-head-note {
+  max-width: 34ch;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--muted-2);
+}
+
+/* ============================================================
+   1. MASTHEAD HERO
+   Three photographic columns at three parallax speeds, behind a
+   near-black veil, behind the masthead. The columns are the only thing
+   that moves on load; the type rises through its own mask.
+   ============================================================ */
+.insp-hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 140px var(--n3-pad-x) clamp(36px, 4vw, 56px);
+  background: #000207;
+  color: #F1EFE2;
+  overflow: hidden;
+}
+
+/* The plate: three columns, each its own image, each its own speed.
+   The 20% overhang top and bottom is the room the parallax moves in — the
+   fastest column travels 13% of its own height, and its own height is 1.4× the
+   hero's, so ~18% of the hero. Retune the two together or an edge appears. */
+.insp-hero-plates {
+  position: absolute;
+  inset: -20% 0 -20%;
+  display: grid;
+  grid-template-columns: 1fr 1.24fr 1fr;
+  gap: 10px;
+  padding: 0 10px;
+}
+.insp-hero-col {
+  position: relative;
+  overflow: hidden;
+  /* GSAP wipes this open on load; if JS never runs, it is already open. */
+  clip-path: inset(0 0 0 0);
+}
+.insp-hero-col img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.35) contrast(1.05) brightness(0.72);
+}
+/* The middle column is the hero image — let it keep more of its colour. */
+.insp-hero-col:nth-child(2) img { filter: grayscale(0.12) contrast(1.04) brightness(0.8); }
+
+.insp-hero-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 2, 7, 0.86) 0%, rgba(0, 2, 7, 0.4) 32%, rgba(0, 2, 7, 0.72) 68%, rgba(0, 2, 7, 0.96) 100%),
+    radial-gradient(120% 80% at 50% 100%, rgba(4, 36, 71, 0.55), transparent 70%);
+}
+
+.insp-hero-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--n3-content);
+  margin: 0 auto;
+}
+
+.insp-hero-title {
+  margin: 22px 0 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(52px, 11vw, 172px);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+  color: #F8F7F1;
+}
+/* Each line is its own block, so the break is authored rather than left to
+   whatever the viewport happens to do with it. */
+.insp-hero-line {
+  display: block;
+}
+/* The second line is indented, as a masthead's turn-line is set — it reads as
+   a deliberate two-line lockup rather than a wrap. */
+.insp-hero-line + .insp-hero-line {
+  margin-left: clamp(0px, 6vw, 96px);
+}
+.insp-hero-title em {
+  font-style: italic;
+  font-weight: 700;
+  color: #E8A184; /* Sienna, lifted for legibility on near-black */
+}
+
+.insp-hero-foot {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 40px;
+  margin-top: clamp(28px, 3.5vw, 46px);
+}
+.insp-hero-lede {
+  max-width: 46ch;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: clamp(15px, 1.15vw, 18px);
+  font-weight: 300;
+  line-height: 1.72;
+  color: rgba(241, 239, 226, 0.82);
+}
+.insp-hero-lede strong {
+  font-weight: 500;
+  color: #F8F7F1;
+}
+
+/* Scroll cue — a hairline that keeps falling. */
+.insp-hero-cue {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.6);
+  white-space: nowrap;
+}
+.insp-hero-cue-track {
+  position: relative;
+  width: 1px;
+  height: 54px;
+  overflow: hidden;
+  background: rgba(241, 239, 226, 0.2);
+}
+.insp-hero-cue-track::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 40%;
+  background: var(--sienna);
+  animation: insp-cue 2.1s var(--insp-ease) infinite;
+}
+@keyframes insp-cue {
+  0%   { transform: translateY(-100%); }
+  60%  { transform: translateY(250%); }
+  100% { transform: translateY(250%); }
+}
+
+/* ============================================================
+   2. THE LEAD — one story given the whole page.
+   The plate wipes open from a small inset to full-bleed as you arrive,
+   the photograph inside it de-zooms, and a ghost folio drifts against
+   the scroll behind the copy.
+   ============================================================ */
+.insp-lead {
+  position: relative;
+  padding: clamp(80px, 9vw, 150px) var(--n3-pad-x) clamp(70px, 8vw, 130px);
+  overflow: hidden;
+}
+.insp-lead-inner {
+  position: relative;
+  z-index: 2;
+  max-width: var(--n3-content);
+  margin: 0 auto;
+}
+
+/* The counter-drifting numeral — a print artefact, not decoration. */
+.insp-lead-ghost {
+  position: absolute;
+  top: 8%;
+  right: -2%;
+  z-index: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(240px, 34vw, 520px);
+  line-height: 0.8;
+  color: rgba(31, 42, 54, 0.035);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The plate is a link to the piece — the whole photograph is the target. */
+.insp-lead-plate {
+  display: block;
+  text-decoration: none;
+}
+
+.insp-lead-fig {
+  position: relative;
+  margin: clamp(30px, 3.4vw, 52px) 0 0;
+  aspect-ratio: 16 / 8;
+  overflow: hidden;
+  border-radius: var(--insp-r-card);
+  background: var(--paper-2);
+  /* Open by default; GSAP scrubs it from a small inset to this. */
+  clip-path: inset(0% 0% 0% 0%);
+}
+/* Taller than its frame, and hung above it. The drift (yPercent -7, see
+   Inspiration.jsx) moves the image up by ~8.4% of the frame, so without this
+   overhang the frame's own fill would appear as a band along the bottom edge.
+   120/-6 leaves ~5% of slack at the end of the travel. */
+.insp-lead-fig img {
+  position: absolute;
+  top: -6%;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  will-change: transform;
+}
+.insp-lead-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 12px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--muted-2);
+}
+
+.insp-lead-title {
+  margin: 20px 0 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(38px, 5.6vw, 84px);
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+  color: var(--ink);
+  max-width: 17ch;
+}
+.insp-lead-title em {
+  font-style: italic;
+  font-weight: 700;
+  color: var(--sienna);
+}
+
+/* The two-column body: deck left, metadata + CTA right. */
+.insp-lead-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 90px);
+  align-items: start;
+  margin-top: clamp(28px, 3vw, 44px);
+}
+.insp-lead-deck {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: clamp(17px, 1.4vw, 21px);
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: var(--insp-text);
+}
+.insp-lead-deck::first-letter {
+  float: left;
+  margin: 6px 12px 0 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 4.2em;
+  line-height: 0.76;
+  color: var(--ink);
+}
+.insp-lead-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 8px;
+  border-top: var(--insp-rule);
+}
+.insp-lead-note {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--muted-2);
+}
+.insp-lead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Section titles sit under their eyebrow. */
+.insp-rail-title,
+.insp-index-title,
+.inspa-more-h2 {
+  margin-top: 16px;
+}
+
+/* No button component here. The page uses /new3's own — `.h26-btn` with
+   `.h26-btn-pill` (primary, Voyager Blue), `.h26-btn-ghost` (outline) and
+   `.h26-btn-accent` (Sienna) — so a CTA on this page is literally the same
+   object as a CTA on the homepage. New3.css already restyles that family to
+   4px / 13px / Work Sans 500 / uppercase for anything under `.n3`, which this
+   page's root carries.
+
+   Colour follows New3.css's stated rule, which is a contrast rule rather than a
+   preference: on light ground the primary CTA is brand blue; Sienna is reserved
+   for the dark block at the foot of the page, where blue-on-navy would be near
+   illegible. Sienna stays the accent for eyebrows everywhere. */
+
+/* A quiet text link with a rule that opens on hover. */
+.insp-textlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue);
+  text-decoration: none;
+}
+.insp-textlink span {
+  position: relative;
+  padding-bottom: 3px;
+}
+.insp-textlink span::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.4s var(--insp-ease);
+}
+.insp-textlink:hover span::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+.insp-textlink svg { transition: transform 0.3s var(--insp-ease); }
+.insp-textlink:hover svg { transform: translateX(3px); }
+
+/* ============================================================
+   3. THE RAIL — "New this month", pinned and dragged sideways.
+   Desktop: the section pins and the track translates on scroll, with
+   each photograph parallaxing inside its own frame (containerAnimation).
+   Mobile: no pin — it becomes an ordinary snap-scrolling shelf.
+   ============================================================ */
+.insp-rail {
+  position: relative;
+  background: var(--n-100);
+  border-top: var(--insp-rule);
+  border-bottom: var(--insp-rule);
+  overflow: hidden;
+}
+.insp-rail-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100svh;
+  padding: clamp(48px, 6vw, 88px) 0;
+}
+.insp-rail-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding: 0 var(--n3-pad-x);
+  margin-bottom: clamp(32px, 4vw, 56px);
+}
+/* No max-width here. At 14ch the heading broke as "Six pieces, filed in /
+   June" — a single short word alone on the second line. It fits on one. */
+.insp-rail-head .insp-h2 { max-width: none; }
+
+.insp-rail-view {
+  overflow: hidden;
+}
+.insp-rail-track {
+  display: flex;
+  gap: clamp(20px, 2vw, 34px);
+  padding: 0 var(--n3-pad-x);
+  width: max-content;
+  will-change: transform;
+}
+
+.insp-rcard {
+  flex: 0 0 auto;
+  width: clamp(300px, 30vw, 440px);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+.insp-rcard-fig {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--insp-r-card);
+  background: var(--border);
+}
+/* Deliberately wider than the frame: the parallax slides it inside the
+   crop, and the overhang is what keeps the edges from showing.
+   `max-width: none` is load-bearing — src/index.css sets a global
+   `img { max-width: 100% }`, which silently clamps this 125% back to the
+   frame's own width and leaves the parallax sliding a flush image across a
+   visible gutter. */
+.insp-rcard-fig img {
+  width: 125%;
+  max-width: none;
+  height: 100%;
+  margin-left: -12.5%;
+  object-fit: cover;
+  transition: filter 0.6s var(--insp-ease), transform 0.9s var(--insp-ease);
+  will-change: transform;
+}
+.insp-rcard:hover .insp-rcard-fig img { filter: brightness(1.06); }
+
+.insp-rcard-n {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  padding: 5px 11px;
+  border-radius: var(--insp-r-ui);
+  background: rgba(0, 2, 7, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #F1EFE2;
+}
+.insp-rcard-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 2px 0;
+}
+.insp-rcard-cat {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sienna);
+}
+.insp-rcard-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(22px, 1.8vw, 29px);
+  line-height: 1.24;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  transition: color 0.3s ease;
+}
+.insp-rcard:hover .insp-rcard-title { color: var(--blue); }
+.insp-rcard-deck {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--muted-2);
+}
+
+/* Scrub progress — the only chrome the pinned section gets. */
+.insp-rail-prog {
+  position: relative;
+  height: 1px;
+  margin: clamp(30px, 3.4vw, 48px) var(--n3-pad-x) 0;
+  background: var(--border);
+}
+.insp-rail-prog i {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--sienna);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.insp-rail-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px var(--n3-pad-x) 0;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+
+/* ============================================================
+   4. THE INDEX — the filterable archive.
+   An asymmetric editorial grid: every fourth piece runs wide, so the
+   page never settles into a card-grid rhythm.
+   ============================================================ */
+.insp-index {
+  padding: clamp(80px, 9vw, 140px) var(--n3-pad-x);
+}
+.insp-index-inner {
+  max-width: var(--n3-content);
+  margin: 0 auto;
+}
+
+.insp-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 22px;
+}
+.insp-chip {
+  padding: 9px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--insp-r-ui);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+.insp-chip:hover {
+  color: var(--ink);
+  border-color: var(--muted-2);
+}
+.insp-chip.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+.insp-chip i {
+  font-style: normal;
+  opacity: 0.5;
+  margin-left: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.insp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(32px, 3.2vw, 54px) clamp(20px, 2.2vw, 38px);
+  margin-top: clamp(36px, 4vw, 60px);
+}
+
+.insp-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  border-top: var(--insp-rule);
+  padding-top: 18px;
+}
+/* Every fourth piece is a spread: image left, copy right, full width. */
+.insp-card.is-wide {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(24px, 3vw, 56px);
+  align-items: center;
+}
+
+.insp-card-fig {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--insp-r-card);
+  background: var(--border);
+}
+.insp-card.is-wide .insp-card-fig { aspect-ratio: 16 / 9; }
+.insp-card-fig img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.001);
+  transition: transform 1.1s var(--insp-ease);
+}
+.insp-card:hover .insp-card-fig img { transform: scale(1.055); }
+
+.insp-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 18px;
+}
+.insp-card.is-wide .insp-card-body { padding-top: 0; }
+
+.insp-card-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.insp-card-cat {
+  position: relative;
+  padding-bottom: 5px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sienna);
+}
+.insp-card-cat::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--sienna);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.5s var(--insp-ease);
+}
+.insp-card:hover .insp-card-cat::after { transform: scaleX(1); }
+
+.insp-card-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(23px, 1.9vw, 30px);
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  transition: color 0.3s ease;
+}
+.insp-card.is-wide .insp-card-title {
+  font-weight: 500;
+  font-size: clamp(30px, 3.2vw, 48px);
+  line-height: 1.1;
+}
+.insp-card:hover .insp-card-title { color: var(--blue); }
+
+.insp-card-deck {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.68;
+  color: var(--muted-2);
+}
+.insp-card.is-wide .insp-card-deck {
+  font-size: clamp(15px, 1.1vw, 17px);
+  max-width: 46ch;
+}
+.insp-card-more {
+  margin-top: 4px;
+}
+
+.insp-empty {
+  grid-column: 1 / -1;
+  padding: 70px 0;
+  text-align: center;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--muted-2);
+}
+
+/* ============================================================
+   5. THE RIBBON — a quiet running strip.
+
+   It used to be a full-bleed navy band of 56px serif, which made a
+   decorative marquee the loudest thing between the index and the
+   sign-off — louder than the section headings it sat between. It is now
+   a hairline-ruled paper strip in small tracked caps: still moving, and
+   no longer competing.
+   ============================================================ */
+.insp-ribbon {
+  position: relative;
+  padding: 18px 0;
+  background: var(--n-100);
+  color: var(--muted-2);
+  overflow: hidden;
+  border-top: var(--insp-rule);
+  border-bottom: var(--insp-rule);
+}
+.insp-ribbon-skew { will-change: transform; }
+.insp-ribbon-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.insp-ribbon-row {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: clamp(22px, 2.4vw, 40px);
+  padding-right: clamp(22px, 2.4vw, 40px);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+.insp-ribbon-row i {
+  font-style: normal;
+  color: var(--sienna);
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
+/* ============================================================
+   7. THE SIGN-OFF — subscribe, or skip the reading and call someone.
+   ============================================================ */
+.insp-signoff {
+  position: relative;
+  padding: clamp(84px, 10vw, 156px) var(--n3-pad-x);
+  background: var(--navy);
+  color: #F1EFE2;
+  overflow: hidden;
+}
+.insp-signoff-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+}
+.insp-signoff-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6);
+  will-change: transform;
+}
+.insp-signoff::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(2, 19, 48, 0.55), rgba(2, 19, 48, 0.92));
+}
+.insp-signoff-inner {
+  position: relative;
+  z-index: 2;
+  max-width: var(--n3-content);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(40px, 6vw, 100px);
+  align-items: end;
+}
+.insp-signoff-title {
+  margin: 20px 0 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(36px, 5vw, 76px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: #F8F7F1;
+  max-width: 15ch;
+}
+.insp-signoff-title em {
+  font-style: italic;
+  font-weight: 700;
+  color: #E8A184;
+}
+.insp-signoff-copy {
+  max-width: 44ch;
+  margin: 20px 0 0;
+  font-family: var(--sans);
+  font-size: clamp(15px, 1.1vw, 17px);
+  font-weight: 300;
+  line-height: 1.72;
+  color: rgba(241, 239, 226, 0.78);
+}
+
+.insp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(241, 239, 226, 0.2);
+}
+.insp-form-label {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.66);
+}
+.insp-form-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.insp-form input {
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: 13px 20px;
+  border: 1px solid rgba(241, 239, 226, 0.28);
+  border-radius: var(--insp-r-ui);
+  background: rgba(255, 255, 255, 0.05);
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 300;
+  color: #F8F7F1;
+}
+.insp-form input::placeholder { color: rgba(241, 239, 226, 0.45); }
+.insp-form input:focus {
+  outline: none;
+  border-color: #E8A184;
+  background: rgba(255, 255, 255, 0.09);
+}
+.insp-form-note {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: rgba(241, 239, 226, 0.55);
+}
+.insp-form-done {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 400;
+  color: #A6D8C4;
+}
+
+.insp-signoff-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1100px) {
+  .insp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .insp-hero { min-height: 92svh; padding-top: 116px; }
+  .insp-hero-plates { grid-template-columns: 1fr 1.2fr; }
+  .insp-hero-col:nth-child(3) { display: none; }
+  .insp-hero-foot { grid-template-columns: 1fr; gap: 26px; }
+  .insp-hero-cue { display: none; }
+
+  .insp-lead-body { grid-template-columns: 1fr; }
+  .insp-lead-side { border-top: none; padding-top: 0; }
+  .insp-lead-fig { aspect-ratio: 4 / 3; }
+
+  /* No pin below this width — the rail becomes a snap shelf you swipe. */
+  .insp-rail-inner { min-height: 0; }
+  .insp-rail-view {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .insp-rail-view::-webkit-scrollbar { display: none; }
+  .insp-rail-track { transform: none !important; }
+  .insp-rcard { width: 78vw; max-width: 340px; scroll-snap-align: start; }
+  .insp-rail-prog { display: none; }
+
+  .insp-card.is-wide {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .insp-card.is-wide .insp-card-body { padding-top: 18px; }
+  .insp-card.is-wide .insp-card-fig { aspect-ratio: 3 / 2; }
+
+  .insp-signoff-inner { grid-template-columns: 1fr; align-items: start; }
+}
+
+@media (max-width: 620px) {
+  .insp-grid { grid-template-columns: 1fr; }
+  .insp-lead-ghost { display: none; }
+  .insp-lead-caption { flex-direction: column; gap: 4px; }
+  .insp-hero-title { font-size: clamp(46px, 15vw, 76px); }
+}
+
+/* ============================================================
+   REDUCED MOTION — every GSAP timeline is skipped in the component,
+   so all that is left is to still the CSS-owned motion.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .insp *,
+  .insp *::before,
+  .insp *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .insp-hero-cue-track::after { transform: none; }
+}
+
+/* ============================================================
+   THE ARTICLE — /inspiration/:slug
+
+   A printed feature: a dark title plate, a standfirst, one measure of
+   serif-set body at reading size, pull-quotes that break the measure,
+   and the single commercial ask at the end. Scoped `.inspa`, which sits
+   alongside `.insp` on the article root — so every token, button, label
+   and card style above is already in scope and only the reading layout
+   is new.
+   ============================================================ */
+
+/* Reading progress — pinned under the navbar, filled against the BODY of
+   the piece rather than the page, so it reaches 100% when the reading
+   ends and not when the footer does. */
+.inspa-prog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  height: 2px;
+  background: transparent;
+  pointer-events: none;
+}
+.inspa-prog i {
+  display: block;
+  height: 100%;
+  background: var(--sienna);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* ---- The title plate ---- */
+.inspa-plate {
+  position: relative;
+  min-height: 78svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 150px var(--n3-pad-x) clamp(34px, 4vw, 54px);
+  background: #000207;
+  overflow: hidden;
+}
+/* Same overhang rule as the lead's plate: the image is taller than the frame
+   and hung above it, because it drifts down (yPercent 12) and scales as it
+   goes. -12%/124% keeps both edges buried through the whole travel. */
+.inspa-plate > img {
+  position: absolute;
+  inset: -12% 0;
+  width: 100%;
+  height: 124%;
+  object-fit: cover;
+  will-change: transform;
+}
+.inspa-plate-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 2, 7, 0.72) 0%, rgba(0, 2, 7, 0.34) 40%, rgba(0, 2, 7, 0.88) 100%);
+}
+.inspa-plate-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--n3-content);
+  margin: 0 auto;
+}
+
+/* Block-level, not inline: .insp-label is itself inline-flex, so an inline
+   back link would let the folio label sit down beside it on the same line. */
+.inspa-back {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: clamp(28px, 4vw, 56px);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.75);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.inspa-back:hover { color: #fff; }
+.inspa-back svg { transition: transform 0.3s var(--insp-ease); }
+.inspa-back:hover svg { transform: translateX(-3px); }
+
+.inspa-title {
+  margin: 18px 0 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(38px, 6vw, 92px);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: #F8F7F1;
+  max-width: 18ch;
+}
+.inspa-title em {
+  font-style: italic;
+  font-weight: 700;
+  color: #E8A184;
+}
+
+.inspa-credit {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--n3-content);
+  margin: clamp(24px, 3vw, 40px) auto 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(241, 239, 226, 0.18);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: rgba(241, 239, 226, 0.6);
+}
+
+/* ---- The piece ----
+   A three-column frame: the standfirst runs in the left margin on desktop
+   (as a printed feature's does), the body holds a single readable measure
+   in the middle, and the right margin stays empty on purpose. */
+/* The rows are assigned explicitly. Left to auto-placement, the rule would
+   claim row 1 alongside the standfirst — and because that row is then as tall
+   as the standfirst, the body would be pushed to row 2, i.e. BELOW the whole
+   left column instead of beside it. */
+.inspa-article {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 64ch) minmax(0, 1fr);
+  column-gap: clamp(32px, 4.5vw, 76px);
+  row-gap: 0;
+  max-width: var(--n3-content);
+  margin: 0 auto;
+  padding: clamp(56px, 7vw, 104px) var(--n3-pad-x) clamp(64px, 8vw, 120px);
+}
+
+.inspa-standfirst {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  position: sticky;
+  top: 120px;
+  align-self: start;
+}
+.inspa-deck {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(18px, 1.35vw, 21px);
+  line-height: 1.45;
+  color: var(--ink);
+}
+.inspa-byline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: var(--insp-rule);
+}
+.inspa-byline img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: grayscale(1);
+}
+.inspa-byline div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.inspa-byline strong {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.inspa-byline span {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.inspa-meta { font-size: 12px; }
+
+/* The rule spans the reading column only, and opens it. */
+.inspa-rule {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  margin: 10px 0 clamp(28px, 3vw, 44px);
+}
+
+.inspa-body {
+  grid-column: 2;
+  grid-row: 2;
+}
+.inspa-body p {
+  margin: 0 0 1.35em;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(19px, 1.45vw, 22px);
+  line-height: 1.62;
+  color: #2C3540;
+}
+/* The opening drop cap — one, on the first paragraph only. */
+.inspa-body > p:first-child::first-letter {
+  float: left;
+  margin: 8px 12px 0 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 4em;
+  line-height: 0.74;
+  color: var(--sienna);
+}
+
+/* Pull-quotes break the measure — they are allowed to be wider than the
+   column they interrupt, which is the whole reason they read as a pause. */
+.inspa-body blockquote {
+  position: relative;
+  margin: clamp(34px, 4vw, 56px) 0 clamp(34px, 4vw, 56px) clamp(-40px, -3vw, 0px);
+  padding: 4px 0 4px 26px;
+  border-left: 2px solid var(--sienna);
+  font-family: var(--serif);
+  font-weight: 500;
+  font-style: italic;
+  font-size: clamp(24px, 2.3vw, 34px);
+  line-height: 1.34;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* ---- The single commercial ask ---- */
+.inspa-cta {
+  grid-column: 2;
+  grid-row: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: clamp(40px, 5vw, 68px);
+  padding: clamp(26px, 3vw, 40px);
+  border-radius: var(--insp-r-card);
+  background: var(--paper-2);
+  border-left: 3px solid var(--blue);
+}
+.inspa-cta-copy {
+  max-width: 42ch;
+  margin: 14px 0 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+/* ---- Keep reading ---- */
+.inspa-more {
+  padding: clamp(70px, 8vw, 124px) var(--n3-pad-x);
+  background: var(--n-100);
+  border-top: var(--insp-rule);
+}
+.inspa-more-inner {
+  max-width: var(--n3-content);
+  margin: 0 auto;
+}
+.inspa-more-grid { margin-top: clamp(30px, 3.5vw, 50px); }
+
+/* ---- Next in the journal ---- */
+.inspa-next {
+  position: relative;
+  display: block;
+  min-height: 52svh;
+  padding: clamp(60px, 8vw, 110px) var(--n3-pad-x);
+  overflow: hidden;
+  text-decoration: none;
+  background: #000207;
+}
+.inspa-next > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.4);
+  transform: scale(1.02);
+  transition: transform 1.4s var(--insp-ease), filter 0.8s var(--insp-ease);
+}
+.inspa-next:hover > img {
+  transform: scale(1.08);
+  filter: grayscale(0);
+}
+.inspa-next-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 2, 7, 0.62), rgba(0, 2, 7, 0.86));
+}
+.inspa-next-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+  max-width: var(--n3-content);
+  margin: 0 auto;
+}
+.inspa-next-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(32px, 4.6vw, 68px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: #F8F7F1;
+  max-width: 16ch;
+}
+.inspa-next .insp-textlink,
+.inspa-next-link { color: #E8A184; }
+
+@media (max-width: 1100px) {
+  /* The margin standfirst becomes a header above the piece. The explicit rows
+     above have to be released too, or the three blocks keep their desktop
+     stacking inside a single column. */
+  .inspa-article {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 72ch;
+  }
+  .inspa-standfirst,
+  .inspa-rule,
+  .inspa-body,
+  .inspa-cta {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .inspa-standfirst {
+    position: static;
+    gap: 18px;
+  }
+  .inspa-body blockquote { margin-left: 0; }
+}
+
+@media (max-width: 900px) {
+  .inspa-plate { min-height: 66svh; padding-top: 124px; }
+  .inspa-cta { flex-direction: column; align-items: flex-start; }
+}
