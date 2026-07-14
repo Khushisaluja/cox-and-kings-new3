@@ -558,7 +558,7 @@ export default function AboutUs() {
       <SiteNav />
 
       {/* --------------------------------------------------------------- hero */}
-      <section className="ab-hero">
+      <section className="ab-hero" id="main">
         <div className="ab-hero-media" aria-hidden="true">
           <img src={img('photo-1469854523086-cc02fe5d8800', 2000)} alt="" />
           <span className="ab-hero-scrim" />

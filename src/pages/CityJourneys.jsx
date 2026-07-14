@@ -14,13 +14,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
+import { SiteNav, SiteFooter } from '../components/SiteChrome';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
-  Phone, PhoneCall, MessageCircle, ArrowUpRight, ArrowRight,
-  MapPin, Menu, X, ChevronDown, ChevronLeft, ChevronRight,
+  PhoneCall, MessageCircle, ArrowRight,
+  MapPin, X, ChevronLeft, ChevronRight,
   Star, Clock, Calendar, Users, Gauge, Images, Utensils,
-  CalendarDays, TrainFront, Navigation, Landmark, Sparkles,
-  Instagram, Facebook, Youtube, Linkedin,
+  CalendarDays, TrainFront, Navigation, Landmark,
 } from 'lucide-react';
 import { img } from '../data/v3content';
 import './Home2026.css';
@@ -29,11 +29,10 @@ import './Journeys.css';
 import './JapanJourneys.css';
 import './CityJourneys.css';
 
+/* The phone number and email now live in the shared chrome (CONTACT_CK); all
+   this page still needs is the WhatsApp thread its cards and CTA deep-link to. */
 const CONTACT = {
-  phoneDisplay: '+91 8556001700',
-  phoneHref: 'tel:+918556001700',
   whatsappHref: 'https://wa.me/918556001700',
-  email: 'journeys@coxandkings.com',
 };
 
 const U = (id) => `https://images.unsplash.com/photo-${id}`;
@@ -241,51 +240,6 @@ function buildCity(slug) {
     count: c.guided.length + c.private.length,
   };
 }
-
-/* Nav megamenu — Japan-scoped, mirrors the country page. */
-const NAV_MENU = [
-  {
-    label: 'Ways to travel', href: '/journeys4',
-    blurb: 'Two ways to see the world — pick the one that fits you.',
-    items: [
-      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
-      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
-      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
-    ],
-  },
-  {
-    label: 'Japan', href: '/journeys/japan-2',
-    blurb: 'Cherry blossom to neon — explore Japan by city.',
-    items: [
-      { label: 'Tokyo', desc: 'Neon, sushi & calm gardens', to: '/journeys/japan/tokyo' },
-      { label: 'Kyoto', desc: 'Temples, tea & tradition', to: '/journeys/japan/kyoto' },
-      { label: 'Mt Fuji & Hakone', desc: 'Onsen & the sacred cone', to: '/journeys/japan/hakone' },
-      { label: 'Osaka', desc: 'Street food & neon', to: '/journeys/japan/osaka' },
-      { label: 'All Japan journeys', desc: 'Back to the country page', to: '/journeys/japan-2' },
-    ],
-  },
-  {
-    label: 'Destinations', href: '/journeys4',
-    blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
-    items: [
-      { label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
-      { label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys4?where=Switzerland' },
-      { label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys4?where=Italy' },
-      { label: 'All destinations', desc: 'Browse every journey', to: '/journeys4' },
-    ],
-  },
-  {
-    label: 'Why us', href: '/#heritage',
-    blurb: 'Specialists, not salespeople — and 260 years behind every trip.',
-    items: [
-      { label: 'Our specialists', desc: 'The people who plan your trip', to: '/#heritage' },
-      { label: 'Since 1758', desc: 'Heritage you can lean on', to: '/#heritage' },
-      { label: 'Real reviews', desc: '2,400+ verified travellers', to: '/#reviews' },
-      { label: 'Talk to an expert', desc: 'We pick up the phone', to: CALLBACK },
-    ],
-  },
-];
 
 /* ---- Reduced-motion-safe reveal (shared pattern). ---- */
 function Reveal({ children, className = '', delay = 0, y = 20, as = 'div' }) {
@@ -509,109 +463,23 @@ export default function CityJourneys() {
   const { city: slug } = useParams();
   const city = buildCity(slug);
 
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [lightbox, setLightbox] = useState(null);
 
   const openPhotos = useCallback((j) => setLightbox({ title: j.title, photos: j.gallery, index: 0 }), []);
 
+  /* The drawer's scroll-lock moved into SiteChrome with the drawer; the
+     lightbox is the only thing this page still opens over the page. */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    const lock = menuOpen || !!lightbox;
-    document.body.style.overflow = lock ? 'hidden' : '';
+    document.body.style.overflow = lightbox ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [menuOpen, lightbox]);
+  }, [lightbox]);
 
   /* Unknown city → fall back to the Japan country page. */
   if (!city) return <Navigate to="/journeys/japan-2" replace />;
 
   return (
     <div className="h26 jl jp jc">
-      <a className="h26-skip" href="#tours">Skip to journeys</a>
-
-      {/* ---------- NAV (shared /improved chrome) ---------- */}
-      <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
-        <Link to="/" className="h26-brand">
-          <img src="/cox-logo-new.png" alt="Cox & Kings" />
-        </Link>
-        <nav className="h26-links hi-nav" aria-label="Primary">
-          {NAV_MENU.map((group) => (
-            <div className="hi-nav-group" key={group.label}>
-              <Link to={group.href} className="hi-nav-top" aria-haspopup="true">
-                {group.label}
-                <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
-              </Link>
-              <div className="hi-nav-flyout" role="menu">
-                <div className="hi-nav-flyout-inner">
-                  <p className="hi-nav-blurb">{group.blurb}</p>
-                  <ul className="hi-nav-list">
-                    {group.items.map((it) => (
-                      <li key={it.label}>
-                        <Link to={it.to} role="menuitem" className="hi-nav-item">
-                          <span className="hi-nav-item-label">{it.label}</span>
-                          <span className="hi-nav-item-desc">{it.desc}</span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          ))}
-        </nav>
-        <div className="h26-nav-cta">
-          <a href={CONTACT.phoneHref} className="h26-phone">
-            <Phone size={15} /> <span>{CONTACT.phoneDisplay}</span>
-          </a>
-          <Link to={CALLBACK} className="h26-btn h26-btn-pill">Talk to an expert</Link>
-          <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
-            <Menu size={22} />
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile slide-in menu */}
-      <div className={`h26-menu${menuOpen ? ' is-open' : ''}`} aria-hidden={!menuOpen}>
-        <div className="h26-menu-scrim" onClick={() => setMenuOpen(false)} />
-        <div className="h26-menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
-          <div className="h26-menu-top">
-            <button className="h26-menu-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={20} /></button>
-            <img className="h26-menu-logo" src="/cox-logo-new.png" alt="Cox & Kings — Est. 1758" />
-          </div>
-          <nav className="h26-menu-primary" aria-label="Mobile primary">
-            {['tokyo', 'kyoto', 'hakone', 'osaka'].map((s) => (
-              <Link key={s} to={`/journeys/japan/${s}`} onClick={() => setMenuOpen(false)}>
-                {RAW[s].name}<span className="h26-menu-chev"><ArrowRight size={16} /></span>
-              </Link>
-            ))}
-          </nav>
-          <div className="h26-menu-divider" />
-          <div className="h26-menu-secondary">
-            <Link to="/journeys/japan-2" onClick={() => setMenuOpen(false)}>All Japan <ArrowUpRight size={13} /></Link>
-            <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All destinations <ArrowUpRight size={13} /></Link>
-            <Link to="/" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
-            <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
-          </div>
-          <a href={CONTACT.phoneHref} className="h26-btn h26-btn-pill h26-menu-cta" onClick={() => setMenuOpen(false)}>
-            <Phone size={16} /> Speak to an expert
-          </a>
-          <div className="h26-menu-foot">
-            <span className="h26-menu-eyebrow">Follow the journey</span>
-            <div className="h26-menu-social">
-              <a href="#" aria-label="Instagram"><Instagram size={18} /></a>
-              <a href="#" aria-label="Facebook"><Facebook size={18} /></a>
-              <a href="#" aria-label="YouTube"><Youtube size={18} /></a>
-              <a href="#" aria-label="LinkedIn"><Linkedin size={18} /></a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SiteNav />
 
       {/* ---------- HERO ---------- */}
       <section className="jl-hero">
@@ -686,9 +554,12 @@ export default function CityJourneys() {
         </div>
       </section>
 
-      {/* ---------- THE CITY JOURNEYS — two carousels ---------- */}
-      <main className="jl-results jp-tours" id="tours">
-        <div className="jl-collections">
+      {/* ---------- THE CITY JOURNEYS — two carousels ----------
+          `id="main"` is the shared skip link's target; `#tours` (the hero CTA)
+          moves one level in, onto the same block of content, so both anchors
+          land in the same place and neither has to give up its id. */}
+      <main className="jl-results jp-tours" id="main">
+        <div className="jl-collections" id="tours">
           <Rail
             id="rail-guided"
             label={`${city.guided.length} journeys · tour-manager led`}
@@ -756,46 +627,7 @@ export default function CityJourneys() {
         </div>
       </section>
 
-      {/* ---------- FOOTER ---------- */}
-      <footer className="h26-footer">
-        <div className="h26-footer-top">
-          <div className="h26-footer-brand">
-            <img src="/cox-logo-new.png" alt="Cox & Kings" />
-            <p>The world's most experienced travel company. Established 1758.</p>
-            <div className="h26-footer-contact">
-              <a href={CONTACT.phoneHref}><Phone size={15} /> {CONTACT.phoneDisplay}</a>
-              <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
-            </div>
-          </div>
-          <div className="h26-footer-cols">
-            <div>
-              <h4>Japan by city</h4>
-              <Link to="/journeys/japan/tokyo">Tokyo</Link>
-              <Link to="/journeys/japan/kyoto">Kyoto</Link>
-              <Link to="/journeys/japan/hakone">Mt Fuji &amp; Hakone</Link>
-              <Link to="/journeys/japan/osaka">Osaka</Link>
-            </div>
-            <div>
-              <h4>Company</h4>
-              <Link to="/about-us2">Our story</Link>
-              <Link to="/about-us2">Specialists</Link>
-              <Link to={CALLBACK}>Contact</Link>
-              <Link to="/#heritage">Why Cox &amp; Kings</Link>
-            </div>
-            <div>
-              <h4>Assurance</h4>
-              <Link to="/#heritage">Trust &amp; safety</Link>
-              <Link to="/#heritage">Awards</Link>
-              <Link to={CALLBACK}>Refund policy</Link>
-              <Link to={CALLBACK}>Speak to an expert</Link>
-            </div>
-          </div>
-        </div>
-        <div className="h26-footer-bottom">
-          <span>© {new Date().getFullYear()} Cox &amp; Kings. Travelling the world since 1758.</span>
-          <span className="h26-footer-assoc">IATA · TAAI · ASTA</span>
-        </div>
-      </footer>
+      <SiteFooter />
 
       <AnimatePresence>
         {lightbox && <Lightbox data={lightbox} onClose={() => setLightbox(null)} />}

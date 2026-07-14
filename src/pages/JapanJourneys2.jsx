@@ -22,14 +22,14 @@
    ============================================================ */
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
+import { SiteNav, SiteFooter } from '../components/SiteChrome';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
   Phone, PhoneCall, MessageCircle, ArrowUpRight, ArrowRight,
-  MapPin, Menu, X, ChevronDown, ChevronLeft, ChevronRight,
+  MapPin, X, ChevronDown, ChevronLeft, ChevronRight,
   Star, Clock, Calendar, Users, User, Gauge, Images, Utensils, Compass,
   CalendarDays, Plane, Landmark, Languages, TrainFront, Wallet,
   SlidersHorizontal, Check, Plus, Sparkles,
-  Instagram, Facebook, Youtube, Linkedin,
 } from 'lucide-react';
 import { img } from '../data/v3content';
 import ChatBot from '../components/ChatBot';
@@ -42,12 +42,13 @@ import './Journeys4.css';
 import './JapanJourneys.css';
 import './JapanJourneys2.css';
 
-/* /improved-scoped direct line (matches Home2026Improved / Journeys). */
+/* The direct line, for the page BODY only — the enquiry CTAs, the empty state
+   and the mobile thumb bar. The nav and footer carry their own copy (see
+   CONTACT_CK in SiteChrome), which is why there is no display number or email
+   here any more: nothing on this page prints them. */
 const CONTACT = {
-  phoneDisplay: '+91 8556001700',
   phoneHref: 'tel:+918556001700',
   whatsappHref: 'https://wa.me/918556001700',
-  email: 'journeys@coxandkings.com',
 };
 
 const U = (id) => `https://images.unsplash.com/photo-${id}`;
@@ -213,52 +214,6 @@ const SIMILAR = [
   { title: 'Slow Italy: Coast to Art', region: 'Italy', nights: '9 nights', season: 'Apr–Oct', price: '₹2.4L', image: U('1534445867742-43195f401b6c'), to: '/journeys4?where=Italy' },
   { title: 'Chasing the Northern Lights', region: 'Scandinavia', nights: '7 nights', season: 'Oct–Mar', price: '₹2.75L', image: U('1483347756197-71ef80e95f73'), to: '/journeys4?where=Northern Lights' },
   { title: 'Vietnam & Cambodia Discovery', region: 'Southeast Asia', nights: '12 nights', season: 'Oct–Apr', price: '₹1.2L', image: U('1528181304800-259b08848526'), to: '/journeys4?where=Southeast Asia' },
-];
-
-/* ---- Nav megamenu — Japan items route into THIS page / its tours. ---- */
-const NAV_MENU = [
-  {
-    label: 'Ways to travel', href: '/journeys4',
-    blurb: 'Two ways to see the world — pick the one that fits you.',
-    items: [
-      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
-      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
-      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
-    ],
-  },
-  {
-    label: 'Destinations', href: '/journeys4',
-    blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
-    items: [
-      { label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
-      { label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys4?where=Switzerland' },
-      { label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys4?where=Italy' },
-      { label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys4?where=Northern Lights' },
-      { label: 'Africa Safari', desc: 'Big-five wilderness', to: '/journeys4?where=Africa Safari' },
-      { label: 'All destinations', desc: 'Browse every journey', to: '/journeys4' },
-    ],
-  },
-  {
-    label: 'Japan', href: '/journeys/japan-2',
-    blurb: 'Cherry blossom to neon — our most-loved country, many ways.',
-    items: [
-      { label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/tour-detail-japan-5' },
-      { label: 'Japan for First-Timers', desc: '10 nights · any date', to: '/tour-detail-japan-5' },
-      { label: 'Ryokans & Art Islands', desc: '9 nights · slow luxury', to: '/tour-detail-japan-5' },
-      { label: 'All Japan journeys', desc: 'The full collection', to: '/journeys/japan-2' },
-    ],
-  },
-  {
-    label: 'Why us', href: '/#heritage',
-    blurb: 'Specialists, not salespeople — and 260 years behind every trip.',
-    items: [
-      { label: 'Our specialists', desc: 'The people who plan your trip', to: '/#heritage' },
-      { label: 'Since 1758', desc: 'Heritage you can lean on', to: '/#heritage' },
-      { label: 'Real reviews', desc: '2,400+ verified travellers', to: '/#reviews' },
-      { label: 'Talk to an expert', desc: 'We pick up the phone', to: CALLBACK },
-    ],
-  },
 ];
 
 /* ---- Reduced-motion-safe reveal (matches /improved & Journeys). ---- */
@@ -628,8 +583,6 @@ function RestoCard({ r }) {
 }
 
 export default function JapanJourneys2() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [lightbox, setLightbox] = useState(null);
   const [chatOpen, setChatOpen] = useState(false); // Enaya popup
 
@@ -651,14 +604,6 @@ export default function JapanJourneys2() {
   const toggler = (setter) => (value) =>
     setter((cur) => (cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value]));
 
-  /* Nav goes solid once the page scrolls off the dark banner. */
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
   /* Track the phone breakpoint so the initial card count adapts. */
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_Q);
@@ -667,12 +612,13 @@ export default function JapanJourneys2() {
     return () => mq.removeEventListener('change', on);
   }, []);
 
-  /* Lock body scroll while a menu / drawer / lightbox is open. */
+  /* Lock body scroll while the filter drawer or the lightbox is open. (The nav
+     drawer locks scroll itself, inside SiteChrome.) */
   useEffect(() => {
-    const lock = menuOpen || filtersOpen || !!lightbox;
+    const lock = filtersOpen || !!lightbox;
     document.body.style.overflow = lock ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [menuOpen, filtersOpen, lightbox]);
+  }, [filtersOpen, lightbox]);
 
   /* Close the sort menu on outside click / Escape. */
   useEffect(() => {
@@ -776,87 +722,13 @@ export default function JapanJourneys2() {
   return (
     <>
     <div className="h26 jl jl2 jp jj2">
-      <a className="h26-skip" href="#tours">Skip to journeys</a>
+      <SiteNav />
 
-      {/* ---------- NAV (shared /improved chrome) ---------- */}
-      <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
-        <Link to="/" className="h26-brand">
-          <img src="/cox-logo-new.png" alt="Cox & Kings" />
-        </Link>
-        <nav className="h26-links hi-nav" aria-label="Primary">
-          {NAV_MENU.map((group) => (
-            <div className="hi-nav-group" key={group.label}>
-              <Link to={group.href} className="hi-nav-top" aria-haspopup="true">
-                {group.label}
-                <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
-              </Link>
-              <div className="hi-nav-flyout" role="menu">
-                <div className="hi-nav-flyout-inner">
-                  <p className="hi-nav-blurb">{group.blurb}</p>
-                  <ul className="hi-nav-list">
-                    {group.items.map((it) => (
-                      <li key={it.label}>
-                        <Link to={it.to} role="menuitem" className="hi-nav-item">
-                          <span className="hi-nav-item-label">{it.label}</span>
-                          <span className="hi-nav-item-desc">{it.desc}</span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          ))}
-        </nav>
-        <div className="h26-nav-cta">
-          <a href={CONTACT.phoneHref} className="h26-phone">
-            <Phone size={15} /> <span>{CONTACT.phoneDisplay}</span>
-          </a>
-          <Link to={CALLBACK} className="h26-btn h26-btn-pill">Talk to an expert</Link>
-          <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
-            <Menu size={22} />
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile slide-in menu */}
-      <div className={`h26-menu${menuOpen ? ' is-open' : ''}`} aria-hidden={!menuOpen}>
-        <div className="h26-menu-scrim" onClick={() => setMenuOpen(false)} />
-        <div className="h26-menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
-          <div className="h26-menu-top">
-            <button className="h26-menu-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={20} /></button>
-            <img className="h26-menu-logo" src="/cox-logo-new.png" alt="Cox & Kings — Est. 1758" />
-          </div>
-          <nav className="h26-menu-primary" aria-label="Mobile primary">
-            <Link to="/journeys/japan-2" onClick={() => setMenuOpen(false)}>Japan journeys<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
-            <Link to="/tour-detail-japan-5" onClick={() => setMenuOpen(false)}>Cherry Blossom Japan<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
-            <Link to="/tour-detail-japan-5" onClick={() => setMenuOpen(false)}>Essence of Japan<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
-            <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All destinations<span className="h26-menu-chev"><ArrowRight size={16} /></span></Link>
-          </nav>
-          <div className="h26-menu-divider" />
-          <div className="h26-menu-secondary">
-            <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
-            <Link to="/" onClick={() => setMenuOpen(false)}>Home <ArrowUpRight size={13} /></Link>
-            <Link to="/about-us2" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
-            <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
-          </div>
-          <a href={CONTACT.phoneHref} className="h26-btn h26-btn-pill h26-menu-cta" onClick={() => setMenuOpen(false)}>
-            <Phone size={16} /> Speak to an expert
-          </a>
-          <div className="h26-menu-foot">
-            <span className="h26-menu-eyebrow">Follow the journey</span>
-            <div className="h26-menu-social">
-              <a href="#" aria-label="Instagram"><Instagram size={18} /></a>
-              <a href="#" aria-label="Facebook"><Facebook size={18} /></a>
-              <a href="#" aria-label="YouTube"><Youtube size={18} /></a>
-              <a href="#" aria-label="LinkedIn"><Linkedin size={18} /></a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ---------- HERO BANNER (kept) ---------- */}
-      <section className="jl-hero">
+      {/* ---------- HERO BANNER (kept) ----------
+           `id="main"` is the skip link's target: the first thing after the nav,
+           so "skip to content" lands at the top of the page's own content
+           rather than jumping the visitor past the hero and the country intro. */}
+      <section className="jl-hero" id="main" tabIndex={-1}>
         <div className="jl-hero-bg" style={{ backgroundImage: `url(${img(HERO_IMG, 1800)})` }} aria-hidden="true" />
         <div className="jl-hero-veil" aria-hidden="true" />
         <div className="jl-hero-inner">
@@ -1303,46 +1175,8 @@ export default function JapanJourneys2() {
         </div>
       </section>
 
-      {/* ---------- FOOTER (shared /improved chrome) ---------- */}
-      <footer className="h26-footer">
-        <div className="h26-footer-top">
-          <div className="h26-footer-brand">
-            <img src="/cox-logo-new.png" alt="Cox & Kings" />
-            <p>The world's most experienced travel company. Established 1758.</p>
-            <div className="h26-footer-contact">
-              <a href={CONTACT.phoneHref}><Phone size={15} /> {CONTACT.phoneDisplay}</a>
-              <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
-            </div>
-          </div>
-          <div className="h26-footer-cols">
-            <div>
-              <h4>Japan</h4>
-              <Link to="/tour-detail-japan-5">Cherry Blossom Japan</Link>
-              <Link to="/tour-detail-japan-5">Essence of Japan</Link>
-              <Link to="/journeys/japan-2">All Japan journeys</Link>
-              <Link to="/journeys4">Other destinations</Link>
-            </div>
-            <div>
-              <h4>Company</h4>
-              <Link to="/about-us2">Our story</Link>
-              <Link to="/about-us2">Specialists</Link>
-              <Link to={CALLBACK}>Contact</Link>
-              <Link to="/#heritage">Why Cox &amp; Kings</Link>
-            </div>
-            <div>
-              <h4>Assurance</h4>
-              <Link to="/#heritage">Trust &amp; safety</Link>
-              <Link to="/#heritage">Awards</Link>
-              <Link to={CALLBACK}>Refund policy</Link>
-              <Link to={CALLBACK}>Speak to an expert</Link>
-            </div>
-          </div>
-        </div>
-        <div className="h26-footer-bottom">
-          <span>© {new Date().getFullYear()} Cox &amp; Kings. Travelling the world since 1758.</span>
-          <span className="h26-footer-assoc">IATA · TAAI · ASTA</span>
-        </div>
-      </footer>
+      {/* ---------- FOOTER (the one shared site footer) ---------- */}
+      <SiteFooter />
 
       {/* ---------- MOBILE BOTTOM BAR — talk to a specialist
            (mirrors /tour-detail-japan-5's thumb-reach bar) ---------- */}

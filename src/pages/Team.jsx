@@ -68,7 +68,7 @@ export default function Team() {
       <SiteNav />
 
       {/* ---------------------------------------------------------------- hero */}
-      <section className="tm-hero">
+      <section className="tm-hero" id="main">
         <span className="tm-hero-grain" aria-hidden="true" />
         <div className="ab-wrap tm-hero-inner">
           <Link to="/about-us2" className="tm-back">

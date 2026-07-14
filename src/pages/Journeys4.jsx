@@ -4,21 +4,24 @@
    A variant of /journeys2 with exactly ONE change: every card carries
    a clear "Private Tour" or "Group Tour" badge on its image, so the
    way a trip travels is obvious before you read a word. Everything
-   else — the /improved nav + footer, the open LEFT filter rail
-   (Destination, Budget, Travellers, Dates, Pace, Trip style), the
-   filterable/sortable grid and the pill-based radius language — is
-   left exactly as /journeys2. The single badge style lives in
-   Journeys4.css, layered last.
+   else — the open LEFT filter rail (Destination, Budget, Travellers,
+   Dates, Pace, Trip style), the filterable/sortable grid and the
+   pill-based radius language — is left exactly as /journeys2. The
+   single badge style lives in Journeys4.css, layered last.
+
+   The nav and footer are NOT this page's: they come from <SiteChrome>,
+   the one definition the whole site shares.
    ============================================================ */
-import { Fragment, useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SmartLink as Link, CALLBACK, useScheduleCall } from '../components/ScheduleCall';
+import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
+import { SiteNav, SiteFooter } from '../components/SiteChrome';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
-  Phone, PhoneCall, MessageCircle, ArrowUpRight, ArrowRight, Search, MapPin,
-  Compass, Calendar, Menu, X, ChevronDown, ChevronLeft, ChevronRight,
+  PhoneCall, MessageCircle, ArrowRight, Search, MapPin,
+  Compass, Calendar, X, ChevronDown, ChevronLeft, ChevronRight,
   Star, SlidersHorizontal, Clock, Users, User, Gauge, Wallet,
-  Instagram, Facebook, Youtube, Linkedin, Check, Plus, Minus, CalendarRange,
+  Check, Plus, Minus, CalendarRange,
 } from 'lucide-react';
 import { img } from '../data/v3content';
 import './Home2026.css';
@@ -26,23 +29,17 @@ import './Home2026Improved.css';
 import './Journeys.css';
 import './Journeys2.css';
 import './Journeys4.css';
-/* The header and footer are the /new3 ones, verbatim. Both stylesheets are
-   fully scoped (.new-typo / .n3), so importing them here cannot leak into the
-   rest of this page — only the two wrappers that carry those classes. */
+/* The nav and footer now come from <SiteChrome>, which pulls its own scoped
+   stylesheets. These two stay because the PAGE also leans on them (the .h26-btn
+   pills in the hero, the empty state and the closing CTA). */
 import './NewTypography.css';
 import './New3.css';
 
-/* /improved-scoped direct line (matches Home2026Improved, and /new3, whose
-   navbar and footer this page now carries). */
+/* The WhatsApp line the enquiry CTAs dial. The phone/email that used to sit
+   here belonged to the nav and footer, and moved with them into SiteChrome. */
 const CONTACT = {
-  phoneDisplay: '+91 8556001700',
-  phoneHref: 'tel:+918556001700',
   whatsappHref: 'https://wa.me/918556001700',
-  email: 'journeys@coxandkings.com',
 };
-
-/* The homepage. /new3's chrome points at sections that live there. */
-const HOME = '/';
 
 /* ---- Canonical destination filters. Order = the sidebar list. ---- */
 const REGIONS = [
@@ -216,63 +213,6 @@ function dateWindowMonths(date, flex) {
 
 /* Trigger-label date format, e.g. "12 Aug". */
 const fmtDate = (date) => `${date.d} ${MONTHS[date.m]}`;
-
-/* ---------- Desktop nav megamenus — the /new3 navbar, verbatim ----------
-   Same four groups, same blurbs, same rows, the same grouped "Destinations"
-   menu with its catch-all, so the chrome does not change shape when a traveller
-   crosses from the homepage into this listing.
-
-   The one difference is forced: /new3's top-level entries point at ITS OWN
-   sections (#paths, #destinations, #relaxed), and those sections do not exist
-   here — left as bare hashes they would be dead links. They are rebased onto
-   HOME, so they still land on the same section, on the page that has it. */
-const NAV_MENU = [
-  {
-    label: 'Ways to travel', href: `${HOME}#paths`,
-    blurb: 'Two ways to see the world. Pick the one that fits you.',
-    items: [
-      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
-      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
-      { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
-    ],
-  },
-  {
-    label: 'Destinations', href: `${HOME}#destinations`,
-    blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
-    items: [
-      { group: 'By destination', label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys4?where=Japan' },
-      { group: 'By destination', label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys4?where=Switzerland' },
-      { group: 'By destination', label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys4?where=Italy' },
-      { group: 'By destination', label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys4?where=Northern Lights' },
-      { group: 'By destination', label: 'African Safari', desc: 'Big-five wilderness', to: '/journeys4?where=Africa Safari' },
-      { group: 'Signature journeys', label: 'Cherry Blossom Japan', desc: '13 nights · Mar–Apr', to: '/tour-detail-japan-5' },
-      { group: 'Signature journeys', label: 'Relaxed-pace journeys', desc: 'A calm vacation, handled', to: '/journeys4?pace=Relaxed' },
-    ],
-    all: { label: 'All destinations', meta: '31 journeys', to: '/journeys4' },
-  },
-  {
-    label: 'Indian Getaways', href: `${HOME}#relaxed`,
-    blurb: 'Closer to home, and no less of a journey.',
-    items: [
-      { label: 'Golden Triangle & the Taj', desc: '8 nights · Delhi, Agra, Jaipur', to: '/journeys4?where=India&style=Group Tour' },
-      { label: 'Rajasthan: palaces & forts', desc: 'Udaipur, Jodhpur & the Thar', to: '/journeys4?where=India&style=Luxury' },
-      { label: 'Kerala backwaters', desc: 'Houseboats, tea country, coast', to: '/journeys4?where=India&style=Bespoke Private' },
-    ],
-    all: { label: 'All Indian journeys', meta: '5 journeys', to: '/journeys4?where=India' },
-  },
-  {
-    label: 'About us', to: '/about-us2',
-    blurb: 'Specialists, not salespeople, with 260 years behind every trip.',
-    items: [
-      { label: 'Our story', desc: 'Since 1758, and what came after', to: '/about-us2' },
-      { label: 'Real reviews', desc: '2,400+ verified travellers', href: `${HOME}#reviews` },
-      { label: 'As featured in', desc: 'The press that covers us', href: `${HOME}#press` },
-      /* An action, not a page: opens the callback dialog in place. */
-      { label: 'Talk to an expert', desc: 'Pick a time, we call you back', action: 'callback' },
-    ],
-  },
-];
 
 /* ---- Reduced-motion-safe reveal (matches /improved). ---- */
 function Reveal({ children, className = '', delay = 0, y = 20, as = 'div' }) {
@@ -823,10 +763,6 @@ function Stepper({ value, min, max, onChange, label, sub }) {
 export default function Journeys4() {
   const [params, setParams] = useSearchParams();
 
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  /* Which NAV_MENU group is expanded in the mobile drawer (one at a time). */
-  const [mobileSection, setMobileSection] = useState(null);
   const [filtersOpen, setFiltersOpen] = useState(false); // mobile filter drawer
   const [lightbox, setLightbox] = useState(null);
 
@@ -877,29 +813,13 @@ export default function Journeys4() {
   const toggler = (setter) => (value) =>
     setter((cur) => (cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value]));
 
-  /* Nav goes solid once the page scrolls off the dark banner. */
+  /* Lock body scroll while the filter drawer or the lightbox is open. (The nav
+     drawer locks scroll itself, inside SiteChrome.) */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  /* Lock body scroll while the mobile menu, filter drawer or lightbox is open. */
-  useEffect(() => {
-    const lock = menuOpen || filtersOpen || !!lightbox;
+    const lock = filtersOpen || !!lightbox;
     document.body.style.overflow = lock ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [menuOpen, filtersOpen, lightbox]);
-
-  /* Reset the drawer's open section when it closes. */
-  useEffect(() => { if (!menuOpen) setMobileSection(null); }, [menuOpen]);
-
-  /* "Talk to an expert" in the nav and drawer opens the site-wide
-     schedule-a-call dialog (the one <ScheduleCallProvider> owns), exactly as
-     /new3's chrome does. */
-  const openScheduleCall = useScheduleCall();
-  const openNavCallback = useCallback(() => { setMenuOpen(false); openScheduleCall(); }, [openScheduleCall]);
+  }, [filtersOpen, lightbox]);
 
   /* Close the sort menu on outside click / Escape. */
   useEffect(() => {
@@ -1028,178 +948,10 @@ export default function Journeys4() {
 
   return (
     <div className="h26 jl jl2 jl4">
-      <a className="h26-skip" href="#results">Skip to journeys</a>
-
-      {/* ---------- NAV + MOBILE MENU (the /new3 chrome, verbatim) ----------
-           `new-typo n3` are what NewTypography.css and New3.css hang their rules
-           off, and `h26` is what NewTypography's `.h26.new-typo` var block needs
-           on the same element. All three are scoped, so putting them on this
-           chrome-only wrapper (rather than the page root) styles the header and
-           the drawer and nothing else on the page. */}
-      <div className="h26 new-typo n3">
-        <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
-          <Link to={HOME} className="h26-brand" aria-label="Cox & Kings — home">
-            <img src="/cox-logo-new.png" alt="Cox & Kings" />
-          </Link>
-          <nav className="h26-links hi-nav" aria-label="Primary">
-            {NAV_MENU.map((group) => (
-              <div className="hi-nav-group" key={group.label}>
-                {group.to ? (
-                  <Link to={group.to} className="hi-nav-top" aria-haspopup="true">
-                    {group.label}
-                    <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
-                  </Link>
-                ) : (
-                  <a href={group.href} className="hi-nav-top" aria-haspopup="true">
-                    {group.label}
-                    <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
-                  </a>
-                )}
-                <div className="hi-nav-flyout" role="menu">
-                  <div className="hi-nav-flyout-inner">
-                    <p className="hi-nav-blurb">{group.blurb}</p>
-                    <ul className="hi-nav-list">
-                      {group.items.map((it, idx) => (
-                        <Fragment key={it.label}>
-                          {/* Section rule wherever the KIND of item changes. */}
-                          {it.group && group.items[idx - 1]?.group !== it.group && (
-                            <li className="n3-navgroup" aria-hidden="true"><span>{it.group}</span></li>
-                          )}
-                          <li>
-                            {it.action === 'callback' ? (
-                              <button type="button" role="menuitem" className="hi-nav-item n3-nav-action" onClick={openNavCallback}>
-                                <span className="hi-nav-item-label">{it.label}</span>
-                                <span className="hi-nav-item-desc">{it.desc}</span>
-                              </button>
-                            ) : it.to ? (
-                              <Link to={it.to} role="menuitem" className="hi-nav-item">
-                                <span className="hi-nav-item-label">{it.label}</span>
-                                <span className="hi-nav-item-desc">{it.desc}</span>
-                              </Link>
-                            ) : (
-                              <a href={it.href} role="menuitem" className="hi-nav-item">
-                                <span className="hi-nav-item-label">{it.label}</span>
-                                <span className="hi-nav-item-desc">{it.desc}</span>
-                              </a>
-                            )}
-                          </li>
-                        </Fragment>
-                      ))}
-                    </ul>
-                    {/* The catch-all sits OUTSIDE the list: it is not one more thing
-                        to choose between, it is the way past the choosing. */}
-                    {group.all && (
-                      <Link to={group.all.to} role="menuitem" className="n3-navall">
-                        <span className="n3-navall-label">{group.all.label}</span>
-                        <span className="n3-navall-meta">{group.all.meta}</span>
-                        <ArrowRight size={15} className="n3-navall-arrow" aria-hidden="true" />
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </nav>
-          <div className="h26-nav-cta">
-            <a href={CONTACT.phoneHref} className="h26-phone">
-              <Phone size={15} /> <span>{CONTACT.phoneDisplay}</span>
-            </a>
-            <Link to={CALLBACK} className="h26-btn h26-btn-pill">Talk to an expert</Link>
-            <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
-              <Menu size={22} />
-            </button>
-          </div>
-        </header>
-
-        {/* Mobile slide-in menu — driven by the SAME NAV_MENU as the desktop
-            flyouts, so the two cannot drift apart. One section open at a time. */}
-        <div className={`h26-menu${menuOpen ? ' is-open' : ''}`} aria-hidden={!menuOpen}>
-          <div className="h26-menu-scrim" onClick={() => setMenuOpen(false)} />
-          <div className="h26-menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
-            <div className="h26-menu-top">
-              <button className="h26-menu-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={20} /></button>
-              <img className="h26-menu-logo" src="/cox-logo-new.png" alt="Cox & Kings — Est. 1758" />
-            </div>
-            <nav className="h26-menu-primary n3-macc" aria-label="Mobile primary">
-              {NAV_MENU.map((g) => {
-                const open = mobileSection === g.label;
-                return (
-                  <div key={g.label} className={`n3-macc-item${open ? ' is-open' : ''}`}>
-                    <button
-                      type="button"
-                      className="n3-macc-head"
-                      aria-expanded={open}
-                      onClick={() => setMobileSection(open ? null : g.label)}
-                    >
-                      {g.label}
-                      <span className="h26-menu-chev n3-macc-chev"><ChevronDown size={16} /></span>
-                    </button>
-                    <div className="n3-macc-panel" hidden={!open}>
-                      {g.items.map((it, idx) => (
-                        <Fragment key={it.label}>
-                          {it.group && g.items[idx - 1]?.group !== it.group && (
-                            <span className="n3-macc-group">{it.group}</span>
-                          )}
-                          {it.action === 'callback' ? (
-                            <button type="button" className="n3-macc-link n3-nav-action" onClick={openNavCallback}>
-                              <span className="n3-macc-lbl">{it.label}</span>
-                              <span className="n3-macc-desc">{it.desc}</span>
-                            </button>
-                          ) : it.to ? (
-                            <Link to={it.to} className="n3-macc-link" onClick={() => setMenuOpen(false)}>
-                              <span className="n3-macc-lbl">{it.label}</span>
-                              <span className="n3-macc-desc">{it.desc}</span>
-                            </Link>
-                          ) : (
-                            <a href={it.href} className="n3-macc-link" onClick={() => setMenuOpen(false)}>
-                              <span className="n3-macc-lbl">{it.label}</span>
-                              <span className="n3-macc-desc">{it.desc}</span>
-                            </a>
-                          )}
-                        </Fragment>
-                      ))}
-                      {g.all && (
-                        <Link to={g.all.to} className="n3-navall n3-macc-all" onClick={() => setMenuOpen(false)}>
-                          <span className="n3-navall-label">{g.all.label}</span>
-                          <span className="n3-navall-meta">{g.all.meta}</span>
-                          <ArrowRight size={15} className="n3-navall-arrow" aria-hidden="true" />
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-              {/* The two rows with no submenu to open. On /new3 they scroll the
-                  page; from here they land on the homepage's own sections. */}
-              {[{ label: 'Clips', href: `${HOME}#reels` }, { label: 'Reviews', href: `${HOME}#reviews` }].map((n) => (
-                <a key={n.label} href={n.href} className="n3-macc-plain" onClick={() => setMenuOpen(false)}>
-                  {n.label}
-                  <span className="h26-menu-chev"><ArrowRight size={16} /></span>
-                </a>
-              ))}
-            </nav>
-            <div className="h26-menu-divider" />
-            <div className="h26-menu-secondary">
-              <Link to="/journeys4" onClick={() => setMenuOpen(false)}>All journeys <ArrowUpRight size={13} /></Link>
-              <Link to="/journeys4" onClick={() => setMenuOpen(false)}>Destinations <ArrowUpRight size={13} /></Link>
-              <Link to="/about-us2" onClick={() => setMenuOpen(false)}>Our story <ArrowUpRight size={13} /></Link>
-              <Link to={CALLBACK} onClick={() => setMenuOpen(false)}>Contact <ArrowUpRight size={13} /></Link>
-            </div>
-            <button type="button" className="h26-btn h26-btn-pill h26-menu-cta" onClick={openNavCallback}>
-              <Phone size={16} /> Schedule a call
-            </button>
-            <div className="h26-menu-foot">
-              <span className="h26-menu-eyebrow">Follow the journey</span>
-              <div className="h26-menu-social">
-                <a href="#" aria-label="Instagram"><Instagram size={18} /></a>
-                <a href="#" aria-label="Facebook"><Facebook size={18} /></a>
-                <a href="#" aria-label="YouTube"><Youtube size={18} /></a>
-                <a href="#" aria-label="LinkedIn"><Linkedin size={18} /></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* The /new3 chrome, shared with every other page. It renders the skip
+          link too — pointed at the results grid, since on a listing page the
+          filters are chrome and the journeys are the content. */}
+      <SiteNav skipTo="#results" skipLabel="Skip to journeys" />
 
       {/* ---------- COMPACT HERO BANNER + SEARCH ---------- */}
       <section className="jl-hero jl2-hero">
@@ -1393,52 +1145,7 @@ export default function Journeys4() {
         </div>
       </section>
 
-      {/* ---------- FOOTER (the /new3 footer, verbatim) ----------
-           Same wrapper as the header: .h26 carries the colour tokens the
-           footer's rules resolve against, `new-typo n3` the type and the gutter.
-           Its in-page anchors are rebased onto HOME for the same reason as the
-           nav's — #heritage and #reviews live on the homepage. */}
-      <div className="h26 new-typo n3">
-        <footer className="h26-footer">
-          <div className="h26-footer-top">
-            <div className="h26-footer-brand">
-              <img src="/cox-logo-new.png" alt="Cox & Kings" />
-              <p>The world's most experienced travel company. Established 1758.</p>
-              <div className="h26-footer-contact">
-                <a href={CONTACT.phoneHref}><Phone size={15} /> {CONTACT.phoneDisplay}</a>
-                <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
-              </div>
-            </div>
-            <div className="h26-footer-cols">
-              <div>
-                <h4>Travel</h4>
-                <Link to="/journeys4">Group tours</Link>
-                <Link to={CALLBACK}>Bespoke holidays</Link>
-                <Link to="/journeys4">Luxury journeys</Link>
-                <Link to="/journeys4">Destinations</Link>
-              </div>
-              <div>
-                <h4>Company</h4>
-                <Link to="/about-us2">Our story</Link>
-                <Link to="/about-us2">Specialists</Link>
-                <Link to={CALLBACK}>Contact</Link>
-                <a href={`${HOME}#heritage`}>Why Cox &amp; Kings</a>
-              </div>
-              <div>
-                <h4>Assurance</h4>
-                <a href={`${HOME}#heritage`}>Trust &amp; safety</a>
-                <a href={`${HOME}#reviews`}>Reviews</a>
-                <Link to={CALLBACK}>Refund policy</Link>
-                <Link to={CALLBACK}>Speak to an expert</Link>
-              </div>
-            </div>
-          </div>
-          <div className="h26-footer-bottom">
-            <span>© {new Date().getFullYear()} Cox &amp; Kings. Travelling the world since 1758.</span>
-            <span className="h26-footer-assoc">IATA · TAAI · ASTA</span>
-          </div>
-        </footer>
-      </div>
+      <SiteFooter />
 
       {/* ---------- PHOTO LIGHTBOX ---------- */}
       <AnimatePresence>

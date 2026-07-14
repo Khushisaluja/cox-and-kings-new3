@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
+import { SiteNav, SiteFooter } from '../components/SiteChrome';
 import {
-  Menu, X, ArrowRight, ArrowLeft, ArrowUpRight, ChevronDown,
+  X, ArrowRight, ArrowLeft, ArrowUpRight, ChevronDown,
   Star, MapPin, Calendar, Users, Check, Plus, Minus, Lock, Quote,
   ShieldCheck, Phone, MessageCircle, PhoneCall, Sparkles, Clock,
-  Wallet, Repeat, Stamp, CheckCircle2, Instagram, Facebook, Youtube, Linkedin,
+  Wallet, Repeat, Stamp, CheckCircle2,
   Hotel, Utensils, Compass, Headset, Flame, Zap, BadgeCheck, Plane,
   CreditCard, FileText, AlertTriangle, RefreshCcw, Building2, UserCheck,
   HeartPulse, BedDouble, CloudLightning, Gavel, Scale, Car, UserPlus, Trash2,
@@ -40,43 +41,10 @@ const sizedUnsplash = (id, w = 1200) =>
 const PHONE_DISPLAY = '+91 85560 01700';
 const PHONE_TEL = 'tel:+918556001700';
 const WHATSAPP = 'https://wa.me/918556001700?text=Hi%20Cox%20%26%20Kings%2C%20I%27d%20like%20to%20book%20the%20Pattaya%20%26%20Bangkok%20Escape.';
-const EMAIL = 'holidays@coxandkings.com';
 const HOME = '/';
 
-/* Desktop nav megamenus — same shape as the /new homepage, remapped
-   to the sections on this tour-detail page. */
-const NAV_MENU = [
-  {
-    label: 'This tour', href: '#highlights',
-    blurb: 'Everything about the Pattaya & Bangkok Escape.',
-    items: [
-      { label: 'Highlights', desc: 'What makes this trip special', href: '#highlights' },
-      { label: 'Day by day', desc: 'The full itinerary', href: '#itinerary' },
-      { label: 'Dates & prices', desc: 'Departures and fares', href: '#dates' },
-    ],
-  },
-  {
-    label: 'Journeys', href: `${HOME}#curated`,
-    blurb: 'Signature itineraries, ready to make your own.',
-    items: [
-      { label: 'Private tours', desc: 'Just your party, your pace', href: `${HOME}#curated` },
-      { label: 'Tailor-made trips', desc: 'Designed entirely around you', href: `${HOME}#curated` },
-      { label: 'Honeymoons & milestones', desc: 'Celebrate something special', href: `${HOME}#curated` },
-      { label: 'All destinations', desc: 'Browse the full map', href: `${HOME}#destinations` },
-    ],
-  },
-  {
-    label: 'Why us', href: `${HOME}#heritage`,
-    blurb: 'Specialists, not salespeople — and 260 years behind every trip.',
-    items: [
-      { label: 'Since 1758', desc: 'Heritage you can lean on', href: `${HOME}#heritage` },
-      { label: 'Why Cox & Kings', desc: 'How we plan differently', href: `${HOME}#curated` },
-      { label: 'Real reviews', desc: '2,400+ verified travellers', href: '#reviews' },
-      { label: 'Press & awards', desc: 'The press that covers us', href: `${HOME}#reviews` },
-    ],
-  },
-  { label: 'Reviews', href: '#reviews' },
-];
+/* The navbar and footer are the shared site chrome (SiteNav / SiteFooter) —
+   this page no longer carries its own nav data or footer markup. */
 
 /* ---------- Tour data (Pattaya & Bangkok Escape) ----------
    PRICE is the headline "from" fare — the lowest across all 2026 departures
@@ -535,9 +503,7 @@ function useReveal() {
 }
 
 export default function ThailandEscape2() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
   const [activeDay, setActiveDay] = useState(0);
   const [openDay, setOpenDay] = useState(-1);
@@ -602,13 +568,6 @@ export default function ThailandEscape2() {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
   /* The hero already carries a "Book now" — the floating one only earns its
      place once that has scrolled away, so the two never sit on screen at once. */
   useEffect(() => {
@@ -619,11 +578,14 @@ export default function ThailandEscape2() {
     return () => io.disconnect();
   }, []);
 
+  /* The nav drawer locks the body itself (SiteNav owns that); this only covers
+     the page's own overlays — the callback dialog, the policy modal and the
+     traveller-details drawer. */
   useEffect(() => {
-    const lock = menuOpen || callbackOpen || termsModalOpen || detailsOpen;
+    const lock = callbackOpen || termsModalOpen || detailsOpen;
     document.body.style.overflow = lock ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [menuOpen, callbackOpen, termsModalOpen, detailsOpen]);
+  }, [callbackOpen, termsModalOpen, detailsOpen]);
 
   useEffect(() => {
     if (!callbackOpen && !termsModalOpen && !detailsOpen) return;
@@ -650,7 +612,6 @@ export default function ThailandEscape2() {
   }, []);
 
   const navClick = useCallback((href) => (e) => {
-    setMenuOpen(false);
     if (href.startsWith('#')) {
       e.preventDefault();
       const el = document.querySelector(href);
@@ -658,7 +619,7 @@ export default function ThailandEscape2() {
     }
   }, []);
 
-  const openCallback = useCallback((e) => { if (e) e.preventDefault(); setMenuOpen(false); setCallbackSent(false); setCallbackOpen(true); }, []);
+  const openCallback = useCallback((e) => { if (e) e.preventDefault(); setCallbackSent(false); setCallbackOpen(true); }, []);
 
   /* One card per person in the drawer. Adult 0 is the lead: they can't be
      removed, and theirs is the only phone number we insist on. */
@@ -743,94 +704,11 @@ export default function ThailandEscape2() {
     <>
       <div className="lx2i lxjt lxjt2 lxjt3 lxjt4 lxjt5 tha tha2">
         <div className="lx2i-grain" aria-hidden="true" />
-        <a className="lxjt-skip" href="#main">Skip to content</a>
 
-        {/* ============ HEADER + MOBILE MENU ============ */}
-        <div className="h26">
-          <header className={`h26-nav${scrolled ? ' is-solid' : ''}`}>
-            <Link to={HOME} className="h26-brand" aria-label="Cox & Kings — home">
-              <img src="/cox-logo-new.png" alt="Cox & Kings" />
-            </Link>
-            <nav className="h26-links hi-nav" aria-label="Primary">
-              {NAV_MENU.map((group) => (
-                <div className="hi-nav-group" key={group.label}>
-                  <a href={group.href} onClick={navClick(group.href)} className="hi-nav-top" aria-haspopup={group.items ? 'true' : undefined}>
-                    {group.label}
-                    {group.items && <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />}
-                  </a>
-                  {group.items && (
-                    <div className="hi-nav-flyout" role="menu">
-                      <div className="hi-nav-flyout-inner">
-                        <p className="hi-nav-blurb">{group.blurb}</p>
-                        <ul className="hi-nav-list">
-                          {group.items.map((it) => (
-                            <li key={it.label}>
-                              <a href={it.href} onClick={navClick(it.href)} role="menuitem" className="hi-nav-item">
-                                <span className="hi-nav-item-label">{it.label}</span>
-                                <span className="hi-nav-item-desc">{it.desc}</span>
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </nav>
-            <div className="h26-nav-cta">
-              <a href={PHONE_TEL} className="h26-phone">
-                <Phone size={15} /> <span>{PHONE_DISPLAY}</span>
-              </a>
-              <a href="#dates" onClick={navClick('#dates')} className="h26-btn h26-btn-pill">Book now</a>
-              <button className="h26-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
-                <Menu size={22} />
-              </button>
-            </div>
-          </header>
-
-          {/* Mobile slide-in menu */}
-          <div className={`h26-menu${menuOpen ? ' is-open' : ''}`} aria-hidden={!menuOpen}>
-            <div className="h26-menu-scrim" onClick={() => setMenuOpen(false)} />
-            <div className="h26-menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
-              <div className="h26-menu-top">
-                <button className="h26-menu-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={20} /></button>
-                <img className="h26-menu-logo" src="/cox-logo-new.png" alt="Cox & Kings — Est. 1758" />
-              </div>
-              <nav className="h26-menu-primary" aria-label="Mobile primary">
-                {[
-                  { label: 'Highlights', href: '#highlights' },
-                  { label: 'Day by day', href: '#itinerary' },
-                  { label: 'Book now', href: '#dates' },
-                  { label: 'Reviews', href: '#reviews' },
-                ].map((n) => (
-                  <a key={n.label} href={n.href} onClick={navClick(n.href)}>
-                    {n.label}
-                    <span className="h26-menu-chev"><ArrowRight size={16} /></span>
-                  </a>
-                ))}
-              </nav>
-              <div className="h26-menu-divider" />
-              <div className="h26-menu-secondary">
-                <a href={HOME} onClick={navClick(HOME)}>All journeys <ArrowUpRight size={13} /></a>
-                <a href={`${HOME}#destinations`} onClick={navClick(`${HOME}#destinations`)}>Destinations <ArrowUpRight size={13} /></a>
-                <a href={`${HOME}#heritage`} onClick={navClick(`${HOME}#heritage`)}>Our story <ArrowUpRight size={13} /></a>
-              </div>
-              <a href="#dates" className="h26-btn h26-btn-pill h26-menu-cta" onClick={navClick('#dates')}>
-                <Zap size={16} /> Book this tour
-              </a>
-              <div className="h26-menu-foot">
-                <span className="h26-menu-eyebrow">Follow the journey</span>
-                <div className="h26-menu-social">
-                  <a href="#" aria-label="Instagram"><Instagram size={18} /></a>
-                  <a href="#" aria-label="Facebook"><Facebook size={18} /></a>
-                  <a href="#" aria-label="YouTube"><Youtube size={18} /></a>
-                  <a href="#" aria-label="LinkedIn"><Linkedin size={18} /></a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* ============ SHARED SITE CHROME ============
+            The /new3 navbar — desktop mega-menu flyouts, mobile drawer
+            accordion — and its own skip link, which lands on #main below. */}
+        <SiteNav />
 
         <main id="main">
           {/* ============ HERO ============ */}
@@ -1363,49 +1241,11 @@ export default function ThailandEscape2() {
             </div>
           </section>
 
-          {/* ============ FOOTER ============ */}
-          <footer className="lx2i-footer">
-            <div className="lx2i-container lx2i-footer__top">
-              <div className="lx2i-footer__brand">
-                <img src="/cox-logo-new.png" alt="Cox & Kings — Est. 1758" />
-                <p>The world&rsquo;s most experienced travel company.<br />Trusted by generations since 1758.</p>
-                <div className="lx2i-footer__social">
-                  <a href="#" aria-label="Instagram"><Instagram size={17} /></a>
-                  <a href="#" aria-label="Facebook"><Facebook size={17} /></a>
-                  <a href="#" aria-label="YouTube"><Youtube size={17} /></a>
-                  <a href="#" aria-label="LinkedIn"><Linkedin size={17} /></a>
-                </div>
-              </div>
-              <div className="lx2i-footer__cols">
-                <div>
-                  <span className="lx2i-eyebrow">EXPLORE</span>
-                  <Link to={`${HOME}#destinations`}>Destinations</Link>
-                  <Link to={`${HOME}#curated`}>Curated Journeys</Link>
-                  <Link to={`${HOME}#heritage`}>Our Heritage</Link>
-                  <a href="#reviews" onClick={navClick('#reviews')}>Reviews</a>
-                </div>
-                <div>
-                  <span className="lx2i-eyebrow">COMPANY</span>
-                  <a href={PHONE_TEL}>Speak to an Expert</a>
-                  <a href="#">About Us</a>
-                  <a href="#">Press Room</a>
-                  <a href="#">Careers</a>
-                </div>
-                <div>
-                  <span className="lx2i-eyebrow">SPEAK TO A HUMAN</span>
-                  <a href={PHONE_TEL}><Phone size={13} /> {PHONE_DISPLAY}</a>
-                  <a href={WHATSAPP} target="_blank" rel="noopener noreferrer"><MessageCircle size={13} /> Chat on WhatsApp</a>
-                  <a href="#" onClick={openCallback}><PhoneCall size={13} /> Request a callback</a>
-                  <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
-                </div>
-              </div>
-            </div>
-            <div className="lx2i-container lx2i-footer__bottom">
-              <p>© 2026 Cox &amp; Kings. Est. 1758.</p>
-              <div className="lx2i-footer__legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
-            </div>
-          </footer>
         </main>
+
+        {/* The shared /new3 footer. It sits outside <main> — it is site chrome,
+            not page content. */}
+        <SiteFooter />
 
         {/* ============ MOBILE THUMB-REACH BAR — book now ============ */}
         <div className="lxjt-thumbbar">
