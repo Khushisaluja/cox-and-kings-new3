@@ -29,3 +29,9 @@ Screenshot*.png
 *critique*.md
 *Persona-UX-Review*
 persona-reviews.md
+
+# font sources & type exploration — the app serves its webfonts from
+# public/fonts/, so these original copies are never part of the build
+Mozaic HUM copy/
+Zodaik Font/
+Font Combinations/
