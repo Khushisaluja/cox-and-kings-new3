@@ -225,6 +225,12 @@
   font-weight: 700;
 }
 
+/* Hero heading reads in a single white — "cherry blossoms" keeps its italic
+   emphasis but drops the sienna accent (.lxjt4) so the title is one colour. */
+.lxjt5 .lxjt-hero__accent {
+  color: #fff;
+}
+
 /* Serif nav links sit between display and body; 500 keeps them from
    reading as copy without turning them into headings.
 
