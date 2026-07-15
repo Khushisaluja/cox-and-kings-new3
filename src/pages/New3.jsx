@@ -1056,6 +1056,18 @@ export default function New3() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  /* The hero already carries its own CTAs (search + quick picks), so the mobile
+     thumb-bar only earns its place once the hero has scrolled away — the two
+     never sit on screen at once. */
+  const [pastHero, setPastHero] = useState(false);
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const io = new IntersectionObserver(([e]) => setPastHero(!e.isIntersecting), { threshold: 0 });
+    io.observe(hero);
+    return () => io.disconnect();
+  }, []);
+
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 680px)');
@@ -1754,7 +1766,7 @@ export default function New3() {
       </div>
 
       {/* Mobile thumb-reach bar — chat + Enaya (AI) + schedule-a-callback */}
-      <div className={`h26-thumbbar${activeReel !== null ? ' is-hidden' : ''}`}>
+      <div className={`h26-thumbbar${activeReel !== null || !pastHero ? ' is-hidden' : ''}`} aria-hidden={activeReel !== null || !pastHero}>
         <button type="button" className="h26-thumbbar-cta" onClick={() => setChatOpen(true)}>
           <MessageCircle size={18} /> Chat with an expert
         </button>

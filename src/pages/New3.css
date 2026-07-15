@@ -919,6 +919,24 @@
   .n3 .n3-thumb-ai span { display: none; }
 }
 
+/* Gate the thumb-bar on the hero. The hero already carries its own CTAs, so the
+   bar stays off-screen while it's in view and slides up once it scrolls away.
+   The shared .h26-thumbbar.is-hidden uses display:none (an abrupt cut, kept for
+   the reels player on the other .h26 pages); here we override it mobile-only
+   with a transform so the reveal on scroll is a slide, not a pop. The extra
+   `.n3` on the hidden selector out-specifies that shared rule. */
+@media (max-width: 680px) {
+  .n3 .h26-thumbbar {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .n3 .h26-thumbbar.is-hidden {
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(calc(100% + 24px));
+  }
+}
+
 /* ---- 17. Destinations without a page yet -------------------------------
    Japan is the only country page built. The other destinations are inert for
    now — they simply don't navigate, rather than quietly landing you on Japan's

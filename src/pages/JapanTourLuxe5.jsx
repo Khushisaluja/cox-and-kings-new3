@@ -1991,8 +1991,10 @@ export default function JapanTourLuxe5() {
         {/* ============ MOBILE THUMB-REACH BAR ============
              Floating dark-glass bar, matching the /new3 homepage. The quote is
              the primary action and carries the label; WhatsApp is the secondary
-             and needs no label — the glyph is the whole message. */}
-        <div className="lxjt5-tbar">
+             and needs no label — the glyph is the whole message. Gated on
+             pastHero like the desktop FAB: the hero already carries a CTA, so the
+             bar only slides in once the hero has scrolled away. */}
+        <div className={`lxjt5-tbar ${!pastHero ? 'is-hidden' : ''}`} aria-hidden={!pastHero}>
           <button type="button" className="lxjt5-tbar__cta" onClick={openQuote}>
             <FileText size={17} /> Get a free quote
           </button>

@@ -97,6 +97,15 @@
     -webkit-backdrop-filter: blur(22px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.16);
     box-shadow: 0 20px 50px -18px rgba(0, 0, 0, 0.6);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  /* While the hero (with its own CTA) is in view, the bar sits off-screen and
+     inert; it slides up once pastHero flips on scroll. */
+  .lxjt5 .lxjt5-tbar.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(calc(100% + 24px));
   }
 
   /* Primary: takes the remaining width, so the label never truncates. */
