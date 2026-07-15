@@ -627,9 +627,9 @@ const CABINS = [
 /* What they sleep in. The single biggest lever on a tailor-made land price,
    and the page sells a ryokan night as a headline — so it has to be askable. */
 const HOTEL_TIERS = [
-  { id: 'comfort', label: '4-star comfort', mult: 0.88, note: 'Well-located, dependable' },
-  { id: 'signature', label: '5-star signature', mult: 1, note: 'As the itinerary is written' },
-  { id: 'luxury', label: 'Luxury & ryokan', mult: 1.32, note: 'The best room in the house' },
+  { id: 'comfort', label: 'Standard', mult: 0.88, note: 'Well-located, dependable' },
+  { id: 'signature', label: 'Luxury', mult: 1, note: 'As the itinerary is written' },
+  { id: 'luxury', label: 'Royal', mult: 1.32, note: 'The best room in the house' },
 ];
 
 /* How firm the dates are. Costs nothing to ask and can save them a great deal
@@ -2274,9 +2274,9 @@ export default function JapanTourLuxe5() {
                       )}
 
                       <div className="lxjt5-q__togs">
-                        <QToggle icon={Baby} label="Baby on board" hint="Under 2 — we'll arrange a cot and a bassinet seat"
+                        <QToggle icon={Baby} label="Baby on board"
                           checked={q.infant} onChange={qSet('infant')} />
-                        <QToggle icon={Accessibility} label="Senior citizens travelling" hint="We'll pace the days and flag step-free rooms"
+                        <QToggle icon={Accessibility} label="Senior citizens travelling"
                           checked={q.seniors} onChange={qSet('seniors')} />
                       </div>
                     </fieldset>
