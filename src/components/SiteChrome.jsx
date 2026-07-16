@@ -366,6 +366,7 @@ export function SiteFooter() {
               <Link to="/about-us2">Our story</Link>
               <Link to="/vision-mission">Vision &amp; Mission</Link>
               <Link to="/about-us2/team">Specialists</Link>
+              <Link to="/careers">Careers</Link>
               <Link to={CALLBACK}>Contact</Link>
               {home
                 ? <a href="#heritage">Why Cox &amp; Kings</a>

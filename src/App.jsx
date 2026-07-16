@@ -9,6 +9,8 @@ import ThailandEscape2 from './pages/ThailandEscape2';
 import AboutUs from './pages/AboutUs';
 import Team from './pages/Team';
 import VisionMission from './pages/VisionMission';
+import Careers from './pages/Careers';
+import CareerRole from './pages/CareerRole';
 import Inspiration from './pages/Inspiration';
 import InspirationArticle from './pages/InspirationArticle';
 import PrivateItaly from './pages/PrivateItaly';
@@ -99,6 +101,13 @@ export default function App() {
               "About us" in the nav, the footer's Company column, and a button on
               the About page. */}
           <Route path="/vision-mission" element={<VisionMission />} />
+
+          {/* CAREERS — the recruitment page (centre-aligned hero, "why work
+              here" ledger, searchable/filterable open roles, and a speculative
+              reach-out form). /careers/:slug is the job-description page behind
+              every "View role", with its own application form. */}
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/careers/:slug" element={<CareerRole />} />
 
           {/* INSPIRATION — "Dispatches", the journal. The create-desire job given
               its own room: a traveller who is inspired but undecided has nothing
