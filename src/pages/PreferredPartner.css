@@ -1,0 +1,513 @@
+/* ============================================================================
+   Become a Preferred Sales Partner — /become-a-partner
+
+   Rebuilt form-first. No scroll-driven anything: the only motion is one CSS
+   load-in on the hero and hover transitions on cards, so nothing can flash,
+   stick, or jump. All colour/spacing/type reads from the .n3 homepage tokens
+   the page is wrapped in (--n-0/50/100/150, --ink, --blue, --navy, --sienna,
+   --serif = Cormorant, --sans = Work Sans, --n3-content = 1360px).
+   ========================================================================== */
+
+.pp {
+  background: var(--n-50);
+  color: var(--ink);
+}
+.pp *,
+.pp *::before,
+.pp *::after { box-sizing: border-box; }
+
+/* Shared inner container — matches the site's 1360px content width. */
+.pp .pp-wrap {
+  width: 100%;
+  max-width: var(--n3-content);
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3vw, 56px);
+}
+
+/* Shared eyebrow — 11px Work Sans, sienna, tracked, small caps feel. */
+.pp .pp-eyebrow {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin: 0 0 14px;
+}
+.pp .pp-eyebrow--light { color: #E9A98C; }
+
+/* Shared section heading — Cormorant, weight 500. */
+.pp .pp-h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+.pp .pp-h2 em { font-style: italic; color: var(--sienna); }
+
+.pp .pp-section { padding-block: clamp(56px, 6.5vw, 104px); }
+.pp .pp-head { max-width: 720px; margin: 0 0 clamp(32px, 4vw, 52px); }
+
+/* ============================================================ HERO + FORM ==== */
+.pp .pp-hero {
+  position: relative;
+  isolation: isolate;
+  background: var(--navy);
+  padding-top: clamp(120px, 15vh, 168px);
+  padding-bottom: clamp(48px, 6vw, 88px);
+  overflow: hidden;
+}
+/* A committed, clearly-visible photograph — full strength, not a faded wash. */
+.pp .pp-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    url('https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=2200&q=80');
+  background-size: cover;
+  background-position: center;
+}
+/* Directional scrim: near-opaque navy over the LEFT text column, fading toward
+   the right so the photo stays plainly visible; plus a soft bottom fade so the
+   hero grounds into the stats band. The white form card is opaque, so it reads
+   fine sitting over the exposed image. */
+.pp .pp-hero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg,
+      rgba(2, 15, 38, 0.94) 0%,
+      rgba(2, 15, 38, 0.82) 34%,
+      rgba(2, 15, 38, 0.46) 66%,
+      rgba(2, 15, 38, 0.30) 100%),
+    linear-gradient(180deg,
+      rgba(2, 15, 38, 0.28) 0%,
+      rgba(2, 15, 38, 0) 38%,
+      rgba(2, 12, 30, 0.58) 100%);
+}
+
+.pp .pp-hero__inner {
+  width: 100%;
+  max-width: var(--n3-content);
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3vw, 56px);
+  display: grid;
+  grid-template-columns: 1fr minmax(380px, 480px);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+
+/* Left — the pitch. */
+.pp .pp-hero__intro {
+  color: #F4F1E9;
+  animation: pp-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.pp .pp-hero__title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(34px, 4.6vw, 60px);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  color: #FCFBF7;
+  margin: 0 0 20px;
+  max-width: 15ch;
+}
+.pp .pp-hero__title em { font-style: italic; color: #E9A98C; }
+.pp .pp-hero__lead {
+  font-family: var(--sans);
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.6;
+  color: rgba(244, 241, 233, 0.82);
+  margin: 0 0 26px;
+  max-width: 46ch;
+}
+.pp .pp-hero__points {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  gap: 11px;
+}
+.pp .pp-hero__points li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  color: rgba(244, 241, 233, 0.92);
+}
+.pp .pp-hero__points svg { color: #7FB2E8; flex: none; }
+.pp .pp-hero__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+}
+.pp .pp-hero__contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: rgba(244, 241, 233, 0.88);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.pp .pp-hero__contact a:hover { color: #fff; }
+.pp .pp-hero__contact svg { color: #E9A98C; }
+
+/* Right — THE FORM CARD. This is the page's job. */
+.pp .pp-formcard {
+  background: var(--n-0);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 32px 70px -28px rgba(2, 19, 48, 0.55), 0 4px 14px -6px rgba(2, 19, 48, 0.3);
+  padding: clamp(24px, 2.4vw, 34px);
+  animation: pp-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.08s;
+  scroll-margin-top: 96px;
+}
+.pp .pp-formcard__head { margin-bottom: 20px; }
+.pp .pp-formcard__eyebrow {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sienna);
+  margin-bottom: 8px;
+}
+.pp .pp-formcard__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(24px, 2.4vw, 30px);
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.pp .pp-formcard__sub {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------- the form -- */
+.pp .pp-form { display: grid; gap: 14px; }
+.pp .pp-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.pp .pp-field { display: grid; gap: 6px; }
+.pp .pp-field label {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+.pp .pp-optional { font-weight: 400; color: var(--muted-2, #696960); }
+.pp .pp-field input,
+.pp .pp-field select,
+.pp .pp-field textarea {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  color: var(--ink);
+  background: var(--n-50);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 13px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  appearance: none;
+}
+.pp .pp-field textarea { resize: vertical; min-height: 58px; line-height: 1.5; }
+.pp .pp-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234A4A45' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 34px;
+  cursor: pointer;
+}
+.pp .pp-field input::placeholder,
+.pp .pp-field textarea::placeholder { color: #A6A49A; }
+.pp .pp-field input:focus,
+.pp .pp-field select:focus,
+.pp .pp-field textarea:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(11, 90, 177, 0.14);
+}
+.pp .pp-form__submit { width: 100%; margin-top: 4px; }
+.pp .pp-form__note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--muted);
+  margin: 2px 0 0;
+}
+.pp .pp-form__note svg { color: var(--blue); }
+
+/* ---- confirmation state, in place ---- */
+.pp .pp-done { text-align: center; padding: 14px 6px 6px; }
+.pp .pp-done__ic {
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(11, 90, 177, 0.1);
+  color: var(--blue);
+  margin-bottom: 16px;
+}
+.pp .pp-done__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+.pp .pp-done__p {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 auto 20px;
+  max-width: 36ch;
+}
+.pp .pp-done__btn { width: 100%; }
+
+/* =================================================================== STATS ==== */
+.pp .pp-stats {
+  background: var(--navy);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pp .pp-stats__grid {
+  width: 100%;
+  max-width: var(--n3-content);
+  margin: 0 auto;
+  padding: clamp(28px, 3.4vw, 44px) clamp(16px, 3vw, 56px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.pp .pp-stat { text-align: center; }
+.pp .pp-stat__n {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(32px, 3.6vw, 46px);
+  line-height: 1;
+  color: #FCFBF7;
+}
+.pp .pp-stat__sup {
+  font-size: 0.44em;
+  vertical-align: super;
+  margin-left: 3px;
+  color: #E9A98C;
+}
+.pp .pp-stat__l {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(244, 241, 233, 0.62);
+  margin: 8px 0 0;
+}
+
+/* =========================================================== CARD SECTIONS ==== */
+.pp .pp-why { background: var(--n-50); }
+.pp .pp-who { background: var(--n-100); }
+.pp .pp-how { background: var(--n-50); }
+
+.pp .pp-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.pp .pp-cards--4 { grid-template-columns: repeat(4, 1fr); }
+.pp .pp-card {
+  background: var(--n-0);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 26px 24px;
+  transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.pp .pp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -22px rgba(2, 19, 48, 0.28);
+  border-color: #C7C4B4;
+}
+.pp .pp-card__ic {
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(11, 90, 177, 0.08);
+  color: var(--blue);
+  margin-bottom: 16px;
+}
+.pp .pp-card__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.pp .pp-card__b {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* =============================================================== HOW / STEPS == */
+.pp .pp-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.pp .pp-step {
+  position: relative;
+  padding: 26px 22px;
+  background: var(--n-0);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.pp .pp-step__n {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--sienna);
+  margin-bottom: 14px;
+}
+.pp .pp-step__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.pp .pp-step__b {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ============================================================= CLOSING CTA ==== */
+.pp .pp-cta {
+  background: var(--navy);
+  color: #F4F1E9;
+  padding-block: clamp(48px, 5.5vw, 84px);
+}
+.pp .pp-cta__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+.pp .pp-cta__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.06;
+  color: #FCFBF7;
+  margin: 0 0 10px;
+  max-width: 18ch;
+}
+.pp .pp-cta__p {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(244, 241, 233, 0.78);
+  margin: 0;
+  max-width: 42ch;
+}
+.pp .pp-cta__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.pp .pp-cta__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #E9A98C;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.pp .pp-cta__link:hover { color: #fff; }
+
+/* ==================================================================== MOTION == */
+@keyframes pp-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pp .pp-hero__intro,
+  .pp .pp-formcard { animation: none; }
+  .pp .pp-card { transition: none; }
+}
+
+/* ================================================================ RESPONSIVE == */
+@media (max-width: 1024px) {
+  .pp .pp-hero__inner { grid-template-columns: 1fr; gap: 32px; }
+  .pp .pp-hero__intro { max-width: 640px; }
+  .pp .pp-formcard { max-width: 560px; }
+  .pp .pp-cards,
+  .pp .pp-cards--4,
+  .pp .pp-steps { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 1024px) {
+  /* Stacked layout — text no longer lives only on the left, so darken evenly
+     across the width instead of only over the (now full-width) left column. */
+  .pp .pp-hero__veil {
+    background:
+      linear-gradient(180deg,
+        rgba(2, 15, 38, 0.66) 0%,
+        rgba(2, 15, 38, 0.52) 45%,
+        rgba(2, 12, 30, 0.72) 100%);
+  }
+}
+
+@media (max-width: 640px) {
+  .pp .pp-hero { padding-top: clamp(104px, 14vh, 140px); }
+  .pp .pp-hero__title { font-size: clamp(30px, 8vw, 40px); }
+  .pp .pp-formcard { padding: 22px 18px; }
+  .pp .pp-field-row { grid-template-columns: 1fr; }
+  .pp .pp-stats__grid { grid-template-columns: repeat(2, 1fr); gap: 22px 16px; }
+  .pp .pp-cards,
+  .pp .pp-cards--4,
+  .pp .pp-steps { grid-template-columns: 1fr; }
+  .pp .pp-cta__inner { flex-direction: column; align-items: flex-start; }
+  .pp .pp-cta__actions { width: 100%; }
+  .pp .pp-cta__actions .h26-btn { width: 100%; }
+}

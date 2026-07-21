@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import New3 from './pages/New3';
 import Journeys4 from './pages/Journeys4';
+import Journeys4Group from './pages/Journeys4Group';
+import Journeys4Private from './pages/Journeys4Private';
 import JapanJourneys2 from './pages/JapanJourneys2';
 import CityJourneys from './pages/CityJourneys';
 import JapanTourLuxe5 from './pages/JapanTourLuxe5';
@@ -15,6 +17,9 @@ import Inspiration from './pages/Inspiration';
 import InspirationArticle from './pages/InspirationArticle';
 import PrivateItaly from './pages/PrivateItaly';
 import GroupJapan from './pages/GroupJapan';
+import GiftVouchers from './pages/GiftVouchers';
+import PreferredPartner from './pages/PreferredPartner';
+import Terms from './pages/Terms';
 import { ScheduleCallProvider } from './components/ScheduleCall';
 
 /* A new route always starts at the top — except when the link carried a hash
@@ -74,6 +79,16 @@ export default function App() {
               style) and ?pace=. Every tour card leads to /tour-detail-japan-5. */}
           <Route path="/journeys4" element={<Journeys4 />} />
 
+          {/* GROUP-TOURS listing — the same sidebar-filtered grid as /journeys4,
+              pre-narrowed to escorted, fixed-departure group tours, with a hero
+              that speaks to that audience. */}
+          <Route path="/journeys4-group" element={<Journeys4Group />} />
+
+          {/* PRIVATE / BESPOKE listing — the same sidebar-filtered grid as
+              /journeys4, opening on the "Bespoke Private" trip-style filter,
+              with a hero that speaks to tailor-made travellers. */}
+          <Route path="/journeys4-private" element={<Journeys4Private />} />
+
           {/* Japan country page: hero + about, a filterable grid of the Japan
               tours, food & reservations, "where you'll go" city cards,
               testimonials. Its city cards are the only way into the city pages
@@ -109,6 +124,18 @@ export default function App() {
           <Route path="/careers" element={<Careers />} />
           <Route path="/careers/:slug" element={<CareerRole />} />
 
+          {/* GIFT VOUCHERS — send a virtual travel gift card to someone by
+              email or WhatsApp: pick an amount and a card design, write a note,
+              watch it build live, then hand over the ready-made send link.
+              /gift-cards is an alias so either name resolves. */}
+          <Route path="/gift-vouchers" element={<GiftVouchers />} />
+          <Route path="/gift-cards" element={<GiftVouchers />} />
+
+          {/* BECOME A PARTNER — the Preferred Sales Partner programme page for
+              GSA/PSA partners and travel agents wanting to sell Cox & Kings.
+              Covers the franchisee/preferred-agent enquiry in one page. */}
+          <Route path="/become-a-partner" element={<PreferredPartner />} />
+
           {/* INSPIRATION — "Dispatches", the journal. The create-desire job given
               its own room: a traveller who is inspired but undecided has nothing
               to do on a listing page, because they do not yet know what they want.
@@ -116,6 +143,12 @@ export default function App() {
               one corpus in src/data/dispatches.js. */}
           <Route path="/inspiration" element={<Inspiration />} />
           <Route path="/inspiration/:slug" element={<InspirationArticle />} />
+
+          {/* TERMS & CONDITIONS — the legal reference page, redesigned from the
+              live wall-of-headings into a searchable, scroll-spied document.
+              /info/terms-condition mirrors the live-site URL so old links land. */}
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/info/terms-condition" element={<Terms />} />
 
           {/* Meta ad landing pages — message-matched, deliberately not linked
               from the site. Live campaign destinations: check the running ads

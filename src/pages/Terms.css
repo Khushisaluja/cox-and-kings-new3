@@ -1,0 +1,343 @@
+/* ============================================================================
+   Cox & Kings — Terms & Conditions  (/pages/Terms.jsx)
+
+   Deliberately minimal. Every colour, font and size is a design-system token
+   the shared chrome already loads via the .n3 root (design.md): --serif
+   (Cormorant Garamond), --sans (Work Sans), --ink #1F2A36, --muted #4A4A45,
+   --blue #0B5AB1, --sienna #BD4011, --border #D9D7CB, --n-0/50 paper. This
+   sheet only lays out the two columns and typesets the document; it invents no
+   new palette, gradients or effects. Loaded last so `.tc …` wins.
+   ========================================================================== */
+
+/* The shared root sets `.h26.n3 { background: #000207 }` — near-black — because
+   the homepage floats a paper "sheet" panel over it. This page has no sheet, so
+   that black would show through. Override it at equal specificity with paper. */
+.h26.n3.tc { background: var(--n-50, #F8F7F1); }
+
+.tc {
+  color: var(--muted, #4A4A45);
+  font-family: var(--sans);
+  min-height: 100vh;
+  --tc-nav-off: 120px;                 /* clear the fixed nav */
+  /* This page has no full-bleed hero to fill the sides, so it uses a wider
+     band and slim gutters instead of the site's 1360px centred column — which
+     on a text page just reads as empty space on the left and right. */
+  --tc-max: 1720px;
+  --tc-pad: clamp(20px, 4vw, 64px);
+}
+
+/* --------------------------------------------------------------- masthead -- */
+.tc-masthead {
+  padding: var(--tc-nav-off) var(--tc-pad) 0;
+  border-bottom: 1px solid var(--border, #D9D7CB);
+}
+.tc-masthead-inner {
+  max-width: var(--tc-max);
+  margin: 0 auto;
+  padding-bottom: clamp(28px, 4vw, 44px);
+}
+.tc-eyebrow.h26-label { margin: 0 0 12px; }        /* uses the shared eyebrow */
+.tc-title {
+  font-family: var(--serif);
+  font-weight: 500;                                /* Cormorant loads 400+ */
+  font-size: clamp(2rem, 1.2rem + 2.4vw, 3.5rem);  /* the site's h26-h2 scale */
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--ink, #1F2A36);
+  margin: 0 0 16px;
+}
+.tc-lead {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--muted, #4A4A45);
+  margin: 0 0 18px;
+}
+/* Meta as readable tags/chips. */
+.tc-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+.tc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.82rem;
+  color: var(--ink, #1F2A36);
+  background: var(--n-0, #fff);
+  border: 1px solid var(--border, #D9D7CB);
+  border-radius: 999px;
+  padding: 5px 13px;
+}
+.tc-tag-key {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sienna, #BD4011);
+}
+
+/* ---------------------------------------------------------- shell + cols --- */
+.tc-shell {
+  max-width: var(--tc-max);
+  margin: 0 auto;
+  padding: clamp(32px, 4vw, 56px) var(--tc-pad) clamp(56px, 8vw, 96px);
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: clamp(40px, 5vw, 88px);
+  align-items: start;
+}
+
+/* ------------------------------------------------------------- left rail --- */
+.tc-rail-scrim { display: none; }
+.tc-rail-head { display: none; }
+
+/* Desktop sidebar. The pinning is done in JS (Terms.jsx) with position: fixed —
+   CSS `sticky` was being defeated by an ancestor in this app, so we don't rely
+   on it. The grid column (260px) stays reserved even while the panel is fixed,
+   so the content never shifts. This block only styles the panel's own scroll
+   for a long list; the JS sets position/top/left/width/max-height inline. */
+@media (min-width: 901px) {
+  .tc-rail { align-self: start; }
+  .tc-rail-panel {
+    max-height: calc(100vh - var(--tc-nav-off) - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 6px;
+    scrollbar-width: thin;
+  }
+  .tc-rail-panel::-webkit-scrollbar { width: 6px; }
+  .tc-rail-panel::-webkit-scrollbar-thumb { background: var(--border, #D9D7CB); border-radius: 3px; }
+}
+
+.tc-search { position: relative; display: flex; align-items: center; margin-bottom: 18px; }
+.tc-search-icon { position: absolute; left: 12px; color: var(--muted-2, #797871); pointer-events: none; }
+.tc-search-input {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--ink, #1F2A36);
+  padding: 10px 34px 10px 34px;
+  background: var(--n-0, #fff);
+  border: 1px solid var(--border, #D9D7CB);
+  border-radius: 4px;                              /* design.md 4px system radius */
+  outline: none;
+  transition: border-color .16s ease, box-shadow .16s ease;
+  -webkit-appearance: none;
+}
+.tc-search-input::placeholder { color: var(--muted-2, #797871); }
+.tc-search-input::-webkit-search-cancel-button { display: none; }
+.tc-search-input:focus { border-color: var(--blue, #0B5AB1); box-shadow: 0 0 0 3px rgba(11,90,177,.12); }
+.tc-search-clear {
+  position: absolute; right: 8px;
+  display: grid; place-items: center;
+  width: 22px; height: 22px;
+  border: none; border-radius: 4px;
+  background: none; color: var(--muted-2, #797871);
+  cursor: pointer;
+}
+.tc-search-clear:hover { color: var(--ink, #1F2A36); }
+
+.tc-result-count { margin: -6px 0 16px; font-size: 0.78rem; color: var(--muted-2, #797871); }
+
+.tc-toc-empty { font-size: 0.86rem; color: var(--muted-2, #797871); }
+.tc-toc-group { margin-bottom: 20px; }
+.tc-toc-group:last-child { margin-bottom: 0; }
+.tc-toc-group-label {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted-2, #797871);
+  margin: 0 0 8px;
+}
+.tc-toc ul { list-style: none; margin: 0; padding: 0; }
+.tc-toc-link {
+  display: block;
+  padding: 5px 0 5px 14px;
+  border-left: 2px solid var(--border, #D9D7CB);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--muted, #4A4A45);
+  text-decoration: none;
+  transition: color .15s ease, border-color .15s ease;
+}
+.tc-toc-link:hover { color: var(--ink, #1F2A36); border-left-color: var(--muted-2, #797871); }
+.tc-toc-link.is-active { color: var(--blue, #0B5AB1); border-left-color: var(--blue, #0B5AB1); font-weight: 500; }
+
+/* --------------------------------------------------------------- content --- */
+/* Fill the grid column (same ~1360px content band the rest of the site uses) —
+   no narrow reading column leaving the right half empty. */
+.tc-content { min-width: 0; }
+
+.tc-section {
+  scroll-margin-top: var(--tc-nav-off);
+  padding-bottom: clamp(30px, 4vw, 44px);
+  margin-bottom: clamp(30px, 4vw, 44px);
+  border-bottom: 1px solid var(--border, #D9D7CB);
+}
+.tc-section:last-of-type { border-bottom: none; margin-bottom: 0; }
+
+.tc-section-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+  line-height: 1.2;
+  color: var(--ink, #1F2A36);
+  margin: 0 0 18px;
+}
+
+/* Readable body — Work Sans 400 (NOT light), comfortable measure + leading. */
+.tc-p {
+  font-size: 1.0625rem;                            /* ~17px */
+  line-height: 1.75;
+  color: var(--muted, #4A4A45);
+  margin: 0 0 16px;
+}
+.tc-p:last-child { margin-bottom: 0; }
+
+.tc-subhead {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink, #1F2A36);
+  margin: 26px 0 12px;
+}
+.tc-section-body > .tc-subhead:first-child { margin-top: 0; }
+
+/* The global reset sets `ul, ol { list-style: none }`, so markers are restored
+   explicitly here (or the bullets and numbers vanish). */
+.tc-list { list-style: disc; margin: 0 0 16px; padding-left: 22px; }
+.tc-list li { margin-bottom: 9px; font-size: 1.0625rem; line-height: 1.65; color: var(--muted, #4A4A45); }
+.tc-list li::marker { color: var(--sienna, #BD4011); }
+.tc-list--num { list-style: decimal; padding-left: 26px; }
+.tc-list--num li::marker { color: var(--blue, #0B5AB1); font-weight: 600; }
+
+/* Tables — quiet rules, paper header. */
+.tc-table-wrap {
+  margin: 4px 0 20px;
+  overflow-x: auto;
+  border: 1px solid var(--border, #D9D7CB);
+  border-radius: 4px;
+}
+.tc-table-wrap:focus-visible { outline: 2px solid var(--blue, #0B5AB1); outline-offset: 2px; }
+.tc-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.tc-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--ink, #1F2A36);
+  background: var(--n-100, #F1EFE2);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border, #D9D7CB);
+}
+.tc-table td {
+  padding: 11px 16px;
+  color: var(--muted, #4A4A45);
+  line-height: 1.5;
+  border-bottom: 1px solid var(--border, #D9D7CB);
+  vertical-align: top;
+}
+.tc-table tr:last-child td { border-bottom: none; }
+
+/* Advisory note — a plain left-ruled block, no icon, no fill flourish. */
+.tc-note {
+  margin: 4px 0 18px;
+  padding: 2px 0 2px 18px;
+  border-left: 3px solid var(--sienna, #BD4011);
+}
+.tc-note-title { font-weight: 600; color: var(--ink, #1F2A36); margin: 0 0 8px; font-size: 1rem; }
+.tc-note .tc-p:last-child, .tc-note .tc-list:last-child { margin-bottom: 0; }
+
+/* Search hit. */
+.tc-hit { background: #FCE7B3; color: inherit; border-radius: 2px; }
+
+/* Empty state. */
+.tc-empty { padding: clamp(40px, 9vw, 88px) 0; max-width: 440px; }
+.tc-empty-title { font-family: var(--serif); font-weight: 500; font-size: 1.6rem; color: var(--ink, #1F2A36); margin: 0 0 8px; }
+.tc-empty-sub { font-size: 0.95rem; line-height: 1.6; color: var(--muted-2, #797871); margin: 0 0 20px; }
+.tc-clear-btn {
+  font-family: var(--sans); font-size: 0.85rem; font-weight: 500;
+  color: var(--blue, #0B5AB1); background: none;
+  border: 1px solid var(--border, #D9D7CB); border-radius: 4px;
+  padding: 9px 18px; cursor: pointer;
+}
+.tc-clear-btn:hover { border-color: var(--blue, #0B5AB1); }
+
+/* ------------------------------------------------------- floating toolbar -- */
+.tc-mobile-toc-btn { display: none; }
+
+.tc-top {
+  position: fixed;
+  right: clamp(16px, 3vw, 28px);
+  bottom: clamp(16px, 3vw, 28px);
+  width: 42px; height: 42px;
+  display: grid; place-items: center;
+  border: 1px solid var(--border, #D9D7CB);
+  border-radius: 50%;
+  background: var(--n-0, #fff);
+  color: var(--blue, #0B5AB1);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(2,19,48,.10);
+  opacity: 0; transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease, background .15s, color .15s;
+  z-index: 55;
+}
+.tc-top.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+.tc-top:hover { background: var(--blue, #0B5AB1); color: #fff; }
+
+/* -------------------------------------------------------------- responsive - */
+@media (max-width: 900px) {
+  .tc-shell { grid-template-columns: 1fr; gap: 0; }
+
+  .tc-mobile-toc-btn {
+    display: flex; align-items: center; gap: 8px;
+    position: sticky; top: 58px; z-index: 40;
+    width: 100%;
+    padding: 12px var(--tc-pad);
+    font-family: var(--sans); font-size: 0.9rem; font-weight: 500;
+    color: var(--ink, #1F2A36);
+    background: rgba(248,247,241,.95);
+    backdrop-filter: blur(8px);
+    border: none; border-bottom: 1px solid var(--border, #D9D7CB);
+    cursor: pointer;
+  }
+
+  .tc-rail { position: fixed; inset: 0; z-index: 90; visibility: hidden; }
+  .tc-rail.is-open { visibility: visible; }
+  .tc-rail-scrim {
+    display: block; position: absolute; inset: 0;
+    background: rgba(2,19,48,.42); opacity: 0; transition: opacity .25s ease;
+  }
+  .tc-rail.is-open .tc-rail-scrim { opacity: 1; }
+  .tc-rail-panel {
+    position: absolute; top: 0; left: 0; bottom: 0;
+    width: min(86vw, 340px);
+    background: var(--n-50, #F8F7F1);
+    padding: 18px 20px 32px;
+    overflow-y: auto;
+    box-shadow: 12px 0 40px rgba(2,19,48,.22);
+    transform: translateX(-100%);
+    transition: transform .3s cubic-bezier(.22,1,.36,1);
+  }
+  .tc-rail.is-open .tc-rail-panel { transform: none; }
+  .tc-rail-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .tc-rail-title { font-family: var(--serif); font-weight: 500; font-size: 1.3rem; color: var(--ink, #1F2A36); }
+  .tc-rail-close {
+    display: grid; place-items: center; width: 34px; height: 34px;
+    border: 1px solid var(--border, #D9D7CB); border-radius: 4px;
+    background: var(--n-0, #fff); color: var(--ink, #1F2A36); cursor: pointer;
+  }
+
+  .tc-masthead { padding-top: calc(var(--tc-nav-off) - 26px); }
+  .tc-content { max-width: none; padding-top: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tc-top, .tc-rail-panel, .tc-rail-scrim { transition: none; }
+}
