@@ -425,9 +425,13 @@ export default function GiftVouchers() {
                 {STEPS.map((s) => (
                   <li className="gv-step" key={s.n}>
                     <span className="gv-step-badge" aria-hidden="true"><s.icon size={24} strokeWidth={1.5} /></span>
-                    <span className="gv-step-n">Step {s.n}</span>
-                    <h3 className="gv-step-t">{s.t}</h3>
-                    <p className="gv-step-b">{s.b}</p>
+                    {/* Transparent on desktop (display:contents) so the timeline is
+                        unchanged; becomes the card's text column on mobile. */}
+                    <div className="gv-step-main">
+                      <span className="gv-step-n">Step {s.n}</span>
+                      <h3 className="gv-step-t">{s.t}</h3>
+                      <p className="gv-step-b">{s.b}</p>
+                    </div>
                   </li>
                 ))}
               </ol>

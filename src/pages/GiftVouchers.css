@@ -173,6 +173,9 @@
 }
 .gv-steps ol { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(24px, 3vw, 48px); }
 .gv-step { display: flex; flex-direction: column; align-items: center; text-align: center; }
+/* Transparent on desktop — its children flow into the centred timeline column
+   exactly as before. On mobile it becomes the card's text column (see query). */
+.gv-step-main { display: contents; }
 .gv-step-badge {
   display: inline-flex; align-items: center; justify-content: center;
   width: 68px; height: 68px; border-radius: 50%; position: relative; z-index: 1;
@@ -571,9 +574,21 @@
   .gv-drawer-preview { display: block; }
   .gv-faq-grid { grid-template-columns: 1fr; }
   .gv-faq-intro { position: static; }
-  .gv-steps ol { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; gap: 30px; }
+  /* MOBILE — each step becomes a distinct card so the section heading, its body
+     and the three steps are all clearly separable at a skim. Icon badge anchors
+     the left; step label / title / body form a left-aligned column beside it. */
+  .gv-steps ol { grid-template-columns: 1fr; max-width: 460px; margin: 0 auto; gap: 14px; }
   .gv-steps-rule { display: none; }
-  .gv-step-b { max-width: none; }
+  .gv-step {
+    flex-direction: row; align-items: flex-start; text-align: left; gap: 15px;
+    background: var(--n0); border: 1px solid var(--n200); border-radius: 16px;
+    padding: 18px 18px 20px; box-shadow: 0 12px 28px -20px rgba(2, 19, 48, 0.3);
+  }
+  .gv-step-main { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+  .gv-step-badge { width: 46px; height: 46px; margin: 2px 0 0; background: var(--sienna-100); border-color: transparent; box-shadow: none; }
+  .gv-step-n { margin: 2px 0 6px; }
+  .gv-step-t { font-size: 1.32rem; margin-bottom: 6px; }
+  .gv-step-b { max-width: none; font-size: 0.95rem; }
   .gv-assur { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 620px) {
