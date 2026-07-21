@@ -96,8 +96,8 @@ export const POSTS = [
     date: '2026-07-02',
     dateLabel: '2 July 2026',
     read: 9,
-    photo: '1522383225653-ed111181a951',
-    credit: 'Maruyama Park, Kyoto — the last week of the front',
+    photo: '1490806843957-31f4c9a91c65',
+    credit: 'Mount Fuji from Lake Kawaguchi — the front, mid-climb',
     cta: { label: 'See the Japan journeys', to: '/journeys4?where=Japan' },
     body: [
       'The blossom does not open across Japan. It opens in Kyushu, in the warm south, and then it climbs — north and uphill, at something close to twenty-five kilometres a day, following a temperature line rather than a calendar. By the time it reaches Hokkaido, six weeks have passed and the south has been green for a month. There is no week in which Japan is in blossom. There is only a week in which a particular place is.',

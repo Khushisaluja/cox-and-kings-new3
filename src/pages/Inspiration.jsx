@@ -431,7 +431,7 @@ export default function Inspiration() {
           ============================================================ */}
       <section className="insp-hero">
         <div className="insp-hero-plates" aria-hidden="true">
-          {['1522383225653-ed111181a951', '1483347756197-71ef80e95f73', '1534445867742-43195f401b6c'].map((id) => (
+          {['1547471080-7cc2caa01a7e', '1483347756197-71ef80e95f73', '1534445867742-43195f401b6c'].map((id) => (
             <div className="insp-hero-col" key={id}>
               <img src={img(U(id), 1200)} alt="" />
             </div>
