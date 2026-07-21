@@ -360,17 +360,26 @@ export function SiteFooter() {
               <Link to={CALLBACK}>Bespoke holidays</Link>
               <Link to="/journeys4?style=Luxury">Luxury journeys</Link>
               <Link to="/journeys4">Destinations</Link>
+              <Link to="/gift-vouchers">Gift vouchers</Link>
             </div>
             <div>
               <h4>Company</h4>
               <Link to="/about-us2">Our story</Link>
               <Link to="/vision-mission">Vision &amp; Mission</Link>
-              <Link to="/about-us2/team">Specialists</Link>
+              <Link to="/about-us2/team">Meet the team</Link>
               <Link to="/careers">Careers</Link>
               <Link to={CALLBACK}>Contact</Link>
               {home
                 ? <a href="#heritage">Why Cox &amp; Kings</a>
                 : <Link to={sec('#heritage')}>Why Cox &amp; Kings</Link>}
+            </div>
+            <div>
+              <h4>Partner with us</h4>
+              {/* Two programmes don't have pages yet — render them inert until
+                  the routes exist, rather than dead-ending on a 404. */}
+              <span className="h26-footer-soon">Become a Franchise Partner</span>
+              <span className="h26-footer-soon">Collaborate With Us</span>
+              <Link to="/become-a-partner">Become a Preferred Sales Partner</Link>
             </div>
             <div>
               <h4>Assurance</h4>
@@ -380,7 +389,8 @@ export function SiteFooter() {
               {home
                 ? <a href="#reviews">Reviews</a>
                 : <Link to={sec('#reviews')}>Reviews</Link>}
-              <Link to={CALLBACK}>Refund policy</Link>
+              <Link to="/terms#refund-policy">Refund policy</Link>
+              <Link to="/terms">Terms &amp; Conditions</Link>
               <Link to={CALLBACK}>Speak to an expert</Link>
             </div>
           </div>
@@ -388,7 +398,10 @@ export function SiteFooter() {
 
         <div className="h26-footer-bottom">
           <span>© {new Date().getFullYear()} Cox &amp; Kings. Travelling the world since 1758.</span>
-          <span className="h26-footer-assoc">IATA · TAAI · ASTA</span>
+          <span className="h26-footer-legal">
+            <Link to="/terms">Terms &amp; Conditions</Link>
+            <span className="h26-footer-assoc">IATA · TAAI · ASTA</span>
+          </span>
         </div>
       </footer>
     </div>
