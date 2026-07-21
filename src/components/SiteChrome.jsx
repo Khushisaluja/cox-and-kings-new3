@@ -359,7 +359,6 @@ export function SiteFooter() {
               <Link to="/journeys4-group">Group tours</Link>
               <Link to="/journeys4-private">Bespoke holidays</Link>
               <Link to="/journeys4?style=Luxury">Luxury journeys</Link>
-              <Link to="/journeys4">Destinations</Link>
               <Link to="/gift-vouchers">Gift vouchers</Link>
             </div>
             <div>
@@ -381,9 +380,6 @@ export function SiteFooter() {
             </div>
             <div>
               <h4>Assurance</h4>
-              {home
-                ? <a href="#heritage">Trust &amp; safety</a>
-                : <Link to={sec('#heritage')}>Trust &amp; safety</Link>}
               {home
                 ? <a href="#reviews">Reviews</a>
                 : <Link to={sec('#reviews')}>Reviews</Link>}
