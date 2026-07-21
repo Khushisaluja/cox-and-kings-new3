@@ -1,0 +1,533 @@
+/* ============================================================================
+   Become a Franchise Partner — /franchise
+
+   Form-first, minimal. Same system as /collaborate and /become-a-partner: no
+   scroll-driven anything, one CSS load-in on the hero, hover transitions on
+   cards — so nothing flashes, sticks or jumps.
+
+   COLOUR — ONLY the design.md palette. Every hex used on this page is declared
+   below as a token and comes straight from design.md:
+     Voyager Blue   500 #0B5AB1 · 300 #6D9CD0 · hover #09488E · 800 #042447
+     Sienna Flame   500 #BD4011 · 300 #D78C70
+     Neutrals       0 #FFFFFF · 50 #F8F7F1 · 100 #F1EFE2 · 150 #E5E3D7
+                    200 #D9D7CB · 300 #C1BFB5 · 500 #918F88 · 600 #797871
+                    700 #60605A · 800 #484844 · 900 #1F2A36
+     Neutrals-Dark  900 #021330
+   Contrast is checked for AA: body copy is Neutrals/800 on paper, headings
+   Neutrals/900; on the navy sections text is Neutrals/100 and the light accent
+   is Sienna Flame/300.
+   ========================================================================== */
+
+.fr {
+  /* — design.md tokens, scoped to this page — */
+  --vb-500: #0B5AB1;
+  --vb-300: #6D9CD0;
+  --vb-hover: #09488E;
+  --vb-800: #042447;
+  --sf-500: #BD4011;
+  --sf-300: #D78C70;
+  --n-0: #FFFFFF;
+  --n-50: #F8F7F1;
+  --n-100: #F1EFE2;
+  --n-150: #E5E3D7;
+  --n-200: #D9D7CB;
+  --n-300: #C1BFB5;
+  --n-500: #918F88;
+  --n-600: #797871;
+  --n-700: #60605A;
+  --n-800: #484844;
+  --n-900: #1F2A36;
+  --nd-900: #021330;
+
+  background: var(--n-50);
+  color: var(--n-900);
+}
+.fr *,
+.fr *::before,
+.fr *::after { box-sizing: border-box; }
+
+/* Shared inner container. */
+.fr .fr-wrap {
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3vw, 56px);
+}
+
+/* Shared eyebrow — Work Sans, sienna, tracked uppercase. */
+.fr .fr-eyebrow {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sf-500);
+  margin: 0 0 14px;
+}
+.fr .fr-eyebrow--light { color: var(--sf-300); }
+
+/* Shared section heading — Cormorant, weight 500, Neutrals/900. */
+.fr .fr-h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--n-900);
+  margin: 0;
+  max-width: 20ch;
+}
+.fr .fr-h2 em { font-style: italic; color: var(--sf-500); }
+
+.fr .fr-section { padding-block: clamp(56px, 6.5vw, 104px); }
+.fr .fr-head { max-width: 760px; margin: 0 0 clamp(32px, 4vw, 52px); }
+
+/* ============================================================ HERO + FORM ==== */
+.fr .fr-hero {
+  position: relative;
+  isolation: isolate;
+  background: var(--nd-900);
+  padding-top: clamp(120px, 15vh, 168px);
+  padding-bottom: clamp(48px, 6vw, 88px);
+  overflow: hidden;
+}
+/* A committed photograph, full strength — an aspirational travel scene. */
+.fr .fr-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=2200&q=80');
+  background-size: cover;
+  background-position: center;
+}
+/* Directional navy scrim, all one hue — Neutrals-Dark/900 (#021330) at alpha. */
+.fr .fr-hero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg,
+      rgba(2, 19, 48, 0.95) 0%,
+      rgba(2, 19, 48, 0.85) 34%,
+      rgba(2, 19, 48, 0.50) 66%,
+      rgba(2, 19, 48, 0.34) 100%),
+    linear-gradient(180deg,
+      rgba(2, 19, 48, 0.30) 0%,
+      rgba(2, 19, 48, 0) 38%,
+      rgba(2, 19, 48, 0.62) 100%);
+}
+
+.fr .fr-hero__inner {
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3vw, 56px);
+  display: grid;
+  grid-template-columns: 1fr minmax(380px, 480px);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+
+/* Left — the pitch. */
+.fr .fr-hero__intro {
+  color: var(--n-100);
+  animation: fr-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fr .fr-hero__title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(34px, 4.6vw, 60px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--n-0);
+  margin: 0 0 20px;
+  max-width: 16ch;
+}
+.fr .fr-hero__title em { font-style: italic; color: var(--sf-300); }
+.fr .fr-hero__lead {
+  font-family: var(--sans);
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.62;
+  color: rgba(241, 239, 226, 0.86);
+  margin: 0 0 26px;
+  max-width: 48ch;
+}
+.fr .fr-hero__points {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  gap: 11px;
+}
+.fr .fr-hero__points li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  color: var(--n-100);
+}
+.fr .fr-hero__points svg { color: var(--vb-300); flex: none; }
+.fr .fr-hero__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+}
+.fr .fr-hero__contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: rgba(241, 239, 226, 0.9);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.fr .fr-hero__contact a:hover { color: var(--n-0); }
+.fr .fr-hero__contact svg { color: var(--sf-300); }
+
+/* Right — THE FORM CARD. This is the page's job. */
+.fr .fr-formcard {
+  background: var(--n-0);
+  border-radius: 16px;
+  border: 1px solid var(--n-200);
+  box-shadow: 0 32px 70px -28px rgba(2, 19, 48, 0.55), 0 4px 14px -6px rgba(2, 19, 48, 0.3);
+  padding: clamp(24px, 2.4vw, 34px);
+  animation: fr-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.08s;
+  scroll-margin-top: 96px;
+}
+.fr .fr-formcard__head { margin-bottom: 20px; }
+.fr .fr-formcard__eyebrow {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sf-500);
+  margin-bottom: 8px;
+}
+.fr .fr-formcard__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(24px, 2.4vw, 30px);
+  line-height: 1.1;
+  color: var(--n-900);
+  margin: 0 0 8px;
+}
+.fr .fr-formcard__sub {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--n-700);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------- the form -- */
+.fr .fr-form { display: grid; gap: 14px; }
+.fr .fr-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.fr .fr-field { display: grid; gap: 6px; }
+.fr .fr-field label {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--n-900);
+}
+.fr .fr-optional { font-weight: 400; color: var(--n-600); }
+.fr .fr-field input,
+.fr .fr-field select,
+.fr .fr-field textarea {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  color: var(--n-900);
+  background: var(--n-50);
+  border: 1px solid var(--n-200);
+  border-radius: 8px;
+  padding: 11px 13px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  appearance: none;
+}
+.fr .fr-field textarea { resize: vertical; min-height: 58px; line-height: 1.5; }
+.fr .fr-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23484844' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 34px;
+  cursor: pointer;
+}
+.fr .fr-field input::placeholder,
+.fr .fr-field textarea::placeholder { color: var(--n-500); }
+.fr .fr-field input:focus,
+.fr .fr-field select:focus,
+.fr .fr-field textarea:focus {
+  outline: none;
+  background: var(--n-0);
+  border-color: var(--vb-500);
+  box-shadow: 0 0 0 3px rgba(11, 90, 177, 0.16);
+}
+.fr .fr-form__submit { width: 100%; margin-top: 4px; }
+.fr .fr-form__note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--n-700);
+  margin: 2px 0 0;
+}
+.fr .fr-form__note svg { color: var(--vb-500); }
+
+/* ---- confirmation state, in place ---- */
+.fr .fr-done { text-align: center; padding: 14px 6px 6px; }
+.fr .fr-done__ic {
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(11, 90, 177, 0.1);
+  color: var(--vb-500);
+  margin-bottom: 16px;
+}
+.fr .fr-done__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--n-900);
+  margin: 0 0 10px;
+}
+.fr .fr-done__p {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--n-700);
+  margin: 0 auto 20px;
+  max-width: 38ch;
+}
+.fr .fr-done__btn { width: 100%; }
+
+/* =================================================================== STATS ==== */
+.fr .fr-stats {
+  background: var(--nd-900);
+  border-top: 1px solid rgba(241, 239, 226, 0.1);
+}
+.fr .fr-stats__grid {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: clamp(28px, 3.4vw, 44px) clamp(16px, 3vw, 56px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.fr .fr-stat { text-align: center; }
+.fr .fr-stat__n {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(32px, 3.6vw, 46px);
+  line-height: 1;
+  color: var(--n-0);
+}
+.fr .fr-stat__sup {
+  font-size: 0.44em;
+  vertical-align: super;
+  margin-left: 3px;
+  color: var(--sf-300);
+}
+.fr .fr-stat__l {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.66);
+  margin: 8px 0 0;
+}
+
+/* =========================================================== CARD SECTIONS ==== */
+.fr .fr-why { background: var(--n-50); }
+.fr .fr-how { background: var(--n-100); }
+
+.fr .fr-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.fr .fr-card {
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: 16px;
+  padding: 28px 24px;
+  transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.fr .fr-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -22px rgba(2, 19, 48, 0.28);
+  border-color: var(--n-300);
+}
+.fr .fr-card__ic {
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(11, 90, 177, 0.08);
+  color: var(--vb-500);
+  margin-bottom: 16px;
+}
+.fr .fr-card__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--n-900);
+  margin: 0 0 8px;
+}
+.fr .fr-card__b {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.58;
+  color: var(--n-800);
+  margin: 0;
+}
+
+/* =============================================================== HOW / STEPS == */
+.fr .fr-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.fr .fr-step {
+  position: relative;
+  padding: 28px 22px;
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: 16px;
+}
+.fr .fr-step__n {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--sf-500);
+  margin-bottom: 14px;
+}
+.fr .fr-step__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--n-900);
+  margin: 0 0 8px;
+}
+.fr .fr-step__b {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.58;
+  color: var(--n-800);
+  margin: 0;
+}
+
+/* ============================================================= CLOSING CTA ==== */
+.fr .fr-cta {
+  background: var(--nd-900);
+  color: var(--n-100);
+  padding-block: clamp(48px, 5.5vw, 84px);
+}
+.fr .fr-cta__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+.fr .fr-cta__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.06;
+  color: var(--n-0);
+  margin: 0 0 10px;
+  max-width: 24ch;
+}
+.fr .fr-cta__p {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(241, 239, 226, 0.82);
+  margin: 0;
+  max-width: 44ch;
+}
+.fr .fr-cta__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex: none;
+}
+.fr .fr-cta__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sf-300);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.fr .fr-cta__link:hover { color: var(--n-0); }
+
+/* ==================================================================== MOTION == */
+@keyframes fr-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fr .fr-hero__intro,
+  .fr .fr-formcard { animation: none; }
+  .fr .fr-card { transition: none; }
+}
+
+/* ================================================================ RESPONSIVE == */
+@media (max-width: 1024px) {
+  .fr .fr-hero__inner { grid-template-columns: 1fr; gap: 32px; }
+  .fr .fr-hero__intro { max-width: 640px; }
+  .fr .fr-formcard { max-width: 560px; }
+  .fr .fr-hero__veil {
+    background:
+      linear-gradient(180deg,
+        rgba(2, 19, 48, 0.68) 0%,
+        rgba(2, 19, 48, 0.54) 45%,
+        rgba(2, 19, 48, 0.74) 100%);
+  }
+  .fr .fr-cards,
+  .fr .fr-steps { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .fr .fr-hero { padding-top: clamp(104px, 14vh, 140px); }
+  .fr .fr-hero__title { font-size: clamp(30px, 8vw, 40px); }
+  .fr .fr-formcard { padding: 22px 18px; }
+  .fr .fr-field-row { grid-template-columns: 1fr; }
+  .fr .fr-stats__grid { grid-template-columns: repeat(2, 1fr); gap: 22px 16px; }
+  .fr .fr-cards,
+  .fr .fr-steps { grid-template-columns: 1fr; }
+  .fr .fr-cta__inner { flex-direction: column; align-items: flex-start; }
+  .fr .fr-cta__actions { width: 100%; }
+  .fr .fr-cta__actions .h26-btn { width: 100%; }
+}

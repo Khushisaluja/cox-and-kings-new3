@@ -1,0 +1,538 @@
+/* ============================================================================
+   Collaborate With Us — /collaborate
+
+   Form-first, minimal. Modelled on /become-a-partner (PreferredPartner.css):
+   no scroll-driven anything, one CSS load-in on the hero, hover transitions on
+   cards — so nothing flashes, sticks or jumps.
+
+   COLOUR — ONLY the design.md palette. Every hex used on this page is declared
+   below as a token and comes straight from design.md:
+     Voyager Blue   500 #0B5AB1 · 300 #6D9CD0 · hover #09488E · 800 #042447
+     Sienna Flame   500 #BD4011 · 300 #D78C70
+     Neutrals       0 #FFFFFF · 50 #F8F7F1 · 100 #F1EFE2 · 150 #E5E3D7
+                    200 #D9D7CB · 500 #918F88 · 600 #797871 · 700 #60605A
+                    800 #484844 · 900 #1F2A36
+     Neutrals-Dark  900 #021330   (near-black sections / hero / footer)
+     Rating Gold    #F4B73F        (unused here — no rating stars on this page)
+   Contrast is checked for AA: body copy is Neutrals/800 on paper, headings
+   Neutrals/900; on the navy sections text is Neutrals/100 (design.md's stated
+   on-dark text colour) and the light accent is Sienna Flame/300.
+   ========================================================================== */
+
+.cw {
+  /* — design.md tokens, scoped to this page — */
+  --vb-500: #0B5AB1;   /* Voyager Blue / 500  — primary / links */
+  --vb-300: #6D9CD0;   /* Voyager Blue / 300  — accent on dark */
+  --vb-hover: #09488E; /* Voyager Blue button hover */
+  --vb-800: #042447;   /* Voyager Blue / 800  — deepest brand */
+  --sf-500: #BD4011;   /* Sienna Flame / 500  — accent / eyebrow */
+  --sf-300: #D78C70;   /* Sienna Flame / 300  — accent on dark */
+  --n-0: #FFFFFF;
+  --n-50: #F8F7F1;
+  --n-100: #F1EFE2;
+  --n-150: #E5E3D7;
+  --n-200: #D9D7CB;
+  --n-500: #918F88;    /* placeholder text */
+  --n-600: #797871;    /* secondary text */
+  --n-700: #60605A;    /* body (muted) */
+  --n-800: #484844;    /* strong body */
+  --n-900: #1F2A36;    /* headings */
+  --nd-900: #021330;   /* Neutrals-Dark / 900 — navy */
+
+  background: var(--n-50);
+  color: var(--n-900);
+}
+.cw *,
+.cw *::before,
+.cw *::after { box-sizing: border-box; }
+
+/* Shared inner container. */
+.cw .cw-wrap {
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3vw, 56px);
+}
+
+/* Shared eyebrow — Work Sans, sienna, tracked uppercase. */
+.cw .cw-eyebrow {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sf-500);
+  margin: 0 0 14px;
+}
+/* On navy, the 500 sienna is too dark to read — step up to Sienna Flame/300. */
+.cw .cw-eyebrow--light { color: var(--sf-300); }
+
+/* Shared section heading — Cormorant, weight 500, Neutrals/900. */
+.cw .cw-h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--n-900);
+  margin: 0;
+  max-width: 20ch;
+}
+.cw .cw-h2 em { font-style: italic; color: var(--sf-500); }
+
+.cw .cw-section { padding-block: clamp(56px, 6.5vw, 104px); }
+.cw .cw-head { max-width: 760px; margin: 0 0 clamp(32px, 4vw, 52px); }
+
+/* ============================================================ HERO + FORM ==== */
+.cw .cw-hero {
+  position: relative;
+  isolation: isolate;
+  background: var(--nd-900);
+  padding-top: clamp(120px, 15vh, 168px);
+  padding-bottom: clamp(48px, 6vw, 88px);
+  overflow: hidden;
+}
+/* A committed photograph, full strength — an aspirational travel scene, not a
+   literal camera/creator prop. */
+.cw .cw-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=2200&q=80');
+  background-size: cover;
+  background-position: center;
+}
+/* Directional navy scrim: near-opaque over the LEFT text column, fading right so
+   the photo stays visible; plus a soft bottom fade into the stats band. All one
+   hue — Neutrals-Dark/900 (#021330) at varying alpha. */
+.cw .cw-hero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg,
+      rgba(2, 19, 48, 0.95) 0%,
+      rgba(2, 19, 48, 0.85) 34%,
+      rgba(2, 19, 48, 0.50) 66%,
+      rgba(2, 19, 48, 0.34) 100%),
+    linear-gradient(180deg,
+      rgba(2, 19, 48, 0.30) 0%,
+      rgba(2, 19, 48, 0) 38%,
+      rgba(2, 19, 48, 0.62) 100%);
+}
+
+.cw .cw-hero__inner {
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3vw, 56px);
+  display: grid;
+  grid-template-columns: 1fr minmax(380px, 480px);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+
+/* Left — the pitch. */
+.cw .cw-hero__intro {
+  color: var(--n-100);
+  animation: cw-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.cw .cw-hero__title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(34px, 4.6vw, 60px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--n-0);
+  margin: 0 0 20px;
+  max-width: 16ch;
+}
+.cw .cw-hero__title em { font-style: italic; color: var(--sf-300); }
+.cw .cw-hero__lead {
+  font-family: var(--sans);
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.62;
+  color: rgba(241, 239, 226, 0.86);   /* Neutrals/100 @ 86% — AA on navy */
+  margin: 0 0 26px;
+  max-width: 48ch;
+}
+.cw .cw-hero__points {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  gap: 11px;
+}
+.cw .cw-hero__points li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  color: var(--n-100);
+}
+.cw .cw-hero__points svg { color: var(--vb-300); flex: none; }
+.cw .cw-hero__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+}
+.cw .cw-hero__contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: rgba(241, 239, 226, 0.9);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.cw .cw-hero__contact a:hover { color: var(--n-0); }
+.cw .cw-hero__contact svg { color: var(--sf-300); }
+
+/* Right — THE FORM CARD. This is the page's job. */
+.cw .cw-formcard {
+  background: var(--n-0);
+  border-radius: 16px;
+  border: 1px solid var(--n-200);
+  box-shadow: 0 32px 70px -28px rgba(2, 19, 48, 0.55), 0 4px 14px -6px rgba(2, 19, 48, 0.3);
+  padding: clamp(24px, 2.4vw, 34px);
+  animation: cw-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.08s;
+  scroll-margin-top: 96px;
+}
+.cw .cw-formcard__head { margin-bottom: 20px; }
+.cw .cw-formcard__eyebrow {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sf-500);
+  margin-bottom: 8px;
+}
+.cw .cw-formcard__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(24px, 2.4vw, 30px);
+  line-height: 1.1;
+  color: var(--n-900);
+  margin: 0 0 8px;
+}
+.cw .cw-formcard__sub {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--n-700);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------- the form -- */
+.cw .cw-form { display: grid; gap: 14px; }
+.cw .cw-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.cw .cw-field { display: grid; gap: 6px; }
+.cw .cw-field label {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--n-900);
+}
+.cw .cw-optional { font-weight: 400; color: var(--n-600); }
+.cw .cw-field input,
+.cw .cw-field select,
+.cw .cw-field textarea {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  color: var(--n-900);
+  background: var(--n-50);
+  border: 1px solid var(--n-200);
+  border-radius: 8px;
+  padding: 11px 13px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  appearance: none;
+}
+.cw .cw-field textarea { resize: vertical; min-height: 58px; line-height: 1.5; }
+.cw .cw-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23484844' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 34px;
+  cursor: pointer;
+}
+.cw .cw-field input::placeholder,
+.cw .cw-field textarea::placeholder { color: var(--n-500); }
+.cw .cw-field input:focus,
+.cw .cw-field select:focus,
+.cw .cw-field textarea:focus {
+  outline: none;
+  background: var(--n-0);
+  border-color: var(--vb-500);
+  box-shadow: 0 0 0 3px rgba(11, 90, 177, 0.16);
+}
+.cw .cw-form__submit { width: 100%; margin-top: 4px; }
+.cw .cw-form__note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--n-700);
+  margin: 2px 0 0;
+}
+.cw .cw-form__note svg { color: var(--vb-500); }
+
+/* ---- confirmation state, in place ---- */
+.cw .cw-done { text-align: center; padding: 14px 6px 6px; }
+.cw .cw-done__ic {
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(11, 90, 177, 0.1);
+  color: var(--vb-500);
+  margin-bottom: 16px;
+}
+.cw .cw-done__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--n-900);
+  margin: 0 0 10px;
+}
+.cw .cw-done__p {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--n-700);
+  margin: 0 auto 20px;
+  max-width: 38ch;
+}
+.cw .cw-done__btn { width: 100%; }
+
+/* =================================================================== STATS ==== */
+.cw .cw-stats {
+  background: var(--nd-900);
+  border-top: 1px solid rgba(241, 239, 226, 0.1);
+}
+.cw .cw-stats__grid {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: clamp(28px, 3.4vw, 44px) clamp(16px, 3vw, 56px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.cw .cw-stat { text-align: center; }
+.cw .cw-stat__n {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(32px, 3.6vw, 46px);
+  line-height: 1;
+  color: var(--n-0);
+}
+.cw .cw-stat__sup {
+  font-size: 0.44em;
+  vertical-align: super;
+  margin-left: 3px;
+  color: var(--sf-300);
+}
+.cw .cw-stat__l {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.66);
+  margin: 8px 0 0;
+}
+
+/* =========================================================== CARD SECTIONS ==== */
+.cw .cw-ways { background: var(--n-50); }
+.cw .cw-how { background: var(--n-100); }
+
+.cw .cw-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.cw .cw-card {
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: 16px;
+  padding: 28px 24px;
+  transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.cw .cw-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -22px rgba(2, 19, 48, 0.28);
+  border-color: var(--n-300, #C1BFB5);
+}
+.cw .cw-card__ic {
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(11, 90, 177, 0.08);
+  color: var(--vb-500);
+  margin-bottom: 16px;
+}
+.cw .cw-card__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--n-900);
+  margin: 0 0 8px;
+}
+.cw .cw-card__b {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.58;
+  color: var(--n-800);
+  margin: 0;
+}
+
+/* =============================================================== HOW / STEPS == */
+.cw .cw-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.cw .cw-step {
+  position: relative;
+  padding: 28px 22px;
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: 16px;
+}
+.cw .cw-step__n {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--sf-500);
+  margin-bottom: 14px;
+}
+.cw .cw-step__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--n-900);
+  margin: 0 0 8px;
+}
+.cw .cw-step__b {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.58;
+  color: var(--n-800);
+  margin: 0;
+}
+
+/* ============================================================= CLOSING CTA ==== */
+.cw .cw-cta {
+  background: var(--nd-900);
+  color: var(--n-100);
+  padding-block: clamp(48px, 5.5vw, 84px);
+}
+.cw .cw-cta__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+.cw .cw-cta__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.06;
+  color: var(--n-0);
+  margin: 0 0 10px;
+  max-width: 24ch;
+}
+.cw .cw-cta__p {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(241, 239, 226, 0.82);
+  margin: 0;
+  max-width: 44ch;
+}
+.cw .cw-cta__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex: none;
+}
+.cw .cw-cta__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sf-300);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.cw .cw-cta__link:hover { color: var(--n-0); }
+
+/* ==================================================================== MOTION == */
+@keyframes cw-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cw .cw-hero__intro,
+  .cw .cw-formcard { animation: none; }
+  .cw .cw-card { transition: none; }
+}
+
+/* ================================================================ RESPONSIVE == */
+@media (max-width: 1024px) {
+  .cw .cw-hero__inner { grid-template-columns: 1fr; gap: 32px; }
+  .cw .cw-hero__intro { max-width: 640px; }
+  .cw .cw-formcard { max-width: 560px; }
+  /* Stacked hero — darken evenly across the width instead of only the left. */
+  .cw .cw-hero__veil {
+    background:
+      linear-gradient(180deg,
+        rgba(2, 19, 48, 0.68) 0%,
+        rgba(2, 19, 48, 0.54) 45%,
+        rgba(2, 19, 48, 0.74) 100%);
+  }
+  .cw .cw-cards,
+  .cw .cw-steps { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .cw .cw-hero { padding-top: clamp(104px, 14vh, 140px); }
+  .cw .cw-hero__title { font-size: clamp(30px, 8vw, 40px); }
+  .cw .cw-formcard { padding: 22px 18px; }
+  .cw .cw-field-row { grid-template-columns: 1fr; }
+  .cw .cw-stats__grid { grid-template-columns: repeat(2, 1fr); gap: 22px 16px; }
+  .cw .cw-cards,
+  .cw .cw-steps { grid-template-columns: 1fr; }
+  .cw .cw-cta__inner { flex-direction: column; align-items: flex-start; }
+  .cw .cw-cta__actions { width: 100%; }
+  .cw .cw-cta__actions .h26-btn { width: 100%; }
+}

@@ -375,10 +375,8 @@ export function SiteFooter() {
             </div>
             <div>
               <h4>Partner with us</h4>
-              {/* Two programmes don't have pages yet — render them inert until
-                  the routes exist, rather than dead-ending on a 404. */}
-              <span className="h26-footer-soon">Become a Franchise Partner</span>
-              <span className="h26-footer-soon">Collaborate With Us</span>
+              <Link to="/franchise">Become a Franchise Partner</Link>
+              <Link to="/collaborate">Collaborate With Us</Link>
               <Link to="/become-a-partner">Become a Preferred Sales Partner</Link>
             </div>
             <div>

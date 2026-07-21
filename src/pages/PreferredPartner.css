@@ -436,8 +436,10 @@
   line-height: 1.06;
   color: #FCFBF7;
   margin: 0 0 10px;
-  max-width: 18ch;
+  white-space: nowrap;   /* one line on desktop */
 }
+/* Keep the brand name intact — never let a line break split "Cox & Kings". */
+.pp .pp-nowrap { white-space: nowrap; }
 .pp .pp-cta__p {
   font-family: var(--sans);
   font-size: 15px;
@@ -508,6 +510,7 @@
   .pp .pp-cards--4,
   .pp .pp-steps { grid-template-columns: 1fr; }
   .pp .pp-cta__inner { flex-direction: column; align-items: flex-start; }
+  .pp .pp-cta__h { white-space: normal; }   /* allow wrap where one line won't fit */
   .pp .pp-cta__actions { width: 100%; }
   .pp .pp-cta__actions .h26-btn { width: 100%; }
 }

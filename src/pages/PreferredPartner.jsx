@@ -259,7 +259,7 @@ export default function PreferredPartner() {
         <div className="pp-wrap pp-cta__inner">
           <div>
             <p className="pp-eyebrow pp-eyebrow--light">Become a partner</p>
-            <h2 className="pp-cta__h" id="pp-cta-h">Ready to open a Cox &amp; Kings?</h2>
+            <h2 className="pp-cta__h" id="pp-cta-h">Ready to open a <span className="pp-nowrap">Cox &amp; Kings</span>?</h2>
             <p className="pp-cta__p">No commitment, no obligation — just a conversation about the opportunity.</p>
           </div>
           <div className="pp-cta__actions">

@@ -19,6 +19,8 @@ import PrivateItaly from './pages/PrivateItaly';
 import GroupJapan from './pages/GroupJapan';
 import GiftVouchers from './pages/GiftVouchers';
 import PreferredPartner from './pages/PreferredPartner';
+import Collaborate from './pages/Collaborate';
+import Franchise from './pages/Franchise';
 import Terms from './pages/Terms';
 import { ScheduleCallProvider } from './components/ScheduleCall';
 
@@ -135,6 +137,20 @@ export default function App() {
               GSA/PSA partners and travel agents wanting to sell Cox & Kings.
               Covers the franchisee/preferred-agent enquiry in one page. */}
           <Route path="/become-a-partner" element={<PreferredPartner />} />
+
+          {/* COLLABORATE WITH US — the partnerships/creators room. Distinct from
+              /become-a-partner (that recruits sales agents): this is for
+              creators, brands, press and hospitality partners who want to
+              CREATE with the brand — hosted journeys, co-branded campaigns,
+              press access. Linked from the footer's "Partner with us" column. */}
+          <Route path="/collaborate" element={<Collaborate />} />
+
+          {/* BECOME A FRANCHISE PARTNER — own and operate a physically-branded
+              Cox & Kings franchise store: an exclusive territory, store setup,
+              technology, training and supply chain. Distinct from
+              /become-a-partner (sales agents) and /collaborate (creators).
+              Form-first; linked from the footer's "Partner with us" column. */}
+          <Route path="/franchise" element={<Franchise />} />
 
           {/* INSPIRATION — "Dispatches", the journal. The create-desire job given
               its own room: a traveller who is inspired but undecided has nothing
