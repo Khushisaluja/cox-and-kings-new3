@@ -295,14 +295,17 @@
 @media (max-width: 900px) {
   .tc-shell { grid-template-columns: 1fr; gap: 0; }
 
+  /* Fixed under the site nav so search + section jumps stay reachable after the
+     reader has scrolled (sticky was being defeated by an ancestor here). z-index
+     sits below the nav (50) and the drawer (90). */
   .tc-mobile-toc-btn {
     display: flex; align-items: center; gap: 8px;
-    position: sticky; top: 58px; z-index: 40;
+    position: fixed; top: 70px; left: 0; right: 0; z-index: 45;
     width: 100%;
-    padding: 12px var(--tc-pad);
-    font-family: var(--sans); font-size: 0.9rem; font-weight: 500;
+    padding: 18px var(--tc-pad);
+    font-family: var(--sans); font-size: 0.95rem; font-weight: 500;
     color: var(--ink, #1F2A36);
-    background: rgba(248,247,241,.95);
+    background: rgba(248,247,241,.97);
     backdrop-filter: blur(8px);
     border: none; border-bottom: 1px solid var(--border, #D9D7CB);
     cursor: pointer;
@@ -334,7 +337,9 @@
     background: var(--n-0, #fff); color: var(--ink, #1F2A36); cursor: pointer;
   }
 
-  .tc-masthead { padding-top: calc(var(--tc-nav-off) - 26px); }
+  /* Clear BOTH the fixed nav (~58px) and the now-fixed contents button (~46px)
+     so neither covers the masthead title at the top of the page. */
+  .tc-masthead { padding-top: 140px; }
   .tc-content { max-width: none; padding-top: 24px; }
 }
 
