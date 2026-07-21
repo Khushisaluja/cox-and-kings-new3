@@ -356,8 +356,8 @@ export function SiteFooter() {
           <div className="h26-footer-cols">
             <div>
               <h4>Travel</h4>
-              <Link to="/journeys4?style=Group Tour">Group tours</Link>
-              <Link to={CALLBACK}>Bespoke holidays</Link>
+              <Link to="/journeys4-group">Group tours</Link>
+              <Link to="/journeys4-private">Bespoke holidays</Link>
               <Link to="/journeys4?style=Luxury">Luxury journeys</Link>
               <Link to="/journeys4">Destinations</Link>
               <Link to="/gift-vouchers">Gift vouchers</Link>
