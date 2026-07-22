@@ -108,7 +108,7 @@ export const DIFFERENCE = [
   { title: 'Looked after, all the way', body: 'Concierge planning before you go and real on-trip support after you land — including a WhatsApp line to your team.' },
 ];
 export const ASSURANCE = [
-  'Senior-friendly pacing',
+  'Expert-guided journeys',
   'Indian & dietary meals on request',
   'Multi-generational family travel',
   'Visa support · 90% success',

@@ -24,7 +24,7 @@ import { SmartLink as Link, CALLBACK, useScheduleCall } from '../components/Sche
 import { SiteNav, SiteFooter } from '../components/SiteChrome';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
-  Phone, MessageCircle, ArrowRight, ArrowUpRight, Star, Search, MapPin,
+  Phone, MessageCircle, ArrowRight, ArrowLeft, ArrowUpRight, Star, Search, MapPin,
   Compass, Calendar, ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
   Check, Sparkles, Quote,
   Award, ShieldCheck, Globe2, Clock, Users, User, Gauge,
@@ -179,7 +179,7 @@ const ANY_WHO = { label: 'Anyone', any: true };
    a query string nothing reads. `style` matches its STYLES list; seniors have
    no style of their own, so they map to the Relaxed pace instead. */
 const HERO_WHO_OPTS = [
-  { label: 'Honeymoon · just the two of us', style: 'Honeymoon' },
+  { label: 'Couple', style: 'Honeymoon' },
   { label: 'Family with children', style: 'Family' },
   { label: 'A group of friends', style: 'Group Tour' },
   { label: 'Senior travellers', pace: 'Relaxed' },
@@ -771,6 +771,44 @@ const RELAXED_COL = {
   sub: 'Slow mornings, gentle days and comfortable distances, easy on every generation.',
 };
 
+/* ---------- Theme discovery (arch carousel) ----------
+   The /luxe2-improved "Destinations you'll love" carousel, retargeted from
+   places to WAYS to travel — the browser who knows the mood but not the map.
+   `id` is an Unsplash photo id (see sizedUnsplash); `best/trips/from` fill the
+   same three facts the original showed. `cta`/`to` drive the theme-specific
+   button: where /journeys4 has a matching style/pace filter we deep-link to it,
+   otherwise we open the full listing. */
+const THEMES = [
+  { name: 'Adventure', tags: ['Trek & summit', 'Rapids & rides', 'Off the map'],
+    blurb: 'High passes at first light, white-water mornings and nights under canvas — journeys built for people who would rather earn the view.',
+    best: 'Oct – Mar', trips: '18 journeys', from: '₹1,45,000', id: '1527668752968-14dc70a27c95',
+    cta: 'Explore adventure trips', to: '/journeys4?pace=Active' },
+  { name: 'Honeymoon', tags: ['Just the two of you', 'Private dinners', 'Overwater calm'],
+    blurb: 'Overwater villas, a sandbank dinner laid for two and long, unhurried mornings — the trip you take once, arranged exactly right.',
+    best: 'Nov – Apr', trips: '14 journeys', from: '₹1,85,000', id: '1573843981267-be1999ff37cd',
+    cta: 'Explore honeymoons', to: '/journeys4?style=Honeymoon' },
+  { name: 'Relaxed & Slow', tags: ['Nothing to rush', 'Long lunches', 'Sea & shade'],
+    blurb: 'One town, one terrace and nowhere you have to be — slow itineraries with room to breathe between the beautiful bits.',
+    best: 'Apr – Oct', trips: '16 journeys', from: '₹1,60,000', id: '1530841377377-3ff06c0ca713',
+    cta: 'Explore relaxed journeys', to: '/journeys4?pace=Relaxed' },
+  { name: 'Pilgrimage', tags: ['Sacred routes', 'Quiet mornings', 'Guided rites'],
+    blurb: 'Temple towns at dawn, holy rivers and the old routes walked for centuries — travelled gently, with care for every ritual.',
+    best: 'Year-round', trips: '12 journeys', from: '₹95,000', id: '1599661046289-e31897846e41',
+    cta: 'Explore pilgrimages', to: '/journeys4' },
+  { name: 'Staycation', tags: ['Close to home', 'Weekend-sized', 'A full reset'],
+    blurb: 'A short hop, a beautiful room and a full stop on the calendar — the reset that feels a world away without the long flight.',
+    best: 'Year-round', trips: '9 journeys', from: '₹45,000', id: '1506973035872-a4ec16b8e8d9',
+    cta: 'Explore staycations', to: '/journeys4?pace=Relaxed' },
+  { name: 'Wildlife & Safari', tags: ['Dawn game drives', 'Private reserves', 'Star beds'],
+    blurb: 'Track the great herds at sunrise, keep a conservancy to yourself, and sleep under the stars in camps moved just for your dates.',
+    best: 'Jun – Oct', trips: '11 journeys', from: '₹2,25,000', id: '1516426122078-c23e76319801',
+    cta: 'Explore safaris', to: '/journeys4?style=Safari' },
+  { name: 'Culture & Heritage', tags: ['Living history', 'Old cities', 'Local hands'],
+    blurb: 'Palaces you can sleep in, festivals timed to your visit and the makers behind the crafts — a place told by the people in it.',
+    best: 'Oct – Mar', trips: '20 journeys', from: '₹1,25,000', id: '1493976040374-85c8e12f0c0e',
+    cta: 'Explore heritage trips', to: '/journeys4' },
+];
+
 /* WhatsApp glyph (lucide has no brand icon) — used on the enquiry CTA. */
 const WaIcon = ({ size = 15 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -958,6 +996,14 @@ export default function New3() {
   const [activeReel, setActiveReel] = useState(null);
   const [statsRun, setStatsRun] = useState(false);
   const statsRef = useRef(null);
+
+  /* Theme-discovery arch carousel (see THEMES). All photos render as stacked
+     layers in the arch, so every image loads up front and a swipe is a pure
+     opacity crossfade — no remount, no fetch-on-click flash. */
+  const [themeIdx, setThemeIdx] = useState(0);
+  const theme = THEMES[themeIdx];
+  const nextTheme = () => setThemeIdx((i) => (i + 1) % THEMES.length);
+  const prevTheme = () => setThemeIdx((i) => (i - 1 + THEMES.length) % THEMES.length);
 
   // Hide the page scrollbar + go full-bleed, only while this page is mounted
   useEffect(() => {
@@ -1511,26 +1557,9 @@ export default function New3() {
                 </div>
               </Link>
             </Reveal>
-            <Reveal className="hi-lane" y={0}>
-              <div className="hi-lane-media">
-                <img src={img('https://images.unsplash.com/photo-1521737604893-d14cc237f11d', 800)} alt="A travel specialist ready to talk" loading="lazy" />
-              </div>
-              <div className="hi-lane-body">
-                <span className="hi-lane-tag">A real person</span>
-                <h3>Just talk to someone</h3>
-                <p>Prefer a conversation? Pick a time that suits you and a specialist will call. No scripts, no call centre, no obligation.</p>
-                {/* Opens the callback dialog rather than dialling straight out:
-                    a tel: link fires an unexpected call, is dead on desktop, and
-                    tells us nothing about who is calling or what they need. */}
-                <button type="button" className="h26-btn h26-btn-pill" onClick={openCallback}>
-                  Schedule a call <ArrowRight size={16} />
-                </button>
-              </div>
-            </Reveal>
             {/* "Design it around you" and "Help me decide" were two cards asking
                 the same question, whether you already know what you want. Both
-                now open Enaya, who works it out with you either way. Sits last
-                so the row builds towards the recommended path. */}
+                now open Enaya, who works it out with you either way. */}
             <Reveal className="hi-lane is-featured" y={0}>
               <span className="hi-lane-badge">Recommended</span>
               <div className="hi-lane-media">
@@ -1544,6 +1573,22 @@ export default function New3() {
                     recommended path, so the CTA doesn't have to shout as well. */}
                 <button type="button" className="h26-btn h26-btn-pill" onClick={openEnaya}>
                   Design it with Enaya <ArrowRight size={16} />
+                </button>
+              </div>
+            </Reveal>
+            <Reveal className="hi-lane" y={0}>
+              <div className="hi-lane-media">
+                <img src={img('https://images.unsplash.com/photo-1521737604893-d14cc237f11d', 800)} alt="A travel specialist ready to talk" loading="lazy" />
+              </div>
+              <div className="hi-lane-body">
+                <span className="hi-lane-tag">A real person</span>
+                <h3>Just talk to someone</h3>
+                <p>Prefer a conversation? Pick a time that suits you and a specialist will call. No scripts, no call centre, no obligation.</p>
+                {/* Opens the callback dialog rather than dialling straight out:
+                    a tel: link fires an unexpected call, is dead on desktop, and
+                    tells us nothing about who is calling or what they need. */}
+                <button type="button" className="h26-btn h26-btn-pill" onClick={openCallback}>
+                  Schedule a call <ArrowRight size={16} />
                 </button>
               </div>
             </Reveal>
@@ -1642,6 +1687,17 @@ export default function New3() {
               </div>
             </div>
           </section>
+
+          {/* AS SEEN IN — press marquee. Sits straight after heritage so the
+              267-year story flows into the outlets that have covered it. */}
+          <section className="lx2i-press" id="press" aria-label="As featured in">
+            <div className="lx2i-press__label"><span className="lx2i-eyebrow">AS FEATURED IN</span></div>
+            <div className="lx2i-press__track">
+              {[...LX_PRESS, ...LX_PRESS].map((p, i) => (
+                <img key={i} className="lx2i-press__logo" src={p.src} alt={p.name} loading="lazy" />
+              ))}
+            </div>
+          </section>
         </div>
 
         {/* RELAXED PACE — "Relaxed pace, for a calm vacation" shelf (from /journeys) */}
@@ -1650,6 +1706,88 @@ export default function New3() {
             <Shelf col={RELAXED_COL} list={RELAXED_JOURNEYS} />
           </div>
         </div>
+
+        {/* THEME DISCOVERY (n3d) — rebuilt from scratch, fully self-contained.
+            Same design as the /luxe2-improved arch carousel, retargeted from
+            places to travel THEMES. Built glitch-free: nothing remounts on
+            swipe; the photo crossfades via stacked opacity layers (compositor-
+            only), the on-photo controls use solid fills (no backdrop-filter
+            under motion), and the only entrance motion is the shared one-time
+            fade-up. Typography per design.md. */}
+        <section className="n3-disc" id="discover-themes" aria-label="Explore by theme">
+          <div className="n3d__grid">
+            {/* Left column — split into head (title + body) and meta (facts +
+                counter). The split lets mobile drop the photo BETWEEN them:
+                head above, arch, then the de-emphasised facts (see the
+                display:contents reorder in New3.css). */}
+            <div className="n3d__intro">
+              <div className="n3d__head lx2i-reveal">
+                <span className="n3d__eyebrow">// EXPLORE &amp; DISCOVER</span>
+                <h2 className="n3d__title">What&apos;s your<br />vibe?</h2>
+                <p className="n3d__copy">{theme.blurb}</p>
+              </div>
+              <div className="n3d__meta lx2i-reveal">
+                <ul className="n3d__facts">
+                  <li><Calendar size={15} /> Best season · {theme.best}</li>
+                  <li><Compass size={15} /> {theme.trips}</li>
+                  <li><Sparkles size={15} /> from {theme.from} pp</li>
+                </ul>
+                <div className="n3d__nav">
+                  <button type="button" className="n3d__navbtn" onClick={prevTheme} aria-label="Previous theme"><ArrowLeft size={18} /></button>
+                  <span className="n3d__count">{String(themeIdx + 1).padStart(2, '0')} / {String(THEMES.length).padStart(2, '0')}</span>
+                  <button type="button" className="n3d__navbtn" onClick={nextTheme} aria-label="Next theme"><ArrowRight size={18} /></button>
+                </div>
+              </div>
+            </div>
+
+            {/* Centre — arch. All photos are stacked layers; only the active
+                one is opaque, so a swipe is a pure opacity crossfade. */}
+            <div className="n3d__stage lx2i-reveal">
+              <div className="n3d__arch">
+                {THEMES.map((t, i) => (
+                  <div
+                    key={t.name}
+                    className="n3d__photo"
+                    style={{ backgroundImage: `url(${sizedUnsplash(t.id, 1100)})`, opacity: i === themeIdx ? 1 : 0 }}
+                    aria-hidden={i === themeIdx ? undefined : true}
+                  />
+                ))}
+                <div className="n3d__veil" aria-hidden="true" />
+                <Link to={theme.to} className="n3d__go" aria-label={`Explore ${theme.name} journeys`}><ArrowUpRight size={18} /></Link>
+                <button type="button" className="n3d__swipe n3d__swipe--prev" onClick={prevTheme} aria-label="Previous theme"><ArrowLeft size={20} /></button>
+                <button type="button" className="n3d__swipe n3d__swipe--next" onClick={nextTheme} aria-label="Next theme"><ArrowRight size={20} /></button>
+                <div className="n3d__caption">
+                  <h3 className="n3d__name">{theme.name}</h3>
+                  <div className="n3d__tags">
+                    {theme.tags.map((t) => <span key={t} className="n3d__tag">{t}</span>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right — thumbnail rail */}
+            <div className="n3d__rail lx2i-reveal">
+              {THEMES.map((t, i) => (
+                <button
+                  type="button"
+                  key={t.name}
+                  className={`n3d__thumb${i === themeIdx ? ' is-on' : ''}`}
+                  onClick={() => setThemeIdx(i)}
+                  aria-pressed={i === themeIdx}
+                >
+                  <span className="n3d__thumbimg" style={{ backgroundImage: `url(${sizedUnsplash(t.id, 300)})` }} />
+                  <span className="n3d__thumbno">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="n3d__thumbname">{t.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA follows the selected theme — label and destination both. */}
+          <div className="n3d__more lx2i-reveal">
+            <Link to={theme.to} className="lx2i-btn lx2i-btn--primary lx2i-btn--lg">{theme.cta} <ArrowRight size={16} /></Link>
+          </div>
+        </section>
 
         {/* CLIPS — short-form vertical discovery (from /improved) */}
         <section className="h26-section h26-reels-sec" id="reels">
@@ -1712,16 +1850,6 @@ export default function New3() {
               <div className="lx2i-reviews__more lx2i-reveal">
                 <Link to="/about-us2" className="lx2i-btn lx2i-btn--outline lx2i-btn--lg">View all 2,400+ reviews <ArrowRight size={16} /></Link>
               </div>
-            </div>
-          </section>
-
-          {/* AS SEEN IN — press marquee */}
-          <section className="lx2i-press" id="press" aria-label="As featured in">
-            <div className="lx2i-press__label"><span className="lx2i-eyebrow">AS FEATURED IN</span></div>
-            <div className="lx2i-press__track">
-              {[...LX_PRESS, ...LX_PRESS].map((p, i) => (
-                <img key={i} className="lx2i-press__logo" src={p.src} alt={p.name} loading="lazy" />
-              ))}
             </div>
           </section>
         </div>

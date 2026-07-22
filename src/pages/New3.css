@@ -562,8 +562,18 @@
 .n3 #destinations { background: var(--n-50); }
 .n3 .lx2i-heritage { background: var(--n-100); }
 .n3 .jl          { background: var(--n-50); }
-.n3 .h26-reels-sec { background: var(--n-100); }
-.n3 .lx2i-press  { background: var(--n-150); }
+/* Theme discovery (/100) sits between the relaxed shelf (/50) and the clips
+   rail — so the clips flip to /50 to keep the bands alternating and stop the
+   two from merging into one long sheet. */
+.n3 .n3-disc     { background: var(--n-100); }
+.n3 .h26-reels-sec { background: var(--n-50); }
+/* Press now sits between heritage (/100) and the relaxed shelf (/50) — two
+   light bands. A step darker than either keeps the logo strip reading as its
+   own band against both, instead of merging into the /100 heritage above. */
+.n3 .lx2i-press  { background: #D9D6C4; }
+/* "AS FEATURED IN" reads a touch larger than the shared 11px eyebrow — it now
+   headlines its own strip after heritage, so it earns a little more presence. */
+.n3 .lx2i-press__label .lx2i-eyebrow { font-size: 14px; }
 
 /* ---- 9. Heading weight -------------------------------------------------
    The heading was set at 500 (medium) throughout, so "Crafting … since 1758"
@@ -971,4 +981,249 @@
 .n3 .h26-nav .h26-links .n3-navall .n3-navall-meta,
 .n3 .h26-nav.is-solid .h26-links .n3-navall .n3-navall-meta {
   color: var(--muted-2, #696960);
+}
+
+/* ========================================================================
+   THEME DISCOVERY (n3d) — rebuilt standalone, no Luxe2 classes. Same design
+   as the /luxe2-improved arch carousel (left intro + arch photo + thumb rail),
+   retargeted to travel themes.
+
+   GLITCH-FREE BY CONSTRUCTION:
+     · Nothing remounts on swipe — React only flips inline opacity/text.
+     · The photo is a stack of layers; a swipe crossfades opacity only, which
+       the compositor handles without layout or paint.
+     · No backdrop-filter anywhere (the old on-photo buttons blurred what was
+       behind them, and blurring under motion was the jank) — solid fills.
+     · No transforms animate on the arch or its children; the only entrance
+       motion is the page's shared one-time fade-up (.lx2i-reveal).
+
+   TYPOGRAPHY per design.md — Cormorant Garamond Light headings (never bold),
+   Work Sans body, Work Sans Regular UPPERCASE tracking-4px labels.
+   ======================================================================== */
+.n3 .n3-disc {
+  position: relative;
+  /* Warm atmosphere instead of a flat fill: a soft paper wash lifting from the
+     top so the arch sits in light, plus a hairline seam with the band above. */
+  background: radial-gradient(125% 92% at 50% 6%, var(--n-50) 0%, var(--n-100) 64%);
+  border-top: 1px solid rgba(31, 42, 54, 0.06);
+  padding-block: var(--n3-pad-y);
+  padding-inline: var(--n3-pad-x);
+}
+.n3 .n3d__grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 0.92fr;
+  gap: clamp(28px, 4vw, 52px);
+  align-items: center;
+}
+
+/* ---- Left: intro ---- */
+.n3 .n3d__eyebrow {
+  display: block;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 4px;                 /* design.md Label/Large tracking */
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--sienna, #BD4011);
+  margin: 0 0 18px;
+}
+.n3 .n3d__title {
+  font-family: var(--serif);
+  font-weight: 300;                    /* Cormorant Light — never bold */
+  font-size: clamp(2.25rem, 1.4rem + 2.6vw, 3.5rem);
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--ink, #1F2A36);
+  margin: 0;
+}
+.n3 .n3d__copy {
+  font-family: var(--sans);
+  font-weight: 300;                    /* Body/Large Light */
+  font-size: 15px;
+  line-height: 1.65;
+  color: #60605A;                      /* Neutrals/700 */
+  margin: 18px 0 24px;
+  max-width: 340px;
+  /* Reserve room for the tallest blurb (~4 lines) so swapping themes never
+     nudges the facts/counter below it — a subtle but real source of jumpiness. */
+  min-height: 6.6em;
+}
+.n3 .n3d__facts {
+  list-style: none; margin: 0 0 28px; padding: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.n3 .n3d__facts li {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--sans); font-weight: 400; font-size: 13.5px;
+  color: #484844;                      /* Neutrals/800 */
+}
+.n3 .n3d__facts svg { color: var(--blue, #0B5AB1); flex-shrink: 0; }
+.n3 .n3d__nav { display: flex; align-items: center; gap: 16px; }
+.n3 .n3d__navbtn {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid #D9D7CB; background: var(--n-0, #fff);
+  color: var(--ink, #1F2A36); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+.n3 .n3d__navbtn:hover { background: var(--ink, #1F2A36); color: var(--n-0, #fff); border-color: var(--ink, #1F2A36); }
+.n3 .n3d__count {
+  font-family: var(--serif); font-weight: 300; font-size: 19px;
+  letter-spacing: 0.05em; color: var(--ink, #1F2A36);
+  font-variant-numeric: tabular-nums;   /* index never shifts width 01→02 */
+}
+
+/* ---- Centre: arch ---- */
+.n3 .n3d__stage { position: relative; display: flex; justify-content: center; }
+/* Soft ambient halo behind the arch — gives the photo depth on the paper. */
+.n3 .n3d__stage::before {
+  content: ''; position: absolute; z-index: 0; pointer-events: none;
+  left: 50%; top: 48%; transform: translate(-50%, -50%);
+  width: 74%; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle, rgba(189, 64, 17, 0.09), transparent 70%);
+  filter: blur(26px);
+}
+.n3 .n3d__arch {
+  position: relative;
+  z-index: 1;
+  width: min(420px, 100%);
+  aspect-ratio: 3 / 4.1;
+  border-radius: 210px 210px 16px 16px;
+  overflow: hidden;
+  /* Layered warm shadow: a tight contact shadow under a deep, soft cast. */
+  box-shadow: 0 2px 8px rgba(2, 19, 48, 0.06), 0 44px 74px -34px rgba(2, 19, 48, 0.5);
+  background: var(--n-150, #E5E3D7);   /* shows only until the first photo decodes */
+}
+/* Crafted inner edge — a hairline of light around the rim. */
+.n3 .n3d__arch::after {
+  content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+.n3 .n3d__photo {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease);
+  will-change: opacity;                /* keep each layer on its own compositor tile */
+}
+.n3 .n3d__veil {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(2,19,48,0.10) 0%, transparent 32%, rgba(2,19,48,0.12) 58%, rgba(2,19,48,0.80) 100%);
+}
+.n3 .n3d__go {
+  position: absolute; top: 18px; right: 18px; z-index: 3;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink, #1F2A36);
+  transition: transform 0.25s var(--ease);
+}
+.n3 .n3d__go:hover { transform: scale(1.08); }
+.n3 .n3d__swipe {
+  position: absolute; top: 50%; z-index: 3;
+  width: 46px; height: 46px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(2, 19, 48, 0.62);   /* solid — no backdrop-filter */
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #fff; cursor: pointer;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+  transition: background 0.2s var(--ease);
+}
+.n3 .n3d__swipe--prev { left: 10px; transform: translateY(-50%); }
+.n3 .n3d__swipe--next { right: 10px; transform: translateY(-50%); }
+.n3 .n3d__swipe:hover { background: var(--blue, #0B5AB1); }
+.n3 .n3d__caption {
+  position: absolute; left: 0; right: 0; bottom: 22px; z-index: 2;
+  padding: 0 22px; text-align: center;
+}
+.n3 .n3d__name {
+  font-family: var(--serif); font-weight: 300;
+  font-size: clamp(1.5rem, 1rem + 1.4vw, 2.1rem);
+  line-height: 1.2; color: #fff; margin: 0 0 12px;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.55);
+}
+.n3 .n3d__tags { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
+.n3 .n3d__tag {
+  font-family: var(--sans); font-weight: 400; font-size: 11.5px;
+  color: #fff; padding: 6px 12px; border-radius: 100px; white-space: nowrap;
+  background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.34);
+}
+
+/* ---- Right: thumbnail rail ---- */
+.n3 .n3d__rail { display: flex; flex-direction: column; gap: 12px; }
+.n3 .n3d__thumb {
+  display: flex; align-items: center; gap: 14px;
+  background: none; border: none; cursor: pointer;
+  padding: 8px; border-radius: 12px; text-align: left;
+  transition: background 0.25s var(--ease), transform 0.25s var(--ease);
+}
+.n3 .n3d__thumb:hover { background: rgba(255, 255, 255, 0.7); transform: translateX(3px); }
+.n3 .n3d__thumb.is-on { background: rgba(255, 255, 255, 0.9); }
+.n3 .n3d__thumbimg {
+  width: 58px; height: 58px; border-radius: 9px; flex-shrink: 0;
+  background-size: cover; background-position: center;
+  filter: grayscale(0.5) brightness(0.88);
+  transition: filter 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+.n3 .n3d__thumb:hover .n3d__thumbimg { filter: grayscale(0.15) brightness(0.96); }
+/* Active thumb: a paper gap ring inside a sienna ring — a small, deliberate frame. */
+.n3 .n3d__thumb.is-on .n3d__thumbimg { filter: none; box-shadow: 0 0 0 2px var(--n-50, #F8F7F1), 0 0 0 3.5px var(--sienna, #BD4011); }
+.n3 .n3d__thumbno {
+  font-family: var(--serif); font-weight: 300; font-size: 15px; color: #A9A79E;
+  font-variant-numeric: tabular-nums; min-width: 1.4em;
+}
+.n3 .n3d__thumb.is-on .n3d__thumbno { color: var(--sienna, #BD4011); }
+.n3 .n3d__thumbname { font-family: var(--sans); font-weight: 400; font-size: 14px; color: var(--ink, #1F2A36); }
+.n3 .n3d__thumb.is-on .n3d__thumbname { color: var(--sienna, #BD4011); font-weight: 500; }
+
+/* ---- CTA ---- */
+.n3 .n3d__more { display: flex; justify-content: center; margin-top: clamp(32px, 4vw, 48px); }
+/* Arrow nudges forward on hover — a small, expected reward. */
+.n3 .n3d__more .lx2i-btn svg { transition: transform 0.25s var(--ease); }
+.n3 .n3d__more .lx2i-btn:hover svg { transform: translateX(4px); }
+
+/* ---- Responsive: title → photo → facts → rail ----
+   Mobile order: the heading + blurb lead, THEN the big arch photo, THEN the
+   de-emphasised facts, then the thumbnail row.
+
+   display:contents dissolves the intro wrapper so its two halves (head, meta)
+   become direct grid items — that's what lets the arch drop in BETWEEN them via
+   `order`. The arch is sized in vw, not %, because justify-items:center
+   shrink-wraps each cell, so a % width would resolve against a collapsed parent
+   and render small; vw is viewport-relative and immune to that. */
+@media (max-width: 1080px) {
+  .n3 .n3d__grid { grid-template-columns: 1fr; gap: 22px; justify-items: center; }
+  .n3 .n3d__intro { display: contents; }
+  .n3 .n3d__head  { order: -2; text-align: center; max-width: 560px; }
+  .n3 .n3d__stage { order: -1; width: 100%; }
+  .n3 .n3d__meta  { order: 0; max-width: 560px; }
+  .n3 .n3d__rail  { order: 1; }
+  /* Big, but a touch shorter: a less-tall arch on mobile so it stops eating the
+     whole viewport. Wide enough to stay the hero, ~55px less height than before. */
+  .n3 .n3d__arch { width: min(460px, 87vw); aspect-ratio: 3 / 3.7; }
+  .n3 .n3d__copy { margin-inline: auto; min-height: 0; }
+  .n3 .n3d__nav { justify-content: center; }
+
+  /* Facts de-emphasised under the photo: a compact, muted, single wrapped row
+     — a caption, not a headline. */
+  .n3 .n3d__facts {
+    flex-direction: row; flex-wrap: wrap; justify-content: center;
+    gap: 6px 16px; margin: 4px 0 20px;
+  }
+  .n3 .n3d__facts li { font-size: 12px; color: #797871; }   /* Neutrals/600 */
+  .n3 .n3d__facts svg { width: 13px; height: 13px; }
+
+  .n3 .n3d__rail {
+    flex-direction: row; flex-wrap: nowrap;
+    width: 100%; max-width: 560px;
+    overflow-x: auto; gap: 12px; padding-bottom: 8px;
+    scroll-snap-type: x mandatory; scrollbar-width: none;
+  }
+  .n3 .n3d__rail::-webkit-scrollbar { display: none; }
+  .n3 .n3d__thumb { flex: 0 0 auto; width: 200px; scroll-snap-align: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n3 .n3d__photo { transition: none; }
 }
