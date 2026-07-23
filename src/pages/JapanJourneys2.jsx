@@ -269,12 +269,16 @@ const TripAdvisorOwl = () => (
   </svg>
 );
 
-/* ---- People also view — other CK journeys, linking into /journeys. ---- */
+/* ---- People also view — other CK journeys. Each opens its own detailed tour
+   page. None of these four has a product page built yet, so they route to a
+   per-tour /tour-detail-<slug> URL that falls through to the 404 (which surfaces
+   the two example detail pages — Japan FIT/luxe and Thailand GIT/low — for
+   developers). Give a tour a real route in App.jsx and it opens that instead. ---- */
 const SIMILAR = [
-  { title: 'Summer in Switzerland', region: 'Switzerland', nights: '10 nights', season: 'Jun–Sep', price: '₹2.45L', image: U('1530122037265-a5f1f91d3b99'), to: '/journeys4?where=Switzerland' },
-  { title: 'Slow Italy: Coast to Art', region: 'Italy', nights: '9 nights', season: 'Apr–Oct', price: '₹2.4L', image: U('1534445867742-43195f401b6c'), to: '/journeys4?where=Italy' },
-  { title: 'Chasing the Northern Lights', region: 'Scandinavia', nights: '7 nights', season: 'Oct–Mar', price: '₹2.75L', image: U('1483347756197-71ef80e95f73'), to: '/journeys4?where=Northern Lights' },
-  { title: 'Vietnam & Cambodia Discovery', region: 'Southeast Asia', nights: '12 nights', season: 'Oct–Apr', price: '₹1.2L', image: U('1528181304800-259b08848526'), to: '/journeys4?where=Southeast Asia' },
+  { title: 'Summer in Switzerland', region: 'Switzerland', nights: '10 nights', season: 'Jun–Sep', price: '₹2.45L', image: U('1530122037265-a5f1f91d3b99'), to: '/tour-detail-switzerland-summer' },
+  { title: 'Slow Italy: Coast to Art', region: 'Italy', nights: '9 nights', season: 'Apr–Oct', price: '₹2.4L', image: U('1534445867742-43195f401b6c'), to: '/tour-detail-italy-slow' },
+  { title: 'Chasing the Northern Lights', region: 'Scandinavia', nights: '7 nights', season: 'Oct–Mar', price: '₹2.75L', image: U('1483347756197-71ef80e95f73'), to: '/tour-detail-northern-lights' },
+  { title: 'Vietnam & Cambodia Discovery', region: 'Southeast Asia', nights: '12 nights', season: 'Oct–Apr', price: '₹1.2L', image: U('1528181304800-259b08848526'), to: '/tour-detail-vietnam-cambodia' },
 ];
 
 /* ---- Reduced-motion-safe reveal (matches /improved & Journeys). ---- */
