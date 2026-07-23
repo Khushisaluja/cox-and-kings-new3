@@ -13,7 +13,7 @@
    the one definition the whole site shares.
    ============================================================ */
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { SiteNav, SiteFooter } from '../components/SiteChrome';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
@@ -21,7 +21,7 @@ import {
   PhoneCall, MessageCircle, ArrowRight, Search, MapPin,
   Compass, Calendar, X, ChevronDown, ChevronLeft, ChevronRight,
   Star, SlidersHorizontal, Clock, Users, User, Gauge, Wallet,
-  Check, Plus, Minus, CalendarRange,
+  Check, Plus, Minus, CalendarRange, Building2, Globe2, Stamp,
 } from 'lucide-react';
 import { img } from '../data/v3content';
 import './Home2026.css';
@@ -49,10 +49,19 @@ const REGIONS = [
 ];
 
 /* Trip-style filter (mirrors the /improved hero "Style" list). */
-const STYLES = ['Group Tour', 'Bespoke Private', 'Luxury', 'Family', 'Honeymoon', 'Safari'];
+const STYLES = ['Group Tour', 'Bespoke Private', 'Luxury', 'Family', 'Couple', 'Safari'];
 
 /* Pace filter. */
 const PACES = ['Relaxed', 'Balanced', 'Active'];
+
+/* Visa filter — for an Indian passport. Each journey carries one of these
+   statuses (see VISA_BY_ID); the sidebar exposes the two traveller-friendly
+   ones so you can hide trips that need a visa arranged in advance. */
+const VISA_OPTIONS = [
+  { value: 'free', label: 'Visa-free' },
+  { value: 'voa', label: 'Visa on arrival / e-visa' },
+];
+const VISA_LABEL = { free: 'Visa-free', voa: 'Visa on arrival', required: 'Visa needed' };
 
 /* Travel-month selector — filters on each journey's season string. */
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -86,7 +95,7 @@ const GROUP_BY_STYLE = {
   'Bespoke Private': 'Private & tailor-made',
   Luxury: 'Private guiding',
   Family: 'Family-friendly',
-  Honeymoon: 'Just the two of you',
+  Couple: 'Just the two of you',
   Safari: 'Small-group safari',
 };
 
@@ -115,6 +124,74 @@ const REGION_PHOTOS = {
 
 const HERO_IMG = U('1493976040374-85c8e12f0c0e');
 
+/* ---- The cities each journey visits, keyed by id. Kept here (rather than on
+   every literal below) so the catalogue stays readable. These feed the
+   Destination filter's city-level search — searching "Kyoto" or "Amalfi"
+   surfaces the trips that actually go there. ---- */
+const CITY_BY_ID = {
+  'in-golden': ['Delhi', 'Agra', 'Jaipur'],
+  'in-rajasthan': ['Udaipur', 'Jodhpur', 'Jaisalmer'],
+  'in-kerala': ['Kochi', 'Munnar', 'Alleppey'],
+  'in-honeymoon': ['Udaipur', 'Ranthambore'],
+  'in-family': ['Jaipur', 'Agra', 'Ranthambore'],
+  'jp-blossom': ['Tokyo', 'Kyoto'],
+  'jp-first': ['Tokyo', 'Hakone', 'Kyoto'],
+  'jp-luxe': ['Kyoto', 'Naoshima'],
+  'ch-summer': ['Lucerne', 'Zermatt', 'Interlaken'],
+  'ch-it-grand': ['Lucerne', 'Zermatt', 'Venice', 'Rome'],
+  'ch-rail': ['Zermatt', 'St. Moritz'],
+  'it-slow': ['Rome', 'Florence', 'Amalfi'],
+  'it-amalfi': ['Amalfi', 'Positano'],
+  'it-family': ['Rome', 'Florence'],
+  'nl-chase': ['Tromsø'],
+  'nl-ice': ['Kiruna', 'Tromsø'],
+  'nz-road': ['Queenstown', 'Christchurch'],
+  'au-family': ['Cairns', 'Sydney'],
+  'af-migration': ['Maasai Mara', 'Nairobi'],
+  'af-private': ['Maasai Mara', 'Nairobi'],
+  'af-tanzania': ['Serengeti', 'Ngorongoro'],
+  'af-southafrica': ['Cape Town', 'Kruger'],
+  'eu-grand': ['Paris', 'Rome', 'Amsterdam'],
+  'eu-iberia': ['Lisbon', 'Porto', 'Seville', 'Madrid'],
+  'eu-xmas': ['Vienna', 'Prague'],
+  'sea-islands': ['Bangkok', 'Siem Reap'],
+  'sea-srilanka': ['Kandy', 'Colombo', 'Ella'],
+  'sea-vietnam': ['Hanoi', 'Halong Bay', 'Siem Reap'],
+  'mv-overwater': ['Malé'],
+  'us-coast': ['New York', 'San Francisco', 'Las Vegas'],
+  'us-canada': ['Banff', 'Lake Louise'],
+};
+
+/* ---- Visa status per journey, for an Indian passport. 'free' = no visa,
+   'voa' = visa on arrival / e-visa, 'required' = arrange in advance. Anything
+   not listed defaults to 'required'. Kept here as a single editable table so
+   it's easy to keep current as rules change. ---- */
+const VISA_BY_ID = {
+  // India — home turf, no visa.
+  'in-golden': 'free', 'in-rajasthan': 'free', 'in-kerala': 'free',
+  'in-honeymoon': 'free', 'in-family': 'free',
+  // Visa on arrival / e-visa destinations.
+  'mv-overwater': 'voa',                                   // Maldives
+  'sea-islands': 'voa', 'sea-srilanka': 'voa', 'sea-vietnam': 'voa', // Thailand/Cambodia/Sri Lanka/Vietnam
+  'af-migration': 'voa', 'af-private': 'voa', 'af-tanzania': 'voa',  // Kenya / Tanzania
+  // Everything else (Japan, Schengen Europe, Australia/NZ, South Africa, USA)
+  // needs a visa arranged in advance and is left to the 'required' default.
+};
+
+/* ---- Which detailed product page a card opens. Only two are built so far:
+   the Japan FIT/luxe page and the Thailand GIT/low-budget page. Every other
+   journey points at its own /tour-detail-<id> URL that has no route yet, so it
+   deliberately lands on the 404 page — which carries dev links to the two
+   examples above. As those pages get built, add the route in App.jsx and a
+   mapping here. ---- */
+const DETAIL_PAGES = {
+  'jp-blossom': '/tour-detail-japan-5',
+  'jp-first': '/tour-detail-japan-5',
+  'jp-luxe': '/tour-detail-japan-5',
+  'sea-islands': '/tour-detail-thailand-2',
+};
+const detailTo = (id) => DETAIL_PAGES[id] || `/tour-detail-${id}`;
+
 /* ---- The catalogue (shared with /journeys). ---- */
 function buildGallery(o) {
   const pool = REGION_PHOTOS[o.regions[0]] || [];
@@ -122,6 +199,12 @@ function buildGallery(o) {
 }
 const J = (o) => ({
   ...o,
+  cities: CITY_BY_ID[o.id] || [],
+  visa: VISA_BY_ID[o.id] || 'required',
+  /* Cards open a product page. `to` is derived here (overriding whatever the
+     literal below sets) so every card routes to a detail page — a real one
+     where it exists, a 404-with-dev-links where it doesn't. */
+  to: detailTo(o.id),
   priceLabel: `₹${o.price.toLocaleString('en-IN')}`,
   nightsLabel: `${o.nights} nights`,
   group: GROUP_BY_STYLE[o.style],
@@ -136,7 +219,7 @@ const ALL_JOURNEYS = [
   J({ id: 'in-golden', title: 'Golden Triangle & the Taj', blurb: 'Delhi, Agra and Jaipur: the Taj at sunrise, Amber Fort and the Pink City.', regions: ['India'], style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 8, season: 'Oct–Mar', price: 95000, image: U('1564507592333-c60657eea523'), to: CALLBACK }),
   J({ id: 'in-rajasthan', title: 'Rajasthan: Palaces & Forts', blurb: 'Udaipur lake palaces, Jodhpur blue city and a night under the Thar desert sky.', regions: ['India'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 10, season: 'Oct–Mar', price: 185000, image: U('1477587458883-47145ed94245'), to: CALLBACK }),
   J({ id: 'in-kerala', title: 'Kerala Backwaters & Coast', blurb: 'A private houseboat on the backwaters, tea country and a slow finish by the Arabian Sea.', regions: ['India'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Sep–Mar', price: 120000, image: U('1602216056096-3b40cc0c9944'), to: CALLBACK }),
-  J({ id: 'in-honeymoon', title: 'Udaipur & Ranthambore Honeymoon', blurb: 'A lake-palace suite, a private dinner on the water and tigers at first light.', regions: ['India'], style: 'Honeymoon', pace: 'Relaxed', rating: 4.9, nights: 7, season: 'Oct–Mar', price: 165000, image: U('1524492412937-b28074a5d7da'), to: CALLBACK }),
+  J({ id: 'in-honeymoon', title: 'Udaipur & Ranthambore Honeymoon', blurb: 'A lake-palace suite, a private dinner on the water and tigers at first light.', regions: ['India'], style: 'Couple', pace: 'Relaxed', rating: 4.9, nights: 7, season: 'Oct–Mar', price: 165000, image: U('1524492412937-b28074a5d7da'), to: CALLBACK }),
   J({ id: 'in-family', title: 'India for Families', blurb: 'Forts to climb, elephants to meet and a tiger safari, paced for younger travellers.', regions: ['India'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 9, season: 'Oct–Mar', price: 110000, image: U('1587474260584-136574528ed5'), to: CALLBACK }),
   J({ id: 'jp-blossom', title: 'Cherry Blossom Japan', blurb: 'Two weeks, one fleeting bloom — Tokyo neon to Kyoto temple gardens, timed to the petals.', regions: ['Japan'], style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 13, season: 'Mar–Apr', price: 295000, image: U('1522383225653-ed111181a951'), to: '/tour-detail-japan-5' }),
   J({ id: 'jp-first', title: 'Japan for First-Timers', blurb: 'Tokyo, Hakone and Kyoto with a private guide and a night in a traditional ryokan.', regions: ['Japan'], style: 'Bespoke Private', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Any date', price: 310000, image: U('1492571350019-22de08371fd3'), to: '/tour-detail-japan-5' }),
@@ -169,11 +252,31 @@ const ALL_JOURNEYS = [
   J({ id: 'sea-srilanka', title: 'Sri Lanka: Tea Trails & Coast', blurb: 'Hill-country tea estates, ancient cities and a slow finish by the sea.', regions: ['Southeast Asia'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Year-round', price: 130000, image: U('1546708973-b339540b5162'), to: CALLBACK }),
   J({ id: 'sea-vietnam', title: 'Vietnam & Cambodia Discovery', blurb: 'Hanoi to Halong Bay, the Mekong and the temples of Angkor.', regions: ['Southeast Asia'], style: 'Group Tour', pace: 'Balanced', rating: 4.6, nights: 12, season: 'Oct–Apr', price: 120000, image: U('1528181304800-259b08848526'), to: CALLBACK }),
 
-  J({ id: 'mv-overwater', title: 'Maldives Overwater Escape', blurb: 'Overwater calm — a private villa, a house reef and nowhere to be.', regions: ['Maldives'], style: 'Honeymoon', pace: 'Relaxed', rating: 4.9, nights: 5, season: 'Year-round', price: 140000, image: U('1514282401047-d79a71a590e8'), to: CALLBACK }),
+  J({ id: 'mv-overwater', title: 'Maldives Overwater Escape', blurb: 'Overwater calm — a private villa, a house reef and nowhere to be.', regions: ['Maldives'], style: 'Couple', pace: 'Relaxed', rating: 4.9, nights: 5, season: 'Year-round', price: 140000, image: U('1514282401047-d79a71a590e8'), to: CALLBACK }),
 
   J({ id: 'us-coast', title: 'USA Coast to Coast', blurb: 'The great national parks and iconic cities, linked into one road-trip arc.', regions: ['USA'], style: 'Bespoke Private', pace: 'Active', rating: 4.7, nights: 14, season: 'May–Oct', price: 220000, image: U('1501594907352-04cda38ebc29'), to: CALLBACK }),
   J({ id: 'us-canada', title: 'Canadian Rockies & Rail', blurb: 'Banff, Lake Louise and the Rocky Mountaineer through the mountains.', regions: ['USA'], style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Jun–Sep', price: 295000, image: U('1503614472-8c93d56e92ce'), to: CALLBACK }),
 ];
+
+/* ---- Destination search vocabulary. The filter's Destination search spans
+   BOTH countries/regions and the individual cities the trips visit, so a
+   traveller can search either "Japan" or "Kyoto". A quick set tells the two
+   apart when a chosen destination is applied as a filter. ---- */
+const REGION_SET = new Set(REGIONS);
+const ALL_CITIES = [...new Set(ALL_JOURNEYS.flatMap((j) => j.cities))].sort((a, b) => a.localeCompare(b));
+const DESTINATIONS = [
+  ...REGIONS.map((r) => ({ value: r, label: r, type: 'region' })),
+  ...ALL_CITIES.map((c) => ({ value: c, label: c, type: 'city' })),
+];
+const isRegionDest = (d) => REGION_SET.has(d);
+
+/* Destinations that own a dedicated landing page. Typing one of these into the
+   HERO search and pressing Enter jumps straight to that page — the sidebar
+   Destination search still just filters this listing in place. Keys are
+   lower-cased for a case-insensitive match. */
+const DESTINATION_PAGES = {
+  japan: '/journeys/japan-2',
+};
 
 /* ---- Budget bounds + price distribution, derived from the catalogue. ---- */
 const _prices = ALL_JOURNEYS.map((j) => j.price);
@@ -192,6 +295,19 @@ const BUDGET_PRESETS = [
   { label: '≤ ₹2.5L', v: 250000 },
   { label: '≤ ₹3.5L', v: 350000 },
 ].filter((p) => p.v > PRICE_MIN && p.v < PRICE_MAX);
+
+/* ---- Trip-length bounds, derived from the catalogue (nights). ---- */
+const _nights = ALL_JOURNEYS.map((j) => j.nights);
+const NIGHTS_MIN = Math.min(..._nights); // 5
+const NIGHTS_MAX = Math.max(..._nights); // 15
+const fmtNights = (v) => `${v} ${v === 1 ? 'night' : 'nights'}`;
+
+/* One-tap trip-length ceilings (only those inside the real range show). */
+const DURATION_PRESETS = [
+  { label: '≤ 7 nights', v: 7 },
+  { label: '≤ 10 nights', v: 10 },
+  { label: '≤ 13 nights', v: 13 },
+].filter((p) => p.v > NIGHTS_MIN && p.v < NIGHTS_MAX);
 
 /* ---- Calendar constants for the travel-date picker. ---- */
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -331,7 +447,12 @@ function JourneyCard({ j, i, people = 1 }) {
       </div>
       <div className="jl-card-body">
         <h3 className="jl-card-title"><Link to={j.to}>{j.title}</Link></h3>
-        <span className="jl-card-group"><Users size={13} aria-hidden="true" /> {j.group}</span>
+        <div className="jl4-card-tags">
+          <span className="jl-card-group"><Users size={13} aria-hidden="true" /> {j.group}</span>
+          <span className={`jl4-visa jl4-visa-${j.visa}`}>
+            <Stamp size={12} aria-hidden="true" /> {VISA_LABEL[j.visa]}
+          </span>
+        </div>
         <p className="jl-card-blurb">{j.blurb}</p>
         <div className="jl-card-meta">
           <span><Clock size={14} aria-hidden="true" /> {j.nightsLabel}</span>
@@ -484,8 +605,10 @@ function FilterField({ id, title, icon: Icon, children, aside }) {
   );
 }
 
-/* Searchable destination combobox. Typing filters a suggestion list;
-   focusing the empty field shows all destinations. Picks become chips. */
+/* Searchable destination combobox spanning BOTH countries/regions and cities.
+   Typing filters a suggestion list, grouped into "Countries & regions" and
+   "Cities"; focusing the empty field shows all of them. Picks become chips,
+   each tagged with a small city/region icon so it's clear which you chose. */
 function DestinationSearch({ selected, onToggle, counts }) {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
@@ -498,17 +621,44 @@ function DestinationSearch({ selected, onToggle, counts }) {
     return () => document.removeEventListener('mousedown', onDoc);
   }, []);
 
-  const suggestions = REGIONS.filter(
-    (r) => !selected.includes(r) && r.toLowerCase().includes(q.trim().toLowerCase())
+  const needle = q.trim().toLowerCase();
+  /* Flat list drives keyboard nav; the render groups it by type. Regions come
+     first so a bare "Japan" still lands on the country, not a city. */
+  const suggestions = DESTINATIONS.filter(
+    (d) => !selected.includes(d.value) && d.label.toLowerCase().includes(needle)
   );
+  const regionHits = suggestions.filter((d) => d.type === 'region');
+  const cityHits = suggestions.filter((d) => d.type === 'city');
 
-  const pick = (r) => { onToggle(r); setQ(''); setActive(0); };
+  const pick = (d) => { onToggle(d.value); setQ(''); setActive(0); };
 
   const onKeyDown = (e) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setOpen(true); setActive((a) => Math.min(a + 1, suggestions.length - 1)); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
     else if (e.key === 'Enter' && suggestions[active]) { e.preventDefault(); pick(suggestions[active]); }
     else if (e.key === 'Escape') { setOpen(false); }
+  };
+
+  /* Render one option row. `idx` is the row's position in the flat list so
+     keyboard highlight and mouse hover stay in sync across both groups. */
+  const renderOpt = (d, idx) => {
+    const Icon = d.type === 'city' ? Building2 : Globe2;
+    return (
+      <li key={`${d.type}-${d.value}`}>
+        <button
+          type="button"
+          role="option"
+          aria-selected={idx === active}
+          className={`j2-dest-opt${idx === active ? ' is-active' : ''}`}
+          onMouseEnter={() => setActive(idx)}
+          onClick={() => pick(d)}
+        >
+          <Icon size={14} aria-hidden="true" />
+          <span className="j2-dest-opt-label">{d.label}</span>
+          {counts && <span className="j2-option-count">{counts[d.value] ?? 0}</span>}
+        </button>
+      </li>
+    );
   };
 
   return (
@@ -521,8 +671,8 @@ function DestinationSearch({ selected, onToggle, counts }) {
           onChange={(e) => { setQ(e.target.value); setOpen(true); setActive(0); }}
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
-          placeholder={selected.length ? 'Add another destination…' : 'Search destinations…'}
-          aria-label="Search destinations"
+          placeholder={selected.length ? 'Add a city or country…' : 'Search a city or country…'}
+          aria-label="Search destinations by city or country"
           aria-expanded={open}
           role="combobox"
           aria-controls="j2-dest-list"
@@ -532,32 +682,31 @@ function DestinationSearch({ selected, onToggle, counts }) {
 
       {open && suggestions.length > 0 && (
         <ul className="j2-dest-pop" id="j2-dest-list" role="listbox">
-          {suggestions.map((r, i) => (
-            <li key={r}>
-              <button
-                type="button"
-                role="option"
-                aria-selected={i === active}
-                className={`j2-dest-opt${i === active ? ' is-active' : ''}`}
-                onMouseEnter={() => setActive(i)}
-                onClick={() => pick(r)}
-              >
-                <MapPin size={14} aria-hidden="true" />
-                <span className="j2-dest-opt-label">{r}</span>
-                {counts && <span className="j2-option-count">{counts[r] ?? 0}</span>}
-              </button>
-            </li>
-          ))}
+          {regionHits.length > 0 && (
+            <>
+              <li className="j2-dest-grouphd" role="presentation">Countries &amp; regions</li>
+              {regionHits.map((d) => renderOpt(d, suggestions.indexOf(d)))}
+            </>
+          )}
+          {cityHits.length > 0 && (
+            <>
+              <li className="j2-dest-grouphd" role="presentation">Cities</li>
+              {cityHits.map((d) => renderOpt(d, suggestions.indexOf(d)))}
+            </>
+          )}
         </ul>
       )}
 
       {selected.length > 0 && (
         <div className="j2-dest-chips">
-          {selected.map((r) => (
-            <button key={r} type="button" className="j2-dest-chip" onClick={() => onToggle(r)} aria-label={`Remove ${r}`}>
-              {r} <X size={13} aria-hidden="true" />
-            </button>
-          ))}
+          {selected.map((d) => {
+            const Icon = isRegionDest(d) ? Globe2 : Building2;
+            return (
+              <button key={d} type="button" className="j2-dest-chip" onClick={() => onToggle(d)} aria-label={`Remove ${d}`}>
+                <Icon size={12} aria-hidden="true" /> {d} <X size={13} aria-hidden="true" />
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
@@ -591,6 +740,54 @@ function BudgetPicker({ value, min, max, step, onChange }) {
 
       <div className="j2-budget-presets">
         {BUDGET_PRESETS.map((p) => (
+          <button
+            key={p.v}
+            type="button"
+            className={`j2-preset${value === p.v ? ' is-on' : ''}`}
+            onClick={() => onChange(p.v)}
+          >
+            {p.label}
+          </button>
+        ))}
+        <button
+          type="button"
+          className={`j2-preset${isAny ? ' is-on' : ''}`}
+          onClick={() => onChange(max)}
+        >
+          Any
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* Trip length = a single "up to N nights" ceiling, built from the same
+   one-thumb slider + preset pills as the budget bar so the two read as a
+   pair. Reuses the .j2-budget styles verbatim. */
+function DurationPicker({ value, min, max, onChange }) {
+  const pct = ((value - min) / (max - min)) * 100;
+  const isAny = value >= max;
+  return (
+    <div className="j2-budget">
+      <div className="j2-budget-slider">
+        <div className="j2-budget-track">
+          <div className="j2-budget-fill" style={{ width: `${pct}%` }} aria-hidden="true" />
+          <input
+            type="range" min={min} max={max} step={1} value={value}
+            className="j2-budget-input"
+            onChange={(e) => onChange(Number(e.target.value))}
+            aria-label="Maximum trip length in nights"
+            aria-valuetext={isAny ? 'Any length' : `Up to ${fmtNights(value)}`}
+          />
+        </div>
+        <div className="j2-budget-ends">
+          <span>{fmtNights(min)}</span>
+          <span>{max}+ nights</span>
+        </div>
+      </div>
+
+      <div className="j2-budget-presets">
+        {DURATION_PRESETS.map((p) => (
           <button
             key={p.v}
             type="button"
@@ -762,6 +959,7 @@ function Stepper({ value, min, max, onChange, label, sub }) {
 
 export default function Journeys4() {
   const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const [filtersOpen, setFiltersOpen] = useState(false); // mobile filter drawer
   const [lightbox, setLightbox] = useState(null);
@@ -773,11 +971,16 @@ export default function Journeys4() {
     return flat.filter((v) => valid.includes(v));
   };
   const [query, setQuery] = useState(() => params.get('q') || '');
-  const [regions, setRegions] = useState(() => seedList('where', REGIONS));
+  /* Chosen destinations — a mix of countries/regions and cities. */
+  const [dests, setDests] = useState(() => seedList('where', DESTINATIONS.map((d) => d.value)));
   const [styles, setStyles] = useState(() => seedList('style', STYLES));
   const [budgetMax, setBudgetMax] = useState(() => {
     const n = parseInt(params.get('budget'), 10);
     return Number.isFinite(n) && n >= PRICE_MIN && n <= PRICE_MAX ? n : PRICE_MAX;
+  });
+  const [nightsMax, setNightsMax] = useState(() => {
+    const n = parseInt(params.get('nights'), 10);
+    return Number.isFinite(n) && n >= NIGHTS_MIN && n <= NIGHTS_MAX ? n : NIGHTS_MAX;
   });
   const [adults, setAdults] = useState(() => {
     const n = parseInt(params.get('adults'), 10);
@@ -801,6 +1004,7 @@ export default function Journeys4() {
   });
   const setDate = useCallback((date, f) => { setTravelDate(date); setFlex(f || 0); }, []);
   const [paces, setPaces] = useState(() => seedList('pace', PACES));
+  const [visas, setVisas] = useState(() => seedList('visa', VISA_OPTIONS.map((v) => v.value)));
   const [sort, setSort] = useState('recommended');
   const [sortOpen, setSortOpen] = useState(false);
 
@@ -835,9 +1039,10 @@ export default function Journeys4() {
   useEffect(() => {
     const next = {};
     if (query.trim()) next.q = query.trim();
-    if (regions.length) next.where = regions.join(',');
+    if (dests.length) next.where = dests.join(',');
     if (styles.length) next.style = styles.join(',');
     if (budgetMax < PRICE_MAX) next.budget = String(budgetMax);
+    if (nightsMax < NIGHTS_MAX) next.nights = String(nightsMax);
     if (adults !== 2) next.adults = String(adults);
     if (children !== 0) next.children = String(children);
     if (travelDate) {
@@ -845,9 +1050,10 @@ export default function Journeys4() {
       if (flex) next.flex = String(flex);
     }
     if (paces.length) next.pace = paces.join(',');
+    if (visas.length) next.visa = visas.join(',');
     setParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, regions, styles, budgetMax, adults, children, travelDate, flex, paces]);
+  }, [query, dests, styles, budgetMax, nightsMax, adults, children, travelDate, flex, paces, visas]);
 
   /* Months touched by the chosen date ± flex — recomputed only when either changes. */
   const dateMonths = useMemo(() => dateWindowMonths(travelDate, flex), [travelDate, flex]);
@@ -857,16 +1063,20 @@ export default function Journeys4() {
   const passes = useCallback((j, skip) => {
     const q = query.trim().toLowerCase();
     if (skip !== 'q' && q) {
-      const hay = `${j.title} ${j.blurb} ${j.regions.join(' ')} ${j.style} ${j.pace} ${j.season}`.toLowerCase();
+      const hay = `${j.title} ${j.blurb} ${j.regions.join(' ')} ${j.cities.join(' ')} ${j.style} ${j.pace} ${j.season}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
-    if (skip !== 'where' && regions.length && !regions.some((r) => j.regions.includes(r))) return false;
+    /* A chosen destination matches on region OR city, depending on which it is. */
+    if (skip !== 'where' && dests.length &&
+        !dests.some((d) => (isRegionDest(d) ? j.regions.includes(d) : j.cities.includes(d)))) return false;
     if (skip !== 'style' && styles.length && !styles.includes(j.style)) return false;
     if (skip !== 'pace' && paces.length && !paces.includes(j.pace)) return false;
+    if (skip !== 'visa' && visas.length && !visas.includes(j.visa)) return false;
     if (skip !== 'budget' && j.price > budgetMax) return false;
+    if (skip !== 'nights' && j.nights > nightsMax) return false;
     if (skip !== 'when' && dateMonths && !dateMonths.some((mo) => monthInSeason(mo, j.season))) return false;
     return true;
-  }, [query, regions, styles, paces, budgetMax, dateMonths]);
+  }, [query, dests, styles, paces, visas, budgetMax, nightsMax, dateMonths]);
 
   /* The filtered + sorted result set. */
   const results = useMemo(() => {
@@ -890,20 +1100,35 @@ export default function Journeys4() {
       return out;
     };
     return {
-      where: count('where', REGIONS.map((r) => [r, (j) => j.regions.includes(r)])),
+      where: count('where', [
+        ...REGIONS.map((r) => [r, (j) => j.regions.includes(r)]),
+        ...ALL_CITIES.map((c) => [c, (j) => j.cities.includes(c)]),
+      ]),
       pace: count('pace', PACES.map((p) => [p, (j) => j.pace === p])),
       style: count('style', STYLES.map((s) => [s, (j) => j.style === s])),
+      visa: count('visa', VISA_OPTIONS.map((v) => [v.value, (j) => j.visa === v.value])),
     };
   }, [passes]);
 
   const budgetActive = budgetMax < PRICE_MAX;
+  const nightsActive = nightsMax < NIGHTS_MAX;
   const totalActive =
-    (query.trim() ? 1 : 0) + regions.length + styles.length + paces.length +
-    (budgetActive ? 1 : 0) + (travelDate ? 1 : 0);
+    (query.trim() ? 1 : 0) + dests.length + styles.length + paces.length + visas.length +
+    (budgetActive ? 1 : 0) + (nightsActive ? 1 : 0) + (travelDate ? 1 : 0);
 
   const clearAll = () => {
-    setQuery(''); setRegions([]); setStyles([]); setPaces([]);
-    setBudgetMax(PRICE_MAX); setTravelDate(null); setFlex(0); setAdults(2); setChildren(0);
+    setQuery(''); setDests([]); setStyles([]); setPaces([]); setVisas([]);
+    setBudgetMax(PRICE_MAX); setNightsMax(NIGHTS_MAX); setTravelDate(null); setFlex(0); setAdults(2); setChildren(0);
+  };
+
+  /* Hero search submit: if the typed destination has its own landing page
+     (e.g. "Japan" → /journeys/japan-2), go there. Otherwise fall back to
+     filtering this listing in place and scroll down to the results. */
+  const heroPage = DESTINATION_PAGES[query.trim().toLowerCase()] || null;
+  const onHeroSubmit = (e) => {
+    e.preventDefault();
+    if (heroPage) { navigate(heroPage); return; }
+    document.getElementById('results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const sortLabel = SORTS.find((s) => s.key === sort)?.label;
@@ -912,13 +1137,20 @@ export default function Journeys4() {
   const filterBody = (
     <>
       <FilterField id="dest" title="Destination" icon={MapPin}>
-        <DestinationSearch selected={regions} onToggle={toggler(setRegions)} counts={counts.where} />
+        <DestinationSearch selected={dests} onToggle={toggler(setDests)} counts={counts.where} />
       </FilterField>
 
       <FilterField id="budget" title="Budget (per person)" icon={Wallet}>
         <BudgetPicker
           value={budgetMax} min={PRICE_MIN} max={PRICE_MAX} step={PRICE_STEP}
           onChange={setBudgetMax}
+        />
+      </FilterField>
+
+      <FilterField id="length" title="Trip length" icon={Clock}>
+        <DurationPicker
+          value={nightsMax} min={NIGHTS_MIN} max={NIGHTS_MAX}
+          onChange={setNightsMax}
         />
       </FilterField>
 
@@ -942,6 +1174,11 @@ export default function Journeys4() {
         id="style" title="Trip style" icon={Compass}
         options={STYLES.map((s) => ({ value: s, label: s }))}
         selected={styles} onToggle={toggler(setStyles)} counts={counts.style}
+      />
+      <FilterGroup
+        id="visa" title="Visa (Indian passport)" icon={Stamp}
+        options={VISA_OPTIONS}
+        selected={visas} onToggle={toggler(setVisas)} counts={counts.visa}
       />
     </>
   );
@@ -976,7 +1213,7 @@ export default function Journeys4() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="jl-search-field">
+            <form className="jl-search-field" onSubmit={onHeroSubmit}>
               <Search size={19} aria-hidden="true" />
               <input
                 type="text"
@@ -991,7 +1228,17 @@ export default function Journeys4() {
                   <X size={16} />
                 </button>
               )}
-            </div>
+              {heroPage && (
+                <button type="submit" className="jl4-search-go">
+                  Explore {query.trim()} <ArrowRight size={15} aria-hidden="true" />
+                </button>
+              )}
+            </form>
+            {heroPage && (
+              <p className="jl4-search-hint" aria-live="polite">
+                Press Enter to open the {query.trim()} destination page.
+              </p>
+            )}
           </motion.div>
         </div>
       </section>
@@ -1039,7 +1286,7 @@ export default function Journeys4() {
           <div className="jl2-results-head">
             <p className="jl-count" aria-live="polite">
               <strong>{results.length}</strong> {results.length === 1 ? 'journey' : 'journeys'}
-              {regions.length ? ` · ${regions.length === 1 ? regions[0] : `${regions.length} destinations`}` : ''}
+              {dests.length ? ` · ${dests.length === 1 ? dests[0] : `${dests.length} destinations`}` : ''}
             </p>
             <div className="jl-sort" ref={sortRef}>
               <button
@@ -1082,12 +1329,17 @@ export default function Journeys4() {
                   “{query.trim()}” <X size={13} />
                 </button>
               )}
-              {regions.map((r) => (
-                <button key={r} type="button" className="jl-active-chip" onClick={() => toggler(setRegions)(r)}>{r} <X size={13} /></button>
+              {dests.map((d) => (
+                <button key={d} type="button" className="jl-active-chip" onClick={() => toggler(setDests)(d)}>{d} <X size={13} /></button>
               ))}
               {budgetActive && (
                 <button type="button" className="jl-active-chip" onClick={() => setBudgetMax(PRICE_MAX)}>
                   Up to {fmtLakh(budgetMax)} <X size={13} />
+                </button>
+              )}
+              {nightsActive && (
+                <button type="button" className="jl-active-chip" onClick={() => setNightsMax(NIGHTS_MAX)}>
+                  Up to {fmtNights(nightsMax)} <X size={13} />
                 </button>
               )}
               {travelDate && (
@@ -1100,6 +1352,9 @@ export default function Journeys4() {
               ))}
               {paces.map((p) => (
                 <button key={p} type="button" className="jl-active-chip" onClick={() => toggler(setPaces)(p)}>{p} pace <X size={13} /></button>
+              ))}
+              {visas.map((v) => (
+                <button key={v} type="button" className="jl-active-chip" onClick={() => toggler(setVisas)(v)}>{VISA_LABEL[v]} <X size={13} /></button>
               ))}
               <button type="button" className="jl-clear-all" onClick={clearAll}>Clear all</button>
             </div>

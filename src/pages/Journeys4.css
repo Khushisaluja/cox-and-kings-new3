@@ -252,3 +252,86 @@
 .jl4 .h26.n3 {
   background: transparent;
 }
+
+/* ---- Destination search: city + country/region -------------------------
+   The sidebar Destination search now spans both countries/regions and the
+   individual cities the trips visit. Grouped headers separate the two, and a
+   small icon on every chip shows which kind you picked. */
+.jl4 .j2-dest-grouphd {
+  padding: 8px 10px 4px;
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.jl4 .j2-dest-grouphd + .j2-dest-grouphd { margin-top: 2px; }
+.jl4 .j2-dest-chip svg:first-child { opacity: 0.7; }
+
+/* ---- Hero search → dedicated destination page --------------------------
+   When the typed destination owns its own page (e.g. "Japan"), the hero search
+   offers an "Explore" jump button and a hint line; pressing Enter navigates. */
+.jl4 .jl-search-field { position: relative; }
+.jl4 .jl4-search-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: 4px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .16s, transform .16s;
+}
+.jl4 .jl4-search-go:hover { background: var(--blue-deep, #0b3f8f); transform: translateY(-1px); }
+.jl4 .jl4-search-hint {
+  margin: 10px 2px 0;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+@media (max-width: 560px) {
+  .jl4 .jl4-search-go span,
+  .jl4 .jl4-search-go { font-size: 0.82rem; padding: 8px 12px; }
+}
+
+/* ---- Visa status badge on each card ------------------------------------
+   Sits beside the "how it travels" label. Visa-free / visa-on-arrival read as
+   a positive (green); visa-needed is a quiet neutral. Feeds the sidebar's
+   Visa filter so the badge and the filter tell the same story. */
+.jl4 .jl4-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.jl4 .jl4-visa {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.jl4 .jl4-visa svg { flex-shrink: 0; }
+.jl4 .jl4-visa-free,
+.jl4 .jl4-visa-voa {
+  color: #15803d;
+  background: #e7f6ec;
+}
+.jl4 .jl4-visa-required {
+  color: var(--muted-2, #5b6b82);
+  background: var(--paper, #f1f4f9);
+}
