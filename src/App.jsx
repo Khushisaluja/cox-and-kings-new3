@@ -57,43 +57,69 @@ function ScrollToTop() {
 
 function NotFound() {
   const { pathname } = useLocation();
-  /* A card whose product page isn't built yet routes to /tour-detail-<id>,
-     which has no route and lands here. Detect that so the copy speaks to it,
-     and always surface the two detail pages that DO exist so a developer can
-     see the intended layouts (one FIT/luxe, one GIT/low-budget). */
+  /* Two kinds of not-yet-built page land here:
+     - /tour-detail-<id> — a tour card whose product page isn't built yet;
+     - /vibe/<slug>       — a "What's your vibe?" theme page that isn't built.
+     Detect each so the copy speaks to it, and surface the live example page(s)
+     a developer can open to see the intended layout. */
   const isTour = pathname.startsWith('/tour-detail-');
+  const isVibe = pathname.startsWith('/vibe/');
+  const heading = isVibe ? "This page isn't ready yet"
+    : isTour ? "This tour's page isn't built yet"
+      : 'Page Not Found';
+  const copy = isVibe
+    ? "We haven't built this vibe's page yet. The Adventure collection is the live example of the intended layout — see it below."
+    : isTour
+      ? "We haven't created a detailed page for this journey yet. Two example product pages are live below."
+      : "The page you're looking for doesn't exist.";
   return (
     <main style={{ paddingTop: 140, paddingBottom: 80, textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
       <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', color: 'var(--color-navy)', margin: 0 }}>
-        {isTour ? "This tour's page isn't built yet" : 'Page Not Found'}
+        {heading}
       </h2>
       <p style={{ color: 'var(--color-text-light)', fontSize: '1rem', maxWidth: 460 }}>
-        {isTour
-          ? "We haven't created a detailed page for this journey yet. Two example product pages are live below."
-          : "The page you're looking for doesn't exist."}
+        {copy}
       </p>
       <a href="/" className="btn-primary">Return to Home</a>
 
-      {/* Dev-facing reference: the two detail-page templates that exist today. */}
-      <div style={{ marginTop: 24, padding: '18px 22px', border: '1px dashed var(--color-border, #d7ddea)', borderRadius: 12, maxWidth: 480, textAlign: 'left' }}>
-        <p style={{ textTransform: 'uppercase', letterSpacing: '0.16em', fontSize: '0.7rem', color: 'var(--color-text-light)', margin: '0 0 10px' }}>
-          For developers · example tour pages
-        </p>
-        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <li>
-            <a href="/tour-detail-japan-5" style={{ color: 'var(--color-navy)', fontWeight: 600 }}>
-              Japan — FIT, luxe
-            </a>
-            <span style={{ color: 'var(--color-text-light)', fontSize: '0.85rem' }}> · /tour-detail-japan-5</span>
-          </li>
-          <li>
-            <a href="/tour-detail-thailand-2" style={{ color: 'var(--color-navy)', fontWeight: 600 }}>
-              Thailand — GIT, low budget
-            </a>
-            <span style={{ color: 'var(--color-text-light)', fontSize: '0.85rem' }}> · /tour-detail-thailand-2</span>
-          </li>
-        </ul>
-      </div>
+      {/* Dev-facing reference: the live example page(s) for the intended layout. */}
+      {isVibe && (
+        <div style={{ marginTop: 24, padding: '18px 22px', border: '1px dashed var(--color-border, #d7ddea)', borderRadius: 12, maxWidth: 480, textAlign: 'left' }}>
+          <p style={{ textTransform: 'uppercase', letterSpacing: '0.16em', fontSize: '0.7rem', color: 'var(--color-text-light)', margin: '0 0 10px' }}>
+            For developers · example vibe page
+          </p>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <li>
+              <a href="/adventure" style={{ color: 'var(--color-navy)', fontWeight: 600 }}>
+                Adventure — live example
+              </a>
+              <span style={{ color: 'var(--color-text-light)', fontSize: '0.85rem' }}> · /adventure</span>
+            </li>
+          </ul>
+        </div>
+      )}
+
+      {isTour && (
+        <div style={{ marginTop: 24, padding: '18px 22px', border: '1px dashed var(--color-border, #d7ddea)', borderRadius: 12, maxWidth: 480, textAlign: 'left' }}>
+          <p style={{ textTransform: 'uppercase', letterSpacing: '0.16em', fontSize: '0.7rem', color: 'var(--color-text-light)', margin: '0 0 10px' }}>
+            For developers · example tour pages
+          </p>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <li>
+              <a href="/tour-detail-japan-5" style={{ color: 'var(--color-navy)', fontWeight: 600 }}>
+                Japan — FIT, luxe
+              </a>
+              <span style={{ color: 'var(--color-text-light)', fontSize: '0.85rem' }}> · /tour-detail-japan-5</span>
+            </li>
+            <li>
+              <a href="/tour-detail-thailand-2" style={{ color: 'var(--color-navy)', fontWeight: 600 }}>
+                Thailand — GIT, low budget
+              </a>
+              <span style={{ color: 'var(--color-text-light)', fontSize: '0.85rem' }}> · /tour-detail-thailand-2</span>
+            </li>
+          </ul>
+        </div>
+      )}
     </main>
   );
 }

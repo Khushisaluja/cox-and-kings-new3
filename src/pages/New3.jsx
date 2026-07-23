@@ -760,6 +760,11 @@ const J = (o) => ({
   group: GROUP_BY_STYLE[o.style],
   tourType: tourTypeOf(o.style),
   gallery: buildGallery(o),
+  /* Every tour card opens its own detail page. Only two detail templates exist
+     today (Japan / Thailand), kept explicitly on those cards; the rest route to
+     /tour-detail-<id>, which has no page yet and lands on the dev-facing 404
+     (it links the two live templates). Bare CALLBACK cards become detail links. */
+  to: o.to && o.to !== CALLBACK ? o.to : `/tour-detail-${o.id}`,
 });
 /* The relaxed-pace journeys shown on this page's shelf. */
 const RELAXED_JOURNEYS = [
@@ -794,27 +799,27 @@ const THEMES = [
   { name: 'Honeymoon', tags: ['Just the two of you', 'Private dinners', 'Overwater calm'],
     blurb: 'Overwater villas, a sandbank dinner laid for two and long, unhurried mornings — the trip you take once, arranged exactly right.',
     best: 'Nov – Apr', trips: '14 journeys', from: '₹1,85,000', id: '1573843981267-be1999ff37cd',
-    cta: 'Explore honeymoons', to: '/journeys4?style=Honeymoon' },
+    cta: 'Explore honeymoons', to: '/vibe/honeymoon' },
   { name: 'Relaxed & Slow', tags: ['Nothing to rush', 'Long lunches', 'Sea & shade'],
     blurb: 'One town, one terrace and nowhere you have to be — slow itineraries with room to breathe between the beautiful bits.',
     best: 'Apr – Oct', trips: '16 journeys', from: '₹1,60,000', id: '1530841377377-3ff06c0ca713',
-    cta: 'Explore relaxed journeys', to: '/journeys4?pace=Relaxed' },
+    cta: 'Explore relaxed journeys', to: '/vibe/relaxed-slow' },
   { name: 'Pilgrimage', tags: ['Sacred routes', 'Quiet mornings', 'Guided rites'],
     blurb: 'Temple towns at dawn, holy rivers and the old routes walked for centuries — travelled gently, with care for every ritual.',
     best: 'Year-round', trips: '12 journeys', from: '₹95,000', id: '1599661046289-e31897846e41',
-    cta: 'Explore pilgrimages', to: '/journeys4' },
+    cta: 'Explore pilgrimages', to: '/vibe/pilgrimage' },
   { name: 'Staycation', tags: ['Close to home', 'Weekend-sized', 'A full reset'],
     blurb: 'A short hop, a beautiful room and a full stop on the calendar — the reset that feels a world away without the long flight.',
     best: 'Year-round', trips: '9 journeys', from: '₹45,000', id: '1506973035872-a4ec16b8e8d9',
-    cta: 'Explore staycations', to: '/journeys4?pace=Relaxed' },
+    cta: 'Explore staycations', to: '/vibe/staycation' },
   { name: 'Wildlife & Safari', tags: ['Dawn game drives', 'Private reserves', 'Star beds'],
     blurb: 'Track the great herds at sunrise, keep a conservancy to yourself, and sleep under the stars in camps moved just for your dates.',
     best: 'Jun – Oct', trips: '11 journeys', from: '₹2,25,000', id: '1516426122078-c23e76319801',
-    cta: 'Explore safaris', to: '/journeys4?style=Safari' },
+    cta: 'Explore safaris', to: '/vibe/wildlife-safari' },
   { name: 'Culture & Heritage', tags: ['Living history', 'Old cities', 'Local hands'],
     blurb: 'Palaces you can sleep in, festivals timed to your visit and the makers behind the crafts — a place told by the people in it.',
     best: 'Oct – Mar', trips: '20 journeys', from: '₹1,25,000', id: '1493976040374-85c8e12f0c0e',
-    cta: 'Explore heritage trips', to: '/journeys4' },
+    cta: 'Explore heritage trips', to: '/vibe/culture-heritage' },
 ];
 
 /* WhatsApp glyph (lucide has no brand icon) — used on the enquiry CTA. */
