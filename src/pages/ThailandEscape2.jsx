@@ -1262,7 +1262,7 @@ export default function ThailandEscape2() {
         {/* ============ FLOATING BOOK CTA (desktop) ============
             Below 640px the thumb-bar carries the booking CTA; above it the only
             way back to the card was the header pill. This stacks on the same
-            right rail as the Enaya button, directly above it. */}
+            right rail as the Einaya button, directly above it. */}
         <a
           href="#dates"
           onClick={navClick('#dates')}
@@ -1276,8 +1276,8 @@ export default function ThailandEscape2() {
         </a>
 
         {/* ============ FLOATING AI BUTTON (desktop) ============ */}
-        <button className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Enaya, the AI travel assistant" onClick={() => setChatOpen(true)}>
-          <Sparkles size={20} /><span>Ask Enaya</span>
+        <button className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Einaya, the AI travel assistant" onClick={() => setChatOpen(true)}>
+          <Sparkles size={20} /><span>Ask Einaya</span>
         </button>
 
         {/* ============ FULL POLICY DETAIL MODAL ============ */}
@@ -1529,8 +1529,8 @@ export default function ThailandEscape2() {
         )}
       </div>
 
-      {/* AI chat (Enaya) */}
-      <ChatBot open={chatOpen} onOpenChange={setChatOpen} hideFab name="Enaya" />
+      {/* AI chat (Einaya) */}
+      <ChatBot open={chatOpen} onOpenChange={setChatOpen} hideFab name="Einaya" />
     </>
   );
 }

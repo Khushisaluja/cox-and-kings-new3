@@ -126,13 +126,13 @@
 /* ---- Desktop floating "Book now" ----
    The thumb-bar carries the booking CTA below 640px, but on desktop the only
    way back to the card was the header pill. This rides the same right rail as
-   the Ask Enaya button (.lx2i-aifab: right 24px / bottom 24px, ~46px tall) and
+   the Ask Einaya button (.lx2i-aifab: right 24px / bottom 24px, ~46px tall) and
    sits directly above it — both are position:fixed, so neither moves on scroll.
-   Hidden at the same width Enaya is, so the two never disagree. */
+   Hidden at the same width Einaya is, so the two never disagree. */
 .tha2-bookfab {
   position: fixed;
   right: 24px;
-  bottom: 82px;                      /* 24px rail + Enaya's height + a 12px gap */
+  bottom: 82px;                      /* 24px rail + Einaya's height + a 12px gap */
   z-index: 150;                      /* same layer as .lx2i-aifab */
   display: inline-flex;
   align-items: center;

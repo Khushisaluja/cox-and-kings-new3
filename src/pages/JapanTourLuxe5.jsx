@@ -2028,8 +2028,8 @@ export default function JapanTourLuxe5() {
         </a>
 
         {/* ============ FLOATING AI BUTTON (desktop) ============ */}
-        <button className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Enaya, the AI travel assistant" onClick={() => setChatOpen(true)}>
-          <Sparkles size={20} /><span>Ask Enaya</span>
+        <button className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Einaya, the AI travel assistant" onClick={() => setChatOpen(true)}>
+          <Sparkles size={20} /><span>Ask Einaya</span>
         </button>
 
         {/* ============ FULL POLICY DETAIL MODAL (active category) ============ */}
@@ -2624,8 +2624,8 @@ export default function JapanTourLuxe5() {
         )}
       </div>
 
-      {/* AI chat (Enaya) — rendered OUTSIDE .lx2i so scoped styles can't leak in */}
-      <ChatBot open={chatOpen} onOpenChange={setChatOpen} hideFab name="Enaya" />
+      {/* AI chat (Einaya) — rendered OUTSIDE .lx2i so scoped styles can't leak in */}
+      <ChatBot open={chatOpen} onOpenChange={setChatOpen} hideFab name="Einaya" />
     </>
   );
 }

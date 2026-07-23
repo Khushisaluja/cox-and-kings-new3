@@ -1,10 +1,16 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import New3 from './pages/New3';
+/* TEMP — restored design explorations for local review only. Not part of the
+   live site; remove these three imports + routes before shipping. */
+import Home2026Improved from './pages/Home2026Improved';
+import Home2026Improved2 from './pages/Home2026Improved2';
+import Luxe2Improved from './pages/Luxe2Improved';
 import Journeys4 from './pages/Journeys4';
 import Journeys4Group from './pages/Journeys4Group';
 import Journeys4Private from './pages/Journeys4Private';
 import JapanJourneys2 from './pages/JapanJourneys2';
+import Adventure from './pages/Adventure';
 import CityJourneys from './pages/CityJourneys';
 import JapanTourLuxe5 from './pages/JapanTourLuxe5';
 import ThailandEscape2 from './pages/ThailandEscape2';
@@ -23,6 +29,7 @@ import Collaborate from './pages/Collaborate';
 import Franchise from './pages/Franchise';
 import Terms from './pages/Terms';
 import { ScheduleCallProvider } from './components/ScheduleCall';
+import { EinayaProvider } from './components/Einaya';
 
 /* A new route always starts at the top — except when the link carried a hash
    ("/#reviews"), where we scroll to that section once it has been painted.
@@ -91,6 +98,31 @@ function NotFound() {
   );
 }
 
+/* Where the homepage search lands when a traveller picks a specific destination
+   whose country page isn't built yet. Japan is the only one live today, so this
+   says so plainly rather than quietly dropping them on the Japan page. The place
+   they searched arrives as ?dest= for the copy. */
+function ComingSoon() {
+  const { search } = useLocation();
+  const dest = new URLSearchParams(search).get('dest');
+  return (
+    <main style={{ paddingTop: 140, paddingBottom: 80, textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+      <p style={{ textTransform: 'uppercase', letterSpacing: '0.18em', fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Coming soon</p>
+      <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', color: 'var(--color-navy)', margin: 0 }}>
+        {dest ? `Our ${dest} page isn't ready yet` : "That destination isn't ready yet"}
+      </h2>
+      <p style={{ color: 'var(--color-text-light)', fontSize: '1rem', maxWidth: 460 }}>
+        We're still crafting this destination. Right now, our Japan collection is fully live —
+        explore it while we finish the rest.
+      </p>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <a href="/journeys/japan-2" className="btn-primary">Explore Japan</a>
+        <a href="/" className="btn-primary" style={{ background: 'transparent', color: 'var(--color-navy)', border: '1px solid var(--color-navy)' }}>Return to Home</a>
+      </div>
+    </main>
+  );
+}
+
 /* This is the live site — everything routed below ships, and nothing else is
    kept. The earlier design explorations (the /final*, /luxe*, /modern*,
    /improved*, /home2026 and /new* homepages; the /journeys 1–3 listings; the
@@ -104,15 +136,26 @@ export default function App() {
       {/* There is no /contact page: every "talk to us" CTA on the site opens
           the schedule-a-callback dialog this provider owns. */}
       <ScheduleCallProvider>
+        <EinayaProvider>
         <Routes>
           {/* HOMEPAGE. /new3 stays as an alias because existing links and shared
               screenshots still point at it. */}
           <Route path="/" element={<New3 />} />
           <Route path="/new3" element={<New3 />} />
 
+          {/* TEMP — restored explorations for local review only. Remove with the
+              imports above before shipping. */}
+          <Route path="/improved" element={<Home2026Improved />} />
+          <Route path="/improved2" element={<Home2026Improved2 />} />
+          <Route path="/luxe2-improved" element={<Luxe2Improved />} />
+
           {/* Tour LISTING — filterable via ?where= (destination), ?style= (trip
               style) and ?pace=. Every tour card leads to /tour-detail-japan-5. */}
           <Route path="/journeys4" element={<Journeys4 />} />
+
+          {/* ADVENTURE collection — the dedicated page the New3 homepage
+              "What's your vibe?" carousel deep-links to for Adventure. */}
+          <Route path="/adventure" element={<Adventure />} />
 
           {/* GROUP-TOURS listing — the same sidebar-filtered grid as /journeys4,
               pre-narrowed to escorted, fixed-departure group tours, with a hero
@@ -127,8 +170,14 @@ export default function App() {
           {/* Japan country page: hero + about, a filterable grid of the Japan
               tours, food & reservations, "where you'll go" city cards,
               testimonials. Its city cards are the only way into the city pages
-              below. */}
+              below. The homepage search deep-links here with ?who= & ?when= to
+              pre-select its filters. */}
           <Route path="/journeys/japan-2" element={<JapanJourneys2 />} />
+
+          {/* "Coming soon" — where the homepage search lands for a specific
+              destination that has no country page built yet (everywhere but
+              Japan, today). */}
+          <Route path="/journeys/coming-soon" element={<ComingSoon />} />
 
           {/* City pages, one level under the country page. Data-driven by the
               :city param — tokyo, kyoto, hakone and osaka are the only valid
@@ -209,6 +258,7 @@ export default function App() {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </EinayaProvider>
       </ScheduleCallProvider>
     </BrowserRouter>
   );

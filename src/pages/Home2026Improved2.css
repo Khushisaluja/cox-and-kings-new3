@@ -1,0 +1,22 @@
+/* Home2026Improved2 (/improved2) — overrides on top of Home2026Improved.css.
+
+   Difference from /improved: the hero no longer uses a FIXED cinematic
+   backdrop that the content sheet scrolls over. A fixed background is
+   dropped by full-page screenshot tools (they render fixed layers only at
+   the live viewport), so the hero photo was missing from a full-page
+   capture. Here the hero carries its own IN-FLOW background image, and the
+   hero content's scroll parallax is removed — so the section is fully
+   static and the hero image is captured like any normal content. */
+
+/* The hero image now lives INSIDE the hero as an absolutely-positioned
+   layer that fills the section, instead of the shared position:fixed
+   backdrop. Because it is in normal document flow (contained by the
+   relatively-positioned hero), a full-page screenshot renders it. */
+.h26i2-hero { overflow: hidden; }
+.h26i2-hero .h26-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+/* Keep the localised legibility scrim above the image, below the content. */
+.h26i2-hero::before { z-index: 1; }

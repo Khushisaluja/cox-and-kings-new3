@@ -27,6 +27,7 @@
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SmartLink as Link, CALLBACK, useScheduleCall } from './ScheduleCall';
+import { EINAYA, useEinaya } from './Einaya';
 import {
   ChevronDown, Phone, Menu, X, ArrowRight, ArrowUpRight,
   Instagram, Facebook, Youtube, Linkedin,
@@ -58,24 +59,31 @@ const NAV_MENU = [
     label: 'Ways to travel', href: '#paths',
     blurb: 'Two ways to see the world. Pick the one that fits you.',
     items: [
-      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4?style=Group Tour' },
-      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4?style=Bespoke Private' },
+      { label: 'Escorted group tours', desc: 'Expert-led, fixed departures', to: '/journeys4-group?style=Group Tour' },
+      { label: 'Tailor-made journeys', desc: 'Designed entirely around you', to: '/journeys4-private?style=Bespoke Private' },
       { label: 'Luxury & private travel', desc: 'Elevated stays and guiding', to: '/journeys4?style=Luxury' },
-      { label: 'Help me decide', desc: 'Talk it through with a specialist', to: CALLBACK },
+      { label: 'Help me decide', desc: 'Talk it through with Einaya', to: EINAYA },
     ],
   },
   {
     label: 'Destinations', href: '#destinations',
     blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
+    /* Each destination points at its OWN country page (like /journeys/japan-2),
+       not the /journeys4 listing. Only Japan is built today; every other place
+       links to the "coming soon" screen (?dest= carries its name for the copy)
+       until its page ships — swap the `to` to the real route as each lands.
+       Spaces in ?dest= are pre-encoded so the URL is valid. "All destinations"
+       (below) is the one link that still opens the full /journeys4 listing. */
     items: [
       { group: 'By destination', label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
-      { group: 'By destination', label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys4?where=Switzerland' },
-      { group: 'By destination', label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys4?where=Italy' },
-      { group: 'By destination', label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys4?where=Northern Lights' },
-      { group: 'By destination', label: 'African Safari', desc: 'Big-five wilderness', to: '/journeys4?where=Africa Safari' },
-      { group: 'Signature journeys', label: 'Essence of Japan', desc: '13 nights · Mar–Apr', to: '/tour-detail-japan-5' },
-      { group: 'Signature journeys', label: 'Pattaya & Bangkok Escape', desc: '5 nights · year-round', to: '/tour-detail-thailand-2' },
-      { group: 'Signature journeys', label: 'Relaxed-pace journeys', desc: 'A calm vacation, handled', to: '/journeys4?pace=Relaxed' },
+      { group: 'By destination', label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys/coming-soon?dest=Switzerland' },
+      { group: 'By destination', label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys/coming-soon?dest=Italy' },
+      { group: 'By destination', label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys/coming-soon?dest=Northern%20Lights' },
+      { group: 'By destination', label: 'African Safari', desc: 'Big-five wilderness', to: '/journeys/coming-soon?dest=African%20Safari' },
+      { group: 'Indian Getaways', label: 'Rajasthan', desc: 'Palaces, forts & desert', to: '/journeys/coming-soon?dest=Rajasthan' },
+      { group: 'Indian Getaways', label: 'Kerala', desc: 'Backwaters & tea hills', to: '/journeys/coming-soon?dest=Kerala' },
+      { group: 'Indian Getaways', label: 'Goa', desc: 'Beaches & Portuguese charm', to: '/journeys/coming-soon?dest=Goa' },
+      { group: 'Indian Getaways', label: 'Golden Triangle', desc: 'Delhi, Agra & Jaipur', to: '/journeys/coming-soon?dest=Golden%20Triangle' },
     ],
     /* The catch-all. Not an eighth destination — a way out of the list. */
     all: { label: 'All destinations', meta: '31 journeys', to: '/journeys4' },
@@ -109,10 +117,29 @@ const MOBILE_PLAIN = [
    are already on the homepage and a router link to "/#section" when we are not;
    a route or CALLBACK is always a SmartLink. */
 function ChromeLink({ item, home, className, children, onClick, ...rest }) {
+  const openEinaya = useEinaya();
   /* A bare "#" is a deliberate placeholder (see INSPIRATION_TO) — render it
      inert, never as a route, so it cannot navigate anywhere by accident. */
   if (item.to === '#') {
     return <a href="#" className={className} onClick={onClick} {...rest}>{children}</a>;
+  }
+  /* The EINAYA sentinel opens the AI assistant instead of navigating. Rendered
+     as a button-flavoured <a> (no href) so menu link styles still match it,
+     mirroring how SmartLink handles the CALLBACK sentinel. */
+  if (item.to === EINAYA) {
+    const fire = (e) => { e.preventDefault(); onClick?.(e); openEinaya(); };
+    return (
+      <a
+        className={className}
+        role="button"
+        tabIndex={0}
+        onClick={fire}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fire(e); }}
+        {...rest}
+      >
+        {children}
+      </a>
+    );
   }
   if (item.to) {
     return <Link to={item.to} className={className} onClick={onClick} {...rest}>{children}</Link>;

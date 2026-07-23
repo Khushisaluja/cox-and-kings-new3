@@ -273,7 +273,7 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
    between the shelf and the Clips section — neutralise it in this composite only. */
 .h26-sheet .jl { min-height: 0; }
 
-/* The "Ask Enaya" FAB is the lx2i component dropped into the h26 page; its
+/* The "Ask Einaya" FAB is the lx2i component dropped into the h26 page; its
    gradient/transition/icon use lx2i-scoped tokens (--blue-500, --ease,
    --gold-soft) that don't resolve here, leaving the button with no visible
    background. Re-point it at the h26 brand tokens. */
@@ -568,7 +568,7 @@ html.h26-noscroll body::-webkit-scrollbar { width: 0; height: 0; display: none; 
 .h26-dest-price small { color: rgba(255,255,255,0.9); }
 
 /* ---------- Sticky bars must not overlap the footer ---------- */
-/* Reserve space so the fixed desktop "Ask Enaya" fab and the mobile thumb-bar
+/* Reserve space so the fixed desktop "Ask Einaya" fab and the mobile thumb-bar
    float over empty padding, not over the copyright row. */
 .h26-footer { padding-bottom: clamp(56px, 6vw, 84px); }
 

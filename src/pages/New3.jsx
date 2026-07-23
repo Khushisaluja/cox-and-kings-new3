@@ -177,13 +177,17 @@ const ANY_WHO = { label: 'Anyone', any: true };
 /* "Who's travelling?" — each option maps onto a filter /journeys actually
    applies, so the Search button lands on a genuinely filtered list rather than
    a query string nothing reads. `style` matches its STYLES list; seniors have
-   no style of their own, so they map to the Relaxed pace instead. */
+   no style of their own, so they map to the Relaxed pace instead.
+
+   `key` is the stable slug carried to a COUNTRY page (e.g. ?who=couple), where
+   it seeds that page's own "Who's travelling" filter — the country pages don't
+   share /journeys4's style/pace vocabulary, so they key off this instead. */
 const HERO_WHO_OPTS = [
-  { label: 'Couple', style: 'Honeymoon' },
-  { label: 'Family with children', style: 'Family' },
-  { label: 'A group of friends', style: 'Group Tour' },
-  { label: 'Senior travellers', pace: 'Relaxed' },
-  { label: 'Travelling solo', style: 'Bespoke Private' },
+  { key: 'couple', label: 'Couple — just the two of us', style: 'Honeymoon' },
+  { key: 'family', label: 'Family with children', style: 'Family' },
+  { key: 'friends', label: 'A group of friends', style: 'Group Tour' },
+  { key: 'seniors', label: 'Senior travellers', pace: 'Relaxed' },
+  { key: 'solo', label: 'Travelling solo', style: 'Bespoke Private' },
 ];
 /* Same rule as HERO_POPULAR_DEST — "Rajasthan" returned nothing, so it is out. */
 const HERO_QUICK_PICKS = ['India', 'Japan', 'Europe', 'Maldives', 'Safari'];
@@ -201,6 +205,10 @@ const DEST_PAGES = {
   Japan: '/journeys/japan-2',
 };
 const destPage = (name) => DEST_PAGES[toRegion(name) || name] || null;
+
+/* Where a specific destination lands when its country page isn't built yet —
+   an honest "coming soon" screen rather than a silent redirect to Japan. */
+const COMING_SOON_PATH = '/journeys/coming-soon';
 
 /* --- "When" calendar (the hi-cal-* component the /improved hero used).
    Replaces luxe2's fixed "Next 3 months / Later in 2026 / …" option list, so
@@ -782,7 +790,7 @@ const THEMES = [
   { name: 'Adventure', tags: ['Trek & summit', 'Rapids & rides', 'Off the map'],
     blurb: 'High passes at first light, white-water mornings and nights under canvas — journeys built for people who would rather earn the view.',
     best: 'Oct – Mar', trips: '18 journeys', from: '₹1,45,000', id: '1527668752968-14dc70a27c95',
-    cta: 'Explore adventure trips', to: '/journeys4?pace=Active' },
+    cta: 'Explore adventure trips', to: '/adventure' },
   { name: 'Honeymoon', tags: ['Just the two of you', 'Private dinners', 'Overwater calm'],
     blurb: 'Overwater villas, a sandbank dinner laid for two and long, unhurried mornings — the trip you take once, arranged exactly right.',
     best: 'Nov – Apr', trips: '14 journeys', from: '₹1,85,000', id: '1573843981267-be1999ff37cd',
@@ -990,7 +998,7 @@ export default function New3() {
   const searchRef = useRef(null);
 
   const [chatOpen, setChatOpen] = useState(false);
-  /* Enaya opens centred (expanded) from the fork card, and docked in the
+  /* Einaya opens centred (expanded) from the fork card, and docked in the
      corner from the floating FAB. */
   const [chatCentred, setChatCentred] = useState(false);
   const [activeReel, setActiveReel] = useState(null);
@@ -1286,21 +1294,35 @@ export default function New3() {
      left blank, or set to one of the "show me all" options, are simply omitted,
      which widens the search rather than narrowing it to nothing. */
   const searchHref = useMemo(() => {
-    const qs = new URLSearchParams();
+    const iso = whenDate && !whenAny
+      ? `${whenDate.getFullYear()}-${String(whenDate.getMonth() + 1).padStart(2, '0')}-${String(whenDate.getDate()).padStart(2, '0')}`
+      : null;
+
     const dest = tripValue.trim();
-    if (dest && dest !== ANY_DEST) {
-      const region = toRegion(dest);
-      // A known place seeds the destination filter; anything else is a search.
-      if (region) qs.set('where', region);
-      else qs.set('q', dest);
+    const specific = !!dest && dest !== ANY_DEST;
+
+    /* A SPECIFIC destination goes to that COUNTRY page (e.g. /journeys/japan-2),
+       carrying the traveller and dates as filters it pre-selects — `who` keys
+       the country page's own "Who's travelling" filter; `when`/`flex` seed its
+       date filter. Only Japan has a country page built, so any other specific
+       place lands on the honest "coming soon" screen. */
+    if (specific) {
+      const qs = new URLSearchParams();
+      if (whoValue && !whoValue.any && whoValue.key) qs.set('who', whoValue.key);
+      if (iso) { qs.set('when', iso); if (whenFlex) qs.set('flex', String(whenFlex)); }
+      const q = qs.toString();
+      const page = destPage(dest);
+      if (page) return q ? `${page}?${q}` : page;
+      // Known/typed place with no country page yet.
+      return `${COMING_SOON_PATH}?${new URLSearchParams({ dest }).toString()}`;
     }
+
+    /* "Anywhere" (or a blank field) keeps the old behaviour: the full
+       /journeys4 listing, filtered by who → style/pace and by when. */
+    const qs = new URLSearchParams();
     if (whoValue?.style) qs.set('style', whoValue.style);
     if (whoValue?.pace) qs.set('pace', whoValue.pace);
-    if (whenDate && !whenAny) {
-      const iso = `${whenDate.getFullYear()}-${String(whenDate.getMonth() + 1).padStart(2, '0')}-${String(whenDate.getDate()).padStart(2, '0')}`;
-      qs.set('when', iso);
-      if (whenFlex) qs.set('flex', String(whenFlex));
-    }
+    if (iso) { qs.set('when', iso); if (whenFlex) qs.set('flex', String(whenFlex)); }
     const q = qs.toString();
     return q ? `${JOURNEYS_PATH}?${q}` : JOURNEYS_PATH;
   }, [tripValue, whoValue, whenDate, whenAny, whenFlex]);
@@ -1313,9 +1335,9 @@ export default function New3() {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
-  /* "Design it around you" hands straight to Enaya, centred on screen rather
+  /* "Design it around you" hands straight to Einaya, centred on screen rather
      than docked in the corner — it is the task now, not a side offer. */
-  const openEnaya = useCallback(() => { setChatCentred(true); setChatOpen(true); }, []);
+  const openEinaya = useCallback(() => { setChatCentred(true); setChatOpen(true); }, []);
 
   /* Every "talk to us" CTA opens the same callback dialog (name, number,
      purpose, time slot) instead of firing a tel: link. The dialog itself lives
@@ -1559,7 +1581,7 @@ export default function New3() {
             </Reveal>
             {/* "Design it around you" and "Help me decide" were two cards asking
                 the same question, whether you already know what you want. Both
-                now open Enaya, who works it out with you either way. */}
+                now open Einaya, who works it out with you either way. */}
             <Reveal className="hi-lane is-featured" y={0}>
               <span className="hi-lane-badge">Recommended</span>
               <div className="hi-lane-media">
@@ -1568,11 +1590,11 @@ export default function New3() {
               <div className="hi-lane-body">
                 <span className="hi-lane-tag">Tailor-made &amp; private</span>
                 <h3>Design it around you</h3>
-                <p>Know exactly where you&apos;re going, or haven&apos;t the faintest? Answer a few questions and Enaya will shape a private journey around you.</p>
+                <p>Know exactly where you&apos;re going, or haven&apos;t the faintest? Answer a few questions and Einaya will shape a private journey around you.</p>
                 {/* Same pill as the other two: the badge alone marks this as the
                     recommended path, so the CTA doesn't have to shout as well. */}
-                <button type="button" className="h26-btn h26-btn-pill" onClick={openEnaya}>
-                  Design it with Enaya <ArrowRight size={16} />
+                <button type="button" className="h26-btn h26-btn-pill" onClick={openEinaya}>
+                  Design it with Einaya <ArrowRight size={16} />
                 </button>
               </div>
             </Reveal>
@@ -1753,7 +1775,13 @@ export default function New3() {
                   />
                 ))}
                 <div className="n3d__veil" aria-hidden="true" />
-                <Link to={theme.to} className="n3d__go" aria-label={`Explore ${theme.name} journeys`}><ArrowUpRight size={18} /></Link>
+                {/* The whole photo is the CTA: a full-cover link to the theme's
+                    filtered listing. It sits below the swipe buttons (z-index)
+                    so prev/next still win their taps. The corner arrow is now a
+                    decorative affordance (pointer-events off) — the cover owns
+                    the click and the caption passes through to it. */}
+                <Link to={theme.to} className="n3d__cover" aria-label={`Explore ${theme.name} journeys`} />
+                <span className="n3d__go" aria-hidden="true"><ArrowUpRight size={18} /></span>
                 <button type="button" className="n3d__swipe n3d__swipe--prev" onClick={prevTheme} aria-label="Previous theme"><ArrowLeft size={20} /></button>
                 <button type="button" className="n3d__swipe n3d__swipe--next" onClick={nextTheme} aria-label="Next theme"><ArrowRight size={20} /></button>
                 <div className="n3d__caption">
@@ -1893,7 +1921,7 @@ export default function New3() {
         <SiteFooter />
       </div>
 
-      {/* Mobile thumb-reach bar — chat + Enaya (AI) + schedule-a-callback */}
+      {/* Mobile thumb-reach bar — chat + Einaya (AI) + schedule-a-callback */}
       <div className={`h26-thumbbar${activeReel !== null || !pastHero ? ' is-hidden' : ''}`} aria-hidden={activeReel !== null || !pastHero}>
         <button type="button" className="h26-thumbbar-cta" onClick={() => setChatOpen(true)}>
           <MessageCircle size={18} /> Chat with an expert
@@ -1901,22 +1929,22 @@ export default function New3() {
         <button type="button" className="h26-thumbbar-call" aria-label="Schedule a callback" onClick={openCallback}>
           <Phone size={20} />
         </button>
-        {/* The desktop "Ask Enaya" FAB is hidden on mobile, so the assistant
+        {/* The desktop "Ask Einaya" FAB is hidden on mobile, so the assistant
             gets its own button here — rightmost, where the FAB sits on desktop. */}
         <button
           type="button"
           className="h26-thumbbar-ai n3-thumb-ai"
-          aria-label="Ask Enaya, the AI travel assistant"
+          aria-label="Ask Einaya, the AI travel assistant"
           onClick={() => { setChatCentred(false); setChatOpen(true); }}
         >
           <Sparkles size={20} aria-hidden="true" />
         </button>
       </div>
 
-      {/* ENAYA — floating "Ask Enaya" button (from /luxe2-improved) */}
-      <button className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Enaya, the AI travel assistant" onClick={() => { setChatCentred(false); setChatOpen(true); }}>
+      {/* ENAYA — floating "Ask Einaya" button (from /luxe2-improved) */}
+      <button className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`} aria-label="Open Einaya, the AI travel assistant" onClick={() => { setChatCentred(false); setChatOpen(true); }}>
         <Sparkles size={20} />
-        <span>Ask Enaya</span>
+        <span>Ask Einaya</span>
       </button>
 
 
@@ -1930,7 +1958,7 @@ export default function New3() {
 
     {/* ENAYA — the working AI concierge (from /luxe2-improved). Rendered
         OUTSIDE the page wrapper so scoped colour/font styles can't bleed in. */}
-    <ChatBot open={chatOpen} onOpenChange={setChatOpen} openExpanded={chatCentred} hideFab name="Enaya" />
+    <ChatBot open={chatOpen} onOpenChange={setChatOpen} openExpanded={chatCentred} hideFab name="Einaya" />
     </>
   );
 }

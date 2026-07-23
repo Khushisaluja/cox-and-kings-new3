@@ -246,7 +246,7 @@
 /* ---- "How would you like to travel?" — three cards ---------------------
    Was four. "Design it around you" and "Help me decide" both asked the same
    question — whether you already know what you want — so they are now one card
-   that hands to Enaya, who works that out with you either way. Mirrors the
+   that hands to Einaya, who works that out with you either way. Mirrors the
    --four rules from Home2026Improved.css at three columns.
 
    Deliberately compact: three cards at full page width read as billboards, and
@@ -904,9 +904,9 @@
   color: var(--ink);
 }
 
-/* ---- 16. Mobile thumb bar: a labelled Enaya button ---------------------
+/* ---- 16. Mobile thumb bar: a labelled Einaya button ---------------------
    .h26-thumbbar-ai ships as a 52px icon-only square. An unlabelled sparkle is
-   not a recognisable thing to tap — Enaya is a named assistant, so it gets its
+   not a recognisable thing to tap — Einaya is a named assistant, so it gets its
    name. Auto width, so the sienna "Schedule a call" primary still takes the
    remaining room. */
 .n3 .n3-thumb-ai {
@@ -1112,15 +1112,20 @@
   position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background: linear-gradient(180deg, rgba(2,19,48,0.10) 0%, transparent 32%, rgba(2,19,48,0.12) 58%, rgba(2,19,48,0.80) 100%);
 }
+/* Full-cover CTA link over the photo. Above veil/photo, below the swipe/nav
+   controls so those keep their taps. */
+.n3 .n3d__cover { position: absolute; inset: 0; z-index: 2; cursor: pointer; }
+/* Corner arrow — now decorative; the cover owns the click. Reacts to a hover
+   anywhere on the photo so the whole card reads as one target. */
 .n3 .n3d__go {
-  position: absolute; top: 18px; right: 18px; z-index: 3;
+  position: absolute; top: 18px; right: 18px; z-index: 3; pointer-events: none;
   width: 44px; height: 44px; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92); border: none; cursor: pointer;
+  background: rgba(255, 255, 255, 0.92); border: none;
   display: flex; align-items: center; justify-content: center;
   color: var(--ink, #1F2A36);
-  transition: transform 0.25s var(--ease);
+  transition: transform 0.3s var(--ease), background 0.3s var(--ease);
 }
-.n3 .n3d__go:hover { transform: scale(1.08); }
+.n3 .n3d__arch:hover .n3d__go { transform: scale(1.1) rotate(6deg); background: #fff; }
 .n3 .n3d__swipe {
   position: absolute; top: 50%; z-index: 3;
   width: 46px; height: 46px; border-radius: 50%;
@@ -1135,8 +1140,9 @@
 .n3 .n3d__swipe--next { right: 10px; transform: translateY(-50%); }
 .n3 .n3d__swipe:hover { background: var(--blue, #0B5AB1); }
 .n3 .n3d__caption {
-  position: absolute; left: 0; right: 0; bottom: 22px; z-index: 2;
+  position: absolute; left: 0; right: 0; bottom: 22px; z-index: 3;
   padding: 0 22px; text-align: center;
+  pointer-events: none;                /* name/tags pass the click to the cover */
 }
 .n3 .n3d__name {
   font-family: var(--serif); font-weight: 300;
@@ -1180,6 +1186,14 @@
 
 /* ---- CTA ---- */
 .n3 .n3d__more { display: flex; justify-content: center; margin-top: clamp(32px, 4vw, 48px); }
+/* This CTA sits OUTSIDE any .lx2i wrapper, so Luxe2's --blue-500/--paper-100
+   never resolved: the fill dropped out and the label inherited the section's
+   dark ink, turning black-on-blue (unreadable) on hover. Pin every state per
+   design.md — Voyager Blue fill, Neutrals/100 label, darker blue on hover. */
+.n3 .n3d__more .lx2i-btn--primary,
+.n3 .n3d__more .lx2i-btn--primary:visited { background: #0B5AB1; color: #F1EFE2; border: none; }
+.n3 .n3d__more .lx2i-btn--primary:hover { background: #09488E; color: #F1EFE2; }
+.n3 .n3d__more .lx2i-btn--primary:active { background: #07366A; color: #F1EFE2; }
 /* Arrow nudges forward on hover — a small, expected reward. */
 .n3 .n3d__more .lx2i-btn svg { transition: transform 0.25s var(--ease); }
 .n3 .n3d__more .lx2i-btn:hover svg { transform: translateX(4px); }

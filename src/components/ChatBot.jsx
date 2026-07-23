@@ -1,27 +1,28 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  X, Send, ChevronDown, Sparkles, ArrowRight, Star, Clock,
-  Users, Phone, Mail, Maximize2, Minimize2, RotateCcw, ChevronDown as ScrollDown,
+  X, Send, ChevronDown, Sparkles, Maximize2, Minimize2, RotateCcw,
+  ChevronDown as ScrollDown, MessageCircle, Share2, Calendar, PhoneCall, Compass,
 } from 'lucide-react';
-import { tours } from '../data/tours';
-import { Link } from 'react-router-dom';
 import './ChatBot.css';
 
 const EMPTY_PROFILE = {
-  destination: null, region: null, travelStyle: null,
-  month: null, duration: null, budget: null,
+  destination: null, region: null,
+  travelStyle: null, travelStyleLabel: null,
+  month: null,
+  duration: null, durationLabel: null,
+  budget: null, budgetLabel: null,
 };
 
 const STAGES = {
   WELCOME: 'welcome', DESTINATION: 'destination', TRAVEL_STYLE: 'travel_style',
   MONTH: 'month', DURATION: 'duration', BUDGET: 'budget',
-  RESULTS: 'results', DETAIL: 'detail', HANDOFF: 'handoff',
-  CAPTURE: 'capture', DONE: 'done',
+  CURATING: 'curating', ITINERARY: 'itinerary', CALLBACK: 'callback',
+  SHARE: 'share', DONE: 'done',
 };
 
 const PROGRESS_STAGES = [
   STAGES.DESTINATION, STAGES.TRAVEL_STYLE, STAGES.MONTH,
-  STAGES.DURATION, STAGES.BUDGET, STAGES.RESULTS,
+  STAGES.DURATION, STAGES.BUDGET, STAGES.CURATING,
 ];
 
 const DESTINATIONS = [
@@ -63,6 +64,54 @@ const BUDGETS = [
   { label: '₹6,50,000+',               sub: 'Luxury',     value: 'luxury',  emoji: '💎' },
 ];
 
+const CALLBACK_DAYS = ['Today', 'Tomorrow', 'This weekend'];
+// 2-hour windows, 9am → 9pm. WINDOW_START keeps the 24h start hour for each,
+// used to hide slots that have already passed when "Today" is chosen.
+const CALLBACK_TIMES = ['9–11 AM', '11 AM–1 PM', '1–3 PM', '3–5 PM', '5–7 PM', '7–9 PM'];
+const WINDOW_START   = [9, 11, 13, 15, 17, 19];
+
+// Approx. nights per duration bucket — drives the generated itinerary length.
+const DURATION_NIGHTS = { short: 5, ten: 10, fortnight: 14, longer: 21 };
+
+// Build a light, tailored day-by-day outline from the profile. We have no real
+// package data, so this is a bespoke skeleton shaped by destination + pace +
+// who's travelling — enough to make the plan feel real and specific in-chat.
+function buildItinerary(profile) {
+  const dest = (profile.destination && profile.destination !== 'Not sure yet')
+    ? profile.destination : 'your destination';
+  const nights = DURATION_NIGHTS[profile.duration] || 8;
+  const days = Math.max(4, nights + 1);
+
+  const styleFlavour = {
+    romantic: ['a private candlelit dinner', 'a couples’ spa afternoon', 'a sunset for two'],
+    family:   ['a family-friendly hands-on workshop', 'an easy-paced discovery day', 'a treat the kids will love'],
+    solo:     ['a small-group local experience', 'time to wander at your own pace', 'a chance to meet fellow travellers'],
+    group:    ['a lively group tasting', 'a shared adventure activity', 'an evening out together'],
+  }[profile.travelStyle] || ['a signature local experience', 'a relaxed discovery day', 'a memorable evening'];
+
+  const out = [];
+  out.push({ day: 'Day 1', title: `Arrive in ${dest}`, desc: 'Private airport welcome, transfer and an unhurried evening to settle in.' });
+  // Middle days alternate marquee sights with tailored, style-led experiences.
+  for (let d = 2; d < days; d++) {
+    if (d % 2 === 0) {
+      out.push({ day: `Day ${d}`, title: `Highlights of ${dest}`, desc: `Guided by a local expert — the icons plus the corners most visitors miss.` });
+    } else {
+      const f = styleFlavour[(d - 3) / 2 % styleFlavour.length | 0] || styleFlavour[0];
+      out.push({ day: `Day ${d}`, title: 'A day designed around you', desc: `A slower day with ${f}.` });
+    }
+  }
+  out.push({ day: `Day ${days}`, title: 'Farewell', desc: 'A final morning at leisure before your private departure transfer.' });
+
+  // Keep the in-chat preview digestible — collapse the middle if it's long.
+  if (out.length > 6) {
+    const head = out.slice(0, 3);
+    const tail = out[out.length - 1];
+    const hiddenCount = out.length - 4;
+    return { days, items: [...head, { day: '···', title: `+ ${hiddenCount} more tailored days`, desc: '', more: true }, tail] };
+  }
+  return { days, items: out };
+}
+
 // ── Stage → input placeholder ─────────────────────────────────────────────────
 const STAGE_PLACEHOLDER = {
   [STAGES.WELCOME]:      'Type a destination or question…',
@@ -71,40 +120,43 @@ const STAGE_PLACEHOLDER = {
   [STAGES.MONTH]:        'Or type a month or season…',
   [STAGES.DURATION]:     'Or tell me how long you have…',
   [STAGES.BUDGET]:       'Or tell me your budget…',
-  [STAGES.RESULTS]:      'Ask me anything about these tours…',
-  [STAGES.DETAIL]:       'Ask me anything…',
-  [STAGES.HANDOFF]:      'Type your name and email…',
+  [STAGES.CURATING]:     'Curating your itinerary…',
+  [STAGES.ITINERARY]:    'Ask me anything about your trip…',
+  [STAGES.CALLBACK]:     'Ask me anything…',
+  [STAGES.SHARE]:        'Ask me anything…',
   [STAGES.DONE]:         'Ask me anything else…',
 };
 
-function matchTours(profile) {
-  let pool = [...tours];
-  if (profile.destination && profile.destination !== 'Not sure yet') {
-    const exact = pool.filter(t => t.destination.toLowerCase() === profile.destination.toLowerCase());
-    if (exact.length) pool = exact;
-    else if (profile.region) pool = pool.filter(t => t.region === profile.region);
-  }
-  if (profile.budget === 'budget')  pool = pool.filter(t => t.price < 3000);
-  if (profile.budget === 'mid')     pool = pool.filter(t => t.price >= 2500 && t.price <= 5000);
-  if (profile.budget === 'premium') pool = pool.filter(t => t.price >= 5000 && t.price <= 8000);
-  if (profile.budget === 'luxury')  pool = pool.filter(t => t.price >= 5000);
-  if (profile.travelStyle === 'family') pool = pool.filter(t => t.groupSize !== 'Max 12');
-  if (profile.travelStyle === 'romantic') pool.sort((a, b) => b.rating - a.rating);
-  if (!pool.length) pool = tours.slice(0, 3);
-  return pool.slice(0, 3);
-}
+const isValidPhone = (v) => {
+  const digits = (v || '').replace(/\D/g, '');
+  return digits.length >= 8 && digits.length <= 15;
+};
+
+const styleLabel = (p) => p.travelStyleLabel || TRAVEL_STYLES.find(s => s.value === p.travelStyle)?.label;
+const durationLabel = (p) => p.durationLabel || DURATIONS.find(d => d.value === p.duration)?.label;
+const budgetLabel = (p) => p.budgetLabel || BUDGETS.find(b => b.value === p.budget)?.label;
+const destLabel = (p) => (p.destination && p.destination !== 'Not sure yet') ? p.destination : 'your dream trip';
+const isFlexibleMonth = (p) => !p.month || /flex/i.test(p.month);
+const monthPhrase = (p) => isFlexibleMonth(p) ? 'with flexible dates' : `travelling in ${p.month}`;
+
+// 'Today' slots that have already passed are dropped; other days show all six.
+const slotsForDay = (day) => {
+  if (day !== 'Today') return CALLBACK_TIMES;
+  const hour = new Date().getHours();
+  return CALLBACK_TIMES.filter((_, i) => WINDOW_START[i] > hour + 1);
+};
 
 function buildBotMessage(stage, profile, extra = {}) {
   switch (stage) {
     case STAGES.WELCOME:
       return {
-        text: `Hello! I'm your personal Cox & Kings travel concierge.\n\nI'll help you discover, plan and book a journey that's made for you — not a generic package. It takes about 2 minutes.\n\n**Where in the world are you dreaming of?**`,
+        text: `Hello! I'm Einaya, your personal Cox & Kings travel designer.\n\nAnswer a few quick questions and I'll craft a **bespoke itinerary** shaped entirely around you — not a generic package. It takes about 2 minutes.\n\n**Where in the world are you dreaming of?**`,
         widget: 'destinations',
       };
     case STAGES.DESTINATION:
       return {
         text: profile.destination === 'Not sure yet'
-          ? `No problem at all — that's often where the best journeys begin. Let me help you discover the right fit.\n\n**Who are you travelling with?**`
+          ? `No problem at all — that's often where the best journeys begin. Let me help you shape the right fit.\n\n**Who are you travelling with?**`
           : `**${profile.destination}** — a wonderful choice. You're going to love it.\n\n**Who's joining you on this adventure?**`,
         widget: 'travel_style',
       };
@@ -117,79 +169,44 @@ function buildBotMessage(stage, profile, extra = {}) {
     }
     case STAGES.MONTH:
       return {
-        text: `${profile.month} is a beautiful time to travel. Noted.\n\n**How long do you have?**`,
+        text: `${isFlexibleMonth(profile) ? 'Flexible dates — perfect, that gives us plenty of options.' : `${profile.month} is a beautiful time to travel. Noted.`}\n\n**How long do you have?**`,
         widget: 'duration',
       };
     case STAGES.DURATION:
       return {
-        text: `Perfect. One last question — and it genuinely helps me find the right match.\n\n**What's your rough budget per person?**`,
+        text: `Perfect. One last question — and it genuinely helps me tailor the right trip.\n\n**What's your rough budget per person?**`,
         widget: 'budget',
       };
-    case STAGES.BUDGET: {
-      const matched = matchTours(profile);
-      const dest = profile.destination && profile.destination !== 'Not sure yet' ? profile.destination : 'your wishlist';
+    case STAGES.BUDGET:
       return {
-        text: `Wonderful. Based on everything you've shared — **${dest}**, **${profile.month}**, **${TRAVEL_STYLES.find(s=>s.value===profile.travelStyle)?.label || 'your group'}**, **${BUDGETS.find(b=>b.value===profile.budget)?.label || 'your budget'}** — I've found **${matched.length} journeys** I think you'll love.\n\nHere's your personal shortlist:`,
-        widget: 'tour_cards',
-        tours: matched,
+        text: `Wonderful — that's everything I need. ✨\n\nI'm now curating a **bespoke ${destLabel(profile)} itinerary** around your dates, pace and budget.\n\nWhile I put the finishing touches together, pop in your **name and mobile number** — I'll save your itinerary and text you a copy so it's never lost.`,
+        widget: 'curate_form',
+      };
+    case STAGES.ITINERARY: {
+      const bits = [
+        durationLabel(profile) && durationLabel(profile).toLowerCase(),
+        `across ${destLabel(profile)}`,
+        styleLabel(profile) && `tuned to ${styleLabel(profile).toLowerCase()}`,
+        monthPhrase(profile),
+      ].filter(Boolean).join(', ');
+      return {
+        text: `Your bespoke **${destLabel(profile)} itinerary** is ready, **${extra.firstName || 'traveller'}**! 🎉\n\nI've shaped ${bits}${budgetLabel(profile) ? `, within your **${budgetLabel(profile)}** budget` : ''}. Here's the outline:`,
+        widget: 'itinerary_preview',
+        itinerary: buildItinerary(profile),
       };
     }
-    case STAGES.DETAIL: {
-      const t = extra.tour;
-      if (!t) return { text: 'Which tour would you like to know more about?', widget: null };
+    case STAGES.CALLBACK:
       return {
-        text: `**${t.title}** is one of our most celebrated itineraries.\n\nIn ${t.duration} you'll experience:\n${t.highlights.map(h => `• ${h}`).join('\n')}\n\n📅 Departures: ${t.departures}\n👥 ${t.groupSize}\n\nWould you like one of our **${t.destination} specialists** to call you? They've visited every site on this tour personally.`,
-        widget: 'handoff_prompt',
-      };
-    }
-    case STAGES.HANDOFF:
-      return {
-        text: `Excellent! To connect you with the right person, I just need a couple of details.\n\n**What's your first name and email address?**`,
-        widget: 'capture_form',
-      };
-    case STAGES.DONE:
-      return {
-        text: `Thank you, **${extra.firstName || 'traveller'}**! Your enquiry is on its way to our ${profile.destination && profile.destination !== 'Not sure yet' ? profile.destination : 'travel'} specialist.\n\nThey'll be in touch within **2 working hours**. Is there anything else I can help you with in the meantime?`,
-        widget: 'done_cta',
+        text: `Lovely — a callback it is. **Which day** suits you best for our ${destLabel(profile)} expert to call?`,
+        widget: 'callback_days',
       };
     default:
       return { text: 'How can I help you further?', widget: null };
   }
 }
 
-// ── Tour card (in chat) ───────────────────────────────────────────────────────
-function ChatTourCard({ tour, onSelect, expanded }) {
-  return (
-    <button className={`chat-tour-card ${expanded ? 'chat-tour-card--expanded' : ''}`} onClick={() => onSelect(tour)}>
-      <div className="chat-tour-card__img" style={{ backgroundImage: `url(${tour.image})` }}>
-        {tour.badge && <span className="chat-tour-card__badge">{tour.badge}</span>}
-      </div>
-      <div className="chat-tour-card__body">
-        <div className="chat-tour-card__meta">
-          <span className="chat-tour-card__dest">{tour.destination}</span>
-          <span className="chat-tour-card__rating"><Star size={10} fill="currentColor" /> {tour.rating}</span>
-        </div>
-        <h4 className="chat-tour-card__title">{tour.title}</h4>
-        {expanded && (
-          <p className="chat-tour-card__highlights">
-            {tour.highlights.slice(0, 2).join(' · ')}
-          </p>
-        )}
-        <div className="chat-tour-card__details">
-          <span><Clock size={10} /> {tour.duration}</span>
-          <span><Users size={10} /> {tour.groupSize}</span>
-        </div>
-        <div className="chat-tour-card__footer">
-          <span className="chat-tour-card__price">from ₹{(tour.price * 83).toLocaleString('en-IN')} pp</span>
-          <span className="chat-tour-card__cta">Tell me more <ArrowRight size={11} /></span>
-        </div>
-      </div>
-    </button>
-  );
-}
-
 // ── Main component ────────────────────────────────────────────────────────────
-export default function ChatBot({ open: openProp, onOpenChange, hideFab = false, openExpanded, name = 'Cox & Kings Concierge' } = {}) {
+export default function ChatBot({ open: openProp, onOpenChange, hideFab = false, openExpanded, name = 'Einaya' } = {}) {
   // Optional controlled-open: when `open`/`onOpenChange` are passed (e.g. a host
   // page with its own launcher), the parent drives visibility and `hideFab` can
   // suppress the built-in launcher. With no props it behaves exactly as before.
@@ -216,10 +233,16 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
   const [profile, setProfile]         = useState(EMPTY_PROFILE);
   const [messages, setMessages]       = useState([]);
   const [inputValue, setInputValue]   = useState('');
-  const [captureEmail, setCaptureEmail]           = useState('');
   const [captureFirstName, setCaptureFirstName]   = useState('');
+  const [capturePhone, setCapturePhone]           = useState('');
   const [captureError, setCaptureError]           = useState('');
+  const [friendName, setFriendName]   = useState('');
+  const [friendPhone, setFriendPhone] = useState('');
+  const [shareError, setShareError]   = useState('');
+  const [callbackDay, setCallbackDay] = useState('');
+  const [customPrompt, setCustomPrompt] = useState(''); // set when "Other" focuses the input
   const [isTyping, setIsTyping]       = useState(false);
+  const [typingLabel, setTypingLabel] = useState('');
   const [hasOpened, setHasOpened]     = useState(false);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -273,84 +296,154 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
   }, [open, expanded]);
 
   // ── Message helpers ──────────────────────────────────────────────────────────
-  function pushBotMessage(msg, delay = 860) {
+  function pushBotMessage(msg, delay = 860, label = '') {
     setIsTyping(true);
+    setTypingLabel(label);
     setTimeout(() => {
       setMessages(prev => [...prev, { id: Date.now(), role: 'bot', time: new Date(), ...msg }]);
       setIsTyping(false);
+      setTypingLabel('');
     }, delay);
   }
 
   function pushUserMessage(text) {
+    setCustomPrompt(''); // any answer clears a pending "Other" hint
     setMessages(prev => [...prev, { id: Date.now(), role: 'user', text, time: new Date() }]);
     scrollToBottom(true);
   }
 
-  // ── Selection handlers ───────────────────────────────────────────────────────
-  function handleDestinationSelect(dest) {
-    const p = { ...profile, destination: dest.label, region: dest.region };
+  // ── Selection cores (shared by preset chips and free-typed "Other" answers) ──
+  function applyDestination(label, region) {
+    const p = { ...profile, destination: label, region: region ?? null };
     setProfile(p); setStage(STAGES.DESTINATION);
-    pushUserMessage(dest.label);
     pushBotMessage(buildBotMessage(STAGES.DESTINATION, p));
   }
-
-  function handleTravelStyleSelect(s) {
-    const p = { ...profile, travelStyle: s.value };
+  function applyTravelStyle(value, label) {
+    const p = { ...profile, travelStyle: value, travelStyleLabel: label };
     setProfile(p); setStage(STAGES.MONTH);
-    pushUserMessage(`${s.emoji} ${s.label}`);
     pushBotMessage(buildBotMessage(STAGES.TRAVEL_STYLE, p));
   }
-
-  function handleMonthSelect(month) {
+  function applyMonth(month) {
     const p = { ...profile, month };
     setProfile(p); setStage(STAGES.DURATION);
-    pushUserMessage(month);
     pushBotMessage(buildBotMessage(STAGES.MONTH, p));
   }
-
-  function handleDurationSelect(d) {
-    const p = { ...profile, duration: d.value };
+  function applyDuration(value, label) {
+    const p = { ...profile, duration: value, durationLabel: label };
     setProfile(p); setStage(STAGES.BUDGET);
-    pushUserMessage(`${d.emoji} ${d.label}`);
     pushBotMessage(buildBotMessage(STAGES.DURATION, p));
   }
-
-  function handleBudgetSelect(b) {
-    const p = { ...profile, budget: b.value };
-    setProfile(p); setStage(STAGES.RESULTS);
-    pushUserMessage(`${b.emoji} ${b.label}`);
-    pushBotMessage(buildBotMessage(STAGES.BUDGET, p), 1200);
+  function applyBudget(value, label) {
+    const p = { ...profile, budget: value, budgetLabel: label };
+    setProfile(p); setStage(STAGES.CURATING);
+    pushBotMessage(buildBotMessage(STAGES.BUDGET, p), 900);
   }
 
-  function handleTourSelect(tour) {
-    pushUserMessage(`Tell me more about "${tour.title}"`);
-    setStage(STAGES.DETAIL);
-    pushBotMessage(buildBotMessage(STAGES.DETAIL, profile, { tour }));
+  // ── Preset chip handlers ─────────────────────────────────────────────────────
+  function handleDestinationSelect(dest) { pushUserMessage(dest.label); applyDestination(dest.label, dest.region); }
+  function handleTravelStyleSelect(s)    { pushUserMessage(`${s.emoji} ${s.label}`); applyTravelStyle(s.value, s.label); }
+  function handleMonthSelect(month)      { pushUserMessage(month); applyMonth(month); }
+  function handleDurationSelect(d)       { pushUserMessage(`${d.emoji} ${d.label}`); applyDuration(d.value, d.label); }
+  function handleBudgetSelect(b)         { pushUserMessage(`${b.emoji} ${b.label}`); applyBudget(b.value, b.label); }
+  function handleBudgetSkip()            { pushUserMessage('Prefer not to say'); applyBudget(null, null); }
+
+  // "Other" — focus the text input and hint what to type for the current step.
+  function handleOther(hint) {
+    setCustomPrompt(hint);
+    setTimeout(() => inputRef.current?.focus(), 40);
   }
 
-  function handleHandoffYes() {
-    pushUserMessage("Yes, have a specialist call me");
-    setStage(STAGES.HANDOFF);
-    pushBotMessage(buildBotMessage(STAGES.HANDOFF, profile));
+  // ── Lead capture — name + phone, collected while the itinerary "curates" ─────
+  function handleCurateSubmit(e) {
+    e.preventDefault();
+    if (!captureFirstName.trim()) { setCaptureError('Please enter your name'); return; }
+    if (!isValidPhone(capturePhone)) { setCaptureError('Please enter a valid mobile number'); return; }
+    setCaptureError('');
+    pushUserMessage(`${captureFirstName} · ${capturePhone}`);
+    setStage(STAGES.ITINERARY);
+    // The longer delay + label doubles as the "preparing your itinerary" moment.
+    pushBotMessage(
+      buildBotMessage(STAGES.ITINERARY, profile, { firstName: captureFirstName }),
+      2400,
+      'Curating your bespoke itinerary…',
+    );
   }
 
-  function handleHandoffNo() {
-    pushUserMessage("I'll browse for now");
-    setStage(STAGES.DONE);
+  // ── Itinerary actions ────────────────────────────────────────────────────────
+  function handleChatExpert() {
+    pushUserMessage('Chat to an expert now');
     pushBotMessage({
-      text: `No problem — take your time. All the tours I showed you are on the website.\n\nIf you'd like a specialist to call you later, just come back and I'll pick up where we left off. Happy exploring! 🌍`,
-      widget: 'done_cta',
+      text: `Connecting you now, **${captureFirstName || 'there'}**. A Cox & Kings ${destLabel(profile)} expert will join this chat shortly — they've personally travelled the routes on your itinerary.\n\nTravelling with someone? Share your itinerary and I'll send them a copy too.`,
+      widget: 'share_prompt',
     });
   }
 
-  function handleCaptureSubmit(e) {
+  function handleScheduleCallback() {
+    pushUserMessage('Schedule a free callback');
+    setStage(STAGES.CALLBACK);
+    pushBotMessage(buildBotMessage(STAGES.CALLBACK, profile));
+  }
+
+  function handleCallbackDay(day) {
+    pushUserMessage(day);
+    const times = slotsForDay(day);
+    // Edge case: it's already too late for any slot today — roll to tomorrow.
+    if (day === 'Today' && times.length === 0) {
+      setCallbackDay('Tomorrow');
+      pushBotMessage({
+        text: `It's a little late for a callback today — let's find you a slot **tomorrow** instead. What time works best?`,
+        widget: 'callback_times', times: CALLBACK_TIMES,
+      });
+      return;
+    }
+    setCallbackDay(day);
+    pushBotMessage({
+      text: `Great — what time works best **${day.toLowerCase()}**? Each slot is a 2-hour window.`,
+      widget: 'callback_times', times,
+    });
+  }
+
+  function handleCallbackTime(time) {
+    pushUserMessage(time);
+    const when = /weekend/i.test(callbackDay) ? 'this weekend' : (callbackDay || 'tomorrow').toLowerCase();
+    pushBotMessage({
+      text: `Perfect — our ${destLabel(profile)} expert will call you **${when}, ${time}** on **${capturePhone}**. It's completely free and there's no obligation.\n\nWhile you wait — travelling with someone? Share your itinerary and I'll send them a copy too.`,
+      widget: 'share_prompt',
+    });
+  }
+
+  // ── Share — collects a second lead (a travel companion) ─────────────────────
+  function handleShareStart() {
+    pushUserMessage('Share with a friend');
+    setStage(STAGES.SHARE);
+    pushBotMessage({
+      text: `Lovely — who shall I send it to? Pop in their **name and mobile number** and I'll share your ${destLabel(profile)} itinerary with them.`,
+      widget: 'share_form',
+    });
+  }
+
+  function handleShareSubmit(e) {
     e.preventDefault();
-    if (!captureFirstName.trim()) { setCaptureError('Please enter your first name'); return; }
-    if (!captureEmail || !/\S+@\S+\.\S+/.test(captureEmail)) { setCaptureError('Please enter a valid email'); return; }
-    setCaptureError('');
-    pushUserMessage(`${captureFirstName} · ${captureEmail}`);
+    if (!friendName.trim()) { setShareError('Please enter their name'); return; }
+    if (!isValidPhone(friendPhone)) { setShareError('Please enter a valid mobile number'); return; }
+    setShareError('');
+    pushUserMessage(`${friendName} · ${friendPhone}`);
     setStage(STAGES.DONE);
-    pushBotMessage(buildBotMessage(STAGES.DONE, profile, { firstName: captureFirstName }));
+    pushBotMessage({
+      text: `Done! I've shared your ${destLabel(profile)} itinerary with **${friendName}**. 🎉\n\nThank you, **${captureFirstName || 'traveller'}** — you're all set, and our team will be in touch very soon.\n\n**Is there anything else I can help you with today?**`,
+      widget: 'done_actions',
+    });
+  }
+
+  function handleRestart() {
+    setMessages([]);
+    setStage(STAGES.WELCOME);
+    setProfile(EMPTY_PROFILE);
+    setCaptureFirstName(''); setCapturePhone(''); setCaptureError('');
+    setFriendName(''); setFriendPhone(''); setShareError('');
+    setCallbackDay(''); setCustomPrompt('');
+    setUnreadCount(0);
+    pushBotMessage(buildBotMessage(STAGES.WELCOME, EMPTY_PROFILE), 400);
   }
 
   function handleFreeText(e) {
@@ -358,41 +451,70 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
     const text = inputValue.trim();
     if (!text) return;
     setInputValue('');
-    pushUserMessage(text);
+    setCustomPrompt('');
     const lower = text.toLowerCase();
 
-    if ([STAGES.RESULTS, STAGES.DETAIL].includes(stage) &&
-        (lower.includes('book') || lower.includes('call') || lower.includes('enquir') || lower.includes('speak'))) {
-      setStage(STAGES.HANDOFF);
-      pushBotMessage(buildBotMessage(STAGES.HANDOFF, profile));
+    // ── Question flow: a typed answer IS the answer to the current step, so the
+    //    user is never trapped by the preset chips (this is the "Other" path). ──
+    // NB: `stage` holds the value set by the PREVIOUS answer, so while each
+    //     question's widget is on screen the stage is the one below.
+    if (stage === STAGES.WELCOME)     { pushUserMessage(text); applyDestination(text, null); return; }   // destination
+    if (stage === STAGES.DESTINATION) { pushUserMessage(text); applyTravelStyle('custom', text); return; } // who's travelling
+    if (stage === STAGES.MONTH)       { pushUserMessage(text); applyMonth(text); return; }                // when
+    if (stage === STAGES.DURATION)    { pushUserMessage(text); applyDuration('custom', text); return; }    // how long
+    if (stage === STAGES.BUDGET)      { pushUserMessage(text); applyBudget('custom', text); return; }      // budget
+
+    pushUserMessage(text);
+
+    // ── Curating (name+phone still needed): steer them to the quick form. ──
+    if (stage === STAGES.CURATING) {
+      pushBotMessage({
+        text: `Almost there! Pop your **name and mobile number** in the boxes above and I'll have your itinerary ready in seconds.`,
+        widget: null,
+      }, 600);
       return;
     }
-    if (stage === STAGES.RESULTS && lower.includes('more')) {
-      const matched = matchTours(profile);
-      if (matched[0]) { handleTourSelect(matched[0]); return; }
-    }
-    pushBotMessage({
-      text: `Good to know — I've made a note of that. To make sure I find the perfect match, let's keep going with just a couple more questions!`,
-      widget: [STAGES.RESULTS, STAGES.DETAIL].includes(stage) ? 'handoff_prompt' : null,
-    }, 700);
-  }
 
-  function handleRestart() {
-    setMessages([]);
-    setStage(STAGES.WELCOME);
-    setProfile(EMPTY_PROFILE);
-    setCaptureEmail(''); setCaptureFirstName(''); setCaptureError('');
-    setUnreadCount(0);
-    pushBotMessage(buildBotMessage(STAGES.WELCOME, EMPTY_PROFILE), 400);
+    // ── Post-itinerary: honour typed intent, else re-offer the three actions. ──
+    const POST = [STAGES.ITINERARY, STAGES.CALLBACK, STAGES.SHARE, STAGES.DONE];
+    if (POST.includes(stage) && (lower.includes('call') || lower.includes('callback') || lower.includes('phone'))) {
+      handleScheduleCallback();
+      return;
+    }
+    if (POST.includes(stage) && lower.includes('share')) {
+      handleShareStart();
+      return;
+    }
+    if (POST.includes(stage) && (lower.includes('expert') || lower.includes('agent') || lower.includes('human') || lower.includes('speak'))) {
+      handleChatExpert();
+      return;
+    }
+    // Want to plan another trip.
+    if (POST.includes(stage) && (lower.includes('another') || lower.includes('new trip') || lower.includes('start over') || lower.includes('restart'))) {
+      handleRestart();
+      return;
+    }
+    if (stage === STAGES.ITINERARY) {
+      pushBotMessage({
+        text: `Good question — our expert can talk you through every detail of that. How would you like to take your itinerary forward?`,
+        widget: 'itinerary_actions',
+      }, 700);
+      return;
+    }
+    // Done / share follow-ups — Einaya stays available and keeps offering to help.
+    pushBotMessage({
+      text: `I've noted that and passed it to our team. Anything else I can help you with — a callback, a chat with an expert, or planning another trip?`,
+      widget: 'done_actions',
+    }, 700);
   }
 
   // ── Progress ─────────────────────────────────────────────────────────────────
   const progressIdx = PROGRESS_STAGES.indexOf(stage);
   const progressPct = progressIdx < 0
-    ? ([STAGES.RESULTS, STAGES.DETAIL, STAGES.HANDOFF, STAGES.CAPTURE, STAGES.DONE].includes(stage) ? 100 : 0)
+    ? ([STAGES.ITINERARY, STAGES.CALLBACK, STAGES.SHARE, STAGES.DONE].includes(stage) ? 100 : 0)
     : Math.round((progressIdx / (PROGRESS_STAGES.length - 1)) * 100);
 
-  const placeholder = STAGE_PLACEHOLDER[stage] || 'Type anything…';
+  const placeholder = customPrompt || STAGE_PLACEHOLDER[stage] || 'Type anything…';
 
   return (
     <>
@@ -406,7 +528,7 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
         <button
           className={`chatbot-fab ${open ? 'chatbot-fab--open' : ''}`}
           onClick={() => setOpen(o => !o)}
-          aria-label={open ? 'Close concierge' : 'Plan your trip with our concierge'}
+          aria-label={open ? 'Close Einaya' : 'Plan your trip with Einaya'}
         >
           <div className="chatbot-fab__icon">
             {open ? <X size={20} /> : <Sparkles size={20} />}
@@ -420,7 +542,7 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
       <div
         className={`chatbot ${open ? 'chatbot--open' : ''} ${expanded ? 'chatbot--expanded' : ''}`}
         role="dialog"
-        aria-label="Cox & Kings Travel Concierge"
+        aria-label={`${name} — Cox & Kings Travel Designer`}
         aria-modal={expanded}
       >
         {/* ── Header ── */}
@@ -432,7 +554,7 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
             <h3 className="chatbot__header-title">{name}</h3>
             <p className="chatbot__header-status">
               <span className="chatbot__online-dot" />
-              {stage === STAGES.DONE ? 'Enquiry sent — we\'ll call you soon' : 'Personalising your journey'}
+              {stage === STAGES.DONE ? 'Itinerary shared — we\'ll be in touch' : 'Designing your journey'}
             </p>
           </div>
           <div className="chatbot__header-actions">
@@ -462,7 +584,11 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
               <div className="chatbot__progress-bar" style={{ width: `${progressPct}%` }} />
             </div>
             <span className="chatbot__progress-label">
-              {progressPct < 100 ? `Step ${progressIdx + 1} of ${PROGRESS_STAGES.length - 1} — building your trip profile` : '✓ Profile complete — here are your matches'}
+              {stage === STAGES.CURATING
+                ? 'Finalising your itinerary…'
+                : progressPct < 100
+                  ? `Step ${progressIdx + 1} of ${PROGRESS_STAGES.length - 1} — building your trip profile`
+                  : '✓ Your bespoke itinerary is ready'}
             </span>
           </div>
         )}
@@ -506,6 +632,10 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
                             <span className="chat-dest-chip__label">{d.label}</span>
                           </button>
                         ))}
+                        <button className="chat-dest-chip" onClick={() => handleOther('Type your destination and press send…')}>
+                          <div className="chat-dest-chip__img chat-dest-chip__img--blank">✍️</div>
+                          <span className="chat-dest-chip__label">Somewhere else</span>
+                        </button>
                       </div>
                     )}
 
@@ -518,6 +648,11 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
                             <span className="chat-option-card__sub">{s.sub}</span>
                           </button>
                         ))}
+                        <button className="chat-option-card chat-option-card--other" onClick={() => handleOther('Tell me who’s travelling…')}>
+                          <span className="chat-option-card__emoji">✍️</span>
+                          <span className="chat-option-card__label">Someone else</span>
+                          <span className="chat-option-card__sub">Type your own</span>
+                        </button>
                       </div>
                     )}
 
@@ -530,6 +665,11 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
                             ))}
                           </div>
                         ))}
+                        <div className="chat-months__row">
+                          <button className="chat-month-chip chat-month-chip--wide" onClick={() => handleMonthSelect('Flexible')}>
+                            My dates are flexible
+                          </button>
+                        </div>
                       </div>
                     )}
 
@@ -542,6 +682,11 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
                             <span className="chat-option-card__sub">{d.sub}</span>
                           </button>
                         ))}
+                        <button className="chat-option-card chat-option-card--other" onClick={() => handleOther('e.g. “about 12 days”…')}>
+                          <span className="chat-option-card__emoji">✍️</span>
+                          <span className="chat-option-card__label">Something else</span>
+                          <span className="chat-option-card__sub">Type your own</span>
+                        </button>
                       </div>
                     )}
 
@@ -554,47 +699,148 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
                             <span className="chat-option-card__sub">{b.sub}</span>
                           </button>
                         ))}
+                        <button className="chat-option-card chat-option-card--other" onClick={handleBudgetSkip}>
+                          <span className="chat-option-card__emoji">🙊</span>
+                          <span className="chat-option-card__label">Prefer not to say</span>
+                          <span className="chat-option-card__sub">Skip this step</span>
+                        </button>
                       </div>
                     )}
 
-                    {msg.widget === 'tour_cards' && msg.tours && (
-                      <div className={`chat-widget chat-tour-cards ${expanded ? 'chat-tour-cards--expanded' : ''}`}>
-                        {msg.tours.map(t => (
-                          <ChatTourCard key={t.id} tour={t} onSelect={handleTourSelect} expanded={expanded} />
+                    {/* Lead capture — shown while the itinerary "prepares" */}
+                    {msg.widget === 'curate_form' && (
+                      <div className="chat-widget">
+                        <div className="chat-curate-loader">
+                          <div className="chat-curate-loader__bar"><span /></div>
+                          <span className="chat-curate-loader__label">
+                            <Sparkles size={12} /> Preparing your itinerary…
+                          </span>
+                        </div>
+                        <form className="chat-capture-form" onSubmit={handleCurateSubmit}>
+                          <input className="chat-capture-input" placeholder="Your name" value={captureFirstName}
+                            onChange={e => { setCaptureFirstName(e.target.value); setCaptureError(''); }} />
+                          <input className="chat-capture-input" type="tel" inputMode="tel" placeholder="Mobile number" value={capturePhone}
+                            onChange={e => { setCapturePhone(e.target.value); setCaptureError(''); }} />
+                          {captureError && <p className="chat-capture-error">{captureError}</p>}
+                          <button type="submit" className="chat-capture-submit">
+                            <Sparkles size={14} /> Save my itinerary
+                          </button>
+                        </form>
+                        <p className="chat-capture-note">We'll only use this to send your itinerary and help plan your trip.</p>
+                      </div>
+                    )}
+
+                    {/* Itinerary preview — the generated day-by-day outline… */}
+                    {msg.widget === 'itinerary_preview' && msg.itinerary && (
+                      <div className="chat-widget chat-itinerary">
+                        <div className="chat-itinerary__head">
+                          <span className="chat-itinerary__badge">Bespoke · {msg.itinerary.days} days</span>
+                        </div>
+                        <ol className="chat-itinerary__days">
+                          {msg.itinerary.items.map((it, di) => (
+                            <li key={di} className={`chat-itinerary__day ${it.more ? 'chat-itinerary__day--more' : ''}`}>
+                              <span className="chat-itinerary__daynum">{it.day}</span>
+                              <span className="chat-itinerary__daybody">
+                                <strong className="chat-itinerary__title">{it.title}</strong>
+                                {it.desc && <span className="chat-itinerary__desc">{it.desc}</span>}
+                              </span>
+                            </li>
+                          ))}
+                        </ol>
+                        <p className="chat-itinerary__note">A draft outline — your expert will tailor every day with you. How would you like to take it forward?</p>
+                        <div className="chat-action-list">
+                          <button className="chat-action-btn chat-action-btn--primary" onClick={handleChatExpert}>
+                            <MessageCircle size={16} /> Chat to an expert now
+                          </button>
+                          <button className="chat-action-btn" onClick={handleScheduleCallback}>
+                            <Calendar size={16} /> Schedule a free callback
+                          </button>
+                          <button className="chat-action-btn" onClick={handleShareStart}>
+                            <Share2 size={16} /> Share with a friend
+                          </button>
+                          <button className="chat-newtrip-btn" onClick={handleRestart}>
+                            <Compass size={14} /> Explore another destination
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Itinerary actions (re-offered if the user free-types) */}
+                    {msg.widget === 'itinerary_actions' && (
+                      <div className="chat-widget chat-action-list">
+                        <button className="chat-action-btn chat-action-btn--primary" onClick={handleChatExpert}>
+                          <MessageCircle size={16} /> Chat to an expert now
+                        </button>
+                        <button className="chat-action-btn" onClick={handleScheduleCallback}>
+                          <Calendar size={16} /> Schedule a free callback
+                        </button>
+                        <button className="chat-action-btn" onClick={handleShareStart}>
+                          <Share2 size={16} /> Share with a friend
+                        </button>
+                        <button className="chat-newtrip-btn" onClick={handleRestart}>
+                          <Compass size={14} /> Explore another destination
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Done — keep Einaya open; lead with a new destination search */}
+                    {msg.widget === 'done_actions' && (
+                      <div className="chat-widget chat-action-list">
+                        <button className="chat-action-btn chat-action-btn--primary" onClick={handleRestart}>
+                          <Compass size={16} /> Plan another trip
+                        </button>
+                        <button className="chat-action-btn" onClick={handleChatExpert}>
+                          <MessageCircle size={16} /> Chat to an expert
+                        </button>
+                        <button className="chat-action-btn" onClick={handleScheduleCallback}>
+                          <Calendar size={16} /> Schedule a free callback
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Callback — step 1: pick a day */}
+                    {msg.widget === 'callback_days' && (
+                      <div className="chat-widget chat-action-list">
+                        {CALLBACK_DAYS.map(day => (
+                          <button key={day} className="chat-action-btn" onClick={() => handleCallbackDay(day)}>
+                            <Calendar size={15} /> {day}
+                          </button>
                         ))}
                       </div>
                     )}
 
-                    {msg.widget === 'handoff_prompt' && (
-                      <div className="chat-widget chat-handoff-btns">
-                        <button className="chat-handoff-btn chat-handoff-btn--yes" onClick={handleHandoffYes}>
-                          <Phone size={14} /> Yes — have a specialist call me
-                        </button>
-                        <button className="chat-handoff-btn chat-handoff-btn--no" onClick={handleHandoffNo}>
-                          I'll browse for now
+                    {/* Callback — step 2: pick a 2-hour window */}
+                    {msg.widget === 'callback_times' && (
+                      <div className="chat-widget chat-slot-grid">
+                        {(msg.times || CALLBACK_TIMES).map(time => (
+                          <button key={time} className="chat-slot-chip" onClick={() => handleCallbackTime(time)}>
+                            <PhoneCall size={13} /> {time}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Share prompt (single button, offered after expert / callback) */}
+                    {msg.widget === 'share_prompt' && (
+                      <div className="chat-widget chat-action-list">
+                        <button className="chat-action-btn chat-action-btn--primary" onClick={handleShareStart}>
+                          <Share2 size={16} /> Share my itinerary with a friend
                         </button>
                       </div>
                     )}
 
-                    {msg.widget === 'capture_form' && (
-                      <form className="chat-capture-form" onSubmit={handleCaptureSubmit}>
-                        <input className="chat-capture-input" placeholder="First name" value={captureFirstName}
-                          onChange={e => { setCaptureFirstName(e.target.value); setCaptureError(''); }} />
-                        <input className="chat-capture-input" type="email" placeholder="Email address" value={captureEmail}
-                          onChange={e => { setCaptureEmail(e.target.value); setCaptureError(''); }} />
-                        {captureError && <p className="chat-capture-error">{captureError}</p>}
+                    {/* Share form — second lead */}
+                    {msg.widget === 'share_form' && (
+                      <form className="chat-capture-form" onSubmit={handleShareSubmit}>
+                        <input className="chat-capture-input" placeholder="Friend's name" value={friendName}
+                          onChange={e => { setFriendName(e.target.value); setShareError(''); }} />
+                        <input className="chat-capture-input" type="tel" inputMode="tel" placeholder="Friend's mobile number" value={friendPhone}
+                          onChange={e => { setFriendPhone(e.target.value); setShareError(''); }} />
+                        {shareError && <p className="chat-capture-error">{shareError}</p>}
                         <button type="submit" className="chat-capture-submit">
-                          <Mail size={14} /> Send my details
+                          <Share2 size={14} /> Share itinerary
                         </button>
                       </form>
-                    )}
-
-                    {msg.widget === 'done_cta' && (
-                      <div className="chat-widget chat-done-actions">
-                        <Link to="/journeys4" className="chat-done-cta" onClick={() => { setOpen(false); setExpanded(false); }}>
-                          Browse all tours <ArrowRight size={14} />
-                        </Link>
-                      </div>
                     )}
                   </div>
                 </div>
@@ -605,7 +851,10 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
           {isTyping && (
             <div className="chatbot__msg chatbot__msg--bot">
               <div className="chatbot__msg-avatar"><Sparkles size={12} /></div>
-              <div className="chatbot__typing"><span /><span /><span /></div>
+              <div className="chatbot__typing-wrap">
+                <div className="chatbot__typing"><span /><span /><span /></div>
+                {typingLabel && <span className="chatbot__typing-label">{typingLabel}</span>}
+              </div>
             </div>
           )}
           <div ref={messagesEndRef} style={{ height: 1 }} />
@@ -632,7 +881,6 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
             placeholder={placeholder}
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
-            disabled={stage === STAGES.DONE}
           />
           <button type="submit" className="chatbot__send" disabled={!inputValue.trim()} aria-label="Send">
             <Send size={15} />
@@ -640,7 +888,7 @@ export default function ChatBot({ open: openProp, onOpenChange, hideFab = false,
         </form>
 
         <div className="chatbot__footer">
-          Cox & Kings Personal Concierge · Est. 1758
+          Cox & Kings Personal Travel Designer · Est. 1758
           {!expanded && (
             <button className="chatbot__footer-expand" onClick={() => setExpanded(true)}>
               <Maximize2 size={11} /> Expand

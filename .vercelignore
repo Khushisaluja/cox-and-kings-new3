@@ -1,0 +1,18 @@
+# Vercel builds this Vite SPA from source (`vite build` → dist), so only the
+# build inputs need to upload. Everything else in this working directory —
+# design decks, PDFs, screenshots, .mov/.mp4 walkthroughs, reference folders —
+# is local-only cruft that ballooned the upload past Vercel's file-size limit.
+#
+# Allowlist strategy: ignore every TOP-LEVEL entry, then re-include the build
+# inputs. The leading slash on `/*` anchors the ignore to the root so it does
+# NOT match nested files (a bare `*` would exclude src/**, leaving the build
+# with no source).
+/*
+
+!/index.html
+!/package.json
+!/package-lock.json
+!/vite.config.js
+!/vercel.json
+!/src
+!/public

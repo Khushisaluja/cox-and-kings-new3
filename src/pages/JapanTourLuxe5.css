@@ -160,7 +160,7 @@
   .lxjt5 .lx2i-footer { padding-bottom: 96px; }
 }
 
-/* Enaya has to survive the swap. The old bar's "Chat with a specialist"
+/* Einaya has to survive the swap. The old bar's "Chat with a specialist"
    button was her only door on a phone — Luxe2Improved.css hides the
    floating FAB from 860px down — and the new bar goes to the quote and to
    WhatsApp instead. So bring the FAB back on small screens rather than
@@ -1274,7 +1274,7 @@
    Below 680px the thumb-bar carries the booking CTA. Above it, once
    the hero has scrolled away, the only route back to the booking card
    was the header pill — so the page's whole reason for existing left
-   the screen. This rides the same right rail as Ask Enaya
+   the screen. This rides the same right rail as Ask Einaya
    (.lx2i-aifab: right 24px / bottom 24px, ~46px tall) and sits
    directly above it. Both are position:fixed, so neither moves.
 
@@ -1289,7 +1289,7 @@
 .lxjt5-bookfab {
   position: fixed;
   right: 24px;
-  bottom: 82px;                      /* 24px rail + Enaya's height + a 12px gap */
+  bottom: 82px;                      /* 24px rail + Einaya's height + a 12px gap */
   z-index: 150;                      /* same layer as .lx2i-aifab */
   display: inline-flex;
   align-items: center;
@@ -1318,7 +1318,7 @@
 /* The chat drawer takes the same corner — step out of its way. */
 .lxjt5-bookfab.is-hidden { opacity: 0; pointer-events: none; transform: scale(0.8); }
 
-/* Enaya is hidden from 860px down (Luxe2Improved.css), so from there the rail
+/* Einaya is hidden from 860px down (Luxe2Improved.css), so from there the rail
    below this button is empty — drop it onto the base rail rather than leaving
    it hovering above nothing. */
 @media (max-width: 860px) {
