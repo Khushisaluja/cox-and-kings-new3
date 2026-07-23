@@ -21,6 +21,7 @@
    so the original /journeys/japan is untouched.
    ============================================================ */
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { SiteNav, SiteFooter } from '../components/SiteChrome';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
@@ -29,7 +30,7 @@ import {
   MapPin, X, ChevronDown, ChevronLeft, ChevronRight,
   Star, Clock, Calendar, Users, User, Gauge, Images, Utensils, Compass,
   CalendarDays, Plane, Landmark, Languages, TrainFront, Wallet,
-  SlidersHorizontal, Check, Plus, Sparkles,
+  SlidersHorizontal, Check, Plus, Sparkles, Search,
 } from 'lucide-react';
 import { img } from '../data/v3content';
 import ChatBot from '../components/ChatBot';
@@ -85,20 +86,21 @@ const T = (o) => ({
   gallery: buildGallery(o.image),
 });
 
-/* Every Japan journey, escorted and private, in one flat catalogue. */
+/* Every Japan journey, escorted and private, in one flat catalogue. Each tour
+   carries the cities/regions it visits, which powers the "Search a city" box. */
 const ALL_TOURS = [
-  T({ id: 'jp-blossom', title: 'Cherry Blossom Japan', blurb: 'Tokyo neon to Kyoto temple gardens, timed to the petals.', style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 13, season: 'Mar–Apr', price: 295000, image: U('1522383225653-ed111181a951'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-essence', title: 'Essence of Japan with Hakone', blurb: 'The classic first loop — Tokyo, Mt Fuji and old Kyoto.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 8, season: 'Mar–Nov', price: 265000, image: U('1490806843957-31f4c9a91c65'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-highlights', title: 'Highlights of Japan', blurb: 'Tokyo, Kyoto, Hiroshima and Osaka, linked by bullet train.', style: 'Group Tour', pace: 'Active', rating: 4.7, nights: 11, season: 'Year-round', price: 250000, image: U('1540959733332-eab4deabeeaf'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-autumn', title: 'Japan in Autumn Colours', blurb: 'Fire-red maples across Kyoto, Nikko and the Fuji lakes.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 12, season: 'Oct–Nov', price: 285000, image: U('1528360983277-13d401cdc186'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-first', title: 'Japan for First-Timers', blurb: 'Tokyo, Hakone and Kyoto with a private guide and a ryokan night.', style: 'Bespoke Private', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Any date', price: 310000, image: U('1492571350019-22de08371fd3'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-luxe', title: 'Ryokans & Art Islands', blurb: 'Design hotels, private onsen and the Naoshima art islands.', style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-kyoto', title: 'Tailor-made Kyoto & Kanazawa', blurb: 'Old capitals, craft studios and quiet gardens, at your pace.', style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 8, season: 'Year-round', price: 335000, image: U('1522383225653-ed111181a951'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-rail', title: 'Luxury Japan by Rail', blurb: 'First-class Shinkansen and the finest stays, end to end.', style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 11, season: 'Apr–Oct', price: 480000, image: U('1490806843957-31f4c9a91c65'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-family', title: 'Japan for Families', blurb: 'Robot cafés, bullet trains and easy days — a first Japan for all ages.', style: 'Bespoke Private', pace: 'Relaxed', rating: 4.7, nights: 12, season: 'Year-round', price: 340000, image: U('1540959733332-eab4deabeeaf'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-hokkaido', title: 'Hokkaido & the Northern Wilds', blurb: 'Lavender fields, volcano lakes and the crab counters of Sapporo.', style: 'Group Tour', pace: 'Active', rating: 4.7, nights: 9, season: 'Jun–Sep', price: 275000, image: U('1528360983277-13d401cdc186'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-kyushu', title: 'Southern Japan: Kyushu & Onsen', blurb: 'Steaming hot-spring towns, active volcanoes and quiet coastlines.', style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 10, season: 'Year-round', price: 355000, image: U('1493976040374-85c8e12f0c0e'), to: '/tour-detail-japan-5' }),
-  T({ id: 'jp-winter', title: 'Winter Japan & Snow Monkeys', blurb: 'Snow-hushed temples, the Nagano macaques and steaming ryokan baths.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 8, season: 'Dec–Feb', price: 240000, image: U('1492571350019-22de08371fd3'), to: '/tour-detail-japan-5' }),
+  T({ id: 'jp-blossom', title: 'Cherry Blossom Japan', blurb: 'Tokyo neon to Kyoto temple gardens, timed to the petals.', style: 'Group Tour', pace: 'Balanced', rating: 4.9, nights: 13, season: 'Mar–Apr', price: 295000, image: U('1522383225653-ed111181a951'), to: '/tour-detail-japan-5', cities: ['Tokyo', 'Kyoto', 'Mt Fuji', 'Osaka'] }),
+  T({ id: 'jp-essence', title: 'Essence of Japan with Hakone', blurb: 'The classic first loop — Tokyo, Mt Fuji and old Kyoto.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 8, season: 'Mar–Nov', price: 265000, image: U('1490806843957-31f4c9a91c65'), to: '/tour-detail-japan-5', cities: ['Tokyo', 'Hakone', 'Mt Fuji', 'Kyoto'] }),
+  T({ id: 'jp-highlights', title: 'Highlights of Japan', blurb: 'Tokyo, Kyoto, Hiroshima and Osaka, linked by bullet train.', style: 'Group Tour', pace: 'Active', rating: 4.7, nights: 11, season: 'Year-round', price: 250000, image: U('1540959733332-eab4deabeeaf'), to: '/tour-detail-japan-5', cities: ['Tokyo', 'Kyoto', 'Hiroshima', 'Osaka'] }),
+  T({ id: 'jp-autumn', title: 'Japan in Autumn Colours', blurb: 'Fire-red maples across Kyoto, Nikko and the Fuji lakes.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 12, season: 'Oct–Nov', price: 285000, image: U('1528360983277-13d401cdc186'), to: '/tour-detail-japan-5', cities: ['Kyoto', 'Nikko', 'Mt Fuji', 'Tokyo'] }),
+  T({ id: 'jp-first', title: 'Japan for First-Timers', blurb: 'Tokyo, Hakone and Kyoto with a private guide and a ryokan night.', style: 'Bespoke Private', pace: 'Balanced', rating: 4.8, nights: 10, season: 'Any date', price: 310000, image: U('1492571350019-22de08371fd3'), to: '/tour-detail-japan-5', cities: ['Tokyo', 'Hakone', 'Kyoto'] }),
+  T({ id: 'jp-luxe', title: 'Ryokans & Art Islands', blurb: 'Design hotels, private onsen and the Naoshima art islands.', style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/tour-detail-japan-5', cities: ['Naoshima', 'Kyoto', 'Osaka'] }),
+  T({ id: 'jp-kyoto', title: 'Tailor-made Kyoto & Kanazawa', blurb: 'Old capitals, craft studios and quiet gardens, at your pace.', style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 8, season: 'Year-round', price: 335000, image: U('1522383225653-ed111181a951'), to: '/tour-detail-japan-5', cities: ['Kyoto', 'Kanazawa'] }),
+  T({ id: 'jp-rail', title: 'Luxury Japan by Rail', blurb: 'First-class Shinkansen and the finest stays, end to end.', style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 11, season: 'Apr–Oct', price: 480000, image: U('1490806843957-31f4c9a91c65'), to: '/tour-detail-japan-5', cities: ['Tokyo', 'Kyoto', 'Osaka', 'Hiroshima'] }),
+  T({ id: 'jp-family', title: 'Japan for Families', blurb: 'Robot cafés, bullet trains and easy days — a first Japan for all ages.', style: 'Bespoke Private', pace: 'Relaxed', rating: 4.7, nights: 12, season: 'Year-round', price: 340000, image: U('1540959733332-eab4deabeeaf'), to: '/tour-detail-japan-5', cities: ['Tokyo', 'Hakone', 'Osaka'] }),
+  T({ id: 'jp-hokkaido', title: 'Hokkaido & the Northern Wilds', blurb: 'Lavender fields, volcano lakes and the crab counters of Sapporo.', style: 'Group Tour', pace: 'Active', rating: 4.7, nights: 9, season: 'Jun–Sep', price: 275000, image: U('1528360983277-13d401cdc186'), to: '/tour-detail-japan-5', cities: ['Hokkaido', 'Sapporo'] }),
+  T({ id: 'jp-kyushu', title: 'Southern Japan: Kyushu & Onsen', blurb: 'Steaming hot-spring towns, active volcanoes and quiet coastlines.', style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 10, season: 'Year-round', price: 355000, image: U('1493976040374-85c8e12f0c0e'), to: '/tour-detail-japan-5', cities: ['Kyushu', 'Beppu', 'Fukuoka'] }),
+  T({ id: 'jp-winter', title: 'Winter Japan & Snow Monkeys', blurb: 'Snow-hushed temples, the Nagano macaques and steaming ryokan baths.', style: 'Group Tour', pace: 'Balanced', rating: 4.8, nights: 8, season: 'Dec–Feb', price: 240000, image: U('1492571350019-22de08371fd3'), to: '/tour-detail-japan-5', cities: ['Nagano', 'Tokyo', 'Kyoto'] }),
 ];
 
 const TOUR_COUNT = ALL_TOURS.length;
@@ -111,12 +113,71 @@ const MOBILE_Q = '(max-width: 560px)';
 /* ---- Filter vocabularies (Japan-appropriate subset of /journeys2). ---- */
 const STYLES = ['Group Tour', 'Bespoke Private', 'Luxury'];
 const PACES = ['Relaxed', 'Balanced', 'Active'];
-const DURATIONS = [
-  { value: 'short', label: 'Up to 8 nights', test: (n) => n <= 8 },
-  { value: 'mid', label: '9–11 nights', test: (n) => n >= 9 && n <= 11 },
-  { value: 'long', label: '12 nights +', test: (n) => n >= 12 },
+
+/* ---- Duration is now a min–max nights RANGE (a two-handle bar), replacing the
+   old fixed "up to 8 / 9–11 / 12+" buckets. Bounds derived from the catalogue. */
+const _nights = ALL_TOURS.map((t) => t.nights);
+const NIGHTS_MIN = Math.min(..._nights);
+const NIGHTS_MAX = Math.max(..._nights);
+
+/* ---- "Search a city" — every city/region across the catalogue, for the search
+   box's suggestions, plus a short list of the best-known ones as quick picks. */
+const CITY_SUGGEST = [...new Set(ALL_TOURS.flatMap((t) => t.cities))].sort();
+const CITY_QUICK = ['Tokyo', 'Kyoto', 'Osaka', 'Hakone'];
+/* A tour matches a city query if any of its cities (or its title) contains the
+   typed text — a loose, forgiving substring match. */
+const cityMatch = (t, q) => {
+  const needle = q.trim().toLowerCase();
+  if (!needle) return true;
+  return t.cities.some((c) => c.toLowerCase().includes(needle))
+    || t.title.toLowerCase().includes(needle);
+};
+
+/* ---- "Who's travelling" — the homepage search hands one of these in as
+   ?who=<value>, and it seeds this filter group. Japan's tours carry no explicit
+   party attribute, so each option maps to the trip styles/pace that genuinely
+   suit that party — every option keeps at least a few matches, never zero.
+   Labels mirror the homepage search verbatim (incl. "Couple — just the two of
+   us") so a traveller sees the same words they picked. */
+const WHO_OPTS = [
+  { value: 'couple', label: 'Couple — just the two of us', match: (t) => ['Bespoke Private', 'Luxury'].includes(t.style) },
+  { value: 'family', label: 'Family with children', match: (t) => ['Group Tour', 'Bespoke Private'].includes(t.style) },
+  { value: 'friends', label: 'A group of friends', match: (t) => t.style === 'Group Tour' },
+  { value: 'seniors', label: 'Senior travellers', match: (t) => t.pace === 'Relaxed' },
+  { value: 'solo', label: 'Travelling solo', match: (t) => ['Group Tour', 'Bespoke Private'].includes(t.style) },
 ];
-const DURATION_TEST = Object.fromEntries(DURATIONS.map((d) => [d.value, d.test]));
+const WHO_MATCH = Object.fromEntries(WHO_OPTS.map((w) => [w.value, w.match]));
+const WHO_LABEL = Object.fromEntries(WHO_OPTS.map((w) => [w.value, w.label]));
+
+/* ---- "When" — a preferred departure date (+ a ± flexibility window), also
+   handed in by the homepage search as ?when=YYYY-MM-DD & ?flex=. The catalogue
+   only knows a tour's SEASON, so we filter by whether the chosen month falls in
+   that season; year-round / any-date tours always qualify. FLEX_OPTS mirrors the
+   homepage calendar. */
+const FLEX_OPTS = [0, 2, 3, 4];
+const MON_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/* Turn a season string ("Mar–Apr", "Dec–Feb", "Year-round") into the set of
+   month indices it covers. null = every month (no date constraint). */
+function seasonMonths(season) {
+  if (!season || /year-round|any date/i.test(season)) return null;
+  const m = season.match(/([A-Za-z]{3})[A-Za-z]*\s*[–\-]\s*([A-Za-z]{3})/);
+  if (!m) return null;
+  const a = MON_ABBR.indexOf(m[1]);
+  const b = MON_ABBR.indexOf(m[2]);
+  if (a < 0 || b < 0) return null;
+  const out = [];
+  for (let i = a; ; i = (i + 1) % 12) { out.push(i); if (i === b) break; }
+  return out;
+}
+const SEASON_MONTHS = Object.fromEntries(ALL_TOURS.map((t) => [t.id, seasonMonths(t.season)]));
+
+function parseISO(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+const toISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 const SORTS = [
   { key: 'recommended', label: 'Recommended' },
@@ -485,6 +546,102 @@ function BudgetPicker({ value, min, max, step, onChange }) {
   );
 }
 
+/* Duration = a two-handle nights RANGE bar (min & max), replacing the old
+   fixed buckets. Two overlaid range inputs; the fill sits between the thumbs.
+   Each thumb can't cross the other, so the range always stays valid. */
+function DurationRange({ min, max, value, onChange }) {
+  const [lo, hi] = value;
+  const span = max - min || 1;
+  const loPct = ((lo - min) / span) * 100;
+  const hiPct = ((hi - min) / span) * 100;
+  const isAll = lo <= min && hi >= max;
+  const label = isAll
+    ? `Any length · ${min}–${max} nights`
+    : lo === hi ? `${lo} nights` : `${lo}–${hi} nights`;
+  return (
+    <div className="jj2-dur">
+      <div className="jj2-dur-value" aria-hidden="true">{label}</div>
+      <div className="jj2-dur-slider">
+        <div className="jj2-dur-track">
+          <div
+            className="jj2-dur-fill"
+            style={{ left: `${loPct}%`, width: `${Math.max(0, hiPct - loPct)}%` }}
+            aria-hidden="true"
+          />
+          <input
+            type="range" min={min} max={max} step={1} value={lo}
+            className="jj2-dur-input jj2-dur-input--lo"
+            onChange={(e) => onChange([Math.min(Number(e.target.value), hi), hi])}
+            aria-label="Minimum nights"
+            aria-valuetext={`${lo} nights`}
+          />
+          <input
+            type="range" min={min} max={max} step={1} value={hi}
+            className="jj2-dur-input jj2-dur-input--hi"
+            onChange={(e) => onChange([lo, Math.max(Number(e.target.value), lo)])}
+            aria-label="Maximum nights"
+            aria-valuetext={`${hi} nights`}
+          />
+        </div>
+        <div className="jj2-dur-ends">
+          <span>{min} nts</span>
+          <span>{max} nts</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* "Search a city" — a text box (with native datalist suggestions) plus a row of
+   one-tap quick-pick chips for Japan's best-known stops. Filters the catalogue
+   by the cities each tour visits. */
+function CitySearch({ value, onChange, suggestions, quick }) {
+  return (
+    <div className="jj2-city">
+      <div className="jj2-city-field">
+        <Search size={15} aria-hidden="true" className="jj2-city-ic" />
+        <input
+          type="text"
+          className="jj2-city-input"
+          placeholder="Search a city — Tokyo, Kyoto…"
+          value={value}
+          list="jj2-city-list"
+          onChange={(e) => onChange(e.target.value)}
+          aria-label="Search journeys by city"
+        />
+        {value && (
+          <button
+            type="button"
+            className="jj2-city-clear"
+            onClick={() => onChange('')}
+            aria-label="Clear city search"
+          >
+            <X size={15} />
+          </button>
+        )}
+        <datalist id="jj2-city-list">
+          {suggestions.map((c) => <option key={c} value={c} />)}
+        </datalist>
+      </div>
+      <div className="jj2-city-quick">
+        {quick.map((c) => {
+          const on = value.trim().toLowerCase() === c.toLowerCase();
+          return (
+            <button
+              key={c}
+              type="button"
+              className={`j2-preset${on ? ' is-on' : ''}`}
+              onClick={() => onChange(on ? '' : c)}
+            >
+              {c}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* A horizontal carousel — the /journeys shelf chrome, reused for the two
    food rails on this page. */
 function Rail({ label, title, sub, id, children, railClass = '' }) {
@@ -584,14 +741,35 @@ function RestoCard({ r }) {
 
 export default function JapanJourneys2() {
   const [lightbox, setLightbox] = useState(null);
-  const [chatOpen, setChatOpen] = useState(false); // Enaya popup
+  const [chatOpen, setChatOpen] = useState(false); // Einaya popup
+
+  /* The homepage search deep-links here with ?who= / ?when= / ?flex= (and, for
+     robustness, ?style= / ?pace=), so the matching filters arrive pre-selected
+     rather than making the traveller re-pick everything they just chose. */
+  const [params] = useSearchParams();
 
   /* Filter state. */
   const [filtersOpen, setFiltersOpen] = useState(false); // mobile drawer
-  const [styles, setStyles] = useState([]);
-  const [paces, setPaces] = useState([]);
-  const [durations, setDurations] = useState([]);
+  const [whos, setWhos] = useState(() => {
+    const w = params.get('who');
+    return w && WHO_MATCH[w] ? [w] : [];
+  });
+  const [styles, setStyles] = useState(() => {
+    const s = params.get('style');
+    return s && STYLES.includes(s) ? [s] : [];
+  });
+  const [paces, setPaces] = useState(() => {
+    const p = params.get('pace');
+    return p && PACES.includes(p) ? [p] : [];
+  });
+  const [nights, setNights] = useState([NIGHTS_MIN, NIGHTS_MAX]);
+  const [cityQuery, setCityQuery] = useState(() => params.get('city') || '');
   const [budgetMax, setBudgetMax] = useState(PRICE_MAX);
+  const [whenDate, setWhenDate] = useState(() => parseISO(params.get('when')));
+  const [whenFlex, setWhenFlex] = useState(() => {
+    const f = Number(params.get('flex'));
+    return FLEX_OPTS.includes(f) ? f : 0;
+  });
   const [sort, setSort] = useState('recommended');
   const [sortOpen, setSortOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.matchMedia(MOBILE_Q).matches);
@@ -632,13 +810,21 @@ export default function JapanJourneys2() {
 
   /* Does a tour pass every active filter group? `skip` drops one group
      (used for live per-option counts). AND across groups, OR within. */
+  const whenMonth = whenDate ? whenDate.getMonth() : null;
+  const [nightsLo, nightsHi] = nights;
   const passes = useCallback((t, skip) => {
+    if (skip !== 'who' && whos.length && !whos.some((w) => WHO_MATCH[w](t))) return false;
     if (skip !== 'style' && styles.length && !styles.includes(t.style)) return false;
     if (skip !== 'pace' && paces.length && !paces.includes(t.pace)) return false;
-    if (skip !== 'duration' && durations.length && !durations.some((d) => DURATION_TEST[d](t.nights))) return false;
+    if (skip !== 'duration' && (t.nights < nightsLo || t.nights > nightsHi)) return false;
+    if (skip !== 'city' && !cityMatch(t, cityQuery)) return false;
     if (skip !== 'budget' && t.price > budgetMax) return false;
+    if (skip !== 'when' && whenMonth != null) {
+      const months = SEASON_MONTHS[t.id];
+      if (months && !months.includes(whenMonth)) return false;
+    }
     return true;
-  }, [styles, paces, durations, budgetMax]);
+  }, [whos, styles, paces, nightsLo, nightsHi, cityQuery, budgetMax, whenMonth]);
 
   /* Filtered + sorted result set. */
   const results = useMemo(() => {
@@ -662,25 +848,39 @@ export default function JapanJourneys2() {
       return out;
     };
     return {
+      who: count('who', WHO_OPTS.map((w) => [w.value, w.match])),
       style: count('style', STYLES.map((s) => [s, (t) => t.style === s])),
       pace: count('pace', PACES.map((p) => [p, (t) => t.pace === p])),
-      duration: count('duration', DURATIONS.map((d) => [d.value, (t) => d.test(t.nights)])),
     };
   }, [passes]);
 
   /* Reset the visible window whenever the result set or breakpoint changes. */
-  useEffect(() => { setVisible(pageSize); }, [styles, paces, durations, budgetMax, sort, pageSize]);
+  useEffect(() => { setVisible(pageSize); }, [whos, styles, paces, nightsLo, nightsHi, cityQuery, budgetMax, whenDate, sort, pageSize]);
 
   const budgetActive = budgetMax < PRICE_MAX;
-  const totalActive = styles.length + paces.length + durations.length + (budgetActive ? 1 : 0);
-  const clearAll = () => { setStyles([]); setPaces([]); setDurations([]); setBudgetMax(PRICE_MAX); };
+  const whenActive = !!whenDate;
+  const durationActive = nightsLo > NIGHTS_MIN || nightsHi < NIGHTS_MAX;
+  const cityActive = cityQuery.trim().length > 0;
+  const durationLabel = nightsLo === nightsHi ? `${nightsLo} nights` : `${nightsLo}–${nightsHi} nights`;
+  const totalActive = whos.length + styles.length + paces.length
+    + (durationActive ? 1 : 0) + (cityActive ? 1 : 0)
+    + (budgetActive ? 1 : 0) + (whenActive ? 1 : 0);
+  const clearAll = () => {
+    setWhos([]); setStyles([]); setPaces([]); setNights([NIGHTS_MIN, NIGHTS_MAX]);
+    setCityQuery(''); setBudgetMax(PRICE_MAX); setWhenDate(null); setWhenFlex(0);
+  };
+  const whenLabel = whenDate
+    ? `${whenDate.getDate()} ${MON_ABBR[whenDate.getMonth()]}${whenFlex ? ` · ±${whenFlex}d` : ''}`
+    : '';
 
   /* "How would you like to travel" — pick a lane, pre-set the listing's
      trip-style filter and jump UP to it. Move focus to the listing heading
      so keyboard/SR users aren't stranded at the bottom; the result count
      (aria-live) announces what changed. */
   const chooseStyles = (styleList) => {
-    setStyles(styleList); setPaces([]); setDurations([]); setBudgetMax(PRICE_MAX);
+    setWhos([]); setWhenDate(null); setWhenFlex(0);
+    setStyles(styleList); setPaces([]); setNights([NIGHTS_MIN, NIGHTS_MAX]);
+    setCityQuery(''); setBudgetMax(PRICE_MAX);
     const el = document.getElementById('tours');
     if (!el) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -695,6 +895,53 @@ export default function JapanJourneys2() {
   /* The whole sidebar body — shared by the desktop rail and mobile drawer. */
   const filterBody = (
     <>
+      <FilterField id="city" title="Search a city" icon={Search}>
+        <CitySearch
+          value={cityQuery} onChange={setCityQuery}
+          suggestions={CITY_SUGGEST} quick={CITY_QUICK}
+        />
+      </FilterField>
+      <FilterGroup
+        id="who" title="Who's travelling" icon={Users}
+        options={WHO_OPTS.map((w) => ({ value: w.value, label: w.label }))}
+        selected={whos} onToggle={toggler(setWhos)} counts={counts.who}
+      />
+      {/* "When" and "Duration" sit side by side — the two time-shape filters. */}
+      <div className="jj2-timepair">
+        <FilterField id="when" title="When" icon={CalendarDays}>
+          <div className="jj2-when">
+            <input
+              type="date"
+              className="jj2-when-input"
+              value={whenDate ? toISO(whenDate) : ''}
+              onChange={(e) => setWhenDate(e.target.value ? parseISO(e.target.value) : null)}
+              aria-label="Preferred departure date"
+            />
+            {whenDate && (
+              <div className="jj2-when-flex">
+                <span className="jj2-when-flex-label">Give or take</span>
+                <div className="jj2-when-flexchips">
+                  {FLEX_OPTS.map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      className={`j2-preset${whenFlex === f ? ' is-on' : ''}`}
+                      onClick={() => setWhenFlex(f)}
+                    >
+                      {f === 0 ? 'Exact' : `±${f}d`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </FilterField>
+        <FilterField id="duration" title="Duration" icon={Clock}>
+          <DurationRange
+            min={NIGHTS_MIN} max={NIGHTS_MAX} value={nights} onChange={setNights}
+          />
+        </FilterField>
+      </div>
       <FilterGroup
         id="style" title="Trip style" icon={Compass}
         options={STYLES.map((s) => ({ value: s, label: s }))}
@@ -704,11 +951,6 @@ export default function JapanJourneys2() {
         id="pace" title="Pace" icon={Gauge}
         options={PACES.map((p) => ({ value: p, label: `${p} pace` }))}
         selected={paces} onToggle={toggler(setPaces)} counts={counts.pace}
-      />
-      <FilterGroup
-        id="duration" title="Duration" icon={Clock}
-        options={DURATIONS.map((d) => ({ value: d.value, label: d.label }))}
-        selected={durations} onToggle={toggler(setDurations)} counts={counts.duration}
       />
       <FilterField id="budget" title="Budget (per person)" icon={Wallet}>
         <BudgetPicker
@@ -874,16 +1116,29 @@ export default function JapanJourneys2() {
             {/* Active filter chips */}
             {totalActive > 0 && (
               <div className="jl-active jl2-active">
+                {cityActive && (
+                  <button type="button" className="jl-active-chip" onClick={() => setCityQuery('')}>
+                    <MapPin size={12} aria-hidden="true" /> {cityQuery.trim()} <X size={13} />
+                  </button>
+                )}
+                {whos.map((w) => (
+                  <button key={w} type="button" className="jl-active-chip" onClick={() => toggler(setWhos)(w)}>{WHO_LABEL[w]} <X size={13} /></button>
+                ))}
+                {whenActive && (
+                  <button type="button" className="jl-active-chip" onClick={() => { setWhenDate(null); setWhenFlex(0); }}>
+                    {whenLabel} <X size={13} />
+                  </button>
+                )}
+                {durationActive && (
+                  <button type="button" className="jl-active-chip" onClick={() => setNights([NIGHTS_MIN, NIGHTS_MAX])}>
+                    {durationLabel} <X size={13} />
+                  </button>
+                )}
                 {styles.map((s) => (
                   <button key={s} type="button" className="jl-active-chip" onClick={() => toggler(setStyles)(s)}>{s} <X size={13} /></button>
                 ))}
                 {paces.map((p) => (
                   <button key={p} type="button" className="jl-active-chip" onClick={() => toggler(setPaces)(p)}>{p} pace <X size={13} /></button>
-                ))}
-                {durations.map((d) => (
-                  <button key={d} type="button" className="jl-active-chip" onClick={() => toggler(setDurations)(d)}>
-                    {DURATIONS.find((x) => x.value === d)?.label} <X size={13} />
-                  </button>
                 ))}
                 {budgetActive && (
                   <button type="button" className="jl-active-chip" onClick={() => setBudgetMax(PRICE_MAX)}>
@@ -975,14 +1230,14 @@ export default function JapanJourneys2() {
               type="button"
               className="jj2-pick jj2-pick--ai"
               onClick={() => setChatOpen(true)}
-              aria-label="Design a trip with Enaya, our AI travel designer"
+              aria-label="Design a trip with Einaya, our AI travel designer"
             >
               <span className="jj2-pick__thumb" aria-hidden="true">
                 <img src={img(U('1540959733332-eab4deabeeaf'), 180)} alt="" loading="lazy" />
                 <span className="jj2-pick__spark"><Sparkles size={15} strokeWidth={1.9} /></span>
               </span>
               <span className="jj2-pick__body">
-                <h3 className="jj2-pick__title">Design it with Enaya</h3>
+                <h3 className="jj2-pick__title">Design it with Einaya</h3>
                 <p className="jj2-pick__desc">Not sure yet? Shape a trip around you.</p>
               </span>
               <ArrowRight size={17} className="jj2-pick__arrow" aria-hidden="true" />
@@ -1196,14 +1451,14 @@ export default function JapanJourneys2() {
         <a href={CONTACT.phoneHref} className="jj2-thumbbar__ico" aria-label="Call a specialist"><Phone size={20} aria-hidden="true" /></a>
       </div>
 
-      {/* ---------- ENAYA — floating "Ask Enaya" button (exactly like /new-homepage) ---------- */}
+      {/* ---------- ENAYA — floating "Ask Einaya" button (exactly like /new-homepage) ---------- */}
       <button
         className={`lx2i-aifab ${chatOpen ? 'is-hidden' : ''}`}
-        aria-label="Open Enaya, the AI travel assistant"
+        aria-label="Open Einaya, the AI travel assistant"
         onClick={() => setChatOpen(true)}
       >
         <Sparkles size={20} />
-        <span>Ask Enaya</span>
+        <span>Ask Einaya</span>
       </button>
 
       {/* ---------- PHOTO LIGHTBOX ---------- */}
@@ -1214,7 +1469,7 @@ export default function JapanJourneys2() {
 
     {/* ENAYA — the working AI concierge (from /new-homepage). Rendered OUTSIDE
         the page wrapper so scoped colour/font styles can't bleed in. */}
-    <ChatBot open={chatOpen} onOpenChange={setChatOpen} hideFab name="Enaya" />
+    <ChatBot open={chatOpen} onOpenChange={setChatOpen} hideFab name="Einaya" />
     </>
   );
 }
