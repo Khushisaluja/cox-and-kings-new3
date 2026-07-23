@@ -312,6 +312,15 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 12px;
+  margin: 0 0 12px;
+}
+/* The group tag carries its own top-align + bottom margin (from Journeys.css)
+   for when it stands alone. Inside the tags row the flex container owns both,
+   so neutralise them — otherwise the group tag pins to the top while the visa
+   badge centres, and the two read as misaligned. */
+.jl4 .jl4-card-tags .jl-card-group {
+  align-self: center;
+  margin: 0;
 }
 .jl4 .jl4-visa {
   display: inline-flex;
