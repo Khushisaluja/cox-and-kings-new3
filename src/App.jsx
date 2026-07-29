@@ -28,6 +28,7 @@ import PreferredPartner from './pages/PreferredPartner';
 import Collaborate from './pages/Collaborate';
 import Franchise from './pages/Franchise';
 import Terms from './pages/Terms';
+import NotFound404 from './pages/NotFound404';
 import { ScheduleCallProvider } from './components/ScheduleCall';
 import { EinayaProvider } from './components/Einaya';
 
@@ -282,6 +283,10 @@ export default function App() {
           <Route path="/group-japan" element={<GroupJapan />} />
           <Route path="/group-japan-mobile" element={<GroupJapan mobile />} />
 
+          {/* CLIENT-FACING 404 — "you're wandering off the map". Reachable
+              ONLY at its own /404 address for now: nothing links to it, and
+              unmatched URLs still get the dev-facing NotFound below. */}
+          <Route path="/404" element={<NotFound404 />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </EinayaProvider>

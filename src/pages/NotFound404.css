@@ -1,0 +1,257 @@
+/* ============================================================
+   NotFound404 (routes /404 and the unmatched catch-all) — the
+   CLIENT-FACING "you're wandering off the map" page.
+
+   Distinct from the dev-facing NotFound in App.jsx, which the
+   homepage's not-yet-built tour cards and vibe themes still use.
+
+   Everything is scoped under `.nf4` (set on this page's root div):
+   Vite hoists CSS imports into one global sheet, so unscoped rules
+   would leak into every route that shares the h26 chrome.
+   ============================================================ */
+
+/* Voyager Blue / 800 (#042447) — the palette's deepest brand shade
+   (design.md) — instead of the homepage's near-black. */
+.nf4 {
+  background: #042447;
+}
+
+/* ---- Hero: same treatment as the New3 homepage hero — a photograph
+   under a deep blue veil, display serif over it. */
+.nf4-hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 140px 24px 120px;
+}
+
+.nf4-hero__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  animation: nf4-drift 36s ease-in-out infinite alternate;
+}
+
+@keyframes nf4-drift {
+  from { transform: scale(1.02) translateX(0); }
+  to   { transform: scale(1.1) translateX(-1.5%); }
+}
+
+/* The veil is Voyager Blue 800 over the photograph, so the whole hero
+   sits in the brand's deepest blue rather than black. */
+.nf4-hero__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 42%, rgba(4, 36, 71, 0.55) 0%, rgba(4, 36, 71, 0.92) 100%),
+    linear-gradient(to bottom, rgba(4, 36, 71, 0.72), rgba(4, 36, 71, 0.55) 40%, rgba(4, 36, 71, 0.96));
+}
+
+.nf4-hero__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 780px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---- The compass — a quiet emblem above the eyebrow, its needle
+   searching for a bearing. Same light blue as the hero eyebrow: the
+   homepage's on-dark accent (design.md has no gold in the palette). */
+.nf4-compass {
+  color: #8FB6E4;
+  margin-bottom: 26px;
+}
+.nf4-compass svg {
+  display: block;
+}
+.nf4-compass__needle {
+  transform-origin: 50% 50%;
+  animation: nf4-seek 7s ease-in-out infinite;
+}
+@keyframes nf4-seek {
+  0%   { transform: rotate(0deg); }
+  30%  { transform: rotate(52deg); }
+  55%  { transform: rotate(-38deg); }
+  78%  { transform: rotate(18deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Eyebrow, title and lede mirror the New3 hero exactly (.lx2i-eyebrow--light,
+   .n3 .lx2i-hero__title, .lx2i-hero__sub): light-blue Work Sans label, white
+   Cormorant headline whose italic accent stays WHITE (the homepage rule is
+   "no gold"), and 82%-white light body. */
+.nf4-eyebrow {
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8FB6E4;
+  margin-bottom: 22px;
+}
+
+.nf4-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(2.5rem, 1.4rem + 4.3vw, 4.9rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: #fff;
+  margin: 0 0 24px;
+  text-wrap: balance;
+}
+.nf4-title em {
+  font-style: italic;
+  font-weight: 700;
+  color: #fff;
+}
+
+.nf4-lede {
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.15rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 540px;
+  margin: 0 0 38px;
+}
+
+/* ---- Search: the page's one action, in the homepage search bar's glass
+   language. Submits to /journeys4?q=… (the listing reads ?q= already). */
+.nf4-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(540px, 100%);
+  padding: 7px 7px 7px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  margin-bottom: 56px;
+}
+.nf4-search:focus-within {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.nf4-search__icon {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.66);
+}
+.nf4-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 15px;
+  color: #fff;
+  outline: none;
+  text-align: left;
+}
+.nf4-search input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+/* btn-primary comes from index.css (burgundy / Sienna Flame 500). */
+.nf4-search__go {
+  padding: 11px 22px;
+  flex-shrink: 0;
+}
+
+/* Visually hidden label for the search field. */
+.nf4-srlabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- "Well-trodden paths" — a short rail of real routes back in. */
+.nf4-paths {
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  padding-top: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+/* Label / Small from design.md §3.3 — Work Sans Regular, wide tracking. */
+.nf4-paths__label {
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.nf4-paths__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 26px;
+}
+
+.nf4-path {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  transition: color 0.25s ease;
+}
+.nf4-path svg {
+  align-self: center;
+  opacity: 0.55;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.nf4-path:hover {
+  color: #8FB6E4;
+}
+.nf4-path:hover svg {
+  transform: translate(2px, -2px);
+  opacity: 1;
+}
+
+/* ---- Focus. Home2026.css paints focus rings sienna (#BD4011), which is
+   invisible over this navy hero and identical to btn-primary's own fill,
+   so this page flips its rings to white (same move .h26-hero makes). */
+.nf4-hero a:focus-visible,
+.nf4-hero button:focus-visible,
+.nf4-hero input:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+/* The skip-link target receives programmatic focus; no ring around the
+   whole page. */
+.nf4 main:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf4-hero__bg { animation: none; }
+  .nf4-compass__needle { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .nf4-hero { padding: 120px 20px 90px; }
+  .nf4-search { margin-bottom: 44px; }
+  .nf4-search__go { padding: 11px 16px; }
+  .nf4-paths__row { gap: 8px 20px; }
+  .nf4-path { font-size: 1.12rem; }
+}
