@@ -38,3 +38,6 @@ Font Combinations/
 
 # stray source copy — the app uses public/aanya-kapoor.jpg
 aanya kapoor.jpeg
+
+# agent working memory (machine-generated, stays local)
+.claude/agent-memory/
