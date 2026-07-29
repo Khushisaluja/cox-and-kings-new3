@@ -126,6 +126,7 @@
 /* ---- Search: the page's one action, in the homepage search bar's glass
    language. Submits to /journeys4?q=… (the listing reads ?q= already). */
 .nf4-search {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -163,6 +164,86 @@
 .nf4-search__go {
   padding: 11px 22px;
   flex-shrink: 0;
+}
+
+/* ---- Typeahead dropdown — the homepage search panel's exact language
+   (.lx2i-search__drop): warm paper plate, uppercase label, blue-iconed
+   option rows. Values are inlined because the lx2i tokens are scoped to
+   the homepage's .lx2i wrapper. */
+.nf4-search__drop {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: #FBFAF5;
+  border: 1px solid #D9D7CB;
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 28px 64px -22px rgba(2, 19, 48, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: min(340px, 44vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  text-align: left;
+  animation: nf4-drop-in 0.22s ease;
+}
+@keyframes nf4-drop-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.nf4-search__droplabel {
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #4E4E48;
+  padding: 8px 12px 6px;
+}
+.nf4-search__opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 14px;
+  color: #1F2A36;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.nf4-search__opt svg {
+  color: #0B5AB1;
+  flex-shrink: 0;
+}
+.nf4-search__opt:hover {
+  background: rgba(11, 90, 177, 0.08);
+  color: #0B5AB1;
+}
+.nf4-search__opt.is-on {
+  background: rgba(11, 90, 177, 0.12);
+  color: #0B5AB1;
+  font-weight: 500;
+}
+/* The submit row at the foot of the list. */
+.nf4-search__opt--go {
+  border-top: 1px solid #D9D7CB;
+  border-radius: 0 0 9px 9px;
+  margin-top: 4px;
+  padding-top: 12px;
+  font-weight: 500;
+}
+/* The page's white focus ring is invisible on this light panel — the
+   options get the site's blue instead. */
+.nf4-search__drop button:focus-visible {
+  outline: 3px solid #0B5AB1;
+  outline-offset: -3px;
 }
 
 /* Visually hidden label for the search field. */
@@ -246,6 +327,7 @@
 @media (prefers-reduced-motion: reduce) {
   .nf4-hero__bg { animation: none; }
   .nf4-compass__needle { animation: none; }
+  .nf4-search__drop { animation: none; }
 }
 
 @media (max-width: 640px) {
