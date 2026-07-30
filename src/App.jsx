@@ -25,9 +25,13 @@ import PrivateItaly from './pages/PrivateItaly';
 import GroupJapan from './pages/GroupJapan';
 import GiftVouchers from './pages/GiftVouchers';
 import PreferredPartner from './pages/PreferredPartner';
+import PressMedia from './pages/PressMedia';
+import Testimonials from './pages/Testimonials';
 import Collaborate from './pages/Collaborate';
 import Franchise from './pages/Franchise';
 import Terms from './pages/Terms';
+import Sitemap from './pages/Sitemap';
+import Faq2 from './pages/Faq2';
 import NotFound404 from './pages/NotFound404';
 import { ScheduleCallProvider } from './components/ScheduleCall';
 import { EinayaProvider } from './components/Einaya';
@@ -35,18 +39,21 @@ import { EinayaProvider } from './components/Einaya';
 /* A new route always starts at the top — except when the link carried a hash
    ("/#reviews"), where we scroll to that section once it has been painted.
    Browser scroll restoration is turned off: on the GSAP-pinned pages it would
-   otherwise drop an arriving visitor into the middle of the page. */
+   otherwise drop an arriving visitor into the middle of the page.
+
+   The jump to the top must be INSTANT: html has scroll-behavior: smooth, so a
+   plain scrollTo(0,0) animates all the way up from wherever the footer link
+   was clicked — and on pages that re-measure themselves while mounting (GSAP
+   refresh, images sizing) the animation gets cut short, landing the visitor
+   mid-page. Only the in-page hash scroll stays smooth. */
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
   useEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
   }, []);
   useEffect(() => {
-    if (!hash) {
-      window.scrollTo(0, 0);
-      return undefined;
-    }
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (!hash) return undefined;
     const raf = requestAnimationFrame(() => {
       const el = document.querySelector(hash);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -221,6 +228,15 @@ export default function App() {
           <Route path="/about-us2" element={<AboutUs />} />
           <Route path="/about-us2/team" element={<Team />} />
 
+          {/* FAQ — the live site's 45 questions across 7 topics, rebuilt on
+              the TOUR-DETAIL system (/tour-detail-japan-5): its hero, its
+              sticky sub-nav, its .lxjt-select dropdown and its
+              itinerary-style accordion. This is the ONE FAQ page: the earlier
+              /faq exploration (team-page system) is retired, and its URL is
+              kept as an alias so nothing that linked to /faq dead-ends. */}
+          <Route path="/faq2" element={<Faq2 />} />
+          <Route path="/faq" element={<Faq2 />} />
+
           {/* Vision & Mission — "The Standing Orders". The vision is one sentence
               cut into a dark plate; the mission is six numbered orders in a ruled
               ledger, each with the consequence it exists to prevent. Reached from
@@ -269,11 +285,32 @@ export default function App() {
           <Route path="/inspiration" element={<Inspiration />} />
           <Route path="/inspiration/:slug" element={<InspirationArticle />} />
 
+          {/* PRESS & MEDIA — the live site's /press-media newsroom rebuilt on
+              the new3 system: the coverage as a filterable clippings ledger,
+              the awards, the SKIFT quote and the press-desk contacts. Same URL
+              as the live site so existing links land. Reached from the nav's
+              "As featured in" (About us menu) and the footer's Company column. */}
+          <Route path="/press-media" element={<PressMedia />} />
+
+          {/* TESTIMONIALS — "The Guest Book", the trust page: the homepage's
+              reviews plus four worry-answering stories, every entry linking out
+              to the platform it was posted on (Google / Tripadvisor /
+              Trustpilot), the awards ledger, and count-up trust stats. Reached
+              from "Real reviews" in the About-us menu and the footer's
+              Assurance column; /reviews is an alias. */}
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/reviews" element={<Testimonials />} />
+
           {/* TERMS & CONDITIONS — the legal reference page, redesigned from the
               live wall-of-headings into a searchable, scroll-spied document.
               /info/terms-condition mirrors the live-site URL so old links land. */}
           <Route path="/terms" element={<Terms />} />
           <Route path="/info/terms-condition" element={<Terms />} />
+
+          {/* SITEMAP — "The Atlas Index". The live site's /sitemap redesigned:
+              an interactive dotted world map + searchable index of every page.
+              Linked from the footer's legal row. */}
+          <Route path="/sitemap" element={<Sitemap />} />
 
           {/* Meta ad landing pages — message-matched, deliberately not linked
               from the site. Live campaign destinations: check the running ads

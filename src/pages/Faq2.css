@@ -1,0 +1,430 @@
+/* ============================================================================
+   Cox & Kings India — FAQ VARIANT 2  (/faq2)
+
+   Page-specific styles only. Everything structural — the hero, the sticky
+   sub-nav, the buttons, the eyebrow/h2 scale, the .lxjt-term cards and the
+   dark CTA band — is inherited from the tour-detail stack (Luxe2Improved.css
+   → JapanTourLuxe{,2,3,4,5}.css), which this page imports in the same order as
+   /tour-detail-japan-5 and wears the same
+   `.lx2i .lxjt .lxjt2 .lxjt3 .lxjt4 .lxjt5` wrapper for.
+
+   What is defined here:
+     · .fq2-bar     the search field + topic dropdown, one line, no panel
+     · .fq2-topic   a topic section header
+     · .fq2-q       the accordion, in the itinerary's .lxjt2-day language
+     · .fq2-help    the "ask a person" cards
+   All of it uses the .lx2i tokens (--blue-500, --sienna, --paper-*, --ink-*,
+   --serif = Zodiak, --ease) — no new colours.
+   ========================================================================== */
+
+.fq2 { background: var(--paper-50); }
+
+/* ------------------------------------------------------------------- hero
+   A utility page, so the hero is shorter than a tour's: a title, one line and
+   two facts. At the tour's 620–840px it would be mostly empty photograph. */
+.fq2 .lxjt-hero {
+  min-height: clamp(400px, 56vh, 540px);
+  padding: 148px 0 clamp(40px, 4vw, 56px);
+}
+.fq2 .lxjt-hero__lead { max-width: 560px; }
+
+/* --------------------------------------------------------- hero search
+   A white field on the scrim — the one thing on the hero you can use, so
+   it is the brightest thing on it. Same 10px radius as every other field
+   on the page, just taller, because it is the page's primary control. */
+.fq2-hsearch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(520px, 100%);
+  height: 56px;
+  margin-top: 30px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 18px 40px -20px rgba(2, 19, 48, 0.55);
+  transition: box-shadow 0.25s var(--ease);
+}
+.fq2-hsearch:focus-within { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 18px 40px -20px rgba(2, 19, 48, 0.55); }
+.fq2-hsearch > svg { flex: none; color: var(--blue-500); }
+.fq2-hsearch input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  outline: none;
+  font-family: var(--sans);
+  font-size: 15.5px;
+  font-weight: 400;
+  color: var(--ink-900);
+}
+.fq2-hsearch input::placeholder { color: var(--ink-600); font-weight: 300; }
+.fq2-hsearch input::-webkit-search-decoration,
+.fq2-hsearch input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.fq2-hsearch__clear {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--paper-200);
+  color: var(--ink-800);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.fq2-hsearch__clear:hover { background: var(--sienna); color: #fff; }
+
+.fq2-hsearch__count {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* The sub-nav carries seven topic names rather than six short section labels,
+   so the rows tighten slightly to keep them on one line at 1240px. */
+.fq2 .lxjt-subnav a { padding: 16px 13px; }
+
+/* ============================================================
+   CONTROLS — search + topic dropdown
+
+   Deliberately plain: two white fields on one line, hairline borders, no
+   surrounding card, no labels stacked above them. The placeholder and the
+   "All topics" default say what each one does.
+   ============================================================ */
+.fq2-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: clamp(26px, 3.5vw, 40px) 0 20px;
+}
+
+/* ------------------------------------------------------------ topic filter
+   The journeys sort dropdown (.jl-sort in Journeys.css), rebuilt on this
+   page's tokens. A native <select> hands its options list to the operating
+   system, which renders system chrome — the wrong paper, the wrong radius,
+   the wrong blue, and on Windows a grey box with square corners. This is a
+   listbox we draw ourselves, so the open state is as much a part of the
+   site as the closed one. */
+.fq2-pick { position: relative; flex: 0 0 auto; }
+
+.fq2-pick__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--paper-200);
+  border-radius: 999px;
+  background: #fff;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-900);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.fq2-pick__btn > svg:first-child { color: var(--blue-500); flex-shrink: 0; }
+.fq2-pick__btn:hover { border-color: var(--blue-500); }
+.fq2-pick__btn:focus-visible {
+  outline: none;
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(11, 90, 177, 0.12);
+}
+.fq2-pick__chev { flex-shrink: 0; color: var(--ink-600); transition: transform 0.25s var(--ease); }
+.fq2-pick__btn.is-open { border-color: var(--blue-500); }
+.fq2-pick__btn.is-open .fq2-pick__chev { transform: rotate(180deg); color: var(--blue-500); }
+
+.fq2-pick__pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 40;
+  min-width: 244px;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid var(--paper-200);
+  border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(2, 19, 48, 0.16);
+  animation: fq2-pop 0.2s var(--ease);
+}
+.fq2-pick__opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink-900);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease);
+}
+.fq2-pick__opt:hover { background: var(--paper-50); }
+.fq2-pick__opt:focus-visible { outline: 2px solid var(--blue-500); outline-offset: -2px; }
+.fq2-pick__opt.is-on { color: var(--blue-500); font-weight: 500; }
+.fq2-pick__opt.is-on svg { color: var(--blue-500); flex-shrink: 0; }
+
+@keyframes fq2-pop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fq2-reset {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--blue-500);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.fq2-reset:hover { color: var(--blue-700); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ============================================================
+   THE ANSWERS
+   ============================================================ */
+.fq2-answers { padding: 0 0 clamp(56px, 8vw, 100px); }
+
+.fq2-topic {
+  /* Clears the fixed header and the sticky sub-nav on an anchor jump. */
+  scroll-margin-top: calc(var(--lxjt-navh) + 56px);
+  padding-top: clamp(30px, 4vw, 48px);
+}
+.fq2-topic:first-of-type { padding-top: clamp(10px, 1.4vw, 16px); }
+
+.fq2-topic__head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding-bottom: 14px;
+  /* The section break, not a row divider — darker than the hairlines between
+     questions so the eye reads "new topic" rather than "another question". */
+  border-bottom: 1px solid var(--ink-900);
+}
+.fq2-topic__name {
+  font-family: var(--serif);
+  /* This page's display face is Cormorant Garamond (JapanTourLuxe5.css
+     overrides --serif), and it is only loaded at 400–700 — so the 300 this
+     used to carry rounded UP to 400, LIGHTER than the 500 question rows
+     underneath. The heading was outranked by its own contents. That page's
+     ramp puts section headings at 500 and runs heavier as type gets smaller,
+     which at this size means 600. */
+  font-weight: 600;
+  font-size: clamp(1.8rem, 1.15rem + 2vw, 2.3rem);
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  color: var(--ink-900);
+  margin: 0;
+}
+
+/* ============================================================
+   THE QUESTION LIST — the /gift-vouchers FAQ rows (.gv-faq-*)
+
+   This site already had a question list, and it is a plain one: rows
+   divided by hairline rules, the question in the display serif, a blue
+   chevron that rotates, and the answer as a paragraph under it. No
+   numbers, no nodes, no cards, no lift. Rebuilt here on the .lx2i
+   tokens (Zodiak rather than Cormorant, --paper-200 rather than --n200)
+   so it belongs to this page's system while reading the same way.
+
+   The only thing added is the open/close animation — grid-template-rows
+   0fr → 1fr, which the gift-vouchers version does not do. That is
+   movement, not decoration: nothing about the row looks different.
+   ============================================================ */
+.fq2-qs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* No top rule on the first row — the topic heading's own rule is already
+   sitting directly above it, and two would read as a double line. */
+.fq2-q { border-bottom: 1px solid var(--paper-200); }
+
+.fq2-q__h { margin: 0; }
+.fq2-q__btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  padding: 21px 4px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--serif);
+  /* Same face and weight as the gift-vouchers list this follows, one step
+     below the 600 topic heading above it. */
+  font-weight: 500;
+  font-size: clamp(1.02rem, 0.97rem + 0.3vw, 1.22rem);
+  line-height: 1.35;
+  color: var(--ink-900);
+  transition: color 0.2s var(--ease);
+}
+.fq2-q__btn:hover { color: var(--blue-500); }
+.fq2-q__btn:focus-visible { outline: 2px solid var(--blue-500); outline-offset: -2px; }
+
+.fq2-q__chev {
+  flex-shrink: 0;
+  color: var(--blue-500);
+  transition: transform 0.3s var(--ease);
+}
+.fq2-q.is-open .fq2-q__chev { transform: rotate(180deg); }
+
+.fq2-q__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--ease);
+}
+.fq2-q.is-open .fq2-q__body { grid-template-rows: 1fr; }
+.fq2-q__bodyin { min-height: 0; overflow: hidden; }
+.fq2-q__text {
+  margin: 0;
+  padding: 0 4px 24px;
+  max-width: 62ch;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--ink-700);
+  white-space: pre-line;   /* the social-media answer is one platform per line */
+}
+
+/* ------------------------------------------------------------------ empty */
+.fq2-empty {
+  margin-top: 20px;
+  padding: clamp(34px, 5vw, 54px);
+  text-align: center;
+  background: #fff;
+  border: 1px solid var(--paper-200);
+  border-radius: 16px;
+}
+.fq2-empty__ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(11, 90, 177, 0.08);
+  color: var(--blue-500);
+}
+.fq2-empty h2 {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.4rem, 1.1rem + 1vw, 2rem);
+  color: var(--ink-900);
+  margin: 18px 0 0;
+}
+.fq2-empty p {
+  margin: 12px auto 0;
+  max-width: 44ch;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-700);
+}
+.fq2-empty__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+
+/* ============================================================
+   ASK A PERSON — the policies cards, pointed at humans
+   ============================================================ */
+.fq2-help { background: var(--paper-100); }
+.fq2-help__grid { margin-top: 28px; }
+
+/* .lxjt-term is a static card; here each one is a link, so it gains a hover
+   lift and a trailing arrow. */
+.fq2-term {
+  position: relative;
+  align-items: flex-start;
+  text-decoration: none;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease),
+    border-color 0.35s var(--ease);
+}
+.fq2-term:hover {
+  transform: translateY(-3px);
+  border-color: var(--blue-300);
+  box-shadow: 0 26px 54px -32px rgba(2, 19, 48, 0.5);
+}
+.fq2-term:focus-visible { outline: 2px solid var(--blue-500); outline-offset: 3px; }
+.fq2-term .lxjt-term__txt { padding-right: 26px; }
+.fq2-term__go {
+  position: absolute;
+  right: 20px;
+  top: 24px;
+  color: var(--blue-300);
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), color 0.3s var(--ease);
+}
+.fq2-term:hover .fq2-term__go { opacity: 1; transform: translateX(0); color: var(--sienna); }
+
+/* The CTA footnote carries an icon here, so it needs to sit on a line. */
+.fq2 .lx2i-cta__hours {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 720px) {
+  /* Full width, and the panel matches it rather than hanging off one edge. */
+  .fq2-pick { flex: 1 1 auto; width: 100%; }
+  .fq2-pick__btn { width: 100%; justify-content: flex-start; }
+  /* The span takes the spare width, so it needs its own alignment — a button
+     centres its text by default and the label drifted to the middle. */
+  .fq2-pick__btn > span { flex: 1; text-align: left; }
+  .fq2-pick__pop { min-width: 0; width: 100%; }
+}
+
+@media (max-width: 640px) {
+  .fq2 .lxjt-hero { min-height: clamp(360px, 50vh, 460px); padding-top: 128px; }
+  .fq2-hsearch { height: 52px; margin-top: 24px; }
+  .fq2-hsearch input { font-size: 15px; }
+
+  /* More air above each topic so the section break reads as a break — on a
+     narrow column the heading has no horizontal space to separate it. */
+  .fq2-topic { padding-top: 44px; }
+  .fq2-topic:first-of-type { padding-top: 12px; }
+
+  /* A question wraps to two or three lines here, so the chevron aligns to
+     the first line rather than floating in the middle of the block. */
+  .fq2-q__btn { align-items: flex-start; gap: 14px; padding: 18px 2px; }
+  .fq2-q__chev { margin-top: 2px; }
+  .fq2-q__text { padding: 0 2px 20px; font-size: 0.95rem; }
+
+  .fq2-empty__actions .lx2i-btn { flex: 1 1 auto; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fq2-q__chev,
+  .fq2-q__body,
+  .fq2-term { transition: none; }
+}

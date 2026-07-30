@@ -613,9 +613,9 @@ export default function PrivateItaly({ mobile = false }) {
               <Link to="/journeys4">Indian Getaways</Link>
               <Link to="/journeys4">Tailormade Journeys</Link>
               <span className="nh-footer__h nh-footer__h--gap">QUICK LINKS</span>
-              <a href="#">Sitemap</a>
-              <a href="#">Refund Policy</a>
-              <a href="#">Cancellation Policy</a>
+              <Link to="/sitemap">Sitemap</Link>
+              <Link to="/terms#refund-policy">Refund Policy</Link>
+              <Link to="/terms">Cancellation Policy</Link>
             </div>
             <div>
               <span className="nh-footer__h">ABOUT</span>

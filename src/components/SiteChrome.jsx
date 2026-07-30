@@ -100,8 +100,8 @@ const NAV_MENU = [
       { label: 'Our story', desc: 'Since 1758, and what came after', to: '/about-us2' },
       { label: 'Vision & Mission', desc: 'What we promise, and what it prevents', to: '/vision-mission' },
       { label: 'The team', desc: 'The specialists you will actually deal with', to: '/about-us2/team' },
-      { label: 'Real reviews', desc: '2,400+ verified travellers', href: '#reviews' },
-      { label: 'As featured in', desc: 'The press that covers us', href: '#press' },
+      { label: 'Real reviews', desc: '2,400+ verified travellers', to: '/testimonials' },
+      { label: 'As featured in', desc: 'Press coverage & awards', to: '/press-media' },
       { label: 'Talk to an expert', desc: 'Pick a time, we call you back', to: CALLBACK },
     ],
   },
@@ -110,7 +110,7 @@ const NAV_MENU = [
 /* The two homepage sections that have no submenu — mobile drawer only. */
 const MOBILE_PLAIN = [
   { label: 'Clips', href: '#reels' },
-  { label: 'Reviews', href: '#reviews' },
+  { label: 'Reviews', to: '/testimonials' },
 ];
 
 /* One link, wherever it points. A homepage section is a native anchor when we
@@ -363,10 +363,6 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
 }
 
 export function SiteFooter() {
-  const { pathname } = useLocation();
-  const home = HOME_PATHS.includes(pathname);
-  const sec = (hash) => (home ? hash : `/${hash}`);
-
   return (
     <div className="h26 new-typo n3">
       <footer className="h26-footer">
@@ -380,12 +376,17 @@ export function SiteFooter() {
             </div>
           </div>
 
+          {/* Four columns, one visitor intent each — browse the journeys,
+              learn who we are, work with us, get help — so every link has
+              exactly one home. Legal lives in the bottom row, not here. */}
           <div className="h26-footer-cols">
             <div>
-              <h4>Travel</h4>
+              <h4>Explore</h4>
+              <Link to="/journeys4">All journeys</Link>
               <Link to="/journeys4-group">Group tours</Link>
               <Link to="/journeys4-private">Bespoke holidays</Link>
               <Link to="/journeys4?style=Luxury">Luxury journeys</Link>
+              <Link to="/inspiration">Inspiration</Link>
               <Link to="/gift-vouchers">Gift vouchers</Link>
             </div>
             <div>
@@ -393,26 +394,22 @@ export function SiteFooter() {
               <Link to="/about-us2">Our story</Link>
               <Link to="/vision-mission">Vision &amp; Mission</Link>
               <Link to="/about-us2/team">Meet the team</Link>
+              <Link to="/testimonials">Testimonials</Link>
+              <Link to="/press-media">Press &amp; Media</Link>
               <Link to="/careers">Careers</Link>
-              <Link to={CALLBACK}>Contact</Link>
-              {home
-                ? <a href="#heritage">Why Cox &amp; Kings</a>
-                : <Link to={sec('#heritage')}>Why Cox &amp; Kings</Link>}
             </div>
             <div>
               <h4>Partner with us</h4>
-              <Link to="/franchise">Become a Franchise Partner</Link>
-              <Link to="/collaborate">Collaborate With Us</Link>
-              <Link to="/become-a-partner">Become a Preferred Sales Partner</Link>
+              <Link to="/franchise">Franchise partnership</Link>
+              <Link to="/become-a-partner">Preferred sales partner</Link>
+              <Link to="/collaborate">Creators &amp; collaborations</Link>
             </div>
             <div>
-              <h4>Assurance</h4>
-              {home
-                ? <a href="#reviews">Reviews</a>
-                : <Link to={sec('#reviews')}>Reviews</Link>}
+              <h4>Help &amp; support</h4>
+              <Link to={CALLBACK}>Contact us</Link>
+              <Link to="/faq2">FAQs</Link>
               <Link to="/terms#refund-policy">Refund policy</Link>
-              <Link to="/terms">Terms &amp; Conditions</Link>
-              <Link to={CALLBACK}>Speak to an expert</Link>
+              <Link to="/sitemap">Sitemap</Link>
             </div>
           </div>
         </div>

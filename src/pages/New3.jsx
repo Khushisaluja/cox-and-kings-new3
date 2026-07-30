@@ -1881,7 +1881,7 @@ export default function New3() {
               </div>
 
               <div className="lx2i-reviews__more lx2i-reveal">
-                <Link to="/about-us2" className="lx2i-btn lx2i-btn--outline lx2i-btn--lg">View all 2,400+ reviews <ArrowRight size={16} /></Link>
+                <Link to="/testimonials" className="lx2i-btn lx2i-btn--outline lx2i-btn--lg">View all 2,400+ reviews <ArrowRight size={16} /></Link>
               </div>
             </div>
           </section>

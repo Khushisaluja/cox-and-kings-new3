@@ -41,3 +41,6 @@ aanya kapoor.jpeg
 
 # agent working memory (machine-generated, stays local)
 .claude/agent-memory/
+
+# session-local agent state (see d8c44ee)
+src/.claude/

@@ -1,0 +1,628 @@
+/* ============================================================
+   Sitemap — "The Atlas Index" (/sitemap).
+
+   Two rooms. The top is a dark Voyager-Blue chart plate (design.md
+   Voyager Blue/800 #042447) carrying the dotted world map; below is
+   the warm-paper index (Neutrals/50 #F8F7F1) with the editorial
+   serif region headings and ruled hairlines. Everything reads from
+   the design.md palette: blue #0B5AB1, sienna #BD4011, success
+   green for the "Live" status only, warm paper neutrals throughout.
+   ============================================================ */
+
+/* New3.css paints `.h26.n3` near-black (#000207) for the homepage's dark
+   sections — two classes, so a bare `.smap` loses. Match its specificity
+   plus one so the index sits on paper no matter the sheet order. */
+.h26.n3.smap {
+  background: #F8F7F1;
+  color: #1F2A36;
+  /* Home2026.css puts overflow-x: hidden on .h26, which makes the root a
+     clipping ancestor and silently kills every descendant position: sticky
+     (the contents rail). clip prevents sideways scroll WITHOUT creating a
+     scroll container — the same trick index.css documents on body. */
+  overflow-x: clip;
+}
+
+.smap {
+  --smap-ink: #1F2A36;
+  --smap-muted: #60605A;
+  --smap-blue: #0B5AB1;
+  --smap-blue-d: #07366A;
+  --smap-navy: #042447;
+  --smap-sienna: #BD4011;
+  --smap-sienna-300: #D78C70;
+  --smap-paper: #F8F7F1;
+  --smap-paper-100: #F1EFE2;
+  --smap-border: #D9D7CB;
+  --smap-cream: #F1EFE2;
+  background: var(--smap-paper);
+  color: var(--smap-ink);
+  font-family: var(--sans, 'Work Sans', sans-serif);
+}
+
+.smap .is-hidden { display: none !important; }
+
+.smap mark {
+  background: rgba(189, 64, 17, 0.16);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* ================= THE CHART PLATE ================= */
+
+.smap-hero {
+  position: relative;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(11, 90, 177, 0.28) 0%, rgba(4, 36, 71, 0) 55%),
+    var(--smap-navy);
+  color: var(--smap-cream);
+  padding: clamp(140px, 16vw, 190px) var(--n3-pad-x, 6vw) 0;
+  overflow: hidden;
+}
+
+/* Faint chart graticule behind everything — the map-table feel. */
+.smap-hero__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(241, 239, 226, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(241, 239, 226, 0.045) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(110% 100% at 50% 30%, #000 30%, transparent 90%);
+  pointer-events: none;
+}
+
+.smap-hero__inner {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.smap-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--smap-sienna-300);
+  margin-bottom: 22px;
+}
+
+.smap-title {
+  font-family: var(--serif, 'Cormorant Garamond', serif);
+  font-weight: 300;
+  font-size: clamp(2.9rem, 6.6vw, 5.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  margin: 0 0 18px;
+}
+
+.smap-title em {
+  font-style: italic;
+  color: #fff;
+}
+
+.smap-lede {
+  font-weight: 300;
+  font-size: clamp(0.95rem, 1.4vw, 1.08rem);
+  line-height: 1.7;
+  color: rgba(241, 239, 226, 0.72);
+  max-width: 560px;
+  margin: 0 auto 34px;
+}
+
+/* ---- The search bar ---- */
+
+.smap-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 560px;
+  margin: 0 auto;
+  background: rgba(248, 247, 241, 0.06);
+  border: 1px solid rgba(241, 239, 226, 0.22);
+  border-radius: 4px;
+  backdrop-filter: blur(6px);
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.smap-search:focus-within {
+  background: rgba(248, 247, 241, 0.1);
+  border-color: rgba(241, 239, 226, 0.55);
+  box-shadow: 0 0 0 4px rgba(11, 90, 177, 0.35);
+}
+
+.smap-srlabel {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.smap-search__icon {
+  margin-left: 18px;
+  flex: none;
+  color: rgba(241, 239, 226, 0.6);
+}
+
+.smap-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--smap-cream);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 300;
+  padding: 17px 14px;
+  outline: none;
+}
+
+.smap-search input::placeholder { color: rgba(241, 239, 226, 0.45); }
+.smap-search input::-webkit-search-cancel-button { display: none; }
+
+.smap-search__clear {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px; height: 34px;
+  margin-right: 8px;
+  border-radius: 4px;
+  color: rgba(241, 239, 226, 0.7);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.smap-search__clear:hover { background: rgba(241, 239, 226, 0.12); color: #fff; }
+
+/* ---- The typeahead dropdown — the homepage hero's dropdown, sized to
+   this search bar: same warm-white card, radius, shadow and option rows. ---- */
+
+.smap-search__drop {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: #FBFAF5;
+  border: 1px solid var(--smap-border);
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 28px 64px -22px rgba(2, 19, 48, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: min(340px, 56vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  text-align: left;
+  animation: smap-drop-in 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes smap-drop-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.smap-search__droplabel {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--smap-muted);
+  padding: 8px 12px 6px;
+}
+
+.smap-search__opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 9px;
+  color: var(--smap-ink);
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 300;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.smap-search__opt:hover,
+.smap-search__opt:focus-visible {
+  background: var(--smap-paper-100);
+  color: var(--smap-blue);
+}
+
+.smap-search__opt svg { color: var(--smap-sienna); flex-shrink: 0; }
+
+.smap-count {
+  min-height: 1.4em;
+  margin-top: 14px;
+  font-size: 0.82rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  color: var(--smap-sienna-300);
+}
+
+/* ---- The map plate ---- */
+
+.smap-plate {
+  position: relative;
+  max-width: 980px;
+  margin: clamp(28px, 4vw, 52px) auto 0;
+  padding-bottom: clamp(48px, 6vw, 84px);
+}
+
+.smap-map {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.smap-dot {
+  fill: rgba(241, 239, 226, 0.34);
+  transition: fill 0.35s ease, opacity 0.35s ease;
+}
+
+/* While GSAP draws the intro cascade it writes opacity every frame; a live
+   CSS transition would smear (and can deadlock) those writes. Off until the
+   timeline completes and hands the dots back to CSS. */
+.smap-plate.is-drawing .smap-dot { transition: none; }
+
+.smap-dot--x { fill: rgba(241, 239, 226, 0.12); }
+
+/* pointer-events: all makes the dots' transparent stroke count as hit area,
+   so a continent holds its hover across the gaps between dots. The :hover
+   rule is the CSS fallback for the same highlight the JS state drives. */
+.smap-continent { cursor: pointer; outline: none; pointer-events: all; }
+
+.smap-continent:hover .smap-dot,
+.smap-continent.is-active .smap-dot,
+.smap-continent:focus-visible .smap-dot {
+  fill: var(--smap-sienna-300);
+}
+
+.smap-continent.is-dim .smap-dot { opacity: 0.18; }
+
+/* The Japan beacon — success green, the "Live" status colour. */
+.smap-beacon__core { fill: #6FD1AF; }
+.smap-beacon__ring {
+  fill: none;
+  stroke: #6FD1AF;
+  stroke-width: 1.4;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: smap-pulse 2.6s ease-out infinite;
+}
+
+@keyframes smap-pulse {
+  0%   { transform: scale(0.6); opacity: 0.9; }
+  70%  { transform: scale(2.1); opacity: 0; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+
+.smap-plate__caption {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.5);
+  transition: color 0.3s ease;
+}
+
+/* ---- Legend chips ---- */
+
+.smap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: clamp(20px, 3vw, 30px);
+}
+
+.smap-legend__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 16px;
+  border: 1px solid rgba(241, 239, 226, 0.22);
+  border-radius: 999px;
+  color: rgba(241, 239, 226, 0.85);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  transition: border-color 0.25s ease, background 0.25s ease, color 0.25s ease, opacity 0.25s ease;
+}
+
+.smap-legend__chip:hover,
+.smap-legend__chip.is-active {
+  border-color: var(--smap-sienna-300);
+  background: rgba(189, 64, 17, 0.18);
+  color: #fff;
+}
+
+.smap-legend__chip.is-dim { opacity: 0.35; }
+
+.smap-legend__dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(241, 239, 226, 0.5);
+  transition: background 0.25s ease;
+}
+.smap-legend__chip:hover .smap-legend__dot,
+.smap-legend__chip.is-active .smap-legend__dot { background: var(--smap-sienna-300); }
+
+.smap-legend__count {
+  font-size: 0.7rem;
+  color: rgba(241, 239, 226, 0.55);
+}
+
+/* ================= THE INDEX ================= */
+
+.smap-index:focus { outline: none; }
+
+.smap-index {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: clamp(32px, 4vw, 72px);
+  padding: clamp(56px, 7vw, 110px) var(--n3-pad-x, 6vw) 0;
+  max-width: none;
+}
+
+/* ---- The mobile contents bar — sticky chip row, hidden on desktop ---- */
+
+.smap-mrail {
+  display: none;
+  position: sticky;
+  top: 70px;                      /* the solid mobile nav is 70px tall */
+  z-index: 40;
+  margin: 0 calc(-1 * var(--n3-pad-x, 6vw));
+  padding: 10px var(--n3-pad-x, 6vw);
+  background: rgba(248, 247, 241, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--smap-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+  gap: 8px;
+}
+
+.smap-mrail::-webkit-scrollbar { display: none; }
+
+.smap-mrail__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  padding: 9px 14px;
+  border: 1px solid var(--smap-border);
+  border-radius: 999px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--smap-muted);
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.smap-mrail__chip.is-active {
+  color: #fff;
+  background: var(--smap-blue);
+  border-color: var(--smap-blue);
+}
+
+.smap-mrail__chip.is-dim { opacity: 0.4; }
+
+.smap-mrail__count { font-size: 0.68rem; opacity: 0.7; }
+
+@media (max-width: 1000px) {
+  .smap-mrail { display: flex; }
+}
+
+/* ---- The contents rail ---- */
+
+.smap-rail {
+  position: sticky;
+  top: 120px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 8px;
+}
+
+.smap-rail__title {
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--smap-muted);
+  margin-bottom: 14px;
+}
+
+.smap-rail__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px 9px 14px;
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--smap-muted);
+  text-align: left;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.smap-rail__item:hover { color: var(--smap-ink); background: var(--smap-paper-100); }
+
+.smap-rail__item.is-active {
+  color: var(--smap-blue);
+  border-left-color: var(--smap-sienna);
+  font-weight: 400;
+}
+
+.smap-rail__item.is-dim { opacity: 0.35; }
+
+.smap-rail__count {
+  font-size: 0.7rem;
+  color: var(--smap-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ---- Region sections ---- */
+
+.smap-body { min-width: 0; }
+
+.smap-region,
+.smap-ways,
+.smap-pages {
+  padding-bottom: clamp(52px, 6vw, 96px);
+  scroll-margin-top: 120px;
+}
+
+.smap-region__head {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(16px, 2.5vw, 34px);
+  margin-bottom: 18px;
+}
+
+.smap-region__name {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-family: var(--serif, 'Cormorant Garamond', serif);
+  font-weight: 300;
+  font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+  line-height: 1.15;
+  color: var(--smap-ink);
+  margin: 0;
+}
+
+.smap-region__tally {
+  font-family: var(--sans, 'Work Sans', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--smap-sienna);
+}
+
+.smap-region__tagline {
+  margin: 6px 0 0;
+  font-size: 0.95rem;
+  font-weight: 300;
+  color: var(--smap-muted);
+  max-width: 560px;
+}
+
+.smap-rule {
+  height: 1px;
+  background: var(--smap-border);
+  margin-bottom: 8px;
+}
+
+/* ---- The link rows ---- */
+
+.smap-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  column-gap: clamp(20px, 3vw, 44px);
+}
+
+.smap-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 2px;
+  border-bottom: 1px solid var(--smap-border);
+  font-size: 0.94rem;
+  font-weight: 300;
+  color: var(--smap-ink);
+  transition: color 0.2s ease, padding-left 0.25s ease, border-color 0.25s ease;
+}
+
+.smap-link:hover {
+  color: var(--smap-blue);
+  padding-left: 8px;
+  border-color: var(--smap-blue);
+}
+
+.smap-link__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.smap-link__arrow {
+  flex: none;
+  opacity: 0;
+  transform: translate(-4px, 4px);
+  transition: opacity 0.2s ease, transform 0.25s ease;
+  color: var(--smap-sienna);
+}
+
+.smap-link:hover .smap-link__arrow { opacity: 1; transform: translate(0, 0); }
+
+/* ---- Ways to travel — a FULL-WIDTH homepage fork section; h26-section
+   and the hi-lane cards carry their own styling. Sits on the alternate
+   paper band so it reads as a room of its own after the index. ---- */
+
+.smap-fork {
+  background: var(--smap-paper-100);
+  scroll-margin-top: 90px;
+}
+
+/* ---- Site pages — grouped columns on the alternate band ---- */
+
+.smap-pages__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: clamp(24px, 3vw, 44px);
+  margin-top: 18px;
+}
+
+.smap-pagegroup__name {
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--smap-sienna);
+  margin: 0 0 6px;
+}
+
+/* ---- The way out — the homepage's h26-contact section, full-bleed and
+   flowing straight into the footer exactly as it does on the homepage.
+   All of its styling comes with its own classes; nothing to add. ---- */
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1000px) {
+  .smap-index { grid-template-columns: minmax(0, 1fr); }
+  .smap-rail { display: none; }
+}
+
+@media (max-width: 640px) {
+  .smap-hero { padding-top: 120px; }
+  .smap-region__head { gap: 14px; }
+  .smap-links { grid-template-columns: minmax(0, 1fr); }
+  .smap-legend__chip { padding: 8px 12px; font-size: 0.74rem; }
+  .smap-search input { font-size: 16px; } /* prevents iOS zoom-on-focus */
+}
+
+/* Motion is a garnish, never a requirement. */
+@media (prefers-reduced-motion: reduce) {
+  .smap-beacon__ring { animation: none; }
+  .smap-link,
+  .smap-legend__chip { transition: none; }
+}
