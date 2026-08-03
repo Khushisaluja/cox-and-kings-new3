@@ -66,7 +66,10 @@ const NAV_MENU = [
     ],
   },
   {
-    label: 'Destinations', href: '#destinations',
+    /* `to` rather than `href`: the label itself opens the Atlas Index (the full
+       sitemap), instead of scrolling the homepage down to the destinations
+       section — the flyout already covers the shortlist. */
+    label: 'Destinations', to: '/sitemap',
     blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
     /* Each destination points at its OWN country page (like /journeys/japan-2),
        not the /journeys4 listing. Only Japan is built today; every other place
@@ -75,11 +78,11 @@ const NAV_MENU = [
        Spaces in ?dest= are pre-encoded so the URL is valid. "All destinations"
        (below) is the one link that still opens the full /journeys4 listing. */
     items: [
-      { group: 'By destination', label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
-      { group: 'By destination', label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys/coming-soon?dest=Switzerland' },
-      { group: 'By destination', label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys/coming-soon?dest=Italy' },
-      { group: 'By destination', label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys/coming-soon?dest=Northern%20Lights' },
-      { group: 'By destination', label: 'African Safari', desc: 'Big-five wilderness', to: '/journeys/coming-soon?dest=African%20Safari' },
+      { group: 'International Immersions', label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
+      { group: 'International Immersions', label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys/coming-soon?dest=Switzerland' },
+      { group: 'International Immersions', label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys/coming-soon?dest=Italy' },
+      { group: 'International Immersions', label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys/coming-soon?dest=Northern%20Lights' },
+      { group: 'International Immersions', label: 'African Safari', desc: 'Big-five wilderness', to: '/journeys/coming-soon?dest=African%20Safari' },
       { group: 'Indian Getaways', label: 'Rajasthan', desc: 'Palaces, forts & desert', to: '/journeys/coming-soon?dest=Rajasthan' },
       { group: 'Indian Getaways', label: 'Kerala', desc: 'Backwaters & tea hills', to: '/journeys/coming-soon?dest=Kerala' },
       { group: 'Indian Getaways', label: 'Goa', desc: 'Beaches & Portuguese charm', to: '/journeys/coming-soon?dest=Goa' },
