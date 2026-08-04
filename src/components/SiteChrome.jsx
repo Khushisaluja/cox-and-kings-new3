@@ -29,7 +29,7 @@ import { useLocation } from 'react-router-dom';
 import { SmartLink as Link, CALLBACK, useScheduleCall } from './ScheduleCall';
 import { EINAYA, useEinaya } from './Einaya';
 import {
-  ChevronDown, Phone, Menu, X, ArrowRight, ArrowUpRight,
+  ChevronDown, ChevronRight, Phone, Menu, X, ArrowRight, ArrowUpRight,
   Instagram, Facebook, Youtube, Linkedin,
 } from 'lucide-react';
 
@@ -48,6 +48,140 @@ export const CONTACT_CK = {
 const HOME_PATHS = ['/', '/new3'];
 
 const INSPIRATION_TO = '/inspiration';
+
+/* Only Japan has a page today. Every other place opens the "coming soon"
+   screen, with ?dest= carrying its name so the copy can say which one — swap
+   the `to` for the real route as each country page ships. */
+const soon = (name) => `/journeys/coming-soon?dest=${encodeURIComponent(name)}`;
+
+/* ---------------------------------------------------------------------------
+   The Destinations panel. Two regions, each split into a handful of buckets;
+   the countries live one level down, inside the bucket.
+
+   The old flyout listed nine places in a flat column, which is all a 300px
+   panel can hold — so "over 100 countries" was a claim the menu itself
+   contradicted. Splitting it means the left rail stays a short, stable list of
+   buckets (five continents, four kinds of Indian holiday) while the countries
+   ride in the right pane, where there is room for as many as a bucket needs.
+   --------------------------------------------------------------------------- */
+const DEST_REGIONS = [
+  {
+    heading: 'International Immersions',
+    groups: [
+      {
+        label: 'Asia',
+        note: 'Temples, street food and bullet trains.',
+        places: [
+          { label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
+          { label: 'Thailand', desc: 'Islands & temple cities', to: soon('Thailand') },
+          { label: 'Vietnam', desc: 'Halong Bay & old quarters', to: soon('Vietnam') },
+          { label: 'Bali & Indonesia', desc: 'Rice terraces & reefs', to: soon('Bali & Indonesia') },
+          { label: 'Singapore', desc: 'A city that runs on design', to: soon('Singapore') },
+          { label: 'Sri Lanka', desc: 'Tea country & leopards', to: soon('Sri Lanka') },
+          { label: 'Maldives', desc: 'Overwater, undisturbed', to: soon('Maldives') },
+          { label: 'Bhutan & Nepal', desc: 'Himalayan monasteries', to: soon('Bhutan & Nepal') },
+        ],
+      },
+      {
+        label: 'Europe',
+        note: 'Alpine rail, old cities and long coastlines.',
+        places: [
+          { label: 'Switzerland', desc: 'Alpine railways & lakes', to: soon('Switzerland') },
+          { label: 'Italy', desc: 'Cities, coast & countryside', to: soon('Italy') },
+          { label: 'France', desc: 'Paris, Provence & the Loire', to: soon('France') },
+          { label: 'Spain & Portugal', desc: 'Iberian food & flamenco', to: soon('Spain & Portugal') },
+          { label: 'Greece', desc: 'Ruins & island hopping', to: soon('Greece') },
+          { label: 'Iceland', desc: 'Volcanoes, glaciers, geysers', to: soon('Iceland') },
+          { label: 'Norway & Finland', desc: 'Fjords & northern lights', to: soon('Norway & Finland') },
+          { label: 'UK & Ireland', desc: 'Castles, moors & pubs', to: soon('UK & Ireland') },
+        ],
+      },
+      {
+        label: 'Africa & Middle East',
+        note: 'Big-five wilderness and desert cities.',
+        places: [
+          { label: 'Kenya', desc: 'The Mara migration', to: soon('Kenya') },
+          { label: 'Tanzania', desc: 'Serengeti & Zanzibar', to: soon('Tanzania') },
+          { label: 'South Africa', desc: 'Cape, wine & Kruger', to: soon('South Africa') },
+          { label: 'Egypt', desc: 'Nile, pyramids & temples', to: soon('Egypt') },
+          { label: 'Morocco', desc: 'Medinas & the Sahara', to: soon('Morocco') },
+          { label: 'Dubai & Abu Dhabi', desc: 'Desert, souks & skyline', to: soon('Dubai & Abu Dhabi') },
+        ],
+      },
+      {
+        label: 'The Americas',
+        note: 'Andes, canyons and rainforest.',
+        places: [
+          { label: 'USA', desc: 'Parks, coasts & big cities', to: soon('USA') },
+          { label: 'Canada', desc: 'Rockies & maple country', to: soon('Canada') },
+          { label: 'Peru', desc: 'Machu Picchu & the Andes', to: soon('Peru') },
+          { label: 'Brazil', desc: 'Rio, Amazon & Iguazu', to: soon('Brazil') },
+          { label: 'Argentina & Chile', desc: 'Patagonia end to end', to: soon('Argentina & Chile') },
+          { label: 'Mexico', desc: 'Maya ruins & Pacific coast', to: soon('Mexico') },
+        ],
+      },
+      {
+        label: 'Australia & Pacific',
+        note: 'Reef, outback and the long way south.',
+        places: [
+          { label: 'Australia', desc: 'Reef, outback & Sydney', to: soon('Australia') },
+          { label: 'New Zealand', desc: 'Both islands, end to end', to: soon('New Zealand') },
+          { label: 'Fiji', desc: 'Islands at their slowest', to: soon('Fiji') },
+        ],
+      },
+    ],
+  },
+  {
+    heading: 'Indian Getaways',
+    groups: [
+      {
+        label: 'Hills & Mountains',
+        note: 'Where the air thins and the pace drops.',
+        places: [
+          { label: 'Himachal', desc: 'Shimla, Manali & Spiti', to: soon('Himachal') },
+          { label: 'Uttarakhand', desc: 'Rishikesh & the Garhwal', to: soon('Uttarakhand') },
+          { label: 'Kashmir', desc: 'Dal Lake & Gulmarg', to: soon('Kashmir') },
+          { label: 'Ladakh', desc: 'High desert & monasteries', to: soon('Ladakh') },
+          { label: 'Sikkim & Darjeeling', desc: 'Tea gardens under Kanchenjunga', to: soon('Sikkim & Darjeeling') },
+          { label: 'North East', desc: 'Meghalaya & Arunachal', to: soon('North East') },
+        ],
+      },
+      {
+        label: 'Beaches & Islands',
+        note: 'Coastline, from the busy to the barely-there.',
+        places: [
+          { label: 'Goa', desc: 'Beaches & Portuguese charm', to: soon('Goa') },
+          { label: 'Andaman Islands', desc: 'Diving & empty sand', to: soon('Andaman Islands') },
+          { label: 'Kerala Coast', desc: 'Kovalam & Varkala', to: soon('Kerala Coast') },
+          { label: 'Lakshadweep', desc: 'Lagoons, almost to yourself', to: soon('Lakshadweep') },
+          { label: 'Gokarna', desc: 'Goa without the crowds', to: soon('Gokarna') },
+        ],
+      },
+      {
+        label: 'Heritage & Palaces',
+        note: 'The plains, and everything built on them.',
+        places: [
+          { label: 'Golden Triangle', desc: 'Delhi, Agra & Jaipur', to: soon('Golden Triangle') },
+          { label: 'Rajasthan', desc: 'Palaces, forts & desert', to: soon('Rajasthan') },
+          { label: 'Varanasi', desc: 'The Ganges at dawn', to: soon('Varanasi') },
+          { label: 'Hampi', desc: 'A ruined capital in boulders', to: soon('Hampi') },
+          { label: 'Khajuraho & Orchha', desc: 'Temple carving & river forts', to: soon('Khajuraho & Orchha') },
+        ],
+      },
+      {
+        label: 'Backwaters & Wildlife',
+        note: 'Water, grass and whatever is moving through it.',
+        places: [
+          { label: 'Kerala Backwaters', desc: 'Houseboats & tea hills', to: soon('Kerala Backwaters') },
+          { label: 'Ranthambore', desc: 'Tigers in fort country', to: soon('Ranthambore') },
+          { label: 'Kaziranga', desc: 'One-horned rhino country', to: soon('Kaziranga') },
+          { label: 'Sundarbans', desc: 'Mangrove delta by boat', to: soon('Sundarbans') },
+          { label: 'Periyar', desc: 'Elephants & cardamom hills', to: soon('Periyar') },
+        ],
+      },
+    ],
+  },
+];
 
 /* Four groups. "Destinations" is split by KIND — places, then the itineraries
    that used to live under a competing "Journeys" menu — with a section rule
@@ -71,24 +205,11 @@ const NAV_MENU = [
        section — the flyout already covers the shortlist. */
     label: 'Destinations', to: '/sitemap',
     blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
-    /* Each destination points at its OWN country page (like /journeys/japan-2),
-       not the /journeys4 listing. Only Japan is built today; every other place
-       links to the "coming soon" screen (?dest= carries its name for the copy)
-       until its page ships — swap the `to` to the real route as each lands.
-       Spaces in ?dest= are pre-encoded so the URL is valid. "All destinations"
-       (below) is the one link that still opens the full /journeys4 listing. */
-    items: [
-      { group: 'International Immersions', label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
-      { group: 'International Immersions', label: 'Switzerland', desc: 'Alpine railways & lakes', to: '/journeys/coming-soon?dest=Switzerland' },
-      { group: 'International Immersions', label: 'Italy', desc: 'Cities, coast & countryside', to: '/journeys/coming-soon?dest=Italy' },
-      { group: 'International Immersions', label: 'Northern Lights', desc: 'Arctic winter skies', to: '/journeys/coming-soon?dest=Northern%20Lights' },
-      { group: 'International Immersions', label: 'African Safari', desc: 'Big-five wilderness', to: '/journeys/coming-soon?dest=African%20Safari' },
-      { group: 'Indian Getaways', label: 'Rajasthan', desc: 'Palaces, forts & desert', to: '/journeys/coming-soon?dest=Rajasthan' },
-      { group: 'Indian Getaways', label: 'Kerala', desc: 'Backwaters & tea hills', to: '/journeys/coming-soon?dest=Kerala' },
-      { group: 'Indian Getaways', label: 'Goa', desc: 'Beaches & Portuguese charm', to: '/journeys/coming-soon?dest=Goa' },
-      { group: 'Indian Getaways', label: 'Golden Triangle', desc: 'Delhi, Agra & Jaipur', to: '/journeys/coming-soon?dest=Golden%20Triangle' },
-    ],
-    /* The catch-all. Not an eighth destination — a way out of the list. */
+    /* `regions` instead of `items` — this one renders as the two-pane mega
+       panel (buckets on the left, countries on the right), not the single
+       column every other menu uses. See DEST_REGIONS above. */
+    regions: DEST_REGIONS,
+    /* The catch-all. Not one more destination — a way out of the list. */
     all: { label: 'All destinations', meta: '31 journeys', to: '/journeys4' },
   },
   /* A flat link, not a menu: `plain` means no caret, no flyout on desktop and
@@ -153,6 +274,84 @@ function ChromeLink({ item, home, className, children, onClick, ...rest }) {
   return <Link to={`/${item.href}`} className={className} onClick={onClick} {...rest}>{children}</Link>;
 }
 
+/* The Destinations mega panel. Two columns: a rail of buckets grouped under the
+   two red region headings, and a pane showing the countries in whichever bucket
+   the pointer (or keyboard focus) is on. Hovering a bucket only swaps the pane —
+   you still have to click a country to go anywhere, so nothing moves under a
+   cursor that is only passing through.
+
+   Focus drives the same state as hover, which is what makes it keyboard-usable:
+   tab onto "Europe" and the European countries become the next tab stops. */
+function DestFlyout({ group, active, onActivate, onLeave }) {
+  const region = group.regions[active.r] ?? group.regions[0];
+  const bucket = region.groups[active.g] ?? region.groups[0];
+
+  return (
+    <div className="hi-nav-flyout n3-mega-flyout" role="menu" onMouseLeave={onLeave}>
+      <div className="hi-nav-flyout-inner n3-mega-inner">
+        <div className="n3-mega">
+          <div className="n3-mega-rail">
+            <p className="hi-nav-blurb n3-mega-blurb">{group.blurb}</p>
+
+            {group.regions.map((reg, ri) => (
+              <div className="n3-mega-region" key={reg.heading}>
+                <p className="n3-mega-region-head">{reg.heading}</p>
+                <ul className="n3-mega-cats">
+                  {reg.groups.map((cat, gi) => {
+                    const on = active.r === ri && active.g === gi;
+                    const show = () => onActivate({ r: ri, g: gi });
+                    return (
+                      <li key={cat.label}>
+                        <button
+                          type="button"
+                          className={`n3-mega-cat${on ? ' is-active' : ''}`}
+                          aria-current={on ? 'true' : undefined}
+                          onMouseEnter={show}
+                          onFocus={show}
+                          onClick={show}
+                        >
+                          <span className="n3-mega-cat-label">{cat.label}</span>
+                          <span className="n3-mega-cat-count">{cat.places.length}</span>
+                          <ChevronRight size={14} className="n3-mega-cat-arrow" aria-hidden="true" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* aria-live so a screen reader hears the pane change rather than
+              silently losing track of what the rail is pointing at. */}
+          <div className="n3-mega-pane" aria-live="polite">
+            <p className="n3-mega-pane-head">{bucket.label}</p>
+            <p className="n3-mega-pane-note">{bucket.note}</p>
+            <ul className="n3-mega-places">
+              {bucket.places.map((p) => (
+                <li key={p.label}>
+                  <Link to={p.to} role="menuitem" className="n3-mega-place">
+                    <span className="n3-mega-place-label">{p.label}</span>
+                    <span className="n3-mega-place-desc">{p.desc}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {group.all && (
+          <Link to={group.all.to} role="menuitem" className="n3-navall n3-mega-all">
+            <span className="n3-navall-label">{group.all.label}</span>
+            <span className="n3-navall-meta">{group.all.meta}</span>
+            <ArrowRight size={15} className="n3-navall-arrow" aria-hidden="true" />
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* `solidAt` — how far the page scrolls before the nav loses its transparency.
    The homepage has a tall photographic hero to clear, so it passes a larger
    value; pages that open on a shallow banner go solid almost immediately. */
@@ -163,6 +362,12 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState(null);  // open accordion in the drawer
+
+  /* Which bucket the Destinations mega panel is showing on the right. Reset to
+     the first one whenever the pointer leaves, so the panel always opens on
+     Asia rather than on wherever the last visit happened to stop. */
+  const [dest, setDest] = useState({ r: 0, g: 0 });
+  const resetDest = useCallback(() => setDest({ r: 0, g: 0 }), []);
 
   const openScheduleCall = useScheduleCall();
   const openCallback = useCallback(() => { setMenuOpen(false); openScheduleCall(); }, [openScheduleCall]);
@@ -220,6 +425,12 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
                 <ChevronDown size={14} className="hi-nav-caret" aria-hidden="true" />
               </ChromeLink>
 
+              {/* The Destinations panel is a different shape from the rest:
+                  a rail of buckets on the left, the countries inside the hovered
+                  bucket on the right. Everything else stays a single column. */}
+              {group.regions ? (
+                <DestFlyout group={group} active={dest} onActivate={setDest} onLeave={resetDest} />
+              ) : (
               <div className="hi-nav-flyout" role="menu">
                 <div className="hi-nav-flyout-inner">
                   <p className="hi-nav-blurb">{group.blurb}</p>
@@ -252,6 +463,7 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
                   )}
                 </div>
               </div>
+              )}
             </div>
           ))}
         </nav>
@@ -304,7 +516,26 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
                   </button>
 
                   <div className="n3-macc-panel" hidden={!open}>
-                    {g.items.map((it, idx) => (
+                    {/* Destinations carries `regions` rather than a flat
+                        `items` list. There is no room for a hover pane on a
+                        phone, so the same three levels stack: red region
+                        heading, bucket heading, then the countries. */}
+                    {g.regions ? g.regions.map((reg) => (
+                      <Fragment key={reg.heading}>
+                        <span className="n3-macc-region">{reg.heading}</span>
+                        {reg.groups.map((cat) => (
+                          <Fragment key={cat.label}>
+                            <span className="n3-macc-group">{cat.label}</span>
+                            {cat.places.map((p) => (
+                              <ChromeLink key={p.label} item={p} home={home} className="n3-macc-link" onClick={closeMenu}>
+                                <span className="n3-macc-lbl">{p.label}</span>
+                                <span className="n3-macc-desc">{p.desc}</span>
+                              </ChromeLink>
+                            ))}
+                          </Fragment>
+                        ))}
+                      </Fragment>
+                    )) : g.items.map((it, idx) => (
                       <Fragment key={it.label}>
                         {it.group && g.items[idx - 1]?.group !== it.group && (
                           <span className="n3-macc-group">{it.group}</span>

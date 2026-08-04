@@ -1241,3 +1241,229 @@
 @media (prefers-reduced-motion: reduce) {
   .n3 .n3d__photo { transition: none; }
 }
+
+/* ---- 19. The Destinations mega panel ------------------------------------
+   Every other flyout is a 300px column of links. This one is a two-pane
+   browser, because Destinations is the only menu whose contents genuinely do
+   not fit: nine places in one column was the whole world, and it read like the
+   whole catalogue.
+
+   Left rail: the two regions as red headings — the same sienna eyebrow the
+   section labels and the old group rules used — with their buckets beneath.
+   Right pane: the countries inside whichever bucket is hovered or focused.
+   Hover only swaps the pane; nothing navigates until a country is clicked.
+
+   Anchored to the trigger's LEFT edge rather than centred on it. A 760px panel
+   centred on a nav item this far to the left would hang off the side of a
+   1100px window; opening rightward, it always has the rest of the header to
+   grow into. */
+.n3 .n3-mega-flyout {
+  left: 0;
+  right: auto;
+  transform: translateY(6px);
+}
+.n3 .hi-nav-group:hover .n3-mega-flyout,
+.n3 .hi-nav-group:focus-within .n3-mega-flyout {
+  transform: translateY(0);
+}
+.n3 .n3-mega-inner {
+  width: min(760px, calc(100vw - 32px));
+  padding: 0;
+  overflow: hidden;
+}
+/* The arrow sits over the trigger, not over the middle of a very wide panel. */
+.n3 .n3-mega-inner::before {
+  left: 34px;
+  margin-left: 0;
+}
+
+.n3 .n3-mega {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  align-items: stretch;
+}
+
+/* ---- left rail ---- */
+.n3 .n3-mega-rail {
+  padding: 16px 14px 16px 16px;
+  border-right: 1px solid var(--border);
+  background: rgba(31, 42, 54, 0.025);
+}
+.n3 .n3-mega-blurb {
+  margin: 0 2px 12px;
+}
+.n3 .n3-mega-region + .n3-mega-region {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+/* The red heading. Not a link — it names the half of the world below it.
+   "INTERNATIONAL IMMERSIONS" is long enough at this tracking to touch the rail's
+   right edge, so it is allowed to wrap onto a second line rather than being
+   squeezed; the line-height keeps that from looking like two headings. */
+.n3 .n3-mega-region-head {
+  margin: 0 0 7px 8px;
+  padding-right: 8px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1.45;
+  text-transform: uppercase;
+  color: var(--sienna, #BD4011);
+}
+.n3 .n3-mega-cats {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.n3 .n3-mega-cat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 8px 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.n3 .n3-mega-cat-label { flex: 1; }
+/* How many countries are behind the label — worth knowing before you hover. */
+.n3 .n3-mega-cat-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-2, #696960);
+  font-variant-numeric: tabular-nums;
+}
+.n3 .n3-mega-cat-arrow {
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-3px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.n3 .n3-mega-cat:hover,
+.n3 .n3-mega-cat:focus-visible,
+.n3 .n3-mega-cat.is-active {
+  background: rgba(11, 90, 177, 0.08);
+  color: var(--blue-d, #07366A);
+  outline: none;
+}
+.n3 .n3-mega-cat.is-active .n3-mega-cat-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ---- right pane ---- */
+.n3 .n3-mega-pane {
+  padding: 16px 16px 16px 18px;
+  min-height: 320px;
+}
+.n3 .n3-mega-pane-head {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.n3 .n3-mega-pane-note {
+  margin: 3px 0 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--muted);
+}
+/* Two columns, so eight countries stay four rows tall instead of eight. */
+.n3 .n3-mega-places {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.n3 .n3-mega-place {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.16s ease;
+}
+.n3 .n3-mega-place::after { display: none; }
+.n3 .n3-mega-place:hover,
+.n3 .n3-mega-place:focus-visible {
+  background: rgba(11, 90, 177, 0.08);
+  outline: none;
+}
+.n3 .n3-mega-place-label {
+  display: block;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--ink);
+  transition: color 0.16s ease;
+}
+.n3 .n3-mega-place:hover .n3-mega-place-label,
+.n3 .n3-mega-place:focus-visible .n3-mega-place-label {
+  color: var(--blue-d, #07366A);
+}
+.n3 .n3-mega-place-desc {
+  display: block;
+  margin-top: 1px;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  letter-spacing: 0;
+  line-height: 1.35;
+  color: var(--muted-2, #696960);
+}
+
+/* The catch-all spans the full width under both panes — the way out of a menu
+   this size has to be impossible to miss. */
+.n3 .h26-nav .h26-links .n3-mega-all {
+  margin: 0;
+  border-width: 1px 0 0;
+  border-radius: 0;
+  padding: 12px 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .n3 .n3-mega-cat,
+  .n3 .n3-mega-cat-arrow,
+  .n3 .n3-mega-place { transition: none; }
+}
+
+/* Below ~1180px the panel would reach past the window even opening rightward,
+   so the pane drops to a single column of countries and the whole thing
+   narrows. The desktop nav disappears entirely at 1080px. */
+@media (max-width: 1180px) {
+  .n3 .n3-mega-inner { width: min(620px, calc(100vw - 24px)); }
+  .n3 .n3-mega { grid-template-columns: 232px minmax(0, 1fr); }
+  .n3 .n3-mega-places { grid-template-columns: 1fr; }
+  .n3 .n3-mega-pane { min-height: 0; max-height: 62vh; overflow-y: auto; }
+}
+
+/* The mobile drawer's region heading — the same red as the desktop rail, one
+   step above the bucket headings that `.n3-macc-group` already draws. */
+.n3 .n3-macc-region {
+  display: block;
+  margin: 14px 2px 2px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sienna, #BD4011);
+}
+.n3 .n3-macc-panel > .n3-macc-region:first-child { margin-top: 4px; }
