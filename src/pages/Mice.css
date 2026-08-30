@@ -1101,7 +1101,9 @@
   cursor: pointer;
 }
 .mice .mice-faq__list button svg { flex: none; color: var(--vb-500); transition: transform .22s var(--ease); }
-.mice .mice-faq__list li.is-open button svg { transform: rotate(45deg); }
+/* Rotates rather than swaps, matching the chevron on /faq2 so the two
+   accordions behave identically. */
+.mice .mice-faq__list li.is-open button svg { transform: rotate(180deg); }
 .mice .mice-faq__a { padding: 0 0 20px; }
 .mice .mice-faq__a p { margin: 0; max-width: 62ch; color: var(--n-700); font-size: 15px; }
 

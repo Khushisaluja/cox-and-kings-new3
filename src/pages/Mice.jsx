@@ -74,7 +74,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useSearchParams } from 'react-router-dom';
 import {
-  ArrowRight, ArrowUpRight, Plus, Check, ChevronLeft, ChevronRight,
+  ArrowRight, ArrowUpRight, Check, ChevronLeft, ChevronRight, ChevronDown,
   Star, MessageCircle, ShieldCheck, Globe2, Users, CalendarCheck,
   FileText, Compass,
 } from 'lucide-react';
@@ -105,15 +105,15 @@ const HERO_VIDEO = null;
 const HERO_TRUST = [
   { v: '260+ yrs', l: 'of knowing the world' },
   { v: '4.9★', l: '2,400+ verified reviews' },
-  { v: '100+', l: 'countries' },            // ⚠ confirm for MICE specifically
+  { v: '100+', l: 'destinations' },         // ⚠ confirm for MICE specifically
   { v: '24 hr', l: 'specialist reply' },    // ⚠ confirm with the MICE desk
 ];
 
 /* The heritage stat band. `n: null` collapses the figure and keeps the label,
    so the section survives only some of these being answered. */
 const HERITAGE_STATS = [
-  { n: 267, suffix: '', label: 'Years of journeys' },
-  { n: 100, suffix: '+', label: 'Countries' },
+  { n: 260, suffix: '+', label: 'Years of journeys' },
+  { n: 100, suffix: '+', label: 'Destinations' },
   { n: null, suffix: '+', label: 'Groups moved a year' },   // ⚠ needed
 ];
 
@@ -1245,7 +1245,7 @@ export default function Mice() {
                         o.includes(i) ? o.filter((x) => x !== i) : [...o, i]
                       ))}>
                       <span>{f.q}</span>
-                      <Plus size={17} aria-hidden="true" />
+                      <ChevronDown size={18} aria-hidden="true" />
                     </button>
                   </h3>
                   <div className="mice-faq__a" id={`mice-faq-${i}`} hidden={!open}>
