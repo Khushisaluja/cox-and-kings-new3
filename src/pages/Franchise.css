@@ -306,7 +306,7 @@
    SHARED — the ledger marks used by all three sections below the hero.
    ========================================================================== */
 
-/* An index mark: a sienna numeral, a hairline, then the section name. */
+/* An index mark: a sienna numeral, the section name, then a hairline. */
 .fr .fr-index {
   display: flex;
   align-items: center;
@@ -317,7 +317,7 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--n-600);
-  margin: 0 0 22px;
+  margin: 0 0 20px;
 }
 .fr .fr-index__n {
   font-family: var(--serif);
@@ -342,20 +342,19 @@
 .fr .fr-display {
   font-family: var(--serif);
   font-weight: 500;
-  font-size: clamp(34px, 5.2vw, 72px);
-  line-height: 1.04;
+  font-size: clamp(32px, 4.4vw, 60px);
+  line-height: 1.05;
   letter-spacing: -0.022em;
   color: var(--n-900);
   margin: 0;
 }
-.fr .fr-display--sm { font-size: clamp(30px, 3.4vw, 46px); }
 .fr .fr-display--light { color: var(--n-0); }
 .fr .fr-display em { font-style: italic; color: var(--sf-500); }
 .fr .fr-display--light em { color: var(--sf-300); }
 .fr .fr-line { display: block; overflow: hidden; padding-bottom: 0.06em; }
 .fr .fr-line > span { display: block; }
 
-/* =================================================== 01 · THE OFFER ========= */
+/* ================================================ 01 · WHAT YOU GET ========= */
 
 /* The counter rail continues the hero's navy, so the two read as one block. */
 .fr .fr-rail {
@@ -366,15 +365,12 @@
   width: 100%;
   max-width: 1360px;
   margin: 0 auto;
-  padding: clamp(34px, 4vw, 58px) clamp(16px, 3vw, 56px);
+  padding: clamp(30px, 3.4vw, 50px) clamp(16px, 3vw, 56px);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
-.fr .fr-rail__stat {
-  position: relative;
-  padding-left: clamp(16px, 2vw, 32px);
-}
+.fr .fr-rail__stat { position: relative; padding-left: clamp(16px, 2vw, 32px); }
 .fr .fr-rail__stat + .fr-rail__stat::before {
   content: '';
   position: absolute;
@@ -389,7 +385,7 @@
   align-items: flex-start;
   font-family: var(--serif);
   font-weight: 500;
-  font-size: clamp(38px, 5vw, 68px);
+  font-size: clamp(34px, 4.2vw, 58px);
   line-height: 0.95;
   letter-spacing: -0.03em;
   color: var(--n-0);
@@ -405,93 +401,52 @@
 }
 .fr .fr-rail__l {
   font-family: var(--sans);
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: rgba(241, 239, 226, 0.6);
-  margin: 12px 0 0;
+  margin: 10px 0 0;
 }
 
+/* The section is deliberately shallow: a compact header, then ONE row of four
+   cards. Four stacked bands made this the tallest thing on the page. */
 .fr .fr-offer {
   background: var(--n-50);
-  padding-bottom: clamp(60px, 7vw, 112px);
+  padding-bottom: clamp(48px, 5vw, 84px);
 }
 .fr .fr-mark {
-  padding-block: clamp(56px, 7vw, 112px) clamp(32px, 4vw, 56px);
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 34%);
+  align-items: end;
+  gap: clamp(20px, 4vw, 64px);
+  padding-block: clamp(44px, 5vw, 76px) clamp(26px, 3vw, 40px);
 }
 .fr .fr-mark__lead {
   font-family: var(--sans);
-  font-size: clamp(15px, 1.2vw, 17px);
+  font-size: clamp(14.5px, 1.15vw, 16px);
   line-height: 1.66;
   color: var(--n-800);
-  margin: 26px 0 0;
-  max-width: 52ch;
+  margin: 0;
+  padding-bottom: 6px;
 }
 
-/* --- the four pillars ---
-   Text left, photograph right, and a full-bleed hairline over every row. The
-   even rows swap sides, so the eye zig-zags down the section instead of
-   running down a single column. */
-.fr .fr-pillars { list-style: none; margin: 0; padding: 0; }
-.fr .fr-pillar {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr minmax(300px, 46%);
-  align-items: center;
-  gap: clamp(28px, 5vw, 80px);
-  padding-block: clamp(36px, 4.4vw, 68px);
-}
-.fr .fr-pillar:nth-child(even) { grid-template-columns: minmax(300px, 46%) 1fr; }
-.fr .fr-pillar:nth-child(even) .fr-pillar__body { order: 2; }
-.fr .fr-pillar:nth-child(even) .fr-pillar__media { order: 1; }
-.fr .fr-pillar__rule {
-  position: absolute;
-  inset-inline: 0;
-  top: 0;
-  height: 1px;
-  background: var(--n-200);
-}
-.fr .fr-pillar__body {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: clamp(18px, 2.4vw, 40px);
-  align-items: start;
-}
-/* An outline numeral, sitting in the margin like a plate number. */
-.fr .fr-pillar__n {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(46px, 5.6vw, 84px);
-  line-height: 0.82;
-  letter-spacing: -0.04em;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--n-300);
-  user-select: none;
-}
-.fr .fr-pillar__t {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: clamp(22px, 2.2vw, 31px);
-  line-height: 1.16;
-  letter-spacing: -0.01em;
-  color: var(--n-900);
-  margin: 0 0 12px;
-}
-.fr .fr-pillar__b {
-  font-family: var(--sans);
-  font-size: 14.5px;
-  line-height: 1.68;
-  color: var(--n-800);
+/* --- the four cards --- */
+.fr .fr-pillars {
+  list-style: none;
   margin: 0;
-  max-width: 46ch;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(16px, 1.8vw, 28px);
 }
+.fr .fr-pillar { display: flex; flex-direction: column; }
 .fr .fr-pillar__media {
   position: relative;
-  margin: 0;
+  margin: 0 0 18px;
   overflow: hidden;
   border-radius: 2px;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 5;
   background: var(--n-150);
 }
 .fr .fr-pillar__media img {
@@ -500,16 +455,47 @@
   object-fit: cover;
   display: block;
   will-change: transform;
-  /* GSAP holds this at scale 1.2 and drifts it ±7% — the 10% of overscan the
+  /* GSAP holds this at scale 1.16 and drifts it ±5% — the ~8% of overscan the
      scale buys on each edge is what keeps a bare edge out of the crop. */
 }
-/* A hair of navy over the photograph keeps it in the palette. */
 .fr .fr-pillar__media::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(200deg, rgba(2, 19, 48, 0) 45%, rgba(2, 19, 48, 0.28) 100%);
+  background: linear-gradient(200deg, rgba(2, 19, 48, 0) 52%, rgba(2, 19, 48, 0.4) 100%);
   pointer-events: none;
+}
+/* The plate number sits on the photograph rather than in the margin — in a
+   four-up row there is no margin to give it. */
+.fr .fr-pillar__n {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  z-index: 1;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.72);
+  user-select: none;
+}
+.fr .fr-pillar__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(19px, 1.5vw, 23px);
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--n-900);
+  margin: 0 0 9px;
+}
+.fr .fr-pillar__b {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.62;
+  color: var(--n-800);
+  margin: 0;
 }
 
 /* =================================================== 02 · THE SHELF ========= */
@@ -603,14 +589,14 @@
 }
 .fr .fr-tile:hover .fr-tile__img { transform: scale(1.06); }
 /* The scrim is the reason the caption is legible on every photograph. */
-.fr .fr-tile:not(.fr-tile--type)::before {
+.fr .fr-tile::before {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg,
     rgba(2, 19, 48, 0.5) 0%,
     rgba(2, 19, 48, 0.12) 34%,
-    rgba(2, 19, 48, 0.82) 100%);
+    rgba(2, 19, 48, 0.84) 100%);
 }
 .fr .fr-tile__ix {
   position: absolute;
@@ -622,11 +608,7 @@
   letter-spacing: 0.14em;
   color: rgba(255, 255, 255, 0.72);
 }
-.fr .fr-tile__cap {
-  position: absolute;
-  inset: auto 0 0 0;
-  padding: 22px 20px 24px;
-}
+.fr .fr-tile__cap { position: absolute; inset: auto 0 0 0; padding: 22px 20px 24px; }
 .fr .fr-tile__k {
   display: inline-block;
   font-family: var(--sans);
@@ -651,27 +633,6 @@
   line-height: 1.55;
   color: rgba(241, 239, 226, 0.82);
   margin: 0;
-}
-
-/* The two service lines that have no honest photograph are set as type
-   instead — which also breaks the rhythm of the track. */
-.fr .fr-tile--type { display: flex; align-items: flex-end; }
-.fr .fr-tile--type .fr-tile__cap { position: static; padding: 26px 22px 26px; }
-.fr .fr-tile--type .fr-tile__t { font-size: clamp(26px, 2.4vw, 34px); }
-.fr .fr-tile--sienna { background: var(--sf-500); }
-.fr .fr-tile--sienna .fr-tile__k { color: rgba(255, 255, 255, 0.78); }
-.fr .fr-tile--sienna .fr-tile__b { color: rgba(255, 255, 255, 0.88); }
-.fr .fr-tile--navy { background: var(--vb-500); }
-.fr .fr-tile--navy .fr-tile__k { color: var(--n-100); }
-.fr .fr-tile--navy .fr-tile__b { color: rgba(241, 239, 226, 0.9); }
-/* A quiet rule so the type tiles are not two flat blocks of colour. */
-.fr .fr-tile--type .fr-tile__cap::before {
-  content: '';
-  display: block;
-  width: 44px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.5);
-  margin-bottom: 20px;
 }
 
 .fr .fr-shelf__foot {
@@ -709,25 +670,68 @@
 /* ================================================= 03 · THE ANSWERS ========= */
 .fr .fr-answers {
   background: var(--n-50);
-  padding-block: clamp(60px, 7vw, 112px);
+  padding-block: clamp(56px, 6.5vw, 100px);
 }
 .fr .fr-answers__inner {
   display: grid;
-  grid-template-columns: minmax(300px, 38%) 1fr;
-  gap: clamp(36px, 5vw, 88px);
+  grid-template-columns: minmax(300px, 37%) 1fr;
+  gap: clamp(32px, 5vw, 80px);
   align-items: start;
 }
 .fr .fr-ledger { align-self: stretch; }
-.fr .fr-ledger__stick { position: sticky; top: 108px; }
 
-.fr .fr-facts { margin: 28px 0 0; }
-.fr .fr-fact {
-  display: grid;
-  gap: 3px;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--n-200);
+/* --- the picture-card of what a store takes --- */
+.fr .fr-storecard {
+  position: sticky;
+  top: 104px;
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 24px 50px -34px rgba(2, 19, 48, 0.34);
 }
-.fr .fr-fact:first-child { border-top: 1px solid var(--n-200); }
+.fr .fr-storecard__media {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--n-150);
+}
+.fr .fr-storecard__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.fr .fr-storecard__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(2, 19, 48, 0) 55%, rgba(2, 19, 48, 0.3) 100%);
+}
+.fr .fr-storecard__body { padding: clamp(22px, 2.2vw, 30px); }
+.fr .fr-storecard__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(23px, 2vw, 30px);
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  color: var(--n-900);
+  margin: 0;
+}
+
+/* The spec sheet: label left, value right, one hairline between each. Six rows
+   a visitor reads in a single pass. */
+.fr .fr-facts { margin: 20px 0 0; }
+.fr .fr-fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--n-150);
+}
+.fr .fr-fact:first-child { border-top: 1px solid var(--n-150); }
 .fr .fr-fact dt {
   font-family: var(--sans);
   font-size: 10.5px;
@@ -735,15 +739,21 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--n-600);
+  white-space: nowrap;
 }
 .fr .fr-fact dd {
+  /* Work Sans, not the display serif: the Cormorant latin subset has no ₹, so
+     a serif value would pull that one glyph out of a system fallback and sit
+     it beside serif digits. Sans keeps the row consistent either way. */
   font-family: var(--sans);
-  font-size: 14.5px;
-  line-height: 1.45;
+  font-weight: 600;
+  font-size: clamp(14.5px, 1.2vw, 17px);
+  line-height: 1.25;
   color: var(--n-900);
   margin: 0;
+  text-align: right;
 }
-.fr .fr-ledger__note {
+.fr .fr-storecard__note {
   font-family: var(--sans);
   font-size: 12.5px;
   line-height: 1.6;
@@ -751,83 +761,58 @@
   margin: 16px 0 0;
 }
 
-/* The closing CTA, as a navy plate inside the paper section rather than a
-   fourth band across the page. */
-.fr .fr-ledger__cta {
-  margin-top: 28px;
-  padding: clamp(22px, 2.2vw, 30px);
-  border-radius: 2px;
-  background: var(--nd-900);
-  display: grid;
-  justify-items: start;
-  gap: 16px;
-}
-.fr .fr-ledger__cta-h {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(21px, 1.9vw, 27px);
-  line-height: 1.15;
-  color: var(--n-0);
-  margin: 0;
-  max-width: 16ch;
-}
-.fr .fr-ledger__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--sans);
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--sf-300);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-.fr .fr-ledger__link:hover { color: var(--n-0); }
-
-/* --- FAQ, on native <details> --- */
-.fr .fr-faq { border-top: 1px solid var(--n-200); }
-.fr .fr-faq__item { border-bottom: 1px solid var(--n-200); }
-.fr .fr-faq__q {
+/* ============================================================================
+   FAQ — the same accordion the rest of the site uses (/faq2, and the
+   /gift-vouchers list it came from). A hairline rule, the question in the
+   display serif, a chevron that rotates, and a body that opens on
+   grid-template-rows 0fr → 1fr. Same behaviour, this page's tokens.
+   ========================================================================== */
+.fr .fr-qs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.fr .fr-q { border-bottom: 1px solid var(--n-200); }
+.fr .fr-q:first-child { border-top: 1px solid var(--n-200); }
+.fr .fr-q__h { margin: 0; }
+.fr .fr-q__btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 22px 2px;
+  gap: 20px;
+  width: 100%;
+  padding: 21px 4px;
+  border: 0;
+  background: none;
   cursor: pointer;
-  list-style: none;
+  text-align: left;
   font-family: var(--serif);
-  font-weight: 600;
-  font-size: clamp(17px, 1.55vw, 21px);
-  line-height: 1.28;
+  font-weight: 500;
+  font-size: clamp(1.02rem, 0.97rem + 0.3vw, 1.22rem);
+  line-height: 1.35;
   color: var(--n-900);
-  transition: color 0.18s ease;
+  transition: color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fr .fr-faq__q::-webkit-details-marker { display: none; }
-.fr .fr-faq__q:hover { color: var(--vb-500); }
-.fr .fr-faq__q:focus-visible { outline: 2px solid var(--vb-500); outline-offset: 3px; }
-.fr .fr-faq__mark {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1px solid var(--n-200);
+.fr .fr-q__btn:hover { color: var(--vb-500); }
+.fr .fr-q__btn:focus-visible { outline: 2px solid var(--vb-500); outline-offset: -2px; }
+.fr .fr-q__chev {
+  flex-shrink: 0;
   color: var(--vb-500);
-  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fr .fr-faq__item[open] .fr-faq__mark {
-  transform: rotate(45deg);
-  background: rgba(11, 90, 177, 0.08);
+.fr .fr-q.is-open .fr-q__chev { transform: rotate(180deg); }
+.fr .fr-q__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fr .fr-faq__a {
+.fr .fr-q.is-open .fr-q__body { grid-template-rows: 1fr; }
+.fr .fr-q__bodyin { min-height: 0; overflow: hidden; }
+.fr .fr-q__text {
+  margin: 0;
+  padding: 0 4px 24px;
+  max-width: 62ch;
   font-family: var(--sans);
-  font-size: 14.5px;
-  line-height: 1.72;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.7;
   color: var(--n-800);
-  margin: 0 0 24px;
-  padding-right: 54px;
-  max-width: 76ch;
 }
 .fr .fr-faq__more {
   font-family: var(--sans);
@@ -843,6 +828,56 @@
 }
 .fr .fr-faq__more a:hover { color: var(--vb-hover); }
 
+/* ============================================================= CLOSING CTA ==== */
+.fr .fr-cta {
+  background: var(--nd-900);
+  color: var(--n-100);
+  padding-block: clamp(48px, 5.5vw, 84px);
+}
+.fr .fr-cta__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+.fr .fr-cta__h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.06;
+  color: var(--n-0);
+  margin: 0 0 10px;
+  max-width: 24ch;
+}
+.fr .fr-cta__p {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(241, 239, 226, 0.82);
+  margin: 0;
+  max-width: 44ch;
+}
+.fr .fr-cta__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex: none;
+}
+.fr .fr-cta__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sf-300);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.fr .fr-cta__link:hover { color: var(--n-0); }
+
 /* ==================================================================== MOTION == */
 @keyframes fr-in {
   from { opacity: 0; transform: translateY(18px); }
@@ -856,15 +891,18 @@
   .fr .fr-hero__intro,
   .fr .fr-formcard { animation: none; }
   .fr .fr-tile__img,
-  .fr .fr-faq__mark { transition: none; }
+  .fr .fr-q__btn,
+  .fr .fr-q__chev,
+  .fr .fr-q__body { transition: none; }
   .fr .fr-shelf__cue svg { animation: none; }
 }
 
 /* ================================================================ RESPONSIVE == */
 @media (max-width: 1180px) {
   .fr .fr-answers__inner { grid-template-columns: 1fr; }
-  .fr .fr-ledger__stick { position: static; }
-  .fr .fr-ledger__cta { max-width: 560px; }
+  .fr .fr-storecard { position: static; max-width: 620px; }
+  .fr .fr-pillars { grid-template-columns: repeat(2, 1fr); }
+  .fr .fr-pillar__media { aspect-ratio: 3 / 2; }
 }
 
 @media (max-width: 1024px) {
@@ -878,11 +916,8 @@
         rgba(2, 19, 48, 0.54) 45%,
         rgba(2, 19, 48, 0.74) 100%);
   }
-  .fr .fr-rail__grid { grid-template-columns: repeat(2, 1fr); gap: 30px 16px; }
-  .fr .fr-pillar,
-  .fr .fr-pillar:nth-child(even) { grid-template-columns: 1fr; gap: 26px; }
-  .fr .fr-pillar:nth-child(even) .fr-pillar__body { order: 1; }
-  .fr .fr-pillar:nth-child(even) .fr-pillar__media { order: 2; }
+  .fr .fr-rail__grid { grid-template-columns: repeat(2, 1fr); gap: 28px 16px; }
+  .fr .fr-mark { grid-template-columns: 1fr; align-items: start; }
   .fr .fr-shelf__head { grid-template-columns: 1fr; align-items: start; }
 }
 
@@ -890,13 +925,17 @@
   .fr .fr-hero { padding-top: clamp(104px, 14vh, 140px); }
   .fr .fr-hero__title { font-size: clamp(30px, 8vw, 40px); }
   .fr .fr-formcard { padding: 22px 18px; }
-  .fr .fr-mark { max-width: none; }
-  .fr .fr-pillar__body { grid-template-columns: 1fr; gap: 10px; }
-  .fr .fr-pillar__n { font-size: 40px; }
+  .fr .fr-pillars { grid-template-columns: 1fr; }
+  .fr .fr-pillar__media { aspect-ratio: 16 / 10; }
   .fr .fr-tile { width: min(78vw, 320px); height: 60vh; max-height: 460px; }
   .fr .fr-shelf__foot { flex-direction: column; align-items: flex-start; }
   .fr .fr-shelf__progress { width: 100%; }
-  .fr .fr-faq__a { padding-right: 0; }
-  .fr .fr-ledger__cta { justify-items: stretch; text-align: left; }
-  .fr .fr-ledger__cta .h26-btn { width: 100%; justify-content: center; }
+  .fr .fr-fact { flex-direction: column; align-items: flex-start; gap: 3px; }
+  .fr .fr-fact dd { text-align: left; }
+  .fr .fr-q__btn { align-items: flex-start; gap: 14px; padding: 18px 2px; }
+  .fr .fr-q__chev { margin-top: 3px; }
+  .fr .fr-q__text { padding: 0 2px 20px; font-size: 0.95rem; }
+  .fr .fr-cta__inner { flex-direction: column; align-items: flex-start; }
+  .fr .fr-cta__actions { width: 100%; }
+  .fr .fr-cta__actions .h26-btn { width: 100%; justify-content: center; }
 }

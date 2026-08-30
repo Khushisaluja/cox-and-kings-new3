@@ -10,15 +10,22 @@
    BELOW THE HERO the page is three sections and no more, because a franchise
    prospect who has already seen the form is browsing, not studying:
 
-     01 · THE OFFER    a navy counter rail out of the hero, then four pillars —
-                       each an oversized ledger numeral, a photograph on its own
-                       offset column, and a rule that draws itself in.
+     01 · WHAT YOU GET a navy counter rail out of the hero, then the four
+                       things a partner is actually buying, as ONE ROW of four
+                       photographic cards. One row, not four stacked bands —
+                       the section has to be short, and the copy is plain.
      02 · THE SHELF    what the store sells, as a PINNED HORIZONTAL TRACK: eight
-                       tiles scrubbed sideways by vertical scroll, six
-                       photographic and two set as type, with a progress rule.
-     03 · THE ANSWERS  a sticky ledger of what a store takes plus the closing
-                       CTA, beside the FAQ. "How it works" and "who can apply"
-                       live inside the FAQ rather than as sections of their own.
+                       photographic tiles scrubbed sideways by vertical scroll,
+                       with a progress rule beneath them.
+     03 · THE ANSWERS  a sticky picture-card of what a store takes, set out as a
+                       scannable spec sheet, beside the FAQ. "How it works" and
+                       "who can apply" live inside the FAQ rather than as
+                       sections of their own. A closing CTA band ends the page.
+
+   The FAQ is the same accordion the rest of the site uses (/faq2, and the
+   /gift-vouchers list it came from): a hairline rule, the question in the
+   display serif, a chevron that rotates, and a body that opens on
+   grid-template-rows 0fr → 1fr. Same behaviour, page-scoped tokens.
 
    AESTHETIC — archive editorial, not neon. The house language is unchanged:
    Cormorant Garamond display, Work Sans body, and only the design.md palette.
@@ -47,7 +54,7 @@ import { useState, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
-  Check, ArrowRight, ArrowUpRight, Mail, ShieldCheck, Send, Plus,
+  Check, ArrowRight, ArrowUpRight, Mail, ShieldCheck, Send, ChevronDown,
 } from 'lucide-react';
 import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { SiteNav, SiteFooter } from '../components/SiteChrome';
@@ -80,44 +87,45 @@ const STATS = [
 const PILLARS = [
   {
     n: '01',
-    t: 'Trade on the name',
-    b: 'Open under a globally recognised, heritage-rich brand that inspires instant trust. Two and a half centuries of credibility are above your door on the first morning — before you have sold a single holiday.',
+    t: 'The name above the door',
+    b: 'You trade as Cox & Kings — a name Indian travellers have known for generations. Customers walk in already trusting you.',
     src: img('1467269204594-9661b134dd2b'),
     alt: 'A warmly lit European street at dusk',
   },
   {
     n: '02',
     t: 'An exclusive territory',
-    b: 'A protected catchment that is yours alone, mapped and agreed in writing before you sign. No second Cox & Kings opens inside it, so every enquiry in your area — walk-in, phone or online — comes to your door.',
+    b: 'Your catchment is mapped and agreed in writing before you sign. No second Cox & Kings opens inside it.',
     src: img('1524661135-423995f22d0b'),
     alt: 'A vintage printed world map',
   },
   {
     n: '03',
-    t: 'A store, ready to run',
-    b: 'Location guidance, design, branding, fit-out and launch marketing. We hand over an outlet that is already trading-ready, with your consultants trained on the product and the systems before the doors open.',
+    t: 'A store, set up for you',
+    b: 'We handle the site, the design, the fit-out and the training. You take over a store that is ready to trade.',
     src: img('1571896349842-33c89424de2d'),
     alt: 'A glass-fronted building lit from within at dusk',
   },
   {
     n: '04',
-    t: 'The whole supply chain',
-    b: 'One platform sells flights, hotels, cruises, visas, currency and holidays across a hundred countries, with CRM, MIS dashboards, central contracting and 24/7 on-tour support standing behind every booking you make.',
+    t: 'Systems and supply',
+    b: 'One platform books flights, hotels, cruises, visas, currency and holidays, with our contracts in 100+ countries behind it.',
     src: img('1526392060635-9d6019884377'),
     alt: 'Machu Picchu in early morning cloud',
   },
 ];
 
-/* OUR PRODUCTS — the shelf a franchise store trades. Six photographic tiles and
-   two set as type: the services that have no honest photograph earn a typographic
-   tile instead of a decorative stand-in, which also breaks the track's rhythm. */
+/* The picture on the "what a store takes" card. */
+const STORE_IMG = img('1782177388316-7546da332c3a', 1000);
+
+/* OUR PRODUCTS — the shelf a franchise store trades, every line photographed. */
 const SHELF = [
   { k: 'Holidays', t: 'International holidays', b: 'Escorted group tours and private, tailor-made journeys across 100+ countries.', src: img('1516426122078-c23e76319801', 900), alt: 'A cliffside village on the Italian coast' },
   { k: 'India', t: 'India & short breaks', b: 'Weekend escapes, family holidays and the whole of India, in every season.', src: img('1524492412937-b28074a5d7da', 900), alt: 'The Taj Mahal reflected in its water channel' },
-  { k: 'Documents', t: 'Visas & passports', b: 'Documentation, appointments and end-to-end visa handling for every walk-in.', type: 'sienna' },
+  { k: 'Documents', t: 'Visas & passports', b: 'Documentation, appointments and end-to-end visa handling for every walk-in.', src: img('1581553673739-c4906b5d0de8', 900), alt: 'An open passport covered in coloured entry stamps' },
   { k: 'Air & stay', t: 'Flights & hotels', b: 'Domestic and international air, and a global hotel inventory at trade rates.', src: img('1546708973-b339540b5162', 900), alt: 'A palm-lined resort pool under blue sky' },
   { k: 'At sea', t: 'Cruises', b: 'Ocean, river and expedition sailings with the world’s leading cruise lines.', src: img('1506973035872-a4ec16b8e8d9', 900), alt: 'Boats crossing a wide city harbour' },
-  { k: 'Currency', t: 'Foreign exchange', b: 'Notes and multi-currency forex cards for every outbound traveller you serve.', type: 'navy' },
+  { k: 'Currency', t: 'Foreign exchange', b: 'Notes and multi-currency forex cards for every outbound traveller you serve.', src: img('1591033594798-33227a05780d', 900), alt: 'Banknotes from several countries fanned out' },
   { k: 'Business', t: 'Corporate & MICE', b: 'Meetings, incentives, conferences and exhibitions for your local businesses.', src: img('1521737604893-d14cc237f11d', 900), alt: 'Colleagues working together around a table' },
   { k: 'Occasions', t: 'Honeymoons & celebrations', b: 'Honeymoons, anniversaries and destination-wedding groups, planned end to end.', src: img('1514282401047-d79a71a590e8', 900), alt: 'Overwater villas on a turquoise lagoon' },
 ];
@@ -127,12 +135,12 @@ const ALSO = ['Travel insurance', 'Student & education travel', 'Rail & transfer
 /* The practical numbers, so nobody has to write in to learn whether they are
    in range. This is where the old investment-capacity form field went. */
 const FACTS = [
-  { k: 'Store size', v: '250–500 sq ft, high street or mall' },
-  { k: 'Investment', v: '₹15–50 lakh, by city and catchment' },
-  { k: 'Your team', v: '2–4 consultants, trained by us' },
-  { k: 'Territory', v: 'Exclusive, agreed before you sign' },
-  { k: 'Time to open', v: 'Typically 8–12 weeks from applying' },
-  { k: 'Experience', v: 'Helpful, but genuinely not required' },
+  { k: 'Store size', v: '250–500 sq ft' },
+  { k: 'Investment', v: '₹15–50 lakh' },
+  { k: 'Your team', v: '2–4 consultants' },
+  { k: 'Territory', v: 'Exclusive to you' },
+  { k: 'Time to open', v: '8–12 weeks' },
+  { k: 'Experience', v: 'Not required' },
 ];
 
 /* "How it works" and "who can apply" are answers here rather than sections of
@@ -250,6 +258,62 @@ function FranchiseForm() {
   );
 }
 
+/* ------------------------------------------------------------------- FAQ
+   The site's own accordion — the /faq2 row, which itself came from the
+   /gift-vouchers list: a hairline rule, the question in the display serif, a
+   chevron that rotates, and a body that opens on grid-template-rows 0fr → 1fr.
+   It holds its own state so the page around it (and the stat counters GSAP has
+   written into) never re-renders when a question opens. */
+function Question({ item, open, onToggle, id }) {
+  return (
+    <li className={`fr-q${open ? ' is-open' : ''}`}>
+      <h3 className="fr-q__h">
+        <button
+          type="button"
+          className="fr-q__btn"
+          aria-expanded={open}
+          aria-controls={`${id}-panel`}
+          id={`${id}-btn`}
+          onClick={onToggle}
+        >
+          <span>{item.q}</span>
+          <ChevronDown size={18} className="fr-q__chev" aria-hidden="true" />
+        </button>
+      </h3>
+      <div className="fr-q__body" id={`${id}-panel`} role="region" aria-labelledby={`${id}-btn`}>
+        <div className="fr-q__bodyin">
+          <p className="fr-q__text">{item.a}</p>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function FranchiseFaq() {
+  /* One open at a time; every answer starts closed. */
+  const [openKey, setOpenKey] = useState(null);
+  return (
+    <div className="fr-faq">
+      <ul className="fr-qs">
+        {FAQS.map((item, i) => (
+          <Question
+            key={item.q}
+            id={`fr-q${i}`}
+            item={item}
+            open={openKey === i}
+            onToggle={() => setOpenKey(openKey === i ? null : i)}
+          />
+        ))}
+      </ul>
+      <p className="fr-faq__more">
+        Still something unanswered? Write to{' '}
+        <a href={`mailto:${EMAIL}`}>{EMAIL}</a> and a franchise development
+        manager will answer it directly.
+      </p>
+    </div>
+  );
+}
+
 export default function Franchise() {
   const root = useRef(null);
 
@@ -300,12 +364,14 @@ export default function Franchise() {
           });
         });
 
-        /* Each pillar photograph travels slower than the type beside it. */
+        /* The four card photographs drift against the scroll. The range is
+           small because they sit side by side — four big travels in one row
+           would read as wobble, not depth. */
         gsap.utils.toArray('.fr-pillar__media').forEach((el) => {
           gsap.fromTo(el.querySelector('img'),
-            { yPercent: -7, scale: 1.2 },
+            { yPercent: -5, scale: 1.16 },
             {
-              yPercent: 7, scale: 1.2, ease: 'none',
+              yPercent: 5, scale: 1.16, ease: 'none',
               scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true, invalidateOnRefresh: true },
             });
         });
@@ -394,52 +460,50 @@ export default function Franchise() {
         </div>
       </header>
 
-      {/* ==================================================== 01 · THE OFFER ==== */}
+      {/* ================================================= 01 · WHAT YOU GET ==== */}
       <section className="fr-offer" aria-labelledby="fr-offer-h">
         {/* The counter rail rides out of the hero on the same navy, so the two
             read as one block before the page turns to paper. */}
         <div className="fr-rail">
           <dl className="fr-rail__grid" data-stagger>
-            {STATS.map((s) => (
-              <div className="fr-rail__stat" key={s.l}>
+            {STATS.map((s2) => (
+              <div className="fr-rail__stat" key={s2.l}>
                 <dt className="fr-rail__n">
-                  <span data-count={s.count}>{s.n}</span>
-                  {s.sup && <i className="fr-rail__sup">{s.sup}</i>}
+                  <span data-count={s2.count}>{s2.n}</span>
+                  {s2.sup && <i className="fr-rail__sup">{s2.sup}</i>}
                 </dt>
-                <dd className="fr-rail__l">{s.l}</dd>
+                <dd className="fr-rail__l">{s2.l}</dd>
               </div>
             ))}
           </dl>
         </div>
 
         <div className="fr-wrap">
-          <header className="fr-mark" data-lines>
-            <p className="fr-index"><span className="fr-index__n">01</span> The offer</p>
-            <h2 className="fr-display" id="fr-offer-h">
-              <span className="fr-line"><span>You bring the high street.</span></span>
-              <span className="fr-line"><span>We bring the <em>other 267 years</em>.</span></span>
-            </h2>
+          <header className="fr-mark">
+            <div data-lines>
+              <p className="fr-index"><span className="fr-index__n">01</span> What you get</p>
+              <h2 className="fr-display" id="fr-offer-h">
+                <span className="fr-line"><span>What comes with a</span></span>
+                <span className="fr-line"><span>Cox &amp; Kings <em>franchise</em>.</span></span>
+              </h2>
+            </div>
             <p className="fr-mark__lead" data-reveal>
-              A franchise is not a licence to use a logo. It is a working business
-              handed over trading-ready — the territory, the storefront, the systems
-              and the supply behind them.
+              You own the store and run it. We provide the brand, the territory,
+              the systems and the supply behind them.
             </p>
           </header>
 
-          <ol className="fr-pillars">
-            {PILLARS.map((p) => (
-              <li className="fr-pillar" key={p.n}>
-                <span className="fr-pillar__rule" data-rule aria-hidden="true" />
-                <div className="fr-pillar__body">
-                  <span className="fr-pillar__n" aria-hidden="true">{p.n}</span>
-                  <div data-reveal>
-                    <h3 className="fr-pillar__t">{p.t}</h3>
-                    <p className="fr-pillar__b">{p.b}</p>
-                  </div>
-                </div>
+          {/* One row of four, not four stacked bands — this section has to stay
+              short, so the cards carry the images and the copy stays brief. */}
+          <ol className="fr-pillars" data-stagger>
+            {PILLARS.map((p2) => (
+              <li className="fr-pillar" key={p2.n}>
                 <figure className="fr-pillar__media">
-                  <img src={p.src} alt={p.alt} loading="lazy" decoding="async" />
+                  <img src={p2.src} alt={p2.alt} loading="lazy" decoding="async" />
+                  <span className="fr-pillar__n" aria-hidden="true">{p2.n}</span>
                 </figure>
+                <h3 className="fr-pillar__t">{p2.t}</h3>
+                <p className="fr-pillar__b">{p2.b}</p>
               </li>
             ))}
           </ol>
@@ -497,55 +561,52 @@ export default function Franchise() {
       {/* ================================================== 03 · THE ANSWERS ==== */}
       <section className="fr-answers" aria-labelledby="fr-answers-h">
         <div className="fr-wrap fr-answers__inner">
-          {/* Sticky ledger — the numbers, then the way back to the form. */}
+          {/* The numbers, as a picture-card and a spec sheet — six rows a
+              visitor can read in one pass and know whether they are in range. */}
           <div className="fr-ledger">
-            <div className="fr-ledger__stick">
-              <p className="fr-index"><span className="fr-index__n">03</span> The answers</p>
-              <h2 className="fr-display fr-display--sm" id="fr-answers-h" data-lines>
-                <span className="fr-line"><span>What a store</span></span>
-                <span className="fr-line"><span>actually <em>takes</em>.</span></span>
-              </h2>
-              <dl className="fr-facts" data-stagger>
-                {FACTS.map(({ k, v }) => (
-                  <div className="fr-fact" key={k}>
-                    <dt>{k}</dt>
-                    <dd>{v}</dd>
-                  </div>
-                ))}
-              </dl>
-              <p className="fr-ledger__note">
-                Indicative only — the real numbers depend on your city and catchment,
-                and we walk through them with you before anything is signed.
-              </p>
-
-              <div className="fr-ledger__cta" data-reveal>
-                <h3 className="fr-ledger__cta-h">Ready to open a Cox &amp; Kings?</h3>
-                <a href="#fr-form" className="h26-btn h26-btn-pill h26-btn-lg">
-                  Fill out the form <ArrowRight size={15} aria-hidden="true" />
-                </a>
-                <Link to={CALLBACK} className="fr-ledger__link">
-                  Prefer we schedule a call? <ArrowUpRight size={15} aria-hidden="true" />
-                </Link>
+            <aside className="fr-storecard">
+              <figure className="fr-storecard__media">
+                <img src={STORE_IMG} alt="A timber-fitted shop interior with a wall of cabinet drawers" loading="lazy" decoding="async" />
+              </figure>
+              <div className="fr-storecard__body">
+                <p className="fr-index"><span className="fr-index__n">03</span> The answers</p>
+                <h2 className="fr-storecard__h" id="fr-answers-h">What a store actually takes</h2>
+                <dl className="fr-facts">
+                  {FACTS.map(({ k, v }) => (
+                    <div className="fr-fact" key={k}>
+                      <dt>{k}</dt>
+                      <dd>{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="fr-storecard__note">
+                  Indicative only — high street or mall, and the investment moves
+                  with your city and catchment. We go through the real numbers
+                  with you before anything is signed.
+                </p>
               </div>
-            </div>
+            </aside>
           </div>
 
-          {/* Native <details> — no state, no JS, and find-in-page still works. */}
-          <div className="fr-faq">
-            {FAQS.map(({ q, a }) => (
-              <details className="fr-faq__item" key={q}>
-                <summary className="fr-faq__q">
-                  <span>{q}</span>
-                  <span className="fr-faq__mark" aria-hidden="true"><Plus size={17} strokeWidth={1.8} /></span>
-                </summary>
-                <p className="fr-faq__a">{a}</p>
-              </details>
-            ))}
-            <p className="fr-faq__more">
-              Still something unanswered? Write to{' '}
-              <a href={`mailto:${EMAIL}`}>{EMAIL}</a> and a franchise development
-              manager will answer it directly.
-            </p>
+          <FranchiseFaq />
+        </div>
+      </section>
+
+      {/* ============================================================== CLOSING CTA */}
+      <section className="fr-cta" aria-labelledby="fr-cta-h">
+        <div className="fr-wrap fr-cta__inner">
+          <div>
+            <p className="fr-eyebrow fr-eyebrow--light">Become a franchise partner</p>
+            <h2 className="fr-cta__h" id="fr-cta-h">Ready to open a Cox &amp; Kings?</h2>
+            <p className="fr-cta__p">No commitment, no obligation — just a conversation about the opportunity in your city.</p>
+          </div>
+          <div className="fr-cta__actions">
+            <a href="#fr-form" className="h26-btn h26-btn-pill h26-btn-lg">
+              Fill out the form <ArrowRight size={15} aria-hidden="true" />
+            </a>
+            <Link to={CALLBACK} className="fr-cta__link">
+              Prefer we schedule a call? <ArrowUpRight size={15} aria-hidden="true" />
+            </Link>
           </div>
         </div>
       </section>
