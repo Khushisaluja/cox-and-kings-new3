@@ -81,6 +81,14 @@
 
 .fr .fr-section { padding-block: clamp(56px, 6.5vw, 104px); }
 .fr .fr-head { max-width: 760px; margin: 0 0 clamp(32px, 4vw, 52px); }
+.fr .fr-head__lead {
+  font-family: var(--sans);
+  font-size: clamp(14.5px, 1.15vw, 16px);
+  line-height: 1.65;
+  color: var(--n-800);
+  margin: 16px 0 0;
+  max-width: 62ch;
+}
 
 /* ============================================================ HERO + FORM ==== */
 .fr .fr-hero {
@@ -227,11 +235,6 @@
 
 /* ---------------------------------------------------------------- the form -- */
 .fr .fr-form { display: grid; gap: 14px; }
-.fr .fr-field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
 .fr .fr-field { display: grid; gap: 6px; }
 .fr .fr-field label {
   font-family: var(--sans);
@@ -442,6 +445,210 @@
   margin: 0;
 }
 
+/* ============================================================ OUR PRODUCTS ==== */
+/* A bordered inventory grid: 1px gaps over a Neutrals/200 ground draw the rules
+   between cells, so twelve lines read as a shelf and not as twelve more cards. */
+.fr .fr-prod { background: var(--n-0); }
+.fr .fr-prodgrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--n-200);
+  border: 1px solid var(--n-200);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.fr .fr-prod__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--n-0);
+  padding: 24px 22px;
+  transition: background 0.2s ease;
+}
+.fr .fr-prod__item:hover { background: var(--n-50); }
+.fr .fr-prod__ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(11, 90, 177, 0.08);
+  color: var(--vb-500);
+}
+.fr .fr-prod__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--n-900);
+  margin: 2px 0 6px;
+}
+.fr .fr-prod__b {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--n-800);
+  margin: 0;
+}
+
+/* ============================================================ WHO CAN APPLY ==== */
+.fr .fr-who { background: var(--n-50); }
+.fr .fr-who__inner {
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 420px);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+}
+.fr .fr-who__copy .fr-h2 { max-width: 18ch; }
+.fr .fr-who__lead {
+  font-family: var(--sans);
+  font-size: clamp(14.5px, 1.15vw, 16px);
+  line-height: 1.65;
+  color: var(--n-800);
+  margin: 16px 0 26px;
+  max-width: 52ch;
+}
+.fr .fr-who__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 13px;
+}
+.fr .fr-who__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--n-900);
+}
+.fr .fr-who__list svg { color: var(--vb-500); flex: none; margin-top: 3px; }
+
+/* The facts panel — a definition list, ruled, no card-in-card. */
+.fr .fr-who__panel {
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: 16px;
+  padding: clamp(22px, 2.2vw, 30px);
+}
+.fr .fr-who__panel-h {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--n-900);
+  margin: 0 0 16px;
+}
+.fr .fr-facts { margin: 0; }
+.fr .fr-fact {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--n-150);
+}
+.fr .fr-fact:last-child { border-bottom: 0; padding-bottom: 4px; }
+.fr .fr-fact dt {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--n-600);
+}
+.fr .fr-fact dd {
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--n-900);
+  margin: 0;
+}
+.fr .fr-who__panel-note {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--n-700);
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--n-150);
+}
+
+/* ==================================================================== FAQ ===== */
+/* Native <details>. No state, no JS, and find-in-page still reaches the
+   answers in browsers that search collapsed content. */
+.fr .fr-faq { background: var(--n-0); }
+.fr .fr-faq__list {
+  max-width: 900px;
+  border-top: 1px solid var(--n-200);
+}
+.fr .fr-faq__item { border-bottom: 1px solid var(--n-200); }
+.fr .fr-faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 2px;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(17px, 1.5vw, 20px);
+  line-height: 1.3;
+  color: var(--n-900);
+  transition: color 0.18s ease;
+}
+.fr .fr-faq__q::-webkit-details-marker { display: none; }
+.fr .fr-faq__q:hover { color: var(--vb-500); }
+.fr .fr-faq__q:focus-visible {
+  outline: 2px solid var(--vb-500);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.fr .fr-faq__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--n-200);
+  color: var(--vb-500);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease;
+}
+.fr .fr-faq__item[open] .fr-faq__mark {
+  transform: rotate(45deg);
+  background: rgba(11, 90, 177, 0.08);
+}
+.fr .fr-faq__a {
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.68;
+  color: var(--n-800);
+  margin: 0 0 22px;
+  padding-right: 50px;
+  max-width: 78ch;
+}
+.fr .fr-faq__more {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--n-700);
+  margin: 26px 0 0;
+}
+.fr .fr-faq__more a {
+  color: var(--vb-500);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.fr .fr-faq__more a:hover { color: var(--vb-hover); }
+
 /* ============================================================= CLOSING CTA ==== */
 .fr .fr-cta {
   background: var(--nd-900);
@@ -500,7 +707,9 @@
 @media (prefers-reduced-motion: reduce) {
   .fr .fr-hero__intro,
   .fr .fr-formcard { animation: none; }
-  .fr .fr-card { transition: none; }
+  .fr .fr-card,
+  .fr .fr-prod__item,
+  .fr .fr-faq__mark { transition: none; }
 }
 
 /* ================================================================ RESPONSIVE == */
@@ -517,16 +726,22 @@
   }
   .fr .fr-cards,
   .fr .fr-steps { grid-template-columns: repeat(2, 1fr); }
+  .fr .fr-prodgrid { grid-template-columns: repeat(2, 1fr); }
+  .fr .fr-who__inner { grid-template-columns: 1fr; }
+  .fr .fr-who__copy .fr-h2 { max-width: 24ch; }
+  .fr .fr-who__panel { max-width: 560px; }
 }
 
 @media (max-width: 640px) {
   .fr .fr-hero { padding-top: clamp(104px, 14vh, 140px); }
   .fr .fr-hero__title { font-size: clamp(30px, 8vw, 40px); }
   .fr .fr-formcard { padding: 22px 18px; }
-  .fr .fr-field-row { grid-template-columns: 1fr; }
   .fr .fr-stats__grid { grid-template-columns: repeat(2, 1fr); gap: 22px 16px; }
   .fr .fr-cards,
-  .fr .fr-steps { grid-template-columns: 1fr; }
+  .fr .fr-steps,
+  .fr .fr-prodgrid { grid-template-columns: 1fr; }
+  .fr .fr-prod__item { padding: 20px 18px; }
+  .fr .fr-faq__a { padding-right: 0; }
   .fr .fr-cta__inner { flex-direction: column; align-items: flex-start; }
   .fr .fr-cta__actions { width: 100%; }
   .fr .fr-cta__actions .h26-btn { width: 100%; }
