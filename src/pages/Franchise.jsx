@@ -17,15 +17,13 @@
      02 · THE SHELF    what the store sells, as a PINNED HORIZONTAL TRACK: eight
                        photographic tiles scrubbed sideways by vertical scroll,
                        with a progress rule beneath them.
-     03 · THE ANSWERS  a sticky picture-card of what a store takes, set out as a
-                       scannable spec sheet, beside the FAQ. "How it works" and
-                       "who can apply" live inside the FAQ rather than as
-                       sections of their own. A closing CTA band ends the page.
-
-   The FAQ is the same accordion the rest of the site uses (/faq2, and the
-   /gift-vouchers list it came from): a hairline rule, the question in the
-   display serif, a chevron that rotates, and a body that opens on
-   grid-template-rows 0fr → 1fr. Same behaviour, page-scoped tokens.
+     03 · THE ANSWERS  the FAQ, built to the /mice pattern exactly — heading
+                       block in a 4fr column, the questions in a 7fr column
+                       beside it, ruled top and bottom, chevrons that rotate,
+                       and more than one answer open at a time. "How it works",
+                       "who can apply" and what a store costs are all answers
+                       here rather than sections of their own. A closing CTA
+                       band ends the page.
 
    AESTHETIC — archive editorial, not neon. The house language is unchanged:
    Cormorant Garamond display, Work Sans body, and only the design.md palette.
@@ -50,11 +48,11 @@
                              you own and operate under the name.
    ========================================================================== */
 
-import { useState, useLayoutEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
-  Check, ArrowRight, ArrowUpRight, Mail, ShieldCheck, Send, ChevronDown,
+  Check, ArrowRight, ArrowUpRight, Mail, ShieldCheck, Send, ChevronDown, Briefcase,
 } from 'lucide-react';
 import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { SiteNav, SiteFooter } from '../components/SiteChrome';
@@ -79,8 +77,8 @@ const img = (id, w = 1200) =>
    the page before (and without) JavaScript. */
 const STATS = [
   { n: '1758', count: 1758, l: 'Established' },
-  { n: '267', count: 267, l: 'Years of travel' },
-  { n: '100', count: 100, sup: '+', l: 'Countries supplied' },
+  { n: '260', count: 260, sup: '+', l: 'Years of travel' },
+  { n: '100', count: 100, sup: '+', l: 'Destinations' },
   { n: '20', count: 20, sup: '+', l: 'Franchise stores' },
 ];
 
@@ -109,18 +107,15 @@ const PILLARS = [
   {
     n: '04',
     t: 'Systems and supply',
-    b: 'One platform books flights, hotels, cruises, visas, currency and holidays, with our contracts in 100+ countries behind it.',
+    b: 'One platform books flights, hotels, cruises, visas, currency and holidays, with our contracts in 100+ destinations behind it.',
     src: img('1526392060635-9d6019884377'),
     alt: 'Machu Picchu in early morning cloud',
   },
 ];
 
-/* The picture on the "what a store takes" card. */
-const STORE_IMG = img('1782177388316-7546da332c3a', 1000);
-
 /* OUR PRODUCTS — the shelf a franchise store trades, every line photographed. */
 const SHELF = [
-  { k: 'Holidays', t: 'International holidays', b: 'Escorted group tours and private, tailor-made journeys across 100+ countries.', src: img('1516426122078-c23e76319801', 900), alt: 'A cliffside village on the Italian coast' },
+  { k: 'Holidays', t: 'International holidays', b: 'Escorted group tours and private, tailor-made journeys across 100+ destinations.', src: img('1516426122078-c23e76319801', 900), alt: 'A cliffside village on the Italian coast' },
   { k: 'India', t: 'India & short breaks', b: 'Weekend escapes, family holidays and the whole of India, in every season.', src: img('1524492412937-b28074a5d7da', 900), alt: 'The Taj Mahal reflected in its water channel' },
   { k: 'Documents', t: 'Visas & passports', b: 'Documentation, appointments and end-to-end visa handling for every walk-in.', src: img('1581553673739-c4906b5d0de8', 900), alt: 'An open passport covered in coloured entry stamps' },
   { k: 'Air & stay', t: 'Flights & hotels', b: 'Domestic and international air, and a global hotel inventory at trade rates.', src: img('1546708973-b339540b5162', 900), alt: 'A palm-lined resort pool under blue sky' },
@@ -132,19 +127,9 @@ const SHELF = [
 
 const ALSO = ['Travel insurance', 'Student & education travel', 'Rail & transfers', 'Gift vouchers'];
 
-/* The practical numbers, so nobody has to write in to learn whether they are
-   in range. This is where the old investment-capacity form field went. */
-const FACTS = [
-  { k: 'Store size', v: '250–500 sq ft' },
-  { k: 'Investment', v: '₹15–50 lakh' },
-  { k: 'Your team', v: '2–4 consultants' },
-  { k: 'Territory', v: 'Exclusive to you' },
-  { k: 'Time to open', v: '8–12 weeks' },
-  { k: 'Experience', v: 'Not required' },
-];
-
-/* "How it works" and "who can apply" are answers here rather than sections of
-   their own — the page stays short and nothing is lost. */
+/* "How it works", "who can apply" and what a store costs are all answers here
+   rather than sections of their own, so the page stays short and nothing that
+   was on it is lost. */
 const FAQS = [
   {
     q: 'Do I need experience in travel to apply?',
@@ -153,6 +138,10 @@ const FAQS = [
   {
     q: 'What happens after I send the form?',
     a: 'Four stages. A franchise development manager reads your enquiry and replies within two working days to talk through your city, the territory and the investment. If it fits both sides, we agree the catchment and the site. We then handle the fit-out, install the technology and train you and your team. Finally you open under the Cox & Kings name with a launch marketing push behind you — typically eight to twelve weeks from that first email.',
+  },
+  {
+    q: 'How much space and money does a store need?',
+    a: 'A high-street or mall unit of roughly 250–500 sq ft, and an investment in the ₹15–50 lakh range, with two to four consultants on the floor once you are trading. Both move with your city and your catchment — a metro high street and a tier-2 market are not the same business — so treat these as the range rather than the number. Your franchise development manager works out the real figure for your location before anything is signed.',
   },
   {
     q: 'What does the investment actually cover?',
@@ -196,8 +185,80 @@ const HERO_POINTS = [
   'A protected, exclusive territory',
   'Full store setup & branding',
   'End-to-end technology & training',
-  'A supply chain across 100+ countries',
+  'A supply chain across 100+ destinations',
 ];
+
+/* ---------------------------------------------------------------- the picker
+   A native <select> is drawn by the operating system: it cannot take the
+   site's paper, its radii, its blue or Work Sans, so it was the one control in
+   the form that looked like it came from somewhere else. This is the /faq2
+   topic picker (.fq2-pick, itself the journeys sort dropdown) rebuilt as a
+   FORM FIELD rather than a filter pill — same trigger, same popover, same
+   check against the option in force, but sized and coloured to sit in the
+   column with the three text inputs above it.
+
+   <button> is a labelable element, so the field's <label for> still points at
+   it and clicking the label still opens the menu. */
+function SourcePicker({ value, onChange, id }) {
+  const [open, setOpen] = useState(false);
+  const wrap = useRef(null);
+  const btn = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDoc = (e) => { if (wrap.current && !wrap.current.contains(e.target)) setOpen(false); };
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      setOpen(false);
+      btn.current?.focus();      /* Escape puts the caret back on the trigger */
+    };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const pick = (t) => { onChange(t); setOpen(false); btn.current?.focus(); };
+
+  return (
+    <div className="fr-pick" ref={wrap}>
+      <button
+        type="button"
+        id={id}
+        ref={btn}
+        className={`fr-pick__btn${open ? ' is-open' : ''}${value ? ' has-value' : ''}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <Briefcase size={15} className="fr-pick__ic" aria-hidden="true" />
+        <span className="fr-pick__val">{value || 'Select one'}</span>
+        <ChevronDown size={16} className="fr-pick__chev" aria-hidden="true" />
+      </button>
+
+      {open && (
+        <ul className="fr-pick__pop" role="listbox" aria-label="Where you&apos;re coming from">
+          {SOURCE.map((t) => (
+            <li key={t}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={value === t}
+                className={`fr-pick__opt${value === t ? ' is-on' : ''}`}
+                onClick={() => pick(t)}
+              >
+                <span>{t}</span>
+                {value === t && <Check size={15} aria-hidden="true" />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 /* ------------------------------------------------------------------- form
    Four fields and an optional note. Pure controlled state, no side-effects.
@@ -241,10 +302,11 @@ function FranchiseForm() {
       </div>
       <div className="fr-field">
         <label htmlFor="fr-source">Where you&apos;re coming from</label>
-        <select id="fr-source" value={form.source} onChange={set('source')} required>
-          <option value="" disabled>Select one</option>
-          {SOURCE.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
+        <SourcePicker
+          id="fr-source"
+          value={form.source}
+          onChange={(v) => setForm((f) => ({ ...f, source: v }))}
+        />
       </div>
       <div className="fr-field">
         <label htmlFor="fr-msg">Anything we should know <span className="fr-optional">(optional)</span></label>
@@ -259,51 +321,42 @@ function FranchiseForm() {
 }
 
 /* ------------------------------------------------------------------- FAQ
-   The site's own accordion — the /faq2 row, which itself came from the
-   /gift-vouchers list: a hairline rule, the question in the display serif, a
-   chevron that rotates, and a body that opens on grid-template-rows 0fr → 1fr.
-   It holds its own state so the page around it (and the stat counters GSAP has
-   written into) never re-renders when a question opens. */
-function Question({ item, open, onToggle, id }) {
-  return (
-    <li className={`fr-q${open ? ' is-open' : ''}`}>
-      <h3 className="fr-q__h">
-        <button
-          type="button"
-          className="fr-q__btn"
-          aria-expanded={open}
-          aria-controls={`${id}-panel`}
-          id={`${id}-btn`}
-          onClick={onToggle}
-        >
-          <span>{item.q}</span>
-          <ChevronDown size={18} className="fr-q__chev" aria-hidden="true" />
-        </button>
-      </h3>
-      <div className="fr-q__body" id={`${id}-panel`} role="region" aria-labelledby={`${id}-btn`}>
-        <div className="fr-q__bodyin">
-          <p className="fr-q__text">{item.a}</p>
-        </div>
-      </div>
-    </li>
-  );
-}
+   Built to the /mice accordion exactly: a heading block in its own column, the
+   questions ruled top and bottom beside it, the question set in Work Sans at
+   16px rather than the display serif, and a chevron that rotates.
 
+   More than one answer may be open at a time, as on /mice — an accordion that
+   shuts your previous answer when you open the next is hostile to anyone
+   comparing two of them. It holds its own state so the page around it never
+   re-renders under the stat counters GSAP has written into. */
 function FranchiseFaq() {
-  /* One open at a time; every answer starts closed. */
-  const [openKey, setOpenKey] = useState(null);
+  const [open, setOpen] = useState([]);
+  const toggle = (i) => setOpen((o) => (o.includes(i) ? o.filter((x) => x !== i) : [...o, i]));
+
   return (
-    <div className="fr-faq">
-      <ul className="fr-qs">
-        {FAQS.map((item, i) => (
-          <Question
-            key={item.q}
-            id={`fr-q${i}`}
-            item={item}
-            open={openKey === i}
-            onToggle={() => setOpenKey(openKey === i ? null : i)}
-          />
-        ))}
+    <div>
+      <ul className="fr-faq__list">
+        {FAQS.map((f, i) => {
+          const isOpen = open.includes(i);
+          return (
+            <li key={f.q} className={isOpen ? 'is-open' : ''}>
+              <h3>
+                <button
+                  type="button"
+                  aria-expanded={isOpen}
+                  aria-controls={`fr-faq-${i}`}
+                  onClick={() => toggle(i)}
+                >
+                  <span>{f.q}</span>
+                  <ChevronDown size={18} aria-hidden="true" />
+                </button>
+              </h3>
+              <div className="fr-faq__a" id={`fr-faq-${i}`} hidden={!isOpen}>
+                <p>{f.a}</p>
+              </div>
+            </li>
+          );
+        })}
       </ul>
       <p className="fr-faq__more">
         Still something unanswered? Write to{' '}
@@ -560,33 +613,15 @@ export default function Franchise() {
 
       {/* ================================================== 03 · THE ANSWERS ==== */}
       <section className="fr-answers" aria-labelledby="fr-answers-h">
-        <div className="fr-wrap fr-answers__inner">
-          {/* The numbers, as a picture-card and a spec sheet — six rows a
-              visitor can read in one pass and know whether they are in range. */}
-          <div className="fr-ledger">
-            <aside className="fr-storecard">
-              <figure className="fr-storecard__media">
-                <img src={STORE_IMG} alt="A timber-fitted shop interior with a wall of cabinet drawers" loading="lazy" decoding="async" />
-              </figure>
-              <div className="fr-storecard__body">
-                <p className="fr-index"><span className="fr-index__n">03</span> The answers</p>
-                <h2 className="fr-storecard__h" id="fr-answers-h">What a store actually takes</h2>
-                <dl className="fr-facts">
-                  {FACTS.map(({ k, v }) => (
-                    <div className="fr-fact" key={k}>
-                      <dt>{k}</dt>
-                      <dd>{v}</dd>
-                    </div>
-                  ))}
-                </dl>
-                <p className="fr-storecard__note">
-                  Indicative only — high street or mall, and the investment moves
-                  with your city and catchment. We go through the real numbers
-                  with you before anything is signed.
-                </p>
-              </div>
-            </aside>
-          </div>
+        <div className="fr-wrap fr-faq__grid">
+          <header className="fr-faq__head">
+            <p className="fr-faq__eyebrow">FAQ</p>
+            <h2 id="fr-answers-h" className="fr-faq__h">Frequently Asked Questions</h2>
+            <p className="fr-faq__lede">
+              The things people ask before they open one — what it costs, who it
+              suits, and what happens after the form.
+            </p>
+          </header>
 
           <FranchiseFaq />
         </div>
