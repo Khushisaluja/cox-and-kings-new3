@@ -1,20 +1,37 @@
 /* ============================================================================
    Cox & Kings India — BECOME A FRANCHISE PARTNER   (route: /franchise)
 
-   Form-first, minimal — same shape as /collaborate and /become-a-partner. The
-   FORM is the hero: top-right, above the fold, fillable the instant the page
-   loads. Everything below informs; nothing gates the form. The one job of the
-   page is "fill out the form below to get started".
+   THE HERO is form-first and untouched: the pitch on the left, the enquiry form
+   top-right, fillable the instant the page loads. It asks four things and
+   nothing more — full name, email, city, and where you're coming from. There is
+   no phone number anywhere on this page; the enquiry is answered by email, and
+   email is the only contact channel the page shows.
 
-   The form asks four things and nothing more — name, email, city, and where
-   you're coming from. No phone number anywhere on this page: the enquiry is
-   answered by email, which is also the only contact channel the page shows.
+   BELOW THE HERO the page is three sections and no more, because a franchise
+   prospect who has already seen the form is browsing, not studying:
 
-   Below the form the page is browsable, in the shape Thomas Cook's franchise
-   page uses: what the business IS (why), what you SELL (our products), how you
-   GET there (steps), whether you QUALIFY (who can apply), and the questions
-   everyone asks (FAQ) — so a visitor who isn't ready to fill the form still has
-   somewhere to go before they leave.
+     01 · THE OFFER    a navy counter rail out of the hero, then four pillars —
+                       each an oversized ledger numeral, a photograph on its own
+                       offset column, and a rule that draws itself in.
+     02 · THE SHELF    what the store sells, as a PINNED HORIZONTAL TRACK: eight
+                       tiles scrubbed sideways by vertical scroll, six
+                       photographic and two set as type, with a progress rule.
+     03 · THE ANSWERS  a sticky ledger of what a store takes plus the closing
+                       CTA, beside the FAQ. "How it works" and "who can apply"
+                       live inside the FAQ rather than as sections of their own.
+
+   AESTHETIC — archive editorial, not neon. The house language is unchanged:
+   Cormorant Garamond display, Work Sans body, and only the design.md palette.
+   What carries it is precision — oversized numerals, hairline rules, index
+   marks set in the margin like a ledger, and photography that travels at a
+   different speed to the type.
+
+   MOTION — GSAP + ScrollTrigger, all of it inside gsap.matchMedia() gated on
+   (prefers-reduced-motion: no-preference). NOTHING is hidden in CSS: every
+   resting state is the visible one and GSAP owns the from-state, so a
+   reduced-motion visitor — or a GSAP failure — gets the full, static page. The
+   pinned shelf is gated on (min-width: 1025px) too; below that the same track
+   is a native scroll-snap carousel, with no pin and no transform.
 
    How this differs from the two sibling partner pages:
      · /become-a-partner  → Preferred SALES Partner: agents/consultants who
@@ -24,95 +41,110 @@
                              store: an exclusive territory, store setup, the
                              technology, training and supply chain — a business
                              you own and operate under the name.
-
-   Zero scroll-driven JavaScript — one CSS load-in on the hero, hover
-   transitions on cards, and a native <details> accordion for the FAQ; every
-   resting state is the visible one.
-
-   COLOUR — only the design.md palette (declared locally in Franchise.css).
-   Chrome is the shared <SiteNav /> + <SiteFooter />; the `h26 new-typo n3`
-   wrapper gives Cormorant Garamond display + Work Sans body.
    ========================================================================== */
 
-import { useState } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
-  Landmark, MapPin, Store, MonitorSmartphone, Check, ArrowRight, ArrowUpRight,
-  Mail, ShieldCheck, Send, Plus, Globe2, Compass, Plane, BedDouble, Ship,
-  FileCheck2, Banknote, Users, GraduationCap, Gift, Heart,
+  Check, ArrowRight, ArrowUpRight, Mail, ShieldCheck, Send, Plus,
 } from 'lucide-react';
 import { SmartLink as Link, CALLBACK } from '../components/ScheduleCall';
 import { SiteNav, SiteFooter } from '../components/SiteChrome';
 import './Franchise.css';
 
+gsap.registerPlugin(ScrollTrigger);
+
 /* The franchise desk's own inbox — verified against the live Cox & Kings
-   franchise page (coxandkings.com/become-a-franchisee), which lists
-   franchisee@coxandkings.com. NOT "franchise@" — that address is not the one
-   the business publishes. /become-a-partner uses the same constant value. */
+   franchise page (coxandkings.com/become-a-franchisee), which publishes
+   franchisee@coxandkings.com. NOT "franchise@", which the business does not
+   use. /become-a-partner already carried the same address. */
 const EMAIL = 'franchisee@coxandkings.com';
+
+/* Every photograph on this page is already in service elsewhere on the site,
+   so the franchise story is told in the same visual voice as the journeys. */
+const img = (id, w = 1200) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 /* -------------------------------------------------------------- the content */
 
+/* Counters — `count` drives the tick-up, `n` is the fallback text that is on
+   the page before (and without) JavaScript. */
 const STATS = [
-  { n: '1758', l: 'Established' },
-  { n: '267', l: 'Years of travel', sup: 'yrs' },
-  { n: '100', l: 'Countries', sup: '+' },
-  { n: '20', l: 'Franchise stores', sup: '+' },
+  { n: '1758', count: 1758, l: 'Established' },
+  { n: '267', count: 267, l: 'Years of travel' },
+  { n: '100', count: 100, sup: '+', l: 'Countries supplied' },
+  { n: '20', count: 20, sup: '+', l: 'Franchise stores' },
 ];
 
-const WHY = [
-  { icon: Landmark, t: 'Trade on the name', b: 'Open under a globally recognised, heritage-rich brand that inspires instant trust — the credibility of 1758 from your very first day.' },
-  { icon: MapPin, t: 'An exclusive territory', b: 'A protected catchment that’s yours alone — no internal competition, so every enquiry in your area comes to your door.' },
-  { icon: Store, t: 'A store, ready to run', b: 'Location guidance, design, branding, fit-out and launch marketing — the outlet is set up for you, so you open ready to trade.' },
-  { icon: MonitorSmartphone, t: 'The full tech & supply stack', b: 'One platform sells flights, hotels, cruises, visas and holidays, backed by CRM, MIS dashboards and ongoing staff training.' },
+const PILLARS = [
+  {
+    n: '01',
+    t: 'Trade on the name',
+    b: 'Open under a globally recognised, heritage-rich brand that inspires instant trust. Two and a half centuries of credibility are above your door on the first morning — before you have sold a single holiday.',
+    src: img('1467269204594-9661b134dd2b'),
+    alt: 'A warmly lit European street at dusk',
+  },
+  {
+    n: '02',
+    t: 'An exclusive territory',
+    b: 'A protected catchment that is yours alone, mapped and agreed in writing before you sign. No second Cox & Kings opens inside it, so every enquiry in your area — walk-in, phone or online — comes to your door.',
+    src: img('1524661135-423995f22d0b'),
+    alt: 'A vintage printed world map',
+  },
+  {
+    n: '03',
+    t: 'A store, ready to run',
+    b: 'Location guidance, design, branding, fit-out and launch marketing. We hand over an outlet that is already trading-ready, with your consultants trained on the product and the systems before the doors open.',
+    src: img('1571896349842-33c89424de2d'),
+    alt: 'A glass-fronted building lit from within at dusk',
+  },
+  {
+    n: '04',
+    t: 'The whole supply chain',
+    b: 'One platform sells flights, hotels, cruises, visas, currency and holidays across a hundred countries, with CRM, MIS dashboards, central contracting and 24/7 on-tour support standing behind every booking you make.',
+    src: img('1526392060635-9d6019884377'),
+    alt: 'Machu Picchu in early morning cloud',
+  },
 ];
 
-/* OUR PRODUCTS — the shelf a franchise store actually trades. Twelve lines in
-   a bordered grid, so it reads as an inventory rather than another card row. */
-const PRODUCTS = [
-  { icon: Globe2, t: 'International holidays', b: 'Escorted group tours and private, tailor-made journeys across 100+ countries.' },
-  { icon: Compass, t: 'India & short breaks', b: 'Weekend escapes, family holidays and the whole of India, in every season.' },
-  { icon: Plane, t: 'Flights', b: 'Domestic and international air on every major carrier, ticketed in-store.' },
-  { icon: BedDouble, t: 'Hotels & resorts', b: 'A global hotel and resort inventory, bookable at negotiated trade rates.' },
-  { icon: Ship, t: 'Cruises', b: 'Ocean, river and expedition sailings with the world’s leading cruise lines.' },
-  { icon: FileCheck2, t: 'Visa & passport services', b: 'Documentation, appointments and end-to-end visa handling for your walk-ins.' },
-  { icon: Banknote, t: 'Foreign exchange', b: 'Currency and multi-currency forex cards for every outbound traveller you serve.' },
-  { icon: ShieldCheck, t: 'Travel insurance', b: 'Cover for individuals, families, students and business travellers.' },
-  { icon: Users, t: 'Corporate & MICE', b: 'Meetings, incentives, conferences and exhibitions for the businesses on your high street.' },
-  { icon: GraduationCap, t: 'Student & education travel', b: 'School groups, study tours and student journeys — a reliable seasonal earner.' },
-  { icon: Heart, t: 'Honeymoons & celebrations', b: 'Honeymoons, anniversaries and destination-wedding groups, planned end to end.' },
-  { icon: Gift, t: 'Gift vouchers', b: 'Cox & Kings gift cards — often the very first sale a new store makes.' },
+/* OUR PRODUCTS — the shelf a franchise store trades. Six photographic tiles and
+   two set as type: the services that have no honest photograph earn a typographic
+   tile instead of a decorative stand-in, which also breaks the track's rhythm. */
+const SHELF = [
+  { k: 'Holidays', t: 'International holidays', b: 'Escorted group tours and private, tailor-made journeys across 100+ countries.', src: img('1516426122078-c23e76319801', 900), alt: 'A cliffside village on the Italian coast' },
+  { k: 'India', t: 'India & short breaks', b: 'Weekend escapes, family holidays and the whole of India, in every season.', src: img('1524492412937-b28074a5d7da', 900), alt: 'The Taj Mahal reflected in its water channel' },
+  { k: 'Documents', t: 'Visas & passports', b: 'Documentation, appointments and end-to-end visa handling for every walk-in.', type: 'sienna' },
+  { k: 'Air & stay', t: 'Flights & hotels', b: 'Domestic and international air, and a global hotel inventory at trade rates.', src: img('1546708973-b339540b5162', 900), alt: 'A palm-lined resort pool under blue sky' },
+  { k: 'At sea', t: 'Cruises', b: 'Ocean, river and expedition sailings with the world’s leading cruise lines.', src: img('1506973035872-a4ec16b8e8d9', 900), alt: 'Boats crossing a wide city harbour' },
+  { k: 'Currency', t: 'Foreign exchange', b: 'Notes and multi-currency forex cards for every outbound traveller you serve.', type: 'navy' },
+  { k: 'Business', t: 'Corporate & MICE', b: 'Meetings, incentives, conferences and exhibitions for your local businesses.', src: img('1521737604893-d14cc237f11d', 900), alt: 'Colleagues working together around a table' },
+  { k: 'Occasions', t: 'Honeymoons & celebrations', b: 'Honeymoons, anniversaries and destination-wedding groups, planned end to end.', src: img('1514282401047-d79a71a590e8', 900), alt: 'Overwater villas on a turquoise lagoon' },
 ];
 
-const STEPS = [
-  { n: '01', t: 'Apply', b: 'Send your details in the form — no commitment, and no prior travel experience required.' },
-  { n: '02', t: 'Meet & assess', b: 'A franchise development manager discusses your city, the territory, investment and fit within two working days.' },
-  { n: '03', t: 'Set up & train', b: 'We handle the store fit-out, install the technology and train you and your team to trade.' },
-  { n: '04', t: 'Launch & grow', b: 'Open under the Cox & Kings name with launch marketing, and keep growing with continuing head-office support.' },
-];
+const ALSO = ['Travel insurance', 'Student & education travel', 'Rail & transfers', 'Gift vouchers'];
 
-/* WHO CAN APPLY — the profiles that work, then the practical numbers beside
-   them so nobody has to write in to find out whether they're in range. */
-const ELIGIBILITY = [
-  'Travel agents ready to trade under a stronger name',
-  'Airline, hotel or hospitality professionals starting out on their own',
-  'First-time entrepreneurs with a local network and a high-street site',
-  'Investors looking for an owner-run retail business',
-  'Anyone who can commit to running the store day to day',
-];
-
+/* The practical numbers, so nobody has to write in to learn whether they are
+   in range. This is where the old investment-capacity form field went. */
 const FACTS = [
   { k: 'Store size', v: '250–500 sq ft, high street or mall' },
   { k: 'Investment', v: '₹15–50 lakh, by city and catchment' },
-  { k: 'Your team', v: '2–4 travel consultants, trained by us' },
+  { k: 'Your team', v: '2–4 consultants, trained by us' },
   { k: 'Territory', v: 'Exclusive, agreed before you sign' },
   { k: 'Time to open', v: 'Typically 8–12 weeks from applying' },
   { k: 'Experience', v: 'Helpful, but genuinely not required' },
 ];
 
+/* "How it works" and "who can apply" are answers here rather than sections of
+   their own — the page stays short and nothing is lost. */
 const FAQS = [
   {
     q: 'Do I need experience in travel to apply?',
-    a: 'No. A good number of our franchise partners come from outside the industry — corporate careers, retail, family businesses. What matters more is a strong local network, a suitable location and the commitment to run the store yourself. The product training, the systems training and the selling skills all come from us.',
+    a: 'No. A good number of our franchise partners come from outside the industry — corporate careers, retail, family businesses — alongside agents, and airline and hotel professionals starting out on their own. What matters is a strong local network, a suitable high-street site, and the commitment to run the store yourself. The product training, the systems and the selling skills all come from us.',
+  },
+  {
+    q: 'What happens after I send the form?',
+    a: 'Four stages. A franchise development manager reads your enquiry and replies within two working days to talk through your city, the territory and the investment. If it fits both sides, we agree the catchment and the site. We then handle the fit-out, install the technology and train you and your team. Finally you open under the Cox & Kings name with a launch marketing push behind you — typically eight to twelve weeks from that first email.',
   },
   {
     q: 'What does the investment actually cover?',
@@ -120,15 +152,11 @@ const FAQS = [
   },
   {
     q: 'Is the territory really exclusive?',
-    a: 'Yes. Your catchment is mapped and agreed in writing before you sign, and we do not open a second Cox & Kings outlet inside it. Every enquiry generated in your territory — walk-in, phone or online — routes to your store.',
+    a: 'Yes. Your catchment is mapped and agreed in writing before you sign, and we do not open a second Cox & Kings outlet inside it. Every enquiry generated in your territory routes to your store.',
   },
   {
     q: 'What can I sell from the store?',
-    a: 'Everything listed under Our products above: international and India holidays, flights, hotels, cruises, visas, foreign exchange, insurance, corporate and MICE business, student travel and gift vouchers. It is a one-stop travel shop, which is what makes the catchment worth owning.',
-  },
-  {
-    q: 'How long does it take to open?',
-    a: 'Typically eight to twelve weeks from your application — a fortnight or so for the assessment and territory agreement, then site finalisation, fit-out, technology installation and training, ending with a launch marketing push in your city.',
+    a: 'Everything on the shelf above: international and India holidays, flights, hotels, cruises, visas and passports, foreign exchange, corporate and MICE business, honeymoons, travel insurance, student travel and gift vouchers. It is a one-stop travel shop, which is what makes a catchment worth owning — the same customer returns for the visa, the currency and the cover, not only for the trip.',
   },
   {
     q: 'What support continues after I open?',
@@ -140,7 +168,7 @@ const FAQS = [
   },
   {
     q: 'I already run a travel agency. Can I convert it?',
-    a: 'Often, yes — that is one of the most common routes in. Subject to the site meeting brand standards and the territory being open, an existing agency can be rebranded as a Cox & Kings store, bringing its customer book across onto our systems and supply.',
+    a: 'Often, yes — it is one of the most common routes in. Subject to the site meeting brand standards and the territory being open, an existing agency can be rebranded as a Cox & Kings store, bringing its customer book across onto our systems and supply.',
   },
 ];
 
@@ -223,8 +251,106 @@ function FranchiseForm() {
 }
 
 export default function Franchise() {
+  const root = useRef(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      /* ---------------------------------------------- the everyday reveals */
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        /* Masked display lines rise out of their own overflow. */
+        gsap.utils.toArray('[data-lines]').forEach((el) => {
+          gsap.from(el.querySelectorAll('.fr-line > span'), {
+            yPercent: 118, duration: 1.05, ease: 'power3.out', stagger: 0.09,
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true, invalidateOnRefresh: true },
+          });
+        });
+
+        /* Generic reveal + staggered groups. */
+        gsap.utils.toArray('[data-reveal]').forEach((el) => {
+          gsap.from(el, {
+            opacity: 0, y: 28, duration: 0.9, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true, invalidateOnRefresh: true },
+          });
+        });
+        gsap.utils.toArray('[data-stagger]').forEach((group) => {
+          gsap.from(group.children, {
+            opacity: 0, y: 30, duration: 0.85, stagger: 0.1, ease: 'power3.out',
+            scrollTrigger: { trigger: group, start: 'top 86%', once: true, invalidateOnRefresh: true },
+          });
+        });
+
+        /* Hairline rules draw themselves left to right. */
+        gsap.utils.toArray('[data-rule]').forEach((el) => {
+          gsap.from(el, {
+            scaleX: 0, transformOrigin: 'left center', duration: 1.2, ease: 'power3.inOut',
+            scrollTrigger: { trigger: el, start: 'top 92%', once: true },
+          });
+        });
+
+        /* The counters tick up once. */
+        gsap.utils.toArray('[data-count]').forEach((el) => {
+          const end = Number(el.dataset.count);
+          const o = { v: 0 };
+          gsap.to(o, {
+            v: end, duration: 1.7, ease: 'power2.out', snap: { v: 1 },
+            onUpdate: () => { el.textContent = String(Math.round(o.v)); },
+            scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+          });
+        });
+
+        /* Each pillar photograph travels slower than the type beside it. */
+        gsap.utils.toArray('.fr-pillar__media').forEach((el) => {
+          gsap.fromTo(el.querySelector('img'),
+            { yPercent: -7, scale: 1.2 },
+            {
+              yPercent: 7, scale: 1.2, ease: 'none',
+              scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true, invalidateOnRefresh: true },
+            });
+        });
+      });
+
+      /* ------------------------------------------------ the pinned shelf
+         Desktop only, and only when motion is welcome. Everywhere else the
+         same markup is a native scroll-snap carousel — no pin, no transform,
+         so a phone never fights the page for the scroll. */
+      mm.add('(min-width: 1025px) and (prefers-reduced-motion: no-preference)', () => {
+        const shelf = root.current?.querySelector('.fr-shelf');
+        const track = root.current?.querySelector('.fr-shelf__track');
+        if (!shelf || !track) return;
+
+        shelf.classList.add('is-pinned');
+        const travel = () => Math.max(0, track.scrollWidth - shelf.clientWidth);
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: shelf,
+            start: 'top top',
+            end: () => `+=${travel() + window.innerHeight * 0.35}`,
+            pin: true,
+            scrub: 0.8,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+        tl.to(track, { x: () => -travel(), ease: 'none' }, 0)
+          .fromTo('.fr-shelf__bar', { scaleX: 0 }, { scaleX: 1, ease: 'none' }, 0);
+
+        return () => shelf.classList.remove('is-pinned');
+      });
+
+      const refresh = () => ScrollTrigger.refresh();
+      window.addEventListener('load', refresh);
+      const t = setTimeout(refresh, 900);
+      return () => { window.removeEventListener('load', refresh); clearTimeout(t); };
+    }, root);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="h26 new-typo n3 fr">
+    <div className="h26 new-typo n3 fr" ref={root}>
       <SiteNav solidAt={80} skipTo="#fr-form" skipLabel="Skip to franchise form" />
 
       {/* ============================================================ HERO + FORM */}
@@ -268,166 +394,158 @@ export default function Franchise() {
         </div>
       </header>
 
-      {/* ================================================================= STATS */}
-      <section className="fr-stats" aria-label="Cox & Kings at a glance">
-        <dl className="fr-stats__grid">
-          {STATS.map((s) => (
-            <div className="fr-stat" key={s.l}>
-              <dt className="fr-stat__n">{s.n}{s.sup && <span className="fr-stat__sup">{s.sup}</span>}</dt>
-              <dd className="fr-stat__l">{s.l}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      {/* ============================================================ WHY FRANCHISE */}
-      <section className="fr-section fr-why" aria-labelledby="fr-why-h">
-        <div className="fr-wrap">
-          <header className="fr-head">
-            <p className="fr-eyebrow">Why a Cox &amp; Kings franchise</p>
-            <h2 className="fr-h2" id="fr-why-h">A business you own, on foundations we&apos;ve built since 1758.</h2>
-          </header>
-          <ul className="fr-cards fr-cards--4">
-            {WHY.map(({ icon: Icon, t, b }) => (
-              <li className="fr-card" key={t}>
-                <span className="fr-card__ic" aria-hidden="true"><Icon size={20} strokeWidth={1.5} /></span>
-                <h3 className="fr-card__t">{t}</h3>
-                <p className="fr-card__b">{b}</p>
-              </li>
+      {/* ==================================================== 01 · THE OFFER ==== */}
+      <section className="fr-offer" aria-labelledby="fr-offer-h">
+        {/* The counter rail rides out of the hero on the same navy, so the two
+            read as one block before the page turns to paper. */}
+        <div className="fr-rail">
+          <dl className="fr-rail__grid" data-stagger>
+            {STATS.map((s) => (
+              <div className="fr-rail__stat" key={s.l}>
+                <dt className="fr-rail__n">
+                  <span data-count={s.count}>{s.n}</span>
+                  {s.sup && <i className="fr-rail__sup">{s.sup}</i>}
+                </dt>
+                <dd className="fr-rail__l">{s.l}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         </div>
-      </section>
 
-      {/* ============================================================ OUR PRODUCTS
-          The shelf, laid out as a bordered inventory grid rather than a fourth
-          row of cards — a visitor should be able to scan what the store sells. */}
-      <section className="fr-section fr-prod" aria-labelledby="fr-prod-h">
         <div className="fr-wrap">
-          <header className="fr-head">
-            <p className="fr-eyebrow">Our products</p>
-            <h2 className="fr-h2" id="fr-prod-h">One storefront, the whole of travel.</h2>
-            <p className="fr-head__lead">
-              A Cox &amp; Kings franchise isn&apos;t a holiday counter. Everything below
-              is on your shelf from the day you open — so the same customer comes back
-              for the visa, the currency and the insurance, not just the trip.
+          <header className="fr-mark" data-lines>
+            <p className="fr-index"><span className="fr-index__n">01</span> The offer</p>
+            <h2 className="fr-display" id="fr-offer-h">
+              <span className="fr-line"><span>You bring the high street.</span></span>
+              <span className="fr-line"><span>We bring the <em>other 267 years</em>.</span></span>
+            </h2>
+            <p className="fr-mark__lead" data-reveal>
+              A franchise is not a licence to use a logo. It is a working business
+              handed over trading-ready — the territory, the storefront, the systems
+              and the supply behind them.
             </p>
           </header>
-          <ul className="fr-prodgrid">
-            {PRODUCTS.map(({ icon: Icon, t, b }) => (
-              <li className="fr-prod__item" key={t}>
-                <span className="fr-prod__ic" aria-hidden="true"><Icon size={19} strokeWidth={1.5} /></span>
-                <div>
-                  <h3 className="fr-prod__t">{t}</h3>
-                  <p className="fr-prod__b">{b}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
 
-      {/* ============================================================== HOW IT WORKS */}
-      <section className="fr-section fr-how" aria-labelledby="fr-how-h">
-        <div className="fr-wrap">
-          <header className="fr-head">
-            <p className="fr-eyebrow">How it works</p>
-            <h2 className="fr-h2" id="fr-how-h">From application to open, in four steps.</h2>
-          </header>
-          <ol className="fr-steps">
-            {STEPS.map((s) => (
-              <li className="fr-step" key={s.n}>
-                <span className="fr-step__n" aria-hidden="true">{s.n}</span>
-                <h3 className="fr-step__t">{s.t}</h3>
-                <p className="fr-step__b">{s.b}</p>
+          <ol className="fr-pillars">
+            {PILLARS.map((p) => (
+              <li className="fr-pillar" key={p.n}>
+                <span className="fr-pillar__rule" data-rule aria-hidden="true" />
+                <div className="fr-pillar__body">
+                  <span className="fr-pillar__n" aria-hidden="true">{p.n}</span>
+                  <div data-reveal>
+                    <h3 className="fr-pillar__t">{p.t}</h3>
+                    <p className="fr-pillar__b">{p.b}</p>
+                  </div>
+                </div>
+                <figure className="fr-pillar__media">
+                  <img src={p.src} alt={p.alt} loading="lazy" decoding="async" />
+                </figure>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      {/* ============================================================= WHO CAN APPLY
-          Profiles on the left, the practical numbers on the right, so the two
-          questions everyone has — "is this for someone like me?" and "what does
-          it take?" — are answered side by side. */}
-      <section className="fr-section fr-who" aria-labelledby="fr-who-h">
-        <div className="fr-wrap fr-who__inner">
-          <div className="fr-who__copy">
-            <p className="fr-eyebrow">Who can apply</p>
-            <h2 className="fr-h2" id="fr-who-h">You don&apos;t need to have sold a holiday before.</h2>
-            <p className="fr-who__lead">
-              We look for the person, the location and the commitment — the travel
-              knowledge is ours to teach. Franchise partners have joined us from all
-              of these starting points.
-            </p>
-            <ul className="fr-who__list">
-              {ELIGIBILITY.map((e) => (
-                <li key={e}><Check size={16} strokeWidth={2.2} aria-hidden="true" /> {e}</li>
-              ))}
-            </ul>
+      {/* ==================================================== 02 · THE SHELF ====
+          Pinned on desktop and scrubbed sideways; a scroll-snap carousel
+          everywhere else. Same markup either way. */}
+      <section className="fr-shelf" aria-labelledby="fr-shelf-h">
+        <div className="fr-wrap fr-shelf__head">
+          <div data-lines>
+            <p className="fr-index fr-index--light"><span className="fr-index__n">02</span> The shelf</p>
+            <h2 className="fr-display fr-display--light" id="fr-shelf-h">
+              <span className="fr-line"><span>One storefront,</span></span>
+              <span className="fr-line"><span>the <em>whole of travel</em>.</span></span>
+            </h2>
           </div>
-
-          <aside className="fr-who__panel">
-            <h3 className="fr-who__panel-h">What a store typically takes</h3>
-            <dl className="fr-facts">
-              {FACTS.map(({ k, v }) => (
-                <div className="fr-fact" key={k}>
-                  <dt>{k}</dt>
-                  <dd>{v}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className="fr-who__panel-note">
-              Indicative only — the real numbers depend on your city and catchment,
-              and we walk through them with you before anything is signed.
-            </p>
-          </aside>
+          <p className="fr-shelf__lead" data-reveal>
+            Everything here is on your shelf the day you open — so the same customer
+            comes back for the visa, the currency and the cover, not only for the trip.
+            <span className="fr-shelf__cue" aria-hidden="true">Scroll <ArrowRight size={14} /></span>
+          </p>
         </div>
-      </section>
 
-      {/* ===================================================================== FAQ
-          Native <details>, so it works with no JavaScript, is searchable by the
-          browser's find-in-page, and needs no state of its own. */}
-      <section className="fr-section fr-faq" aria-labelledby="fr-faq-h">
-        <div className="fr-wrap">
-          <header className="fr-head">
-            <p className="fr-eyebrow">Questions</p>
-            <h2 className="fr-h2" id="fr-faq-h">The things everyone asks first.</h2>
-          </header>
-          <div className="fr-faq__list">
-            {FAQS.map(({ q, a }) => (
-              <details className="fr-faq__item" key={q}>
-                <summary className="fr-faq__q">
-                  <span>{q}</span>
-                  <span className="fr-faq__mark" aria-hidden="true"><Plus size={17} strokeWidth={2} /></span>
-                </summary>
-                <p className="fr-faq__a">{a}</p>
-              </details>
+        <div className="fr-shelf__view">
+          <ul className="fr-shelf__track">
+            {SHELF.map((c, i) => (
+              <li
+                className={`fr-tile${c.type ? ` fr-tile--type fr-tile--${c.type}` : ''}`}
+                key={c.t}
+              >
+                <span className="fr-tile__ix" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                {c.src && <img className="fr-tile__img" src={c.src} alt={c.alt} loading="lazy" decoding="async" />}
+                <div className="fr-tile__cap">
+                  <span className="fr-tile__k">{c.k}</span>
+                  <h3 className="fr-tile__t">{c.t}</h3>
+                  <p className="fr-tile__b">{c.b}</p>
+                </div>
+              </li>
             ))}
-          </div>
-          <p className="fr-faq__more">
-            Still something unanswered? Write to{' '}
-            <a href={`mailto:${EMAIL}`}>{EMAIL}</a> and a franchise development
-            manager will answer it directly.
+          </ul>
+        </div>
+
+        <div className="fr-wrap fr-shelf__foot">
+          <span className="fr-shelf__progress" aria-hidden="true"><i className="fr-shelf__bar" /></span>
+          <p className="fr-shelf__also">
+            Also on the shelf — {ALSO.map((a, i) => (
+              <span key={a}>{i > 0 && <i aria-hidden="true"> · </i>}{a}</span>
+            ))}
           </p>
         </div>
       </section>
 
-      {/* ============================================================== CLOSING CTA */}
-      <section className="fr-cta" aria-labelledby="fr-cta-h">
-        <div className="fr-wrap fr-cta__inner">
-          <div>
-            <p className="fr-eyebrow fr-eyebrow--light">Become a franchise partner</p>
-            <h2 className="fr-cta__h" id="fr-cta-h">Ready to open a Cox &amp; Kings?</h2>
-            <p className="fr-cta__p">No commitment, no obligation — just a conversation about the opportunity in your city.</p>
+      {/* ================================================== 03 · THE ANSWERS ==== */}
+      <section className="fr-answers" aria-labelledby="fr-answers-h">
+        <div className="fr-wrap fr-answers__inner">
+          {/* Sticky ledger — the numbers, then the way back to the form. */}
+          <div className="fr-ledger">
+            <div className="fr-ledger__stick">
+              <p className="fr-index"><span className="fr-index__n">03</span> The answers</p>
+              <h2 className="fr-display fr-display--sm" id="fr-answers-h" data-lines>
+                <span className="fr-line"><span>What a store</span></span>
+                <span className="fr-line"><span>actually <em>takes</em>.</span></span>
+              </h2>
+              <dl className="fr-facts" data-stagger>
+                {FACTS.map(({ k, v }) => (
+                  <div className="fr-fact" key={k}>
+                    <dt>{k}</dt>
+                    <dd>{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="fr-ledger__note">
+                Indicative only — the real numbers depend on your city and catchment,
+                and we walk through them with you before anything is signed.
+              </p>
+
+              <div className="fr-ledger__cta" data-reveal>
+                <h3 className="fr-ledger__cta-h">Ready to open a Cox &amp; Kings?</h3>
+                <a href="#fr-form" className="h26-btn h26-btn-pill h26-btn-lg">
+                  Fill out the form <ArrowRight size={15} aria-hidden="true" />
+                </a>
+                <Link to={CALLBACK} className="fr-ledger__link">
+                  Prefer we schedule a call? <ArrowUpRight size={15} aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="fr-cta__actions">
-            <a href="#fr-form" className="h26-btn h26-btn-pill h26-btn-lg">
-              Fill out the form <ArrowRight size={15} aria-hidden="true" />
-            </a>
-            <Link to={CALLBACK} className="fr-cta__link">
-              Prefer we schedule a call? <ArrowUpRight size={15} aria-hidden="true" />
-            </Link>
+
+          {/* Native <details> — no state, no JS, and find-in-page still works. */}
+          <div className="fr-faq">
+            {FAQS.map(({ q, a }) => (
+              <details className="fr-faq__item" key={q}>
+                <summary className="fr-faq__q">
+                  <span>{q}</span>
+                  <span className="fr-faq__mark" aria-hidden="true"><Plus size={17} strokeWidth={1.8} /></span>
+                </summary>
+                <p className="fr-faq__a">{a}</p>
+              </details>
+            ))}
+            <p className="fr-faq__more">
+              Still something unanswered? Write to{' '}
+              <a href={`mailto:${EMAIL}`}>{EMAIL}</a> and a franchise development
+              manager will answer it directly.
+            </p>
           </div>
         </div>
       </section>

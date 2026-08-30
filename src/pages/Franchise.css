@@ -16,6 +16,13 @@
    Contrast is checked for AA: body copy is Neutrals/800 on paper, headings
    Neutrals/900; on the navy sections text is Neutrals/100 and the light accent
    is Sienna Flame/300.
+
+   BELOW THE HERO the page is three sections — 01 the offer, 02 the shelf,
+   03 the answers — in an archive-editorial register: oversized ledger numerals,
+   hairline rules, index marks in the margin, and photography that travels at a
+   different speed to the type. Nothing here is hidden in CSS: every resting
+   state is the visible one, and GSAP owns the from-state, so the page is whole
+   without JavaScript and under prefers-reduced-motion.
    ========================================================================== */
 
 .fr {
@@ -65,30 +72,6 @@
   margin: 0 0 14px;
 }
 .fr .fr-eyebrow--light { color: var(--sf-300); }
-
-/* Shared section heading — Cormorant, weight 500, Neutrals/900. */
-.fr .fr-h2 {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(28px, 3.4vw, 44px);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  color: var(--n-900);
-  margin: 0;
-  max-width: 20ch;
-}
-.fr .fr-h2 em { font-style: italic; color: var(--sf-500); }
-
-.fr .fr-section { padding-block: clamp(56px, 6.5vw, 104px); }
-.fr .fr-head { max-width: 760px; margin: 0 0 clamp(32px, 4vw, 52px); }
-.fr .fr-head__lead {
-  font-family: var(--sans);
-  font-size: clamp(14.5px, 1.15vw, 16px);
-  line-height: 1.65;
-  color: var(--n-800);
-  margin: 16px 0 0;
-  max-width: 62ch;
-}
 
 /* ============================================================ HERO + FORM ==== */
 .fr .fr-hero {
@@ -318,248 +301,438 @@
 }
 .fr .fr-done__btn { width: 100%; }
 
-/* =================================================================== STATS ==== */
-.fr .fr-stats {
+
+/* ============================================================================
+   SHARED — the ledger marks used by all three sections below the hero.
+   ========================================================================== */
+
+/* An index mark: a sienna numeral, a hairline, then the section name. */
+.fr .fr-index {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--n-600);
+  margin: 0 0 22px;
+}
+.fr .fr-index__n {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--sf-500);
+}
+.fr .fr-index::after {
+  content: '';
+  flex: 1;
+  max-width: 90px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+}
+.fr .fr-index--light { color: rgba(241, 239, 226, 0.55); }
+.fr .fr-index--light .fr-index__n { color: var(--sf-300); }
+
+/* The display headline. Each line is its own overflow mask so GSAP can lift
+   the inner span out of it; with no JS the span simply sits at rest. */
+.fr .fr-display {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(34px, 5.2vw, 72px);
+  line-height: 1.04;
+  letter-spacing: -0.022em;
+  color: var(--n-900);
+  margin: 0;
+}
+.fr .fr-display--sm { font-size: clamp(30px, 3.4vw, 46px); }
+.fr .fr-display--light { color: var(--n-0); }
+.fr .fr-display em { font-style: italic; color: var(--sf-500); }
+.fr .fr-display--light em { color: var(--sf-300); }
+.fr .fr-line { display: block; overflow: hidden; padding-bottom: 0.06em; }
+.fr .fr-line > span { display: block; }
+
+/* =================================================== 01 · THE OFFER ========= */
+
+/* The counter rail continues the hero's navy, so the two read as one block. */
+.fr .fr-rail {
   background: var(--nd-900);
   border-top: 1px solid rgba(241, 239, 226, 0.1);
 }
-.fr .fr-stats__grid {
+.fr .fr-rail__grid {
   width: 100%;
   max-width: 1360px;
   margin: 0 auto;
-  padding: clamp(28px, 3.4vw, 44px) clamp(16px, 3vw, 56px);
+  padding: clamp(34px, 4vw, 58px) clamp(16px, 3vw, 56px);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
-.fr .fr-stat { text-align: center; }
-.fr .fr-stat__n {
+.fr .fr-rail__stat {
+  position: relative;
+  padding-left: clamp(16px, 2vw, 32px);
+}
+.fr .fr-rail__stat + .fr-rail__stat::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: rgba(241, 239, 226, 0.16);
+}
+.fr .fr-rail__n {
+  display: flex;
+  align-items: flex-start;
   font-family: var(--serif);
   font-weight: 500;
-  font-size: clamp(32px, 3.6vw, 46px);
-  line-height: 1;
+  font-size: clamp(38px, 5vw, 68px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
   color: var(--n-0);
+  font-variant-numeric: tabular-nums;
 }
-.fr .fr-stat__sup {
-  font-size: 0.44em;
-  vertical-align: super;
+.fr .fr-rail__sup {
+  font-style: normal;
+  font-size: 0.4em;
+  line-height: 1;
+  margin-top: 0.16em;
   margin-left: 3px;
   color: var(--sf-300);
 }
-.fr .fr-stat__l {
+.fr .fr-rail__l {
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.6);
+  margin: 12px 0 0;
+}
+
+.fr .fr-offer {
+  background: var(--n-50);
+  padding-bottom: clamp(60px, 7vw, 112px);
+}
+.fr .fr-mark {
+  padding-block: clamp(56px, 7vw, 112px) clamp(32px, 4vw, 56px);
+}
+.fr .fr-mark__lead {
+  font-family: var(--sans);
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.66;
+  color: var(--n-800);
+  margin: 26px 0 0;
+  max-width: 52ch;
+}
+
+/* --- the four pillars ---
+   Text left, photograph right, and a full-bleed hairline over every row. The
+   even rows swap sides, so the eye zig-zags down the section instead of
+   running down a single column. */
+.fr .fr-pillars { list-style: none; margin: 0; padding: 0; }
+.fr .fr-pillar {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr minmax(300px, 46%);
+  align-items: center;
+  gap: clamp(28px, 5vw, 80px);
+  padding-block: clamp(36px, 4.4vw, 68px);
+}
+.fr .fr-pillar:nth-child(even) { grid-template-columns: minmax(300px, 46%) 1fr; }
+.fr .fr-pillar:nth-child(even) .fr-pillar__body { order: 2; }
+.fr .fr-pillar:nth-child(even) .fr-pillar__media { order: 1; }
+.fr .fr-pillar__rule {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: var(--n-200);
+}
+.fr .fr-pillar__body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(18px, 2.4vw, 40px);
+  align-items: start;
+}
+/* An outline numeral, sitting in the margin like a plate number. */
+.fr .fr-pillar__n {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(46px, 5.6vw, 84px);
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--n-300);
+  user-select: none;
+}
+.fr .fr-pillar__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(22px, 2.2vw, 31px);
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+  color: var(--n-900);
+  margin: 0 0 12px;
+}
+.fr .fr-pillar__b {
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.68;
+  color: var(--n-800);
+  margin: 0;
+  max-width: 46ch;
+}
+.fr .fr-pillar__media {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 2px;
+  aspect-ratio: 16 / 10;
+  background: var(--n-150);
+}
+.fr .fr-pillar__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  will-change: transform;
+  /* GSAP holds this at scale 1.2 and drifts it ±7% — the 10% of overscan the
+     scale buys on each edge is what keeps a bare edge out of the crop. */
+}
+/* A hair of navy over the photograph keeps it in the palette. */
+.fr .fr-pillar__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(200deg, rgba(2, 19, 48, 0) 45%, rgba(2, 19, 48, 0.28) 100%);
+  pointer-events: none;
+}
+
+/* =================================================== 02 · THE SHELF ========= */
+.fr .fr-shelf {
+  position: relative;
+  background: var(--nd-900);
+  color: var(--n-100);
+  padding-block: clamp(56px, 6.5vw, 96px);
+  overflow: hidden;
+}
+/* When GSAP pins the section it owns a full viewport and centres its contents;
+   until then (and on mobile, and under reduced motion) it is an ordinary
+   block that grows to its content. */
+.fr .fr-shelf.is-pinned {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(20px, 3vh, 44px);
+  padding-block: 0;
+}
+
+.fr .fr-shelf__head {
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 38%);
+  align-items: end;
+  gap: clamp(24px, 4vw, 64px);
+  margin-bottom: clamp(30px, 4vw, 52px);
+}
+.fr .fr-shelf.is-pinned .fr-shelf__head { margin-bottom: 0; }
+.fr .fr-shelf__lead {
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: rgba(241, 239, 226, 0.78);
+  margin: 0;
+}
+.fr .fr-shelf__cue {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sf-300);
+}
+.fr .fr-shelf__cue svg { animation: fr-nudge 1.9s ease-in-out infinite; }
+
+/* The track. Native scroll-snap by default; GSAP takes the scroll away only
+   once `.is-pinned` is on, so there is never a fight between the two. */
+.fr .fr-shelf__view {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.fr .fr-shelf__view::-webkit-scrollbar { display: none; }
+.fr .fr-shelf.is-pinned .fr-shelf__view { overflow: hidden; scroll-snap-type: none; }
+.fr .fr-shelf__track {
+  list-style: none;
+  margin: 0;
+  padding: 4px clamp(16px, 3vw, 56px);
+  display: flex;
+  gap: clamp(14px, 1.4vw, 22px);
+  width: max-content;
+}
+
+.fr .fr-tile {
+  position: relative;
+  flex: none;
+  width: clamp(258px, 25vw, 340px);
+  height: clamp(360px, 52vh, 520px);
+  border-radius: 2px;
+  overflow: hidden;
+  scroll-snap-align: center;
+  background: #0a1f3d;
+  isolation: isolate;
+}
+.fr .fr-tile__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fr .fr-tile:hover .fr-tile__img { transform: scale(1.06); }
+/* The scrim is the reason the caption is legible on every photograph. */
+.fr .fr-tile:not(.fr-tile--type)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(2, 19, 48, 0.5) 0%,
+    rgba(2, 19, 48, 0.12) 34%,
+    rgba(2, 19, 48, 0.82) 100%);
+}
+.fr .fr-tile__ix {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.72);
+}
+.fr .fr-tile__cap {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 22px 20px 24px;
+}
+.fr .fr-tile__k {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sf-300);
+  margin-bottom: 10px;
+}
+.fr .fr-tile__t {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(21px, 1.8vw, 26px);
+  line-height: 1.14;
+  color: var(--n-0);
+  margin: 0 0 8px;
+}
+.fr .fr-tile__b {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(241, 239, 226, 0.82);
+  margin: 0;
+}
+
+/* The two service lines that have no honest photograph are set as type
+   instead — which also breaks the rhythm of the track. */
+.fr .fr-tile--type { display: flex; align-items: flex-end; }
+.fr .fr-tile--type .fr-tile__cap { position: static; padding: 26px 22px 26px; }
+.fr .fr-tile--type .fr-tile__t { font-size: clamp(26px, 2.4vw, 34px); }
+.fr .fr-tile--sienna { background: var(--sf-500); }
+.fr .fr-tile--sienna .fr-tile__k { color: rgba(255, 255, 255, 0.78); }
+.fr .fr-tile--sienna .fr-tile__b { color: rgba(255, 255, 255, 0.88); }
+.fr .fr-tile--navy { background: var(--vb-500); }
+.fr .fr-tile--navy .fr-tile__k { color: var(--n-100); }
+.fr .fr-tile--navy .fr-tile__b { color: rgba(241, 239, 226, 0.9); }
+/* A quiet rule so the type tiles are not two flat blocks of colour. */
+.fr .fr-tile--type .fr-tile__cap::before {
+  content: '';
+  display: block;
+  width: 44px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.5);
+  margin-bottom: 20px;
+}
+
+.fr .fr-shelf__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px clamp(20px, 3vw, 40px);
+  margin-top: clamp(24px, 3vw, 40px);
+}
+.fr .fr-shelf.is-pinned .fr-shelf__foot { margin-top: 0; }
+.fr .fr-shelf__progress {
+  flex: 1;
+  min-width: 120px;
+  height: 1px;
+  background: rgba(241, 239, 226, 0.2);
+  display: block;
+}
+.fr .fr-shelf__bar {
+  display: block;
+  height: 100%;
+  background: var(--sf-300);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+/* Unpinned there is no scrub to drive the bar, so it simply reads full. */
+.fr .fr-shelf:not(.is-pinned) .fr-shelf__bar { transform: scaleX(1); opacity: 0.5; }
+.fr .fr-shelf__also {
   font-family: var(--sans);
   font-size: 12.5px;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(241, 239, 226, 0.66);
-  margin: 8px 0 0;
-}
-
-/* =========================================================== CARD SECTIONS ==== */
-.fr .fr-why { background: var(--n-50); }
-.fr .fr-how { background: var(--n-100); }
-
-.fr .fr-cards {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-}
-.fr .fr-card {
-  background: var(--n-0);
-  border: 1px solid var(--n-200);
-  border-radius: 16px;
-  padding: 28px 24px;
-  transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s ease, border-color 0.22s ease;
-}
-.fr .fr-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px -22px rgba(2, 19, 48, 0.28);
-  border-color: var(--n-300);
-}
-.fr .fr-card__ic {
-  display: inline-grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  background: rgba(11, 90, 177, 0.08);
-  color: var(--vb-500);
-  margin-bottom: 16px;
-}
-.fr .fr-card__t {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 20px;
-  line-height: 1.2;
-  color: var(--n-900);
-  margin: 0 0 8px;
-}
-.fr .fr-card__b {
-  font-family: var(--sans);
-  font-size: 14px;
-  line-height: 1.58;
-  color: var(--n-800);
+  color: rgba(241, 239, 226, 0.62);
   margin: 0;
 }
 
-/* =============================================================== HOW / STEPS == */
-.fr .fr-steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* ================================================= 03 · THE ANSWERS ========= */
+.fr .fr-answers {
+  background: var(--n-50);
+  padding-block: clamp(60px, 7vw, 112px);
+}
+.fr .fr-answers__inner {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-}
-.fr .fr-step {
-  position: relative;
-  padding: 28px 22px;
-  background: var(--n-0);
-  border: 1px solid var(--n-200);
-  border-radius: 16px;
-}
-.fr .fr-step__n {
-  display: block;
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 34px;
-  line-height: 1;
-  color: var(--sf-500);
-  margin-bottom: 14px;
-}
-.fr .fr-step__t {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 20px;
-  color: var(--n-900);
-  margin: 0 0 8px;
-}
-.fr .fr-step__b {
-  font-family: var(--sans);
-  font-size: 14px;
-  line-height: 1.58;
-  color: var(--n-800);
-  margin: 0;
-}
-
-/* ============================================================ OUR PRODUCTS ==== */
-/* A bordered inventory grid: 1px gaps over a Neutrals/200 ground draw the rules
-   between cells, so twelve lines read as a shelf and not as twelve more cards. */
-.fr .fr-prod { background: var(--n-0); }
-.fr .fr-prodgrid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--n-200);
-  border: 1px solid var(--n-200);
-  border-radius: 16px;
-  overflow: hidden;
-}
-.fr .fr-prod__item {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  background: var(--n-0);
-  padding: 24px 22px;
-  transition: background 0.2s ease;
-}
-.fr .fr-prod__item:hover { background: var(--n-50); }
-.fr .fr-prod__ic {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: rgba(11, 90, 177, 0.08);
-  color: var(--vb-500);
-}
-.fr .fr-prod__t {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 1.2;
-  color: var(--n-900);
-  margin: 2px 0 6px;
-}
-.fr .fr-prod__b {
-  font-family: var(--sans);
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: var(--n-800);
-  margin: 0;
-}
-
-/* ============================================================ WHO CAN APPLY ==== */
-.fr .fr-who { background: var(--n-50); }
-.fr .fr-who__inner {
-  display: grid;
-  grid-template-columns: 1fr minmax(320px, 420px);
-  gap: clamp(32px, 5vw, 72px);
+  grid-template-columns: minmax(300px, 38%) 1fr;
+  gap: clamp(36px, 5vw, 88px);
   align-items: start;
 }
-.fr .fr-who__copy .fr-h2 { max-width: 18ch; }
-.fr .fr-who__lead {
-  font-family: var(--sans);
-  font-size: clamp(14.5px, 1.15vw, 16px);
-  line-height: 1.65;
-  color: var(--n-800);
-  margin: 16px 0 26px;
-  max-width: 52ch;
-}
-.fr .fr-who__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 13px;
-}
-.fr .fr-who__list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 11px;
-  font-family: var(--sans);
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--n-900);
-}
-.fr .fr-who__list svg { color: var(--vb-500); flex: none; margin-top: 3px; }
+.fr .fr-ledger { align-self: stretch; }
+.fr .fr-ledger__stick { position: sticky; top: 108px; }
 
-/* The facts panel — a definition list, ruled, no card-in-card. */
-.fr .fr-who__panel {
-  background: var(--n-0);
-  border: 1px solid var(--n-200);
-  border-radius: 16px;
-  padding: clamp(22px, 2.2vw, 30px);
-}
-.fr .fr-who__panel-h {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 20px;
-  line-height: 1.2;
-  color: var(--n-900);
-  margin: 0 0 16px;
-}
-.fr .fr-facts { margin: 0; }
+.fr .fr-facts { margin: 28px 0 0; }
 .fr .fr-fact {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 3px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--n-150);
+  padding: 13px 0;
+  border-bottom: 1px solid var(--n-200);
 }
-.fr .fr-fact:last-child { border-bottom: 0; padding-bottom: 4px; }
+.fr .fr-fact:first-child { border-top: 1px solid var(--n-200); }
 .fr .fr-fact dt {
   font-family: var(--sans);
   font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--n-600);
 }
@@ -570,47 +743,68 @@
   color: var(--n-900);
   margin: 0;
 }
-.fr .fr-who__panel-note {
+.fr .fr-ledger__note {
   font-family: var(--sans);
   font-size: 12.5px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--n-700);
   margin: 16px 0 0;
-  padding-top: 14px;
-  border-top: 1px solid var(--n-150);
 }
 
-/* ==================================================================== FAQ ===== */
-/* Native <details>. No state, no JS, and find-in-page still reaches the
-   answers in browsers that search collapsed content. */
-.fr .fr-faq { background: var(--n-0); }
-.fr .fr-faq__list {
-  max-width: 900px;
-  border-top: 1px solid var(--n-200);
+/* The closing CTA, as a navy plate inside the paper section rather than a
+   fourth band across the page. */
+.fr .fr-ledger__cta {
+  margin-top: 28px;
+  padding: clamp(22px, 2.2vw, 30px);
+  border-radius: 2px;
+  background: var(--nd-900);
+  display: grid;
+  justify-items: start;
+  gap: 16px;
 }
+.fr .fr-ledger__cta-h {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(21px, 1.9vw, 27px);
+  line-height: 1.15;
+  color: var(--n-0);
+  margin: 0;
+  max-width: 16ch;
+}
+.fr .fr-ledger__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sf-300);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.fr .fr-ledger__link:hover { color: var(--n-0); }
+
+/* --- FAQ, on native <details> --- */
+.fr .fr-faq { border-top: 1px solid var(--n-200); }
 .fr .fr-faq__item { border-bottom: 1px solid var(--n-200); }
 .fr .fr-faq__q {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 20px 2px;
+  gap: 24px;
+  padding: 22px 2px;
   cursor: pointer;
   list-style: none;
   font-family: var(--serif);
   font-weight: 600;
-  font-size: clamp(17px, 1.5vw, 20px);
-  line-height: 1.3;
+  font-size: clamp(17px, 1.55vw, 21px);
+  line-height: 1.28;
   color: var(--n-900);
   transition: color 0.18s ease;
 }
 .fr .fr-faq__q::-webkit-details-marker { display: none; }
 .fr .fr-faq__q:hover { color: var(--vb-500); }
-.fr .fr-faq__q:focus-visible {
-  outline: 2px solid var(--vb-500);
-  outline-offset: 3px;
-  border-radius: 6px;
-}
+.fr .fr-faq__q:focus-visible { outline: 2px solid var(--vb-500); outline-offset: 3px; }
 .fr .fr-faq__mark {
   display: grid;
   place-items: center;
@@ -620,7 +814,7 @@
   border-radius: 50%;
   border: 1px solid var(--n-200);
   color: var(--vb-500);
-  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease;
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease;
 }
 .fr .fr-faq__item[open] .fr-faq__mark {
   transform: rotate(45deg);
@@ -629,11 +823,11 @@
 .fr .fr-faq__a {
   font-family: var(--sans);
   font-size: 14.5px;
-  line-height: 1.68;
+  line-height: 1.72;
   color: var(--n-800);
-  margin: 0 0 22px;
-  padding-right: 50px;
-  max-width: 78ch;
+  margin: 0 0 24px;
+  padding-right: 54px;
+  max-width: 76ch;
 }
 .fr .fr-faq__more {
   font-family: var(--sans);
@@ -649,70 +843,30 @@
 }
 .fr .fr-faq__more a:hover { color: var(--vb-hover); }
 
-/* ============================================================= CLOSING CTA ==== */
-.fr .fr-cta {
-  background: var(--nd-900);
-  color: var(--n-100);
-  padding-block: clamp(48px, 5.5vw, 84px);
-}
-.fr .fr-cta__inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-}
-.fr .fr-cta__h {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(28px, 3.4vw, 44px);
-  line-height: 1.06;
-  color: var(--n-0);
-  margin: 0 0 10px;
-  max-width: 24ch;
-}
-.fr .fr-cta__p {
-  font-family: var(--sans);
-  font-size: 15px;
-  line-height: 1.55;
-  color: rgba(241, 239, 226, 0.82);
-  margin: 0;
-  max-width: 44ch;
-}
-.fr .fr-cta__actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  flex: none;
-}
-.fr .fr-cta__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--sans);
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--sf-300);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-.fr .fr-cta__link:hover { color: var(--n-0); }
-
 /* ==================================================================== MOTION == */
 @keyframes fr-in {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes fr-nudge {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(5px); }
+}
 @media (prefers-reduced-motion: reduce) {
   .fr .fr-hero__intro,
   .fr .fr-formcard { animation: none; }
-  .fr .fr-card,
-  .fr .fr-prod__item,
+  .fr .fr-tile__img,
   .fr .fr-faq__mark { transition: none; }
+  .fr .fr-shelf__cue svg { animation: none; }
 }
 
 /* ================================================================ RESPONSIVE == */
+@media (max-width: 1180px) {
+  .fr .fr-answers__inner { grid-template-columns: 1fr; }
+  .fr .fr-ledger__stick { position: static; }
+  .fr .fr-ledger__cta { max-width: 560px; }
+}
+
 @media (max-width: 1024px) {
   .fr .fr-hero__inner { grid-template-columns: 1fr; gap: 32px; }
   .fr .fr-hero__intro { max-width: 640px; }
@@ -724,25 +878,25 @@
         rgba(2, 19, 48, 0.54) 45%,
         rgba(2, 19, 48, 0.74) 100%);
   }
-  .fr .fr-cards,
-  .fr .fr-steps { grid-template-columns: repeat(2, 1fr); }
-  .fr .fr-prodgrid { grid-template-columns: repeat(2, 1fr); }
-  .fr .fr-who__inner { grid-template-columns: 1fr; }
-  .fr .fr-who__copy .fr-h2 { max-width: 24ch; }
-  .fr .fr-who__panel { max-width: 560px; }
+  .fr .fr-rail__grid { grid-template-columns: repeat(2, 1fr); gap: 30px 16px; }
+  .fr .fr-pillar,
+  .fr .fr-pillar:nth-child(even) { grid-template-columns: 1fr; gap: 26px; }
+  .fr .fr-pillar:nth-child(even) .fr-pillar__body { order: 1; }
+  .fr .fr-pillar:nth-child(even) .fr-pillar__media { order: 2; }
+  .fr .fr-shelf__head { grid-template-columns: 1fr; align-items: start; }
 }
 
 @media (max-width: 640px) {
   .fr .fr-hero { padding-top: clamp(104px, 14vh, 140px); }
   .fr .fr-hero__title { font-size: clamp(30px, 8vw, 40px); }
   .fr .fr-formcard { padding: 22px 18px; }
-  .fr .fr-stats__grid { grid-template-columns: repeat(2, 1fr); gap: 22px 16px; }
-  .fr .fr-cards,
-  .fr .fr-steps,
-  .fr .fr-prodgrid { grid-template-columns: 1fr; }
-  .fr .fr-prod__item { padding: 20px 18px; }
+  .fr .fr-mark { max-width: none; }
+  .fr .fr-pillar__body { grid-template-columns: 1fr; gap: 10px; }
+  .fr .fr-pillar__n { font-size: 40px; }
+  .fr .fr-tile { width: min(78vw, 320px); height: 60vh; max-height: 460px; }
+  .fr .fr-shelf__foot { flex-direction: column; align-items: flex-start; }
+  .fr .fr-shelf__progress { width: 100%; }
   .fr .fr-faq__a { padding-right: 0; }
-  .fr .fr-cta__inner { flex-direction: column; align-items: flex-start; }
-  .fr .fr-cta__actions { width: 100%; }
-  .fr .fr-cta__actions .h26-btn { width: 100%; }
+  .fr .fr-ledger__cta { justify-items: stretch; text-align: left; }
+  .fr .fr-ledger__cta .h26-btn { width: 100%; justify-content: center; }
 }
