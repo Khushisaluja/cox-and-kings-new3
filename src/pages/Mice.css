@@ -1,0 +1,1545 @@
+/* ============================================================================
+   MICE by Cox & Kings — /mice
+
+   This sheet holds ONLY what this page alone needs. Anything the homepage
+   already solves is borrowed rather than restated: the four solution cards are
+   `hi-fork-grid--four` + `hi-lane`, the hero trust rail is `h26-pills`, the
+   testimonials are `h26-reviews` + `hi-rtrust` + `h26-marquee`, the mobile
+   bottom bar is `h26-thumbbar`, and every primary CTA is `h26-btn-pill`. All of
+   those live in Home2026.css / Home2026Improved.css / New3.css, which SiteChrome
+   loads. What follows only tunes them where this page's context differs.
+
+   COLOUR — every hex is a design.md token, declared once below.
+
+     Voyager Blue   500 #0B5AB1 (PRIMARY action) · hover #09488E · 800 #042447
+                    300 #6D9CD0 · 100 #CEDEEF
+     Sienna Flame   500 #BD4011 (ACCENT ONLY — eyebrows, numerals, figures;
+                    never a button on this page) · 300 #D78C70
+     Neutrals       0 #FFFFFF · 50 #F8F7F1 · 100 #F1EFE2 · 150 #E5E3D7
+                    200 #D9D7CB · 300 #C1BFB5 · 500 #918F88 · 600 #797871
+                    700 #60605A · 800 #484844 · 900 #1F2A36
+     Neutrals-Dark  900 #021330
+     Neutrals-Light 200 #DFE1E6 (borders on dark)
+
+   Cloudstone #F7F5FD is deliberately absent: the only cool tint in a warm paper
+   system, it reads as a dirty lilac beside Neutrals/50. Tinted sections use
+   Neutrals/50 and /100.
+
+   THREE AMENDMENTS to design.md, all worth pushing back into the Figma file
+   because they affect every page:
+
+     1 · Secondary text is Neutrals/700 #60605A, not /600 #797871. /600 on
+         Neutrals/50 measures 4.13:1 and fails AA's 4.5:1 for normal text.
+         /700 gives 5.9:1 and is close enough in tone to be invisible as a change.
+     2 · Form field borders are Neutrals/500 #918F88, not /200 #D9D7CB. /200
+         against the page is 1.35:1 and SC 1.4.11 wants 3:1 for a control
+         boundary. /500 clears it at 3.02:1. /200 stays for decorative hairlines.
+     3 · A Display step above Title, and tighter leading at the top of the scale.
+         design.md stops at Title 56px with a global heading line-height of 1.4,
+         which is right for a page heading and much too loose for a hero.
+         Display and Title use 1.1 here; H1 and below keep 1.4 untouched.
+
+   SPACING — one scale, used everywhere, and every icon sits on a named gap
+   rather than whatever the flex default happened to be. See --gap-ic below.
+
+   MOTION — nothing here is hidden in CSS. Every resting state is the visible
+   one and GSAP owns the from-state, so the page is complete without JavaScript
+   and under prefers-reduced-motion. The only things CSS hides are the accordion
+   and FAQ panels, which sit behind an explicit control with aria-expanded, and
+   that is what a disclosure is supposed to do.
+   ========================================================================== */
+
+.mice {
+  --vb-500: #0B5AB1;
+  --vb-hover: #09488E;
+  --vb-800: #042447;
+  --vb-300: #6D9CD0;
+  --vb-100: #CEDEEF;
+  --sf-500: #BD4011;
+  --sf-300: #D78C70;
+  --n-0: #FFFFFF;
+  --n-50: #F8F7F1;
+  --n-100: #F1EFE2;
+  --n-150: #E5E3D7;
+  --n-200: #D9D7CB;
+  --n-300: #C1BFB5;
+  --n-500: #918F88;
+  --n-600: #797871;
+  --n-700: #60605A;
+  --n-800: #484844;
+  --n-900: #1F2A36;
+  --nd-900: #021330;
+  --nl-200: #DFE1E6;
+
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Work Sans', 'Helvetica Neue', Arial, sans-serif;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+
+  /* The one gap every icon-beside-text pair uses. Left to the flex default,
+     some of these ended up at 4px and some at 12px, which is what made the
+     page feel unevenly set even where the type scale was right. */
+  --gap-ic: 10px;
+
+  color: var(--n-900);
+  font-family: var(--sans);
+  overflow-x: clip;
+}
+
+/* New3.css ships `.h26.n3 { background: #000207 }` — a near-black it uses so the
+   homepage's rounded hero corners read as a continuation of the hero photo.
+   Every page wearing the shared chrome inherits it, and at (0,2,0) it silently
+   beats a plain `.mice` rule at (0,1,0): the page renders on near-black and the
+   warm-neutral body copy disappears into it. Matching at (0,2,0) is not enough
+   either — the winner would then come down to stylesheet order in the bundle.
+   So this is deliberately (0,3,0), and it is the only over-specified selector
+   in the file. */
+.h26.n3.mice { background: var(--n-50); }
+
+.mice *,
+.mice *::before,
+.mice *::after { box-sizing: border-box; }
+
+.mice img { display: block; max-width: 100%; }
+
+.mice .mice-wrap {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 64px);
+}
+
+.mice .mice-sec { padding-block: clamp(72px, 10vw, 148px); }
+
+/* One focus treatment, visible on paper and on navy alike. */
+.mice :focus-visible {
+  outline: 2px solid var(--vb-500);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.mice .mice-exp :focus-visible,
+.mice .mice-dest__btn:focus-visible,
+.mice .mice-close :focus-visible,
+.mice .mice-bar :focus-visible { outline-color: var(--sf-300); }
+
+/* ------------------------------------------------------------- typography */
+
+.mice .mice-eyebrow {
+  margin: 0 0 16px;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 4px;          /* design.md label tracking, to the letter */
+  text-transform: uppercase;
+  color: var(--sf-500);
+}
+.mice .mice-eyebrow--light { color: var(--sf-300); }
+
+/* Display and Title carry 1.1; see amendment 3 in the header. */
+.mice .mice-h2 {
+  margin: 0 0 16px;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(30px, 4.2vw, 54px);
+  line-height: 1.1;
+  letter-spacing: 0;
+  color: var(--n-900);
+  max-width: 19ch;
+}
+.mice .mice-h2--light { color: var(--n-100); }
+
+.mice .mice-lede {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(17px, 1.4vw, 19px);
+  line-height: 1.55;
+  color: var(--n-700);
+  max-width: 56ch;
+}
+.mice .mice-lede--light { color: var(--vb-100); }
+
+.mice .mice-sechead { margin-bottom: clamp(36px, 4.5vw, 64px); }
+.mice .mice-sechead .mice-h2 { max-width: 20ch; }
+.mice .mice-sechead--center {
+  text-align: center;
+  max-width: 760px;
+  margin-inline: auto;
+}
+.mice .mice-sechead--center .mice-h2,
+.mice .mice-sechead--center .mice-lede { max-width: none; margin-inline: auto; }
+
+/* Heading left, lede right, baselines aligned. Stacked, these headings left a
+   column of dead space down the right of every section that used one. */
+.mice .mice-sechead--split { display: grid; gap: 20px 56px; align-items: end; }
+@media (min-width: 981px) {
+  .mice .mice-sechead--split { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .mice .mice-sechead--split .mice-lede { padding-bottom: 8px; }
+}
+.mice .mice-sechead--split .mice-h2 { margin-bottom: 0; max-width: 17ch; }
+.mice .mice-sechead--split .mice-lede { max-width: 44ch; }
+
+.mice p { font-size: 16px; line-height: 1.6; color: var(--n-800); }
+
+/* Keeps a phrase whole so a headline never breaks mid-thought. Above 860px
+   only — on a phone the measure is too narrow and nowrap would push the type
+   off the edge rather than wrapping it. */
+@media (min-width: 861px) { .mice .mice-nb { white-space: nowrap; } }
+
+/* No heading ends on a single word. `balance` distributes a heading's words
+   evenly across its lines instead of filling each line and dumping the
+   remainder, which is what leaves one word stranded on its own.
+
+   It applies to the display spans as well as the real headings, because
+   several titles on this page are spans inside a button or a figure. Browsers
+   without it fall back to the max-width measures and the `mice-nb` spans,
+   which already carry the worst cases. */
+.mice h1,
+.mice h2,
+.mice h3,
+.mice h4,
+.mice .mice-hero__title,
+.mice .mice-h2,
+.mice .mice-her__h2,
+.mice .mice-her__ctitle,
+.mice .mice-close__title,
+.mice .mice-close__title span,
+.mice .mice-dest__title,
+.mice .mice-destm__body h3,
+.mice .mice-exp__t,
+.mice .mice-steps__t,
+.mice .mice-talk__t,
+.mice .mice-lede {
+  text-wrap: balance;
+}
+
+/* ----------------------------------------------------------------- buttons */
+/* Primary CTAs are the homepage's `h26-btn h26-btn-pill`. Only the two things
+   that sheet has no equivalent for live here: a ghost button and a text link. */
+
+.mice .mice-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-ic);
+  min-height: 46px;
+  padding: 12px 22px;
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(223, 225, 230, .5);
+  border-radius: 4px;               /* design.md system default */
+  font-family: var(--sans);
+  font-weight: 500;                 /* design.md · button labels are Medium */
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: .56px;
+  text-transform: uppercase;
+  color: var(--n-0);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background-color .2s var(--ease), border-color .2s var(--ease);
+}
+.mice .mice-btn-ghost:hover { background: rgba(255, 255, 255, .2); border-color: var(--nl-200); }
+.mice .mice-btn-ghost svg { flex: none; }
+/* On paper rather than on a photograph. */
+.mice .mice-btn-ghost--dark {
+  background: transparent;
+  border-color: var(--n-300);
+  color: var(--n-800);
+  backdrop-filter: none;
+}
+.mice .mice-btn-ghost--dark:hover { background: var(--n-100); border-color: var(--n-500); }
+.mice .mice-btn-wide { width: 100%; justify-content: center; }
+
+/* Tertiary. Where the brief's "Explore" and "Create" labels live — it mandates
+   one primary and one secondary, then introduces seven more, and nine peers is
+   how a page loses its call to action. */
+.mice .mice-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-ic);
+  padding: 8px 0;
+  background: none;
+  border: 0;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: .56px;
+  text-transform: uppercase;
+  color: var(--vb-500);
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s var(--ease);
+}
+.mice .mice-link:hover { border-bottom-color: currentColor; }
+.mice .mice-link svg { flex: none; transition: transform .2s var(--ease); }
+.mice .mice-link:hover svg { transform: translateX(3px); }
+.mice .mice-link--light { color: var(--sf-300); }
+
+/* The shared pill needs an icon gap of its own — its sheet sets 9px on the
+   nav's copy of the component, which is a touch tight at this size. */
+.mice .h26-btn-pill { gap: var(--gap-ic); }
+
+/* -------------------------------------------------------------------- hero */
+
+.mice .mice-hero {
+  position: relative;
+  min-height: min(100svh, 820px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  isolation: isolate;
+}
+.mice .mice-hero__media { position: absolute; inset: 0; z-index: 0; }
+.mice .mice-hero__media img,
+.mice .mice-hero__video { width: 100%; height: 100%; object-fit: cover; }
+.mice .mice-hero__video { position: absolute; inset: 0; }
+
+/* Directional, not a flat wash. Navy in the lower left, gone by the upper
+   right: it guarantees contrast under the type while leaving most of the
+   photograph at full strength. */
+.mice .mice-hero__scrim {
+  position: absolute; inset: 0; z-index: 1;
+  background:
+    linear-gradient(to top, rgba(2, 19, 48, .92) 0%, rgba(2, 19, 48, .55) 34%, rgba(2, 19, 48, 0) 68%),
+    linear-gradient(to right, rgba(2, 19, 48, .84) 0%, rgba(2, 19, 48, .44) 44%, rgba(2, 19, 48, .06) 82%);
+}
+
+/* Bottom-left with a wide empty top gutter. Centred display type over a travel
+   photograph is the category default; this reads editorial and leaves the
+   landscape uncovered. */
+/* On a phone the copy runs the full width, so the left-to-right fall that
+   protects it on desktop does nothing for the right-hand half of every line.
+   Below 860px the scrim becomes a single strong vertical wash with a floor
+   under it, sized for a pale sky rather than a dark one. */
+@media (max-width: 860px) {
+  .mice .mice-hero__scrim {
+    background:
+      linear-gradient(to top,
+        rgba(2, 19, 48, .96) 0%,
+        rgba(2, 19, 48, .90) 34%,
+        rgba(2, 19, 48, .72) 62%,
+        rgba(2, 19, 48, .46) 86%,
+        rgba(2, 19, 48, .34) 100%);
+  }
+}
+
+.mice .mice-hero__inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: clamp(120px, 17vw, 190px) clamp(20px, 5vw, 64px) clamp(48px, 6vw, 84px);
+}
+.mice .mice-hero__title {
+  margin: 0 0 22px;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(38px, 6.6vw, 84px);   /* the Display step — amendment 3 */
+  line-height: 1.06;
+  letter-spacing: 0;
+  color: var(--n-0);
+  max-width: 15ch;
+}
+.mice .mice-hero__title em { font-style: italic; color: var(--sf-300); }
+
+.mice .mice-hero__lead {
+  margin: 0 0 30px;
+  font-weight: 300;
+  font-size: clamp(17px, 1.5vw, 19px);
+  line-height: 1.55;
+  color: var(--vb-100);
+  max-width: 52ch;
+}
+.mice .mice-hero__actions { display: flex; flex-wrap: wrap; gap: 14px; }
+
+/* A credential, not a third headline — set as a footnote under a rule rather
+   than competing with the lede above it. */
+.mice .mice-hero__credential {
+  margin: 28px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(223, 225, 230, .3);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--nl-200);
+  max-width: 46ch;
+}
+
+/* ---- hero trust rail (the homepage's own pills, tuned for this hero) ---- */
+.mice .mice-hero__trust {
+  gap: 12px;
+  /* One width for all four. Left to size themselves the pills stepped in and
+     out with their label lengths, which reads as four unrelated chips rather
+     than one rail. */
+  align-items: stretch;
+  width: clamp(210px, 21vw, 268px);
+}
+.mice .mice-hero__trust .h26-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  width: 100%;
+  padding: 14px 18px;
+  background: rgba(2, 19, 48, .5);
+  border: 1px solid rgba(223, 225, 230, .22);
+  border-radius: 4px;
+  backdrop-filter: blur(10px);
+  text-align: right;
+}
+.mice .mice-hero__trust .h26-pill strong {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 27px;
+  line-height: 1.05;
+  color: var(--sf-300);       /* the accent, doing accent work */
+}
+.mice .mice-hero__trust .h26-pill span {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--nl-200);
+}
+/* Below the point where the rail would sit on top of the headline it drops
+   under the copy and runs as a two-up grid instead of a right-hand column. */
+@media (max-width: 1180px) {
+  .mice .mice-hero__trust {
+    position: static;
+    transform: none;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 64px) clamp(28px, 5vw, 44px);
+    z-index: 2;
+  }
+  .mice .mice-hero__trust .h26-pill {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .mice .mice-hero__trust .h26-pill strong { font-size: 22px; }
+}
+@media (max-width: 520px) {
+  .mice .mice-hero__trust .h26-pill { padding: 11px 13px; }
+  .mice .mice-hero__trust .h26-pill strong { font-size: 19px; }
+  .mice .mice-hero__trust .h26-pill span { font-size: 10px; letter-spacing: 1.4px; }
+}
+
+/* --------------------------------------------------------------- desktop bar */
+
+.mice .mice-bar {
+  position: fixed;
+  z-index: 60;
+  display: none;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(2, 19, 48, .96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(223, 225, 230, .16);
+  border-radius: 4px;
+  box-shadow: 0 10px 34px rgba(2, 19, 48, .34);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity .28s var(--ease), transform .28s var(--ease), visibility .28s;
+}
+/* Bottom right, not top right: docked to the top it sat over section headings
+   and the first item of every list it scrolled past, and a persistent CTA that
+   hides the content it supports is worse than no persistent CTA. Below 681px
+   the shared `h26-thumbbar` takes over, so this one stops there. */
+@media (min-width: 681px) {
+  .mice .mice-bar { display: flex; right: 24px; bottom: 24px; }
+  .mice .mice-bar.is-on { opacity: 1; visibility: visible; transform: none; }
+}
+
+/* ------------------------------------------------------------ introduction */
+
+.mice .mice-intro {
+  display: grid;
+  align-items: center;
+  gap: clamp(32px, 5vw, 80px);
+  padding-block: clamp(72px, 10vw, 148px);
+}
+@media (min-width: 981px) {
+  .mice .mice-intro {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    padding-right: clamp(20px, 5vw, 64px);
+  }
+  /* The bleed. It runs past the page margin to the viewport edge, which is the
+     difference between a section that was laid out and one that was designed —
+     and it costs nothing to build. */
+  .mice .mice-intro__img { margin-left: calc(-1 * clamp(20px, 5vw, 64px)); }
+  .mice .mice-intro__copy { max-width: 46ch; }
+}
+.mice .mice-intro__img { overflow: hidden; }
+.mice .mice-intro__img img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  will-change: transform;
+}
+@media (max-width: 980px) {
+  .mice .mice-intro__img img { aspect-ratio: 4 / 5; }
+  .mice .mice-intro__copy { padding-inline: clamp(20px, 5vw, 64px); }
+}
+.mice .mice-intro__copy p { margin: 0 0 16px; }
+.mice .mice-intro__copy p:last-child { margin-bottom: 0; }
+
+/* -------------------------------------------------- solution cards (hi-lane) */
+/* The homepage component, with only the extras this page adds: a serif emphasis
+   line above the body copy, and a CTA pinned to the bottom of every card so the
+   four buttons sit on one line however unevenly the copy wraps. */
+
+.mice .mice-fork .hi-lane-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.mice .mice-fork .hi-lane-body h3 { margin: 0; }
+.mice .mice-fork .hi-lane-body p { margin: 0; }
+.mice .mice-lane-line {
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.25;
+  color: var(--sf-500);
+}
+.mice .mice-fork .hi-lane-body .h26-btn-pill {
+  margin-top: auto;
+  align-self: flex-start;
+  padding: 11px 18px;
+  font-size: 12.5px;
+}
+/* The card CTAs are inert labels, so they lose the affordances that promise an
+   action — no pointer, no hover shift, and nothing for a cursor to catch. */
+.mice .mice-lane-cta { cursor: default; }
+.mice .hi-lane:hover .mice-lane-cta { background: var(--vb-500); }
+/* Four across is the whole point of this section — the brief's four solutions
+   are the page's routing mechanism, so they have to be comparable at a glance.
+   Two-up only once four would drop under ~250px a card. */
+@media (max-width: 1080px) and (min-width: 641px) {
+  .mice .mice-fork.hi-fork-grid--four { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .mice .mice-fork.hi-fork-grid--four { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------- heritage / why */
+/* Built to match the homepage's "Crafting unforgettable journeys since 1758":
+   a large photograph on the left with a card overlapping its lower corner and a
+   second inset image inside that card, then the statement, badges, stat band
+   and CTA down the right. Ground is Neutrals/100, a step warmer than the page.
+
+   The homepage's version lives in Luxe2Improved.css, which SiteChrome does not
+   load. Importing another page's whole sheet to get one section would drag its
+   resets and its own background rules in with it, so this is rebuilt from the
+   same design.md tokens instead. */
+
+.mice .mice-her__grid { display: grid; gap: clamp(36px, 5vw, 72px); align-items: center; }
+@media (min-width: 981px) {
+  .mice .mice-her__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+/* ---- the photograph composition ---- */
+.mice .mice-her__media { position: relative; padding-bottom: clamp(60px, 9vw, 120px); }
+.mice .mice-her__main { overflow: hidden; border-radius: 10px; }
+.mice .mice-her__main img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  will-change: transform;         /* the parallax tween targets this */
+}
+@media (max-width: 980px) {
+  .mice .mice-her__main img { aspect-ratio: 4 / 3; }
+}
+
+/* The card overlaps the photograph's lower-right corner, as on the homepage. */
+.mice .mice-her__card {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(74%, 340px);
+  padding: 20px 20px 18px;
+  border-radius: 10px;
+  background: linear-gradient(160deg, var(--n-100) 0%, var(--n-150) 100%);  /* on the /50 ground */
+  border: 1px solid var(--n-200);
+  box-shadow: 0 22px 50px rgba(2, 19, 48, .13);
+}
+@media (max-width: 560px) {
+  /* Overlapping a 4:3 photo on a narrow screen leaves the card covering most of
+     the picture, so below this it simply sits beneath it. */
+  .mice .mice-her__media { padding-bottom: 0; }
+  .mice .mice-her__card {
+    position: static;
+    width: 100%;
+    margin-top: 14px;
+  }
+}
+.mice .mice-her__ceyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--sf-500);
+}
+.mice .mice-her__ctitle {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--n-900);
+}
+.mice .mice-her__ccopy { margin: 0 0 16px; font-size: 14px; line-height: 1.5; color: var(--n-800); }
+.mice .mice-her__inset { overflow: hidden; border-radius: 6px; }
+.mice .mice-her__inset img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+
+/* ---- the statement column ---- */
+.mice .mice-her__h2 {
+  margin: 0 0 20px;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(34px, 4.4vw, 58px);
+  line-height: 1.1;
+  color: var(--n-900);
+  max-width: 15ch;
+}
+.mice .mice-her__h2 em { font-style: italic; }
+.mice .mice-her__copy {
+  margin: 0 0 30px;
+  font-size: 16.5px;
+  line-height: 1.65;
+  color: var(--n-800);
+  max-width: 52ch;
+}
+
+/* Two by two beside the statement, matching the homepage's trust badges: a
+   light-blue icon chip, the claim in Work Sans Medium, the detail beneath. */
+.mice .mice-her__badges {
+  display: grid;
+  gap: 18px clamp(20px, 2.6vw, 34px);
+  margin: 0 0 32px;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 521px) { .mice .mice-her__badges { grid-template-columns: 1fr 1fr; } }
+.mice .mice-her__badges li { display: flex; align-items: flex-start; gap: 13px; }
+.mice .mice-her__ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--vb-100);
+  color: var(--vb-500);
+}
+.mice .mice-her__bt { display: flex; flex-direction: column; gap: 3px; padding-top: 1px; }
+.mice .mice-her__bt strong {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--n-900);
+}
+.mice .mice-her__bt small { font-size: 13.5px; line-height: 1.4; color: var(--n-700); }
+
+/* The stat band: blue serif numerals with vertical hairlines, as on /new3. */
+.mice .mice-her__band {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px clamp(20px, 3vw, 40px);
+  margin: 0 0 32px;
+  padding-top: 26px;
+  border-top: 1px solid var(--n-200);
+}
+.mice .mice-her__stat { display: flex; flex-direction: column; gap: 4px; }
+.mice .mice-her__stat + .mice-her__stat {
+  padding-left: clamp(20px, 3vw, 40px);
+  border-left: 1px solid var(--n-200);
+}
+.mice .mice-her__n {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(34px, 3.4vw, 46px);
+  line-height: 1;
+  color: var(--vb-500);
+}
+/* A figure we cannot yet stand behind collapses to a rule; the label survives,
+   so the band degrades rather than shipping an invented number. */
+.mice .mice-her__n--empty {
+  display: block;
+  width: 40px;
+  height: 1px;
+  margin: 22px 0 21px;
+  background: var(--sf-500);
+  opacity: .55;
+}
+.mice .mice-her__l { font-size: 14px; line-height: 1.3; color: var(--n-700); }
+/* The dividers are a left border on each stat after the first, which is right
+   while the band is one row — but once it wraps on a narrow screen the border
+   comes with it and leaves a rule hanging in mid-air at the start of the second
+   line. Below 700px the band simply relies on its gaps. */
+@media (max-width: 700px) {
+  .mice .mice-her__band { gap: 22px 34px; }
+  .mice .mice-her__stat + .mice-her__stat { padding-left: 0; border-left: 0; }
+}
+
+/* ------------------------------------------------- destinations (desktop) */
+
+.mice .mice-dest { padding-bottom: clamp(48px, 6vw, 88px); }
+.mice .mice-dest__bands { list-style: none; margin: 0; padding: 0; }
+.mice .mice-dest__band {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  border-top: 1px solid rgba(223, 225, 230, .14);
+  transition: height .52s var(--ease);
+}
+.mice .mice-dest__band:last-child { border-bottom: 1px solid rgba(223, 225, 230, .14); }
+.mice .mice-dest__band::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(2, 19, 48, .9) 0%, rgba(2, 19, 48, .66) 52%, rgba(2, 19, 48, .46) 100%);
+  transition: opacity .45s var(--ease);
+}
+.mice .mice-dest__band.is-open::before { opacity: .8; }
+
+.mice .mice-dest__btn {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 26px clamp(20px, 5vw, 64px);
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  max-width: 1280px;
+  margin-inline: auto;
+}
+.mice .mice-dest__title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(26px, 3.2vw, 44px);
+  line-height: 1.1;
+  color: var(--n-0);
+}
+.mice .mice-dest__reveal { display: block; }
+.mice .mice-dest__places {
+  display: block;
+  margin-top: 12px;
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 500;
+  letter-spacing: 1.6px;
+  color: var(--sf-300);
+}
+.mice .mice-dest__line {
+  display: block;
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--vb-100);
+  max-width: 46ch;
+}
+/* The logistics micro-line. A buyer's first thought about Iceland is whether it
+   is even feasible, and three words answer it at the moment the question forms. */
+.mice .mice-dest__note {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--nl-200);
+  opacity: .82;
+}
+.mice .mice-dest__foot { margin-top: clamp(28px, 4vw, 44px); }
+
+@media (min-width: 861px) {
+  .mice .mice-dest__band { height: 132px; }
+  .mice .mice-dest__band.is-open { height: 320px; }
+  /* Collapsed to zero height, not just faded out. At opacity 0 it still
+     occupied its full height inside the flex column, so the centred title was
+     being pushed to the top of every closed band — which is what made the
+     bands look top-heavy with all that space beneath them. */
+  .mice .mice-dest__reveal {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: max-height .5s var(--ease), opacity .3s var(--ease),
+                transform .3s var(--ease);
+  }
+  .mice .mice-dest__band.is-open .mice-dest__reveal {
+    max-height: 220px;
+    opacity: 1;
+    transform: none;
+    transition: max-height .5s var(--ease), opacity .3s var(--ease) .12s,
+                transform .3s var(--ease) .12s;
+  }
+  .mice .mice-destm { display: none; }
+}
+
+/* -------------------------------------------------- destinations (mobile) */
+/* Five stacked full-bleed bands on a phone was a wall of photographs with no
+   sense of position in it. One card at a time on a snap rail gives the type
+   room, keeps the section to one screen, and the peeking next card is the only
+   affordance needed to say there is more. */
+
+@media (max-width: 860px) {
+  .mice .mice-dest__bands { display: none; }
+  .mice .mice-destm { display: block; }
+
+  .mice .mice-destm__rail {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 20px;
+    padding: 4px 20px 20px;
+    scrollbar-width: none;
+  }
+  .mice .mice-destm__rail::-webkit-scrollbar { display: none; }
+
+  .mice .mice-destm__card {
+    position: relative;
+    flex: none;
+    width: min(80vw, 340px);
+    /* Not a fixed aspect box: the logistics line is the longest string on the
+       card and it was falling off the bottom edge on the narrowest phones.
+       A min-height with room to grow keeps every group's copy inside it. */
+    min-height: 460px;
+    scroll-snap-align: start;
+    border-radius: 6px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .mice .mice-destm__card img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .mice .mice-destm__card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(2, 19, 48, .95) 6%, rgba(2, 19, 48, .45) 48%, rgba(2, 19, 48, .06) 80%);
+  }
+  .mice .mice-destm__body {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 1;
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mice .mice-destm__body h3 {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: 27px;
+    line-height: 1.12;
+    color: var(--n-0);
+  }
+  .mice .mice-destm__places {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1.4px;
+    color: var(--sf-300);
+  }
+  .mice .mice-destm__line { margin: 0; font-size: 14px; line-height: 1.45; color: var(--vb-100); }
+  .mice .mice-destm__note {
+    margin: 4px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(223, 225, 230, .22);
+    font-size: 10.5px;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--nl-200);
+    opacity: .85;
+  }
+  /* Clear of the fixed thumb-bar, which otherwise sits straight on top of
+     the arrows and the counter. */
+  .mice .mice-destm .mice-railnav { padding: 0 20px 76px; }
+}
+
+/* ------------------------------------------------------- shared rail nav */
+
+.mice .mice-railnav { display: flex; align-items: center; gap: 10px; }
+.mice .mice-railnav button {
+  width: 44px; height: 44px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid var(--n-300);
+  border-radius: 4px;
+  color: var(--n-900);
+  cursor: pointer;
+  transition: background-color .2s var(--ease), border-color .2s var(--ease);
+}
+.mice .mice-railnav button:hover { background: var(--n-100); border-color: var(--n-500); }
+.mice .mice-railnav__count {
+  margin-left: 6px;
+  font-size: 12px;
+  letter-spacing: 2.2px;
+  color: var(--n-700);
+}
+.mice .mice-railnav__count i { font-style: normal; opacity: .5; }
+.mice .mice-railnav--light button { border-color: rgba(223, 225, 230, .3); color: var(--n-0); }
+.mice .mice-railnav--light button:hover { background: rgba(255, 255, 255, .1); border-color: var(--nl-200); }
+.mice .mice-railnav--light .mice-railnav__count { color: var(--nl-200); }
+
+/* -------------------------------------------------------------- experiences */
+
+.mice .mice-exp .mice-sechead { margin-bottom: clamp(30px, 3.6vw, 48px); }
+
+.mice .mice-exp__track {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: clamp(20px, 5vw, 64px);
+  padding: 4px clamp(20px, 5vw, 64px) 26px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(223, 225, 230, .35) transparent;
+}
+.mice .mice-exp__track::-webkit-scrollbar { height: 4px; }
+.mice .mice-exp__track::-webkit-scrollbar-thumb { background: rgba(223, 225, 230, .35); border-radius: 4px; }
+
+.mice .mice-exp__panel {
+  position: relative;
+  flex: none;
+  width: clamp(268px, 33vw, 430px);
+  aspect-ratio: 4 / 5;
+  scroll-snap-align: start;
+  border-radius: 6px;
+  overflow: hidden;
+  isolation: isolate;
+}
+.mice .mice-exp__panel img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .7s var(--ease);
+}
+.mice .mice-exp__panel:hover img { transform: scale(1.05); }
+.mice .mice-exp__panel::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(2, 19, 48, .94) 4%, rgba(2, 19, 48, .35) 46%, rgba(2, 19, 48, .05) 78%);
+}
+.mice .mice-exp__copy {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  padding: 26px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.mice .mice-exp__n {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3.2px;
+  color: var(--sf-300);
+}
+.mice .mice-exp__t {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(23px, 2.1vw, 30px);
+  line-height: 1.15;
+  color: var(--n-0);
+}
+/* Desire, not information. One line, and nothing else on the panel. */
+.mice .mice-exp__l { margin: 0; font-size: 14px; line-height: 1.5; color: var(--vb-100); }
+
+.mice .mice-exp__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* -------------------------------------------------------------- how we work */
+
+.mice .mice-steps__rail { position: relative; }
+.mice .mice-steps__rule {
+  position: absolute;
+  top: 13px; left: 0; right: 0;
+  height: 1px;
+  background: var(--n-200);
+}
+.mice .mice-steps__rule i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--sf-500);
+  transform-origin: left center;   /* GSAP draws this in — see Mice.jsx */
+}
+.mice .mice-steps__rail ol {
+  position: relative;
+  display: grid;
+  gap: clamp(24px, 3vw, 32px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+@media (min-width: 981px) {
+  .mice .mice-steps__rail ol { grid-template-columns: repeat(5, 1fr); }
+}
+/* Vertical on a phone. Five columns on a 390px screen is either illegible or a
+   carousel that hides four-fifths of a process the reader wants to see whole —
+   and a vertical timeline suits the "journey" metaphor better than a swipe. */
+@media (max-width: 980px) {
+  .mice .mice-steps__rule {
+    top: 6px; bottom: 6px; left: 13px; right: auto;
+    width: 1px; height: auto;
+  }
+  .mice .mice-steps__rule i { transform-origin: center top; }
+  .mice .mice-steps__rail ol { gap: 30px; padding-left: 46px; }
+  .mice .mice-steps__rail li { position: relative; }
+  .mice .mice-steps__rail li::before {
+    content: '';
+    position: absolute;
+    left: -38px; top: 8px;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: var(--sf-500);
+  }
+}
+.mice .mice-steps__n {
+  display: block;
+  margin-bottom: 12px;
+  padding-top: 34px;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(32px, 3vw, 44px);
+  line-height: 1;
+  color: var(--sf-500);
+}
+@media (max-width: 980px) { .mice .mice-steps__n { padding-top: 0; } }
+/* Measured, not guessed: the step column is 205px and three of these titles
+   needed 208px at the old tracking — three pixels over, which is what broke
+   "We execute everything" onto two lines with one word stranded. It is the
+   only three-word title, so balancing cannot save it: a 3-word phrase over
+   2 lines always leaves an orphan.
+
+   1.4px tracking buys about 8px and puts all three on one line. The longest,
+   "Your people make memories", still needs 240px and so still wraps — but at
+   four words it balances two-and-two, which is fine. */
+.mice .mice-steps__t {
+  margin: 0 0 8px;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--n-900);
+}
+.mice .mice-steps__b { margin: 0; font-size: 15px; line-height: 1.55; color: var(--n-700); }
+
+.mice .mice-steps__lead {
+  margin: clamp(36px, 5vw, 56px) 0 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--n-200);
+  font-size: 15px;
+  color: var(--n-700);
+}
+.mice .mice-steps__lead strong { color: var(--n-900); font-weight: 500; }
+
+/* ------------------------------------------------------------- testimonials */
+/* The homepage marquee, on this page's ground. Only the frame is set here — the
+   cards, the rating strip and the scroll all come from the shared sheets. */
+
+.mice .mice-revs { padding-block: clamp(64px, 9vw, 128px); }
+.mice .mice-revs .mice-sechead {
+  margin-bottom: clamp(28px, 3.4vw, 40px);
+  /* The shared rating strip below is centred, so a left-aligned heading above
+     it read as two unrelated blocks. */
+  text-align: center;
+  max-width: 760px;
+  margin-inline: auto;
+}
+.mice .mice-revs .mice-sechead .mice-h2,
+.mice .mice-revs .mice-sechead .mice-lede { max-width: none; margin-inline: auto; }
+.mice .mice-revs .hi-rtrust { margin-bottom: clamp(30px, 4vw, 48px); }
+
+/* --------------------------------------------------------------------- faq */
+
+.mice .mice-faq__grid { display: grid; gap: clamp(30px, 5vw, 72px); }
+@media (min-width: 981px) {
+  .mice .mice-faq__grid { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); align-items: start; }
+}
+.mice .mice-faq__list { list-style: none; margin: 0; padding: 0; }
+.mice .mice-faq__list li { border-top: 1px solid var(--n-200); }
+.mice .mice-faq__list li:last-child { border-bottom: 1px solid var(--n-200); }
+.mice .mice-faq__list h3 { margin: 0; }
+.mice .mice-faq__list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  width: 100%;
+  min-height: 58px;
+  padding: 19px 0;
+  background: none;
+  border: 0;
+  text-align: left;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--n-900);
+  cursor: pointer;
+}
+.mice .mice-faq__list button svg { flex: none; color: var(--vb-500); transition: transform .22s var(--ease); }
+.mice .mice-faq__list li.is-open button svg { transform: rotate(45deg); }
+.mice .mice-faq__a { padding: 0 0 20px; }
+.mice .mice-faq__a p { margin: 0; max-width: 62ch; color: var(--n-700); font-size: 15px; }
+
+/* -------------------------------------------------------------------- form */
+
+.mice .mice-form__grid { display: grid; gap: clamp(32px, 5vw, 64px); }
+@media (min-width: 981px) {
+  .mice .mice-form__grid { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); align-items: start; }
+}
+
+/* The form on its own white card. On a cream page a bare form reads as loose
+   fields floating in a section; boxed, it reads as one object with a beginning
+   and an end, which is most of what makes it feel quick to fill. */
+.mice .mice-form__card {
+  padding: clamp(24px, 3.4vw, 44px);
+  background: var(--n-100);
+  border: 1px solid var(--n-200);
+  border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(2, 19, 48, .06);
+}
+
+/* A small caps rule between the two halves of step two, so the eye can find
+   "your details" and "about the journey" without reading every label. */
+.mice .mice-group {
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--n-200);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--sf-500);
+}
+.mice .mice-group + .mice-two,
+.mice .mice-group + .mice-field { margin-top: 0; }
+.mice .mice-form__card .mice-field:last-of-type { margin-bottom: 22px; }
+
+.mice .mice-steps-ind {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+.mice .mice-steps-ind i {
+  width: 46px; height: 3px;
+  background: var(--n-200);
+  border-radius: 2px;
+  transition: background-color .3s var(--ease);
+}
+.mice .mice-steps-ind i.is-on { background: var(--vb-500); }
+.mice .mice-steps-ind span {
+  margin-left: 8px;
+  font-size: 12px;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  color: var(--n-700);
+}
+
+.mice .mice-field { margin-bottom: 28px; border: 0; padding: 0; }
+.mice .mice-field > label,
+.mice .mice-field legend {
+  display: block;
+  margin-bottom: 12px;
+  padding: 0;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 1.4px;
+  color: var(--n-900);
+}
+.mice .mice-field b { color: var(--sf-500); font-weight: 400; }
+.mice .mice-opt { color: var(--n-700); letter-spacing: 0; font-size: 13px; }
+
+.mice .mice-field input[type="text"],
+.mice .mice-field input[type="email"],
+.mice .mice-field input[type="tel"],
+.mice .mice-field select,
+.mice .mice-field textarea {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  background: var(--n-50);
+  /* Neutrals/500, not /200 — see amendment 2 in the header. */
+  border: 1px solid var(--n-500);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 16px;               /* below 16px iOS zooms the moment it focuses */
+  line-height: 1.4;
+  color: var(--n-900);
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.mice .mice-field textarea { min-height: 96px; resize: vertical; }
+.mice .mice-field input:focus,
+.mice .mice-field select:focus,
+.mice .mice-field textarea:focus {
+  border-color: var(--vb-500);
+  box-shadow: 0 0 0 3px rgba(11, 90, 177, .14);
+  outline: none;
+}
+.mice .mice-field input::placeholder { color: var(--n-500); }
+.mice .mice-field input:disabled { background: var(--n-150); color: var(--n-600); cursor: not-allowed; }
+
+.mice .mice-two { display: grid; gap: 18px; }
+@media (min-width: 621px) { .mice .mice-two { grid-template-columns: 1fr 1fr; } }
+.mice .mice-two--tight { gap: 12px; grid-template-columns: 2fr 1fr; }
+
+/* Real radios styled as chips: one tab stop for the group, arrow keys inside
+   it, and the right thing announced. Not divs with click handlers. */
+.mice .mice-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.mice .mice-chips label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 11px 18px;
+  background: var(--n-50);
+  border: 1px solid var(--n-500);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--n-800);
+  cursor: pointer;
+  transition: background-color .2s var(--ease), border-color .2s var(--ease), color .2s var(--ease);
+}
+.mice .mice-chips label:hover { border-color: var(--vb-500); }
+.mice .mice-chips label.is-on {
+  background: var(--vb-500);
+  border-color: var(--vb-500);
+  color: var(--n-100);
+}
+.mice .mice-chips input {
+  position: absolute; left: 0; top: 0;
+  width: 100%; height: 100%;
+  margin: 0; opacity: 0; cursor: pointer;
+}
+.mice .mice-chips label:has(input:focus-visible) { outline: 2px solid var(--vb-500); outline-offset: 3px; }
+
+/* `.mice .mice-field > label` is (0,2,1) and was beating `.mice .mice-check`
+   at (0,2,0), forcing display:block back on — which collapsed the gap and put
+   the box hard against its own label. Matching the element in the selector
+   settles it. */
+.mice .mice-field > label.mice-check,
+.mice .mice-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--n-800);
+  cursor: pointer;
+  letter-spacing: 0;
+}
+.mice .mice-check input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--vb-500); }
+.mice .mice-check--consent { margin-top: 0; }
+.mice .mice-check a { color: var(--vb-500); }
+
+/* Errors carry text and position, never colour alone. */
+.mice .mice-err {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: #A21117;                  /* design.md · Error/700, for AA on paper */
+}
+.mice .mice-err::before { content: '! '; font-weight: 600; }
+
+.mice .mice-form__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.mice .mice-fields__foot {
+  margin: 24px 0 0;
+  font-size: 13px;
+  color: var(--n-700);
+  max-width: 52ch;
+}
+
+/* The confirmation replaces the form in place — no navigation, no modal. */
+.mice .mice-sent {
+  padding: clamp(28px, 4vw, 44px);
+  background: var(--n-100);
+  border: 1px solid var(--n-200);
+  border-left: 3px solid var(--vb-500);
+  border-radius: 4px;
+}
+.mice .mice-sent__tick {
+  display: grid;
+  place-items: center;
+  width: 44px; height: 44px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  background: #D6E5E0;             /* design.md · Success/100 */
+  color: #1F4B3C;                  /* design.md · Success/700 */
+}
+.mice .mice-sent h3 {
+  margin: 0 0 12px;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(24px, 2.4vw, 32px);
+  line-height: 1.2;
+  color: var(--n-900);
+}
+.mice .mice-sent h3:focus-visible { outline-offset: 6px; }
+.mice .mice-sent p { margin: 0 0 16px; max-width: 50ch; }
+
+/* Not a photograph. This is the highest-intent space on the page and the
+   reader's state here is mild anxiety, not aspiration — so the rail answers
+   that rather than decorating it. Three cards rather than a list on a dark
+   slab: each step is its own object, scannable at a glance, and it stops the
+   panel reading as a second block of body copy beside the form. */
+.mice .mice-rail { display: flex; flex-direction: column; gap: 12px; }
+@media (min-width: 981px) { .mice .mice-rail { position: sticky; top: 118px; } }
+
+.mice .mice-rail__t {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3.2px;
+  text-transform: uppercase;
+  color: var(--sf-500);
+}
+
+.mice .mice-next { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.mice .mice-next__card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 18px 20px;
+  background: var(--n-100);
+  border: 1px solid var(--n-200);
+  border-radius: 6px;
+  transition: border-color .25s var(--ease), transform .25s var(--ease);
+}
+.mice .mice-next__card:hover { border-color: var(--vb-300); transform: translateY(-2px); }
+.mice .mice-next__head { display: flex; align-items: center; gap: 12px; }
+.mice .mice-next__ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  background: var(--vb-100);
+  color: var(--vb-500);
+}
+.mice .mice-next__n {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2.6px;
+  color: var(--n-600);
+}
+.mice .mice-next__card strong {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--n-900);
+}
+.mice .mice-next__card small { font-size: 13.5px; line-height: 1.5; color: var(--n-700); }
+
+/* The one dark object in the rail, so the alternative to filling the form is
+   visibly an alternative rather than a fourth step. */
+.mice .mice-talk {
+  margin-top: 6px;
+  padding: 22px 20px;
+  background: var(--nd-900);
+  border-radius: 6px;
+}
+.mice .mice-talk__t {
+  margin: 0 0 6px;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--n-0);
+}
+.mice .mice-talk__b { margin: 0 0 16px; font-size: 13.5px; line-height: 1.5; color: var(--vb-100); }
+.mice .mice-talk__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-ic);
+  padding: 11px 18px;
+  background: transparent;
+  border: 1px solid rgba(223, 225, 230, .45);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 12.5px;
+  letter-spacing: .56px;
+  text-transform: uppercase;
+  color: var(--n-0);
+  cursor: pointer;
+  transition: background-color .2s var(--ease), border-color .2s var(--ease);
+}
+.mice .mice-talk__cta:hover { background: rgba(255, 255, 255, .12); border-color: var(--nl-200); }
+.mice .mice-talk__cta svg { flex: none; }
+
+/* ----------------------------------------------------------------- closing */
+
+.mice .mice-close {
+  position: relative;
+  min-height: min(78svh, 600px);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  isolation: isolate;
+}
+.mice .mice-close__media { position: absolute; inset: 0; z-index: 0; }
+.mice .mice-close__media img { width: 100%; height: 100%; object-fit: cover; }
+.mice .mice-close__media::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(2, 19, 48, .82), rgba(2, 19, 48, .9));
+}
+.mice .mice-close__inner {
+  position: relative;
+  z-index: 1;
+  padding: clamp(64px, 9vw, 120px) clamp(20px, 5vw, 64px);
+  max-width: 900px;
+}
+/* The one place on the page where centred is right: it is a closing statement
+   and it has no neighbours to align to. */
+.mice .mice-close__title {
+  margin: 0 0 24px;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(34px, 5.6vw, 72px);
+  line-height: 1.08;
+  color: var(--n-0);
+}
+.mice .mice-close__title span { display: block; }
+.mice .mice-close__title span + span { margin-top: 12px; }
+.mice .mice-close__title em { font-style: italic; color: var(--sf-300); }
+.mice .mice-close__sub {
+  margin: 0 auto 32px;
+  max-width: 46ch;
+  font-size: clamp(16px, 1.4vw, 18px);
+  font-weight: 300;
+  line-height: 1.55;
+  color: var(--vb-100);
+}
+.mice .mice-close__actions { display: flex; justify-content: center; }
+
+/* Room for the mobile thumb-bar, so it never covers the last line of the page. */
+@media (max-width: 680px) { .mice .mice-close { padding-bottom: 76px; } }
+
+/* ------------------------------------------------------- the ground ladder */
+/* TWO NEUTRALS ONLY — Neutrals/50 #F8F7F1 and Neutrals/100 #F1EFE2, alternating
+   so no two consecutive sections share a ground. Neutrals/0 (pure white) is NOT
+   used anywhere on this page: beside the warm paper scale it reads cool, which
+   is the same reason Cloudstone #F7F5FD is excluded. The only other grounds are
+   the one dark brand band and the two photographic ones.
+
+     hero          image + navy scrim
+     intro         Neutrals/50   #F8F7F1
+     solutions     Neutrals/100  #F1EFE2
+     heritage      Neutrals/50   #F8F7F1
+     destinations  Neutrals/100  #F1EFE2  + full-bleed imagery
+     experiences   Voyager/800   #042447  (dark)
+     how we work   Neutrals/50   #F8F7F1
+     testimonials  Neutrals/100  #F1EFE2
+     enquiry       Neutrals/50   #F8F7F1
+     faq           Neutrals/100  #F1EFE2
+     closing       image + navy scrim
+
+   SURFACES follow the same two-tone rule: a card takes the OTHER neutral from
+   the ground it sits on, so it still separates without reaching for white. */
+.mice .mice-intro      { background: var(--n-50); }
+.mice .mice-solutions  { background: var(--n-100); }
+.mice .mice-her        { background: var(--n-50); }
+.mice .mice-dest       { background: var(--n-100); }
+.mice .mice-exp        { background: var(--vb-800); }
+.mice .mice-steps      { background: var(--n-50); }
+.mice .mice-revs       { background: var(--n-100); }
+.mice .mice-form       { background: var(--n-50); }
+.mice .mice-faq        { background: var(--n-100); }
+
+/* Surfaces on a Neutrals/100 ground step DOWN to Neutrals/50. */
+.mice .mice-solutions .hi-lane { background: var(--n-50); }
+.mice .mice-revs .h26-rev,
+.mice .mice-revs .hi-rtrust,
+.mice .mice-revs .hi-rtrust-plat { background: var(--n-50); }
+
+/* This page's own surfaces set their neutral at the point they are defined —
+   the form card, the next-step cards, the confirmation panel, the fields and
+   the chips. Only the SHARED components need overriding here, because their
+   own sheets hard-code white. */
+
+/* The step markers punch a hole in whatever ground they sit on, so the halo has
+   to follow the ladder rather than assume the page default. */
+.mice .mice-steps__rail li::before { box-shadow: 0 0 0 4px var(--n-50); }
+
+/* ------------------------------------------------------- mobile headings */
+
+@media (max-width: 860px) {
+  /* The `ch` caps are a DESKTOP measure control. On a phone the column is
+     already the measure, and the cap was squeezing headings into a box far
+     narrower than the screen — which is what pushed "Take Business Somewhere
+     Extraordinary." onto three lines when it comfortably fits in two. */
+  .mice .mice-h2,
+  .mice .mice-sechead .mice-h2,
+  .mice .mice-sechead--split .mice-h2,
+  .mice .mice-hero__title,
+  .mice .mice-her__h2,
+  .mice .mice-lede,
+  .mice .mice-hero__lead { max-width: none; }
+
+  /* Centred section openers read better than left-aligned ones in a single
+     narrow column. The hero and the heritage block keep their left alignment
+     on purpose: both sit directly above left-aligned content — buttons, a
+     badge list, a stat band — that would look adrift under a centred head. */
+  .mice .mice-sechead { text-align: center; }
+  .mice .mice-sechead .mice-lede { margin-inline: auto; }
+  .mice .mice-sechead--split { justify-items: center; }
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+/* Every scroll effect is created inside a GSAP matchMedia gated on
+   no-preference, so under reduced motion none of them exist and the resting
+   state — the visible one — is what a reader gets. This block covers the
+   handful of transitions that live in CSS rather than in GSAP. */
+@media (prefers-reduced-motion: reduce) {
+  .mice *,
+  .mice *::before,
+  .mice *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Held open rather than expanded on interaction, so nothing depends on a
+     transition the reader has asked not to see. */
+  .mice .mice-dest__band,
+  .mice .mice-dest__band.is-open { height: auto; }
+  /* max-height too, not just opacity — the closed state now collapses the
+     reveal to zero height, so resetting opacity alone left the content
+     clipped out of existence for a reduced-motion reader. */
+  .mice .mice-dest__reveal { max-height: none; opacity: 1; transform: none; }
+  .mice .mice-rail { position: static; }
+  /* The shared marquee animates on a CSS keyframe, so it has to be stopped
+     here rather than in the GSAP gate. */
+  .mice .h26-marquee-track { animation: none !important; transform: none !important; }
+  .mice .h26-marquee { overflow-x: auto; }
+}

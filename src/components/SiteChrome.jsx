@@ -634,6 +634,10 @@ export function SiteFooter() {
             </div>
             <div>
               <h4>Partner with us</h4>
+              {/* A MICE enquiry is a business relationship, not a booking, so it
+                  belongs here beside the other B2B routes rather than under
+                  Explore with the holidays. */}
+              <Link to="/mice">Corporate &amp; MICE</Link>
               <Link to="/franchise">Franchise partnership</Link>
               <Link to="/become-a-partner">Preferred sales partner</Link>
               <Link to="/collaborate">Creators &amp; collaborations</Link>

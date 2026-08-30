@@ -29,6 +29,7 @@ import PressMedia from './pages/PressMedia';
 import Testimonials from './pages/Testimonials';
 import Collaborate from './pages/Collaborate';
 import Franchise from './pages/Franchise';
+import Mice from './pages/Mice';
 import Terms from './pages/Terms';
 import Sitemap from './pages/Sitemap';
 import Faq2 from './pages/Faq2';
@@ -276,6 +277,7 @@ export default function App() {
               /become-a-partner (sales agents) and /collaborate (creators).
               Form-first; linked from the footer's "Partner with us" column. */}
           <Route path="/franchise" element={<Franchise />} />
+          <Route path="/mice" element={<Mice />} />
 
           {/* INSPIRATION — "Dispatches", the journal. The create-desire job given
               its own room: a traveller who is inspired but undecided has nothing
