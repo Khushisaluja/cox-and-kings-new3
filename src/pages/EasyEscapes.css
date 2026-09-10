@@ -1,0 +1,878 @@
+/* ============================================================================
+   Easy Escapes — /easy-escapes
+
+   This page is built ON /journeys/japan-2 and /journeys4, so almost all of its
+   styling arrives with the class stack on the root element:
+
+     <div class="h26 jl jl2 jp jj2 ee">
+
+   Home2026.css + Home2026Improved.css   the shared chrome and tokens
+   Journeys.css                          the hero, the card, the lightbox
+   Journeys2.css                         the left filter-rail shell + controls
+   Journeys4.css                         the card's corner tag
+   JapanJourneys.css                     the intro and the "good to know" facts
+   JapanJourneys2.css                    the listing head, the four corners,
+                                         the dark step strip, "people also view"
+
+   What is left here is only:
+     A · emphasis and element swaps where a borrowed component carries
+         different content on a SHOP than it does on a listing;
+     B · the booking drawer, which is genuinely new — no other page on this
+         site takes a payment — dressed in the same j2-/jl- vocabulary so it
+         reads as part of the family rather than a bolted-on checkout.
+
+   Tokens come from .h26 (--ink, --paper, --paper-2, --blue, --sienna, --border,
+   --serif, --sans). Nothing new is invented; the two semantic greens below are
+   design.md's Success ramp, used ONLY for availability and confirmation.
+
+   NOTHING IS HIDDEN IN CSS. Every resting state is the visible one, so the
+   catalogue is complete, filterable and bookable with animation off.
+   ========================================================================== */
+
+.ee {
+  /* design.md Success / 500 and / 100 — semantic only: "confirmed instantly",
+     "included", the booking tick. Never decorative. */
+  --ok: #337D64;
+  --ok-100: #D6E5E0;
+  --err: #E23822;
+}
+
+/* ============================================================ A · THE CARD */
+
+/* On /journeys the card's primary action is "Enquire Now" (filled sienna) and
+   the itinerary link is the outline. Here the priority is the other way round:
+   BOOKING is the whole point of the page, and asking a human is the fallback.
+   Same two objects, emphasis swapped — so the card still reads as the family's
+   card, and the eye still lands on the action we want taken. */
+.ee .jl-cbtn-view {
+  background: var(--sienna);
+  color: var(--paper-2);
+  border-color: transparent;
+}
+.ee .jl-cbtn-view:hover { background: var(--sienna-d); color: var(--paper-2); }
+.ee .jl-cbtn-wa {
+  background: transparent;
+  color: var(--sienna);
+  border-color: var(--sienna);
+}
+.ee .jl-cbtn-wa:hover { background: rgba(189, 64, 17, 0.08); color: var(--sienna); }
+
+/* Three places where the borrowed markup used a link and this page needs a
+   button — the card photo, the card title and the four-corners tile all open
+   something in place rather than navigating. Strip the button chrome so they
+   are visually identical to the anchors they replace. */
+.ee .ee-media-btn,
+.ee .jl-card-title button,
+.ee .ee-hl-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.ee .jl-card-title button { transition: color .2s ease; }
+.ee .jl-card-title button:hover { color: var(--blue); }
+
+/* The corner tag. /journeys4 uses this slot to say Group or Private; a shop
+   uses it to say the thing a shopper is actually asking — can I just buy it?
+   Success/500, because it is a statement about availability, and it carries an
+   icon so the meaning is never colour alone. */
+.ee .ee-tourtype {
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ok);
+  border: 1px solid rgba(51, 125, 100, 0.28);
+}
+
+/* What is included. A listing card can leave this to the itinerary page; a
+   shop card cannot, because there is nobody to ask. Set tight and quiet so it
+   informs without competing with the price. */
+.ee .ee-inc {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+.ee .ee-inc li {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.ee .ee-inc svg { flex-shrink: 0; margin-top: 2px; color: var(--ok); }
+.ee .ee-inc-more { padding-left: 20px; color: var(--muted-2); }
+
+/* The line under the CTAs. Two facts that decide whether a stranger will type
+   their card number in, so they sit ON the card rather than in a FAQ. */
+.ee .ee-card-assure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--muted-2);
+}
+.ee .ee-card-assure svg { flex-shrink: 0; color: var(--ok); }
+
+/* An icon ahead of the travel-style labels in the rail. Decorative — the label
+   always carries the meaning. */
+.ee .ee-opt-ic { margin-right: 6px; vertical-align: -2px; opacity: .65; }
+
+/* ============================================ A · INTRO, STEPS, FOUR CORNERS */
+
+/* Four figures under the intro copy, in the page's own display serif. Sits
+   where /journeys/japan-2 has nothing, because a shop has to answer "how much
+   and how long" before anyone scrolls to the filters. */
+.ee .ee-about-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(20px, 3vw, 44px);
+  margin-top: clamp(22px, 3vw, 32px);
+  padding-top: clamp(20px, 2.6vw, 28px);
+  border-top: 1px solid var(--border);
+}
+.ee .ee-stat { display: flex; flex-direction: column; gap: 3px; }
+.ee .ee-stat strong {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+  line-height: 1;
+  color: var(--sienna);
+  font-variant-numeric: tabular-nums;
+}
+.ee .ee-stat small {
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: .02em;
+  color: var(--muted-2);
+}
+
+/* ---------------- The hero, in the brief's four voices: the name, the
+   tagline under it, the proposition, then the three-beat kicker. Each is a
+   step quieter than the one above so the block reads top to bottom without a
+   rule between the parts. */
+.ee .ee-hero-tag {
+  max-width: 48ch;
+  margin: clamp(10px, 1.4vw, 16px) 0 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(1.15rem, 1.9vw, 1.55rem);
+  line-height: 1.35;
+  color: #F3B9A2;                        /* Sienna Flame / 100–300 on photography */
+}
+/* The kicker is the last line of the message, not a caption on the buttons —
+   so it sits close under the paragraph and the real break comes after it. The
+   borrowed .jl-hero-sub carries a 30px bottom margin and .jp-hero-actions only
+   8px top, which put the gap on the wrong side of the pill; both are re-cut
+   here so the rhythm runs tight, tight, then open. */
+.ee .jl-hero-sub { margin-bottom: 0; }
+.ee .jp-hero-actions { margin-top: clamp(22px, 2.6vw, 30px); }
+.ee .ee-hero-kicker {
+  display: inline-flex;
+  margin: clamp(15px, 1.9vw, 20px) 0 0;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: .01em;
+  color: #FFFFFF;                        /* Neutrals-Light / 0 */
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ================================================== A0 · SECTION BANDS
+   The page is one long scroll of six sections that all inherited the same
+   Neutrals/50 paper, so the seams between them vanished and the whole thing
+   read as a single sheet. The homepage solves this by alternating two steps
+   of the warm neutral ramp down the page, and this page now does the same:
+   each section is its own band, no rule or border required.
+
+   Both tones come straight from design.md 2.7 and nothing else is used.
+   Cloudstone (#F7F5FD, design.md 2.2) is deliberately NOT here — it is a cool
+   violet-leaning tint and it fights the warm paper this page is built on,
+   which is the same call New3.css, Mice.css and AboutUs.css already made.
+
+     hero        photograph
+     the idea    Neutrals / 50   #F8F7F1
+     catalogue   Neutrals / 100  #F1EFE2   ← white cards gain contrast here
+     four corners Neutrals / 50
+     reviews     Neutrals / 100
+     beyond      Neutrals / 50
+     closing CTA photograph
+   ========================================================================== */
+.ee {
+  --n-50: #F8F7F1;   /* Neutrals / 50  — base page */
+  --n-100: #F1EFE2;  /* Neutrals / 100 — alternate band */
+}
+.ee .jp-about   { background: var(--n-50); }
+.ee .jj2-tours  { background: var(--n-100); }
+.ee .jj2-where  { background: var(--n-50); }
+.ee .h26-reviews { background: var(--n-100); }
+.ee .jj2-pav    { background: var(--n-50); }
+
+/* ---------------- "How easy is it" — the four steps, in the intro section.
+   The shape is the /journeys route map (lxjt-stop), with the photo swapped for
+   this page's own icon set: a white disc per step, a sienna number badge on its
+   shoulder, one rail running through all four, and the copy hanging beneath.
+   That CSS lives in JapanTourLuxe.css, which this page does not load, so it is
+   re-declared here page-scoped.
+
+   Four discs across down to 900px; below that the rail turns and it becomes a
+   vertical timeline, which is the only shape that survives a phone. */
+.ee .ee-flow-wrap {
+  margin-top: clamp(38px, 5vw, 68px);
+  padding-top: clamp(34px, 4.4vw, 58px);
+  border-top: 1px solid var(--border);
+}
+.ee .ee-flow-head { max-width: 620px; margin: 0 auto; text-align: center; }
+/* The one bold heading on an otherwise light-serif page — this is the
+   section a shopper is scanning for, so it is allowed to shout. Cormorant
+   ships 700 in both roman and italic, so the accent stays in step. */
+.ee .ee-flow-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 8px 0 0;
+}
+.ee .ee-flow-title em { font-style: italic; color: var(--sienna); }
+.ee .ee-flow-sub {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 12px 0 0;
+}
+
+.ee .ee-flow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 1120px;
+  margin: clamp(34px, 4vw, 54px) auto 0;
+  padding: 0;
+  list-style: none;
+}
+.ee .ee-flow__step {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 clamp(6px, 1.2vw, 16px);
+}
+.ee .ee-flow__marker { position: relative; z-index: 1; width: 132px; height: 132px; }
+.ee .ee-flow__disc {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(189, 64, 17, 0.18);
+  box-shadow: 0 18px 40px -22px rgba(2, 19, 48, 0.45);
+}
+/* `background: none` undoes the global lazy-load placeholder tint on img —
+   harmless behind a photo, a beige square behind a transparent icon. */
+.ee .ee-flow__icon { width: 56%; height: 56%; display: block; background: none; }
+.ee .ee-flow__num {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 16px;
+  color: #fff;
+  background: var(--sienna);
+  border: 3px solid var(--paper);
+  box-shadow: 0 6px 14px -6px rgba(189, 64, 17, 0.7);
+}
+/* the rail, drawn from this disc's centre across the gap to the next one */
+.ee .ee-flow__line {
+  position: absolute;
+  top: 66px;
+  left: 50%;
+  z-index: 0;
+  width: 100%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, var(--sienna), rgba(189, 64, 17, 0.32));
+}
+.ee .ee-flow__body { padding: 18px 0 0; }
+.ee .ee-flow__time {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sienna);
+}
+.ee .ee-flow__body h4 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.85rem);
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 8px 0 10px;
+}
+.ee .ee-flow__body p {
+  margin: 0 auto;
+  max-width: 230px;
+  font-family: var(--sans);
+  font-size: clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
+  line-height: 1.55;
+  color: var(--muted);
+}
+.ee .ee-flow-foot {
+  max-width: 62ch;
+  margin: clamp(30px, 3.6vw, 44px) auto 0;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--muted);
+  text-align: center;
+}
+/* A text action that reads as prose, not a button — so the support route
+   never looks like a competing CTA. */
+.ee .ee-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  font: inherit;
+  color: var(--blue);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  cursor: pointer;
+}
+.ee .ee-inline:hover { color: var(--sienna); }
+
+@media (max-width: 1100px) {
+  .ee .ee-flow__marker { width: 112px; height: 112px; }
+  .ee .ee-flow__line { top: 56px; }
+  .ee .ee-flow__num { width: 32px; height: 32px; font-size: 15px; }
+}
+/* Vertical timeline: rail down the left, copy beside each disc. */
+@media (max-width: 900px) {
+  .ee .ee-flow { display: block; width: min(620px, 100%); }
+  .ee .ee-flow__step {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    column-gap: 18px;
+    align-items: center;
+    text-align: left;
+    padding: 0 0 30px;
+  }
+  .ee .ee-flow__step:last-child { padding-bottom: 0; }
+  .ee .ee-flow__marker { width: 96px; height: 96px; }
+  .ee .ee-flow__num { top: 0; right: 0; width: 30px; height: 30px; font-size: 14px; }
+  .ee .ee-flow__line {
+    top: 96px;
+    bottom: 0;
+    left: 48px;
+    width: 2px;
+    height: auto;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, var(--sienna), rgba(189, 64, 17, 0.32));
+  }
+  .ee .ee-flow__body { padding: 4px 0; }
+  .ee .ee-flow__body h4 { font-size: 1.45rem; margin: 6px 0 8px; }
+  .ee .ee-flow__body p { margin: 0; max-width: 360px; }
+  .ee .ee-flow-foot { text-align: left; }
+}
+
+/* Visually hidden, still read aloud — used for the "(required)" that pairs
+   with each asterisk, since an asterisk alone is punctuation to a reader. */
+.ee-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ====================================================== B · BOOKING DRAWER
+   The one component with no precedent on this site. Its shell, steppers and
+   total bar are new; everything inside it is the site's existing filter and
+   button vocabulary, so a person who has used the rail already knows how to
+   use the checkout.
+   ========================================================================== */
+.ee-bk {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  --ink: #1F2A36;
+  --paper: #F8F7F1;
+  --paper-2: #F1EFE2;
+  --blue: #0B5AB1;
+  --blue-d: #07366A;
+  --sienna: #BD4011;
+  --sienna-d: #97330E;
+  --muted: #4A4A45;
+  --muted-2: #696960;
+  --border: #D9D7CB;
+  --ok: #337D64;
+  --ok-100: #D6E5E0;
+  --err: #E23822;
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans: 'Work Sans', system-ui, sans-serif;
+  font-family: var(--sans);
+  color: var(--ink);
+}
+.ee-bk *, .ee-bk *::before, .ee-bk *::after { box-sizing: border-box; }
+.ee-bk :focus-visible { outline: 3px solid var(--sienna); outline-offset: 2px; }
+
+.ee-bk-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 36, 71, 0.58);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 0;
+  cursor: pointer;
+  animation: ee-fade .25s ease;
+}
+
+.ee-bk-panel {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: min(540px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  box-shadow: -30px 0 70px -30px rgba(2, 19, 48, 0.5);
+  animation: ee-slide .34s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* ---- head ---- */
+.ee-bk-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 22px 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+}
+.ee-bk-topmedia {
+  flex: none;
+  width: 62px; height: 62px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--paper-2);
+}
+.ee-bk-topmedia img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ee-bk-topcopy { flex: 1; min-width: 0; }
+.ee-bk-eyebrow { margin: 0 0 6px; color: var(--sienna); }
+.ee-bk-title {
+  margin: 0 0 7px;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.5rem;
+  line-height: 1.18;
+  color: var(--ink);
+}
+.ee-bk-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--muted-2);
+}
+.ee-bk-meta svg { flex-shrink: 0; opacity: .7; }
+.ee-bk-close {
+  flex: none;
+  display: flex;
+  padding: 9px;
+  margin: -6px -6px 0 0;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.ee-bk-close:hover { background: var(--paper-2); }
+
+.ee-bk-prog { display: flex; gap: 4px; padding: 0 22px; background: #fff; }
+.ee-bk-prog span {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  transition: background .3s ease;
+}
+.ee-bk-prog span.is-on { background: var(--sienna); }
+
+/* ---- body ---- */
+.ee-bk-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 22px 24px;
+  -webkit-overflow-scrolling: touch;
+}
+/* The drawer reuses .j2-group for every block, so it inherits the rail's
+   eyebrow, rhythm and dividers for free. */
+.ee-bk-scroll .j2-group { padding-block: 20px; border-bottom: 1px solid var(--border); }
+.ee-bk-scroll .j2-group:last-child { border-bottom: 0; }
+.ee-bk-hint {
+  margin: -4px 0 12px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--muted-2);
+}
+.ee-bk-note {
+  margin: 12px 0 0;
+  padding: 11px 13px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  background: var(--paper-2);
+  border-radius: 8px;
+}
+.ee-bk-inc { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ee-bk-inc li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.ee-bk-inc svg { flex-shrink: 0; margin-top: 2px; color: var(--ok); }
+
+/* ---- travellers ---- */
+.ee-steppers { display: flex; flex-direction: column; gap: 10px; }
+.ee-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 13px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.ee-step-lbl { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ee-step-lbl strong { font-size: 14px; font-weight: 500; }
+.ee-step-lbl small { font-size: 11.5px; line-height: 1.45; color: var(--muted-2); }
+.ee-step-ctrl { display: flex; align-items: center; gap: 4px; flex: none; }
+.ee-step-ctrl button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  color: var(--blue);
+  background: #fff;
+  border: 1px solid #918F88;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.ee-step-ctrl button:hover:not(:disabled) { background: #EAF1FA; }
+.ee-step-ctrl button:disabled { color: #C1BFB5; border-color: var(--border); cursor: not-allowed; }
+.ee-step-ctrl output {
+  min-width: 32px;
+  text-align: center;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- extras: .j2-option with a price in the count slot ---- */
+.ee-bk-scroll .ee-addon { align-items: flex-start; }
+.ee-addon-txt { display: flex; flex-direction: column; gap: 2px; }
+.ee-addon-txt strong { font-weight: 500; }
+.ee-addon-txt small { font-size: 11.5px; line-height: 1.45; color: var(--muted-2); }
+.ee-addon-price { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ---- details form ---- */
+.ee-field { margin-bottom: 14px; }
+.ee-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ee-field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  font: 400 15px/1.3 var(--sans);
+  color: var(--ink);
+  background: #fff;
+  /* Neutrals/500, not /200: a control boundary needs 3:1 (SC 1.4.11), and
+     the /200 hairline measures 1.35:1 against the panel. */
+  border: 1px solid #918F88;
+  border-radius: 4px;
+}
+.ee-field input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px #CEDEEF; }
+.ee-field.has-error input { border-color: var(--err); }
+.ee-field-hint { margin: 6px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--muted-2); }
+.ee-err { margin: 6px 0 0; font-size: 12.5px; color: var(--err); }
+
+.ee-pay { display: flex; flex-direction: column; gap: 9px; }
+.ee-payopt {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 13px 15px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.ee-payopt:hover { border-color: #6D9CD0; }
+.ee-payopt.is-on { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue) inset; }
+.ee-payopt strong { font-size: 14px; font-weight: 500; }
+.ee-payopt span { font-size: 12.5px; color: var(--muted-2); }
+
+.ee-bk-scroll .ee-consent { margin-top: 16px; align-items: flex-start; }
+.ee-bk-scroll .ee-consent a { color: var(--blue); text-decoration: underline; }
+.ee-bk-scroll .ee-consent.has-error .j2-check { border-color: var(--err); }
+
+.ee-bk-secure {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted-2);
+}
+.ee-bk-secure svg { flex-shrink: 0; margin-top: 2px; color: var(--ok); }
+
+/* ---- confirmation ---- */
+.ee-bk-done { padding: 30px 0 20px; text-align: center; }
+.ee-bk-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px; height: 60px;
+  margin-bottom: 18px;
+  color: var(--ok);
+  background: var(--ok-100);
+  border-radius: 50%;
+}
+.ee-bk-doneh {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+.ee-bk-doneh:focus { outline: none; }
+.ee-bk-donesub { margin: 0 0 16px; font-size: 13.5px; color: var(--muted-2); }
+.ee-bk-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 9px 15px;
+  font-size: 13px;
+  background: var(--paper-2);
+  border-radius: 6px;
+}
+.ee-bk-ref svg { color: var(--sienna); }
+.ee-bk-ref strong { font-weight: 500; letter-spacing: .09em; }
+.ee-bk-next { margin-bottom: 24px; text-align: left; }
+.ee-bk-doneacts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+
+/* ---- the money bar ---- */
+.ee-bk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 22px calc(14px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -12px 30px -22px rgba(2, 19, 48, 0.4);
+}
+.ee-bk-total { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.ee-bk-totlbl {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.ee-bk-totlbl small { font-weight: 400; letter-spacing: .02em; text-transform: none; }
+.ee-bk-totval {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.8rem;
+  line-height: 1.05;
+  color: var(--sienna);
+  font-variant-numeric: tabular-nums;
+}
+.ee-bk-totnote { font-size: 11px; color: var(--muted-2); }
+.ee-bk-baracts { display: flex; align-items: center; gap: 6px; }
+.ee-bk-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 44px;
+  padding: 10px 10px;
+  font: 500 12px/1 var(--sans);
+  letter-spacing: .48px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.ee-bk-back:hover { color: var(--sienna); }
+.ee-bk-go { white-space: nowrap; }
+
+@keyframes ee-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ee-slide { from { transform: translateX(26px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ee-bk-panel, .ee-bk-scrim { animation: none; }
+  .ee .jl-card-title button, .ee-payopt { transition: none; }
+}
+
+/* On a phone the drawer takes the whole screen: a 540px panel on a 390px
+   viewport is a modal pretending to be a drawer. */
+@media (max-width: 600px) {
+  .ee-bk-panel { width: 100%; }
+  .ee-bk-top { padding: 16px 16px 14px; }
+  .ee-bk-prog, .ee-bk-scroll, .ee-bk-bar { padding-inline: 16px; }
+  .ee-bk-totval { font-size: 1.55rem; }
+  .ee-bk-title { font-size: 1.3rem; }
+}
+
+/* The mobile specialist bar sits over the bottom 74px of the page; the drawer
+   and the lightbox both outrank it, but the closing CTA does not, so give the
+   page room to finish above it. */
+@media (max-width: 900px) {
+  .ee .jl-cta { padding-bottom: clamp(96px, 16vw, 130px); }
+}
+
+/* ---------------- The photo carousel, at the top of the drawer.
+   Native scroll-snap, not a transform carousel: touch swipe, trackpad, the
+   scrollbar and the keyboard all keep working, and with JS off it is still a
+   scrollable strip of photos. Frames sit at 84% so the next one peeks in —
+   the cheapest possible signal that there is more to the right. */
+.ee-bk .ee-gal { position: relative; margin: 0 0 clamp(20px, 2.6vw, 28px); }
+.ee-bk .ee-gal-rail {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  border-radius: 16px;
+}
+.ee-bk .ee-gal-rail::-webkit-scrollbar { display: none; }
+.ee-bk .ee-gal-fig {
+  flex: 0 0 84%;
+  margin: 0;
+  scroll-snap-align: start;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--paper-2);
+}
+.ee-bk .ee-gal-fig img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: none;
+}
+.ee-bk .ee-gal-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 24px -12px rgba(2, 19, 48, 0.55);
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: opacity .2s ease, background .2s ease;
+}
+.ee-bk .ee-gal-arrow:hover { background: #fff; }
+.ee-bk .ee-gal-arrow--prev { left: 10px; }
+.ee-bk .ee-gal-arrow--next { right: 10px; }
+/* At either end the arrow has nothing to do, so it leaves rather than sitting
+   there greyed out asking to be clicked. */
+.ee-bk .ee-gal-arrow:disabled { opacity: 0; pointer-events: none; }
+.ee-bk .ee-gal-count {
+  position: absolute;
+  right: 12px; bottom: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: .02em;
+  color: #fff;
+  background: rgba(2, 19, 48, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Touch has the swipe; the arrows are for the mouse and would only cover the
+   photo on a phone. */
+@media (hover: none) {
+  .ee-bk .ee-gal-arrow { display: none; }
+}
+
+/* ---------------- Required-field marks. */
+.ee-bk .ee-req {
+  margin-left: 3px;
+  color: var(--sienna);
+  font-weight: 600;
+}
+.ee-bk .ee-req-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  white-space: nowrap;
+  color: var(--muted-2);
+}
+.ee-bk .ee-req-key .ee-req { margin-left: 0; }
+.ee-bk .ee-consent .ee-req { margin: 0 3px 0 0; }

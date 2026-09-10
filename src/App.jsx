@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import New3 from './pages/New3';
+import EasyEscapesV2 from './pages/EasyEscapesV2';
 /* TEMP — restored design explorations for local review only. Not part of the
    live site; remove these three imports + routes before shipping. */
 import Home2026Improved from './pages/Home2026Improved';
@@ -187,6 +188,14 @@ export default function App() {
           {/* Tour LISTING — filterable via ?where= (destination), ?style= (trip
               style) and ?pace=. Every tour card leads to /tour-detail-japan-5. */}
           <Route path="/journeys4" element={<Journeys4 />} />
+
+          {/* EASY ESCAPES v2 — the Book Online catalogue. Not a listing page:
+              every escape here is discovered, chosen and PAID FOR on this one
+              page, through its booking drawer, without a salesperson. Built on
+              the /journeys/japan-2 component set (hero, filter rail, jl-card,
+              sort, lightbox, four corners, reviews) so it reads as part of the
+              same site. Unlinked — reachable by URL only. */}
+          <Route path="/easy-escapes-v2" element={<EasyEscapesV2 />} />
 
           {/* ADVENTURE collection — the dedicated page the New3 homepage
               "What's your vibe?" carousel deep-links to for Adventure. */}

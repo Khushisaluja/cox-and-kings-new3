@@ -1,0 +1,348 @@
+/* ============================================================================
+   Easy Escapes v2 — /easy-escapes-v2
+
+   Overrides only. EasyEscapesV2.jsx imports EasyEscapes.css first and then this
+   file, and wears one extra class on the root:
+
+     <div class="h26 jl jl2 jp jj2 ee eev2">
+
+   So v2 gets the whole page for free and this file carries nothing but the
+   consequences of the four brief gaps v2 closes. Everything here is scoped to
+   `.eev2`, which means none of it can reach /easy-escapes.
+
+   Tokens are the same ones the rest of the page uses — --ink, --sienna,
+   --border, --serif, --sans from .h26. Nothing new is invented, and the brief's
+   "gold accents" are deliberately not adopted: this page stays sienna, the way
+   every other Cox & Kings page is. See the note at the top of the JSX.
+   ========================================================================== */
+
+/* ================================================== HERO · ONE LINE
+
+   "Cox & Kings Easy Escapes" is 24 characters and Journeys.css caps the hero
+   title at `max-width: 16ch`, which is why the name was breaking across two
+   lines. The cap goes, and `nowrap` holds the four words together whatever the
+   viewport does.
+
+   Once it cannot wrap, the type has to be the thing that yields, so the size is
+   driven by viewport width rather than by the shared clamp: at 430px the name
+   sets at about 27px and still clears the gutters; at 1440 it caps at 3.9rem,
+   a little under the 4rem it had when it was allowed two lines. */
+.eev2 .jl-hero-title {
+  max-width: none;
+  white-space: nowrap;
+  font-size: var(--eev2-title);
+}
+
+/* ============================================= INTRO · THE LEDE'S MEASURE
+
+   The intro sits in the wider (1.15fr) half of .jp-about-top, roughly 660px at
+   desktop, and JapanJourneys.css measures .jp-lede at 46ch — which is right for
+   that page's shorter lede and leaves this one ending a couple of hundred
+   pixels short of its own column, with the "Good to know" card floating away to
+   the right of a ragged edge.
+
+   64ch fills the column while still capping the measure, so the paragraph never
+   runs the full width of a very wide screen. `min()` keeps the smaller of the
+   two, which is what makes this safe at every width without a media query. */
+.eev2 .jp-about-top .jp-lede { max-width: min(100%, 64ch); }
+
+/* ======================================================== §4 · SORT POPOVER
+
+   Six options became nine, and the longest label went from "Duration ·
+   shortest first" to "Departure date · soonest first". The popover was sized
+   for neither: 210px clipped the new label, and nine rows at 40px is 360px of
+   menu, which overruns a laptop viewport once the results head has scrolled to
+   the middle of the screen. Wider, and capped with its own scroll. */
+.eev2 .jl-sort-pop {
+  min-width: 258px;
+  /* Nine rows is roughly 340px of menu, which is tall enough to reach the
+     Einaya fab (fixed, z-index 150) where six rows never did. The menu wins,
+     because it is the thing the visitor just opened — but only up to the chat
+     panel at 160, which must still cover everything when it is open. */
+  z-index: 155;
+  max-height: min(58vh, 428px);
+  overflow-y: auto;
+  /* Keep a trackpad flick inside the menu instead of chaining it to the page
+     underneath once the list hits its end. */
+  overscroll-behavior: contain;
+}
+
+/* On a phone the menu is anchored to the right edge of a full-width bar, so it
+   can afford the room; what it cannot afford is running off the bottom. */
+@media (max-width: 560px) {
+  .eev2 .jl-sort-pop {
+    min-width: 0;
+    width: min(300px, calc(100vw - 40px));
+    max-height: 52vh;
+  }
+}
+
+/* ============================================ HERO · THE EYEBROW ON A PHONE
+
+   The tagline is set as the hero eyebrow, the way /journeys/japan-2 sets
+   "Japan · 12 handcrafted journeys". That line is 31 characters and stays on
+   one line everywhere; this one is 47, so below about 560px it has to wrap —
+   and the default greedy wrap leaves "TO BOOK." alone on the second line,
+   which in tracked uppercase reads as a mistake rather than a line break.
+
+   `balance` splits the two lines evenly instead, landing the break on the
+   sentence's own full stop. Slightly less tracking buys back the width the
+   break costs. Browsers without text-wrap simply keep the greedy wrap — the
+   line still reads, it is just less tidy. */
+@media (max-width: 560px) {
+  .eev2 .jl-hero-eyebrow {
+    letter-spacing: 0.2em;
+    text-wrap: balance;
+  }
+}
+
+/* ══════════════════════════════════ ONE TYPE SCALE ACROSS THE TOP THREE
+
+   The hero, "Why Cox & Kings Easy Escapes?" and "How Easy Is It?" are read as
+   one stretch of page, so they now share four sizes rather than three sets of
+   near-misses. Four tokens, four jobs:
+
+     --eev2-title   the section's own heading      hero h1 · why h2 · how h2
+     --eev2-deck    the paragraph under it         hero sub · why deck · how sub
+     --eev2-item    the name of one thing          pillar name · step name
+     --eev2-body    the sentence under that name   pillar copy · step copy
+
+   Only SIZE is shared. Weight still varies by context and should: the hero is
+   Cormorant 300 over a photograph, "How Easy Is It?" is 700 because it labels a
+   diagram, and the Why heading is 300 with an italic sienna accent, the
+   treatment this page already uses for a section title. Three headings at one
+   size in three weights reads as a family; three at one weight would read as a
+   template.
+
+   --eev2-title is the hero's clamp, because the hero is the constrained one —
+   "Cox & Kings Easy Escapes" may not wrap, so that curve is calibrated against
+   the longest string on the page and everything else fits inside it. */
+.eev2 {
+  --eev2-title: clamp(1.55rem, 4.55vw, 3.9rem);
+  --eev2-deck:  clamp(1rem, 1.4vw, 1.12rem);
+  --eev2-item:  clamp(1.35rem, 1.1rem + 0.8vw, 1.85rem);
+  --eev2-body:  clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
+}
+.eev2 .jl-hero-sub   { font-size: var(--eev2-deck); }
+.eev2 .ee-flow-title { font-size: var(--eev2-title); }
+.eev2 .ee-flow-sub   { font-size: var(--eev2-deck); }
+
+/* ═══════════════════════════════ WHY COX & KINGS EASY ESCAPES (brief §2)
+
+   Five pillars is an awkward number: 2+3 leaves a hole and 5 across is a strip
+   of postage stamps. So one of them leads.
+
+   "Curated by Cox & Kings" is the right one to promote — it is the claim the
+   other four rest on, the only one carrying a number, and a 260-year heritage
+   line earns a photograph in a way "secure payment" never will. It takes the
+   full height of the left column; the remaining four sit in a 2x2 beside it.
+   The result is a bento that is asymmetric on purpose rather than a grid with a
+   gap in it, and the eye enters at the photograph every time.
+
+   Deliberately NOT numbered. The four steps below this section are numbered
+   discs, and if these five carried numerals too the two sections would read as
+   one ten-item list. Icons here, numbers there.
+
+   Nothing in this section is interactive, so nothing is a button and nothing
+   takes focus — the hover states are affordance-free polish on static content,
+   which is why the cursor never changes. */
+.eev2 .eev2-why {
+  background: var(--n-100);
+  padding: clamp(58px, 8vw, 108px) 0;
+}
+
+.eev2 .eev2-why__head {
+  max-width: 800px;
+  margin: 0 auto clamp(36px, 4.4vw, 60px);
+  text-align: center;
+}
+.eev2 .eev2-why__title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: var(--eev2-title);
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 6px 0 0;
+}
+.eev2 .eev2-why__title em { font-style: italic; color: var(--sienna); }
+.eev2 .eev2-why__deck {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: var(--eev2-deck);
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 14px 0 0;
+}
+
+.eev2 .eev2-why__grid {
+  display: grid;
+  grid-template-columns: 1.12fr 1fr 1fr;
+  gap: clamp(14px, 1.4vw, 20px);
+}
+/* The lead owns both rows of the left column. */
+.eev2 .eev2-why__lead { grid-row: 1 / span 2; }
+
+/* ---- the lead card ---- */
+.eev2 .eev2-why__lead {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(380px, 34vw, 480px);
+  border-radius: 20px;
+}
+.eev2 .eev2-why__lead img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Starts a hair over-scaled so the slow push-in has somewhere to go without
+     ever revealing an edge. */
+  transform: scale(1.03);
+  transition: transform 1.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.eev2 .eev2-why__lead:hover img { transform: scale(1.08); }
+/* Two layers: a vertical fall to near-black so the copy holds at any crop, and
+   a sienna bloom from the bottom-left that ties the photograph to the palette
+   instead of leaving it a grey rectangle. */
+.eev2 .eev2-why__lead-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(2, 19, 48, 0.04) 0%, rgba(2, 19, 48, 0.44) 46%, rgba(2, 19, 48, 0.89) 100%),
+    radial-gradient(118% 78% at 18% 100%, rgba(189, 64, 17, 0.40), transparent 66%);
+}
+.eev2 .eev2-why__lead-body {
+  padding: clamp(22px, 2.4vw, 34px);
+  color: #fff;
+}
+.eev2 .eev2-why__fig {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: clamp(16px, 1.8vw, 22px) 0 0;
+}
+.eev2 .eev2-why__fig strong {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(3rem, 5.2vw, 4.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  /* The count-up rewrites this node's text, so it must not be able to reflow
+     the line beside it as the digits change width. */
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.eev2 .eev2-why__fig small {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.74);
+}
+.eev2 .eev2-why__lead-body h3 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: var(--eev2-item);
+  line-height: 1.1;
+  color: #fff;
+  margin: 12px 0 8px;
+}
+.eev2 .eev2-why__lead-copy {
+  max-width: 44ch;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--eev2-body);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* ---- the four ---- */
+.eev2 .eev2-why__card {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(20px, 2.1vw, 28px);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
+}
+.eev2 .eev2-why__card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(189, 64, 17, 0.34);
+  box-shadow: 0 22px 46px -26px rgba(2, 19, 48, 0.36);
+}
+.eev2 .eev2-why__card h3 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: var(--eev2-item);
+  line-height: 1.12;
+  color: var(--ink);
+  margin: clamp(14px, 1.5vw, 18px) 0 8px;
+}
+.eev2 .eev2-why__card p {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--eev2-body);
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* ---- the icon plate, shared by all five ---- */
+.eev2 .eev2-why__ic {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  color: var(--sienna);
+  background: rgba(189, 64, 17, 0.09);
+  border: 1px solid rgba(189, 64, 17, 0.17);
+  transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+.eev2 .eev2-why__card:hover .eev2-why__ic {
+  background: var(--sienna);
+  color: #fff;
+  border-color: transparent;
+}
+/* The lead's plate sits on a photograph, so it is glass rather than tint. */
+.eev2 .eev2-why__ic.is-glass {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.32);
+  backdrop-filter: blur(8px);
+}
+
+/* ---- responsive ---- */
+@media (max-width: 1040px) {
+  /* The lead gives up its column and becomes a banner across the top; the four
+     fall into a 2x2 underneath, which is the same reading order. */
+  .eev2 .eev2-why__grid { grid-template-columns: 1fr 1fr; }
+  .eev2 .eev2-why__lead {
+    grid-row: auto;
+    grid-column: 1 / -1;
+    min-height: clamp(300px, 44vw, 390px);
+  }
+}
+@media (max-width: 620px) {
+  .eev2 .eev2-why__grid { grid-template-columns: 1fr; }
+  .eev2 .eev2-why__head { text-align: left; }
+  .eev2 .eev2-why__lead { min-height: 340px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eev2 .eev2-why__lead img,
+  .eev2 .eev2-why__card,
+  .eev2 .eev2-why__ic { transition: none; }
+  .eev2 .eev2-why__lead:hover img { transform: scale(1.03); }
+  .eev2 .eev2-why__card:hover { transform: none; }
+}
