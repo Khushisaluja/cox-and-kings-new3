@@ -1,0 +1,1348 @@
+/* ============================================================================
+   FRANCHISE PARTNERSHIP, VERSION 2 — /franchise-v2
+
+   Every rule is scoped under `.fv`, the class this page's root div carries.
+   Vite hoists every CSS import into ONE global sheet, so an unscoped rule here
+   would reach /new3, /mice, /franchise and the fifteen other routes that share
+   the h26 chrome. Keep the `.fv ` prefix on anything added.
+
+   HOUSE CONSISTENCY. The section furniture below is set to the same spec as
+   the tour-detail page (/tour-detail-japan-5), so a visitor moving between
+   them sees one system rather than two:
+     · .fv-eyebrow  = .lx2i-eyebrow — Work Sans 500, 12px, 0.22em, Voyager Blue,
+                      written with the "// " prefix the house uses.
+     · .fv-h2       = .lx2i-h2 — Cormorant Garamond 300 at clamp(2rem … 3.5rem),
+                      line-height 1.12, with ONE <strong> accent word set
+                      italic and heavier IN THE SAME COLOUR. Not a second
+                      colour: the sienna-italic experiment made every heading
+                      read as a two-tone label.
+     · .fv-ictile   = the rounded Voyager-Blue icon tile from "Tour highlights"
+                      and "The policies".
+     · .fv-segbar   = the policy segmented control, counts and all.
+   These are restated here rather than imported, the way Mice.css restates what
+   it needs — importing the tour-detail sheets would drag ~145KB and half a
+   dozen competing .lx2i-eyebrow overrides onto this page.
+
+   COLOUR — design.md and nothing else:
+     Voyager Blue   100 #CEDEEF · 300 #6D9CD0 · 500 #0B5AB1 · hover #09488E
+                    700 #07366A · 800 #042447
+     Sienna Flame   100 #F2D9CF · 300 #D78C70 · 500 #BD4011 · 700 #71260A
+     Neutrals       0 #FFFFFF · 50 #F8F7F1 · 100 #F1EFE2 · 150 #E5E3D7
+                    200 #D9D7CB · 500 #918F88 · 600 #797871 · 700 #60605A
+                    800 #484844 · 900 #1F2A36
+     Neutrals-Dark  900 #021330      Error 500 #E23822 (form errors only)
+
+   Voyager Blue is the PRIMARY ACTION and the icon colour; Sienna Flame is the
+   ACCENT — the timeline, the progress rule, the map's arcs, the active tab
+   underline. The one sienna button on the page is the hero CTA, because on
+   #021330 Voyager Blue has nowhere near the separation sienna has.
+
+   MOTION — every resting state in this file is the FINISHED state. GSAP owns
+   the from-states, so with JavaScript off, GSAP broken, or reduced motion on,
+   the page is whole and nothing is stuck at opacity: 0.
+   ========================================================================== */
+
+.fv {
+  --vb-100: #CEDEEF;
+  --vb-300: #6D9CD0;
+  --vb-500: #0B5AB1;
+  --vb-hover: #09488E;
+  --vb-700: #07366A;
+  --vb-800: #042447;
+  --sf-100: #F2D9CF;
+  --sf-300: #D78C70;
+  --sf-500: #BD4011;
+  --sf-700: #71260A;
+  --n-0: #FFFFFF;
+  --n-50: #F8F7F1;
+  --n-100: #F1EFE2;
+  --n-150: #E5E3D7;
+  --n-200: #D9D7CB;
+  --n-500: #918F88;
+  --n-600: #797871;
+  --n-700: #60605A;
+  --n-800: #484844;
+  --n-900: #1F2A36;
+  --nd-900: #021330;
+  --err: #E23822;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Overwritten at runtime with the live header height — see FranchiseV2.jsx.
+     This is the fallback for the first paint. */
+  --fv-navh: 66px;
+
+  /* ---- THE SPACING SCALE ------------------------------------------------
+     Every margin, padding and gap on this page comes from here. The first
+     pass did not have one: it carried twenty-odd hand-picked values and ten
+     different clamp() curves, so a card's inner padding, the gap between
+     cards and the space under a heading were each arrived at separately and
+     none of them agreed. That is what "the spacing is off" looks like — not
+     one wrong number, but no shared number anywhere.
+
+     A 4px base, doubling through the middle of the range where most of the
+     work happens, then widening. Fluid values are for the three jobs that
+     genuinely need to breathe with the viewport; everything else is fixed,
+     because a card's padding has no business changing with screen width. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 40px;
+  --s-8: 56px;
+
+  --gutter: clamp(16px, 3vw, 56px);      /* the page gutter — same as /franchise, /mice */
+  --sec-y: clamp(72px, 9vw, 120px);      /* a section's top and bottom */
+  --head-gap: clamp(36px, 4.5vw, 56px);  /* a section head to its body */
+  --card-p: clamp(22px, 2.2vw, 30px);    /* the inside of a card or rail */
+  --form-p: clamp(24px, 3vw, 40px);      /* the inside of the form card */
+
+  background: var(--n-50);
+  color: var(--n-900);
+}
+.fv *,
+.fv *::before,
+.fv *::after { box-sizing: border-box; }
+
+/* WITHOUT THIS THE STICKY SUB-NAV DOES NOT STICK.
+   This page's root div is `h26 new-typo n3 fv`, and Home2026.css sets
+   `.h26 { overflow-x: hidden }`. `overflow-x: hidden` makes the element a
+   SCROLL CONTAINER in both axes, and a sticky descendant then sticks to that
+   container's scrollport rather than to the viewport — so the bar simply
+   scrolls away with the page and nothing looks broken enough to explain why.
+
+   `clip` prevents the same horizontal overflow WITHOUT creating a scroll
+   container, which is the reason index.css already uses it on <body>. Two
+   classes (0,2,0) so it beats the plain `.h26` rule (0,1,0) wherever Vite
+   happens to order the two sheets in the bundle.
+
+   /tour-detail-japan-5 never hit this: there `.h26` wraps only the header and
+   the footer, and the page root is its own `.lxjt5` element. */
+.h26.fv { overflow-x: clip; }
+
+/* The shared measure. Same max-width and gutter as /franchise and /mice. */
+.fv .fv-wrap {
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.fv .fv-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.fv :focus-visible { outline: 2px solid var(--vb-500); outline-offset: 3px; }
+/* Voyager Blue has no separation against #021330 — on the hero the ring is
+   paper instead, so a keyboard visitor can actually see where they are. */
+.fv .fv-hero :focus-visible { outline-color: var(--n-100); }
+
+/* ============================================================================
+   SECTION FURNITURE — eyebrow, heading, lede
+   ========================================================================== */
+
+.fv .fv-sechead { margin-bottom: var(--head-gap); }
+
+.fv .fv-eyebrow {
+  display: block;
+  margin: 0 0 var(--s-3);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--vb-500);
+}
+.fv .fv-eyebrow--light { color: #8FB6E4; }
+
+.fv .fv-h2 {
+  margin: 0 0 var(--s-4);
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2rem, 1.2rem + 3vw, 3.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--n-900);
+  /* Stops a three-word heading dropping its last word alone onto line two. */
+  text-wrap: balance;
+}
+/* The house emphasis: same colour, italic, a shade heavier. Cormorant's italic
+   is a genuinely different letterform, so it carries the accent on its own
+   without a second colour doing the work. */
+.fv .fv-h2 strong { font-weight: 600; font-style: italic; color: inherit; }
+
+.fv .fv-lead {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(16px, 1.25vw, 19px);
+  line-height: 1.58;
+  color: var(--n-700);
+  max-width: 58ch;
+  /* `pretty` is what stops the last line of a lede being one short word —
+     the "…anything / in." break that the first pass shipped. */
+  text-wrap: pretty;
+}
+
+/* A hairline that GSAP draws from the left rather than fading in. */
+.fv .fv-rule {
+  display: block;
+  height: 1px;
+  background: var(--n-200);
+  margin: var(--s-7) 0;
+  transform-origin: left center;
+}
+
+/* --------------------------------------------------------------- buttons --
+   design.md button: 4px radius, Work Sans Medium uppercase, 0.56px tracking.
+   Padding is raised a touch so every button clears a 44px touch target
+   without a min-height hack. */
+.fv .fv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: 13px var(--s-5);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0.56px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.fv .fv-btn--lg { padding: 16px var(--s-6); }
+.fv .fv-btn--primary { background: var(--vb-500); color: var(--n-100); }
+.fv .fv-btn--primary:hover { background: var(--vb-hover); }
+.fv .fv-btn--accent { background: var(--sf-500); color: var(--n-100); }
+.fv .fv-btn--accent:hover { background: var(--sf-700); }
+.fv .fv-btn svg { transition: transform 0.25s var(--ease-out); }
+.fv .fv-btn:hover svg { transform: translateX(4px); }
+
+/* The Voyager-Blue icon tile from the tour-detail sections. Not interactive,
+   so it is not held to the 4px interactive radius. */
+.fv .fv-ictile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: rgba(206, 222, 239, 0.42);
+  color: var(--vb-500);
+}
+
+/* ============================================================================
+   HERO
+
+   One screen carrying what the prototype spent two on. The map is a layer
+   BEHIND the copy rather than a panel beside it, so the headline sits in the
+   quiet west of the map and the arcs fan out into the open right-hand side.
+   ========================================================================== */
+
+.fv .fv-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  /* Off-scale on purpose, both of them: the top has to clear the FIXED site
+     header and the bottom has to clear the hero's own absolutely-positioned
+     foot bar. Neither is a rhythm decision, so neither uses the scale. */
+  padding-top: clamp(124px, 15vh, 176px);
+  padding-bottom: clamp(132px, 16vh, 172px);
+  background: var(--nd-900);
+  color: var(--n-100);
+}
+
+/* A single soft light behind the eastern half of the map, so the ground is
+   not a flat slab of navy. */
+.fv .fv-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background: radial-gradient(58% 70% at 70% 46%, rgba(11, 90, 177, 0.46) 0%, rgba(11, 90, 177, 0) 72%);
+}
+
+/* The faint chart graticule from /sitemap's hero — the map-table feel, and the
+   thing that stops a large field of navy reading as an empty div. Same spec:
+   72px squares at 4.5% paper, masked off towards the edges so it never becomes
+   a visible grid. It paints ABOVE the map layer (-1 against -2) because on the
+   sitemap the rules carry straight across the dots. */
+.fv .fv-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(241, 239, 226, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(241, 239, 226, 0.045) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: radial-gradient(110% 100% at 50% 30%, #000 30%, transparent 90%);
+  mask-image: radial-gradient(110% 100% at 50% 30%, #000 30%, transparent 90%);
+}
+
+/* The parallax layer. Stable across mode switches — the <svg> inside it is
+   what gets replaced. */
+.fv .fv-hero__maplayer {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  will-change: transform;
+}
+.fv .fv-map { position: absolute; inset: 0; }
+.fv .fv-map svg { display: block; width: 100%; height: 100%; }
+
+/* The copy has to stay readable over land, so the scrim is heaviest at the
+   left and clears completely by the time it reaches the arcs. */
+.fv .fv-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(2, 19, 48, 0.92) 0%, rgba(2, 19, 48, 0) 34%),
+    linear-gradient(100deg,
+      rgba(2, 19, 48, 0.96) 0%,
+      rgba(2, 19, 48, 0.86) 34%,
+      rgba(2, 19, 48, 0.2) 62%,
+      rgba(2, 19, 48, 0) 100%);
+}
+
+/* Film grain. Enough to take the plastic off a flat gradient, not enough to
+   be seen as texture. */
+.fv .fv-hero__grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.fv .fv-hero__inner { position: relative; z-index: 2; }
+.fv .fv-hero__copy { max-width: 660px; }
+
+.fv .fv-hero__title {
+  margin: 0 0 var(--s-5);
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(38px, 5.6vw, 72px);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  color: var(--n-0);
+  max-width: 15ch;
+}
+/* Each word rides up out of its own mask. The padding/negative-margin pair
+   stops descenders (p, y, g) being clipped by the overflow. */
+.fv .fv-hero__wordmask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  margin-right: 0.26em;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.fv .fv-hero__word { display: inline-block; }
+
+/* --- hero contact line ---------------------------------------------------
+   Small by design: it is the alternative to the button above it, not a
+   competing action. */
+.fv .fv-hero__cta { margin: 0; }
+.fv .fv-hero__contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-4);
+  margin: var(--s-4) 0 0;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.fv .fv-hero__contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: rgba(241, 239, 226, 0.72);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.fv .fv-hero__contact a:hover { color: var(--n-0); }
+.fv .fv-hero__contact-sep {
+  width: 1px;
+  height: 13px;
+  background: rgba(241, 239, 226, 0.26);
+}
+
+.fv .fv-hero__sub {
+  margin: 0 0 var(--s-6);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.6;
+  color: rgba(241, 239, 226, 0.87);
+  max-width: 44ch;
+  text-wrap: pretty;
+}
+
+/* --- the hero floor: map switch on the left, ticker on the right --------- */
+.fv .fv-hero__foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  padding-bottom: clamp(22px, 3vh, 34px);
+}
+.fv .fv-hero__footin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5) var(--s-6);
+  flex-wrap: wrap;
+  padding-top: var(--s-4);
+  border-top: 1px solid rgba(241, 239, 226, 0.17);
+}
+
+.fv .fv-switch { display: flex; gap: var(--s-2); }
+.fv .fv-switch__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 11px var(--s-4);
+  border: 1px solid rgba(241, 239, 226, 0.22);
+  border-radius: 4px;
+  background: transparent;
+  color: rgba(241, 239, 226, 0.68);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+.fv .fv-switch__btn:hover { color: var(--n-0); border-color: rgba(241, 239, 226, 0.5); }
+.fv .fv-switch__btn.is-on {
+  background: var(--n-100);
+  border-color: var(--n-100);
+  color: var(--nd-900);
+}
+
+.fv .fv-ticker {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(241, 239, 226, 0.55);
+}
+.fv .fv-ticker__name {
+  display: inline-block;
+  min-width: 12ch;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 25px;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  color: var(--n-0);
+  animation: fv-tick 0.55s var(--ease-out);
+}
+@keyframes fv-tick {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* --- the map itself ------------------------------------------------------
+   Opacity is the animated property on the dots and pins, so the RESTING
+   opacity is 1 and the colour carries its own alpha. Tinting with opacity
+   instead would leave GSAP tweening 0 -> 1 and blowing the tint out. */
+.fv .fv-dot { fill: rgba(140, 178, 221, 0.3); }
+
+.fv .fv-pin__core { fill: var(--sf-300); transition: r 0.4s var(--ease-out), fill 0.4s ease; }
+.fv .fv-pin__ring { fill: none; stroke: var(--sf-300); stroke-width: 1.1; opacity: 0; }
+/* ONLY the live pin pulses. Thirty simultaneous pings was the single noisiest
+   thing on the first version of this map. */
+.fv .fv-pin.is-on .fv-pin__core { r: 4; fill: #F0A57E; }
+.fv .fv-pin.is-on .fv-pin__ring { animation: fv-ping 2.6s ease-out infinite; }
+
+.fv .fv-hub__core { fill: var(--n-0); }
+.fv .fv-hub__ring {
+  fill: none;
+  stroke: var(--n-0);
+  stroke-width: 1.2;
+  opacity: 0;
+  animation: fv-ping 3.2s ease-out infinite;
+}
+@keyframes fv-ping {
+  0% { r: 3; opacity: 0.7; }
+  70% { r: 15; opacity: 0; }
+  100% { r: 15; opacity: 0; }
+}
+
+/* Labels get a navy halo (paint-order: stroke) so they stay legible wherever
+   they fall — over dots, over an arc, over open ocean. */
+.fv .fv-mlab {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  fill: rgba(241, 239, 226, 0.92);
+  paint-order: stroke;
+  stroke: rgba(2, 19, 48, 0.9);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.fv .fv-mlab--hub { font-size: 12.5px; font-weight: 600; fill: var(--n-0); }
+.fv .fv-mlab--live { font-size: 13px; animation: fv-tick 0.5s var(--ease-out); }
+
+/* ============================================================================
+   THE OFFER — four tabs
+
+   Head stacked ABOVE a full-width body, the way "Tour highlights" and "The
+   policies" are laid out. The first pass put the head in a 4fr column beside
+   a 7fr body, which gave the lede a 20-character measure (one word per line)
+   and squeezed a five-stop timeline into ninety pixels a stop.
+   ========================================================================== */
+
+.fv .fv-offer {
+  background: var(--n-50);
+  padding: 0 0 var(--sec-y);
+}
+
+/* THE STICKY SUB-NAV — /tour-detail-japan-5's .lxjt-subnav, same spec.
+   Full-bleed and pinned under the fixed header, so it needs its own inner
+   .fv-wrap to hold the labels on the page measure. */
+.fv .fv-subnav {
+  position: sticky;
+  top: var(--fv-navh);
+  z-index: 90;
+  margin-bottom: var(--sec-y);
+  background: rgba(248, 247, 241, 0.98);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border-top: 1px solid var(--n-200);
+  border-bottom: 1px solid var(--n-200);
+  box-shadow: 0 10px 30px -16px rgba(2, 19, 48, 0.55);
+}
+
+/* THE HEADER HAS TO OUTRANK THE BAR.
+   .h26-nav ships at z-index 50 and its mega-menu flyout is position:absolute
+   INSIDE it, so the flyout can never escape the header's stacking context. A
+   sticky bar at 90 therefore paints straight through an open Destinations
+   menu, slicing a pale band across it. 100 clears the bar while staying under
+   the mobile drawer (200) and the dialogs (1100+), which must still cover the
+   header. /tour-detail-japan-5 carries the identical fix for the identical
+   reason. */
+.fv .h26-nav { z-index: 100; }
+
+/* Anything linked to by id lands below the header AND below the bar. */
+.fv .fv-offer,
+.fv .fv-apply,
+.fv .fv-terms { scroll-margin-top: calc(var(--fv-navh) + var(--s-4)); }
+
+/* Below about 700px the four labels are wider than the bar, so it scrolls
+   sideways — no wrap, no scrollbar, and Offer keeps the live tab in view. */
+.fv .fv-tabs {
+  display: flex;
+  gap: 0 var(--s-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.fv .fv-tabs::-webkit-scrollbar { display: none; }
+
+.fv .fv-tab {
+  flex: none;
+  white-space: nowrap;
+  padding: 18px var(--s-4);
+  min-height: 56px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--n-900);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.fv .fv-tab:hover { color: var(--vb-500); border-bottom-color: var(--vb-300); }
+.fv .fv-tab.is-on { color: var(--vb-700); border-bottom-color: var(--sf-500); font-weight: 700; }
+/* The ring would otherwise be clipped by the strip's own overflow. */
+.fv .fv-tab:focus-visible { outline-offset: -3px; }
+
+/* No min-height. A fixed floor here (it was 480px) buys a stable page at the
+   cost of a dead field under the two short panels, and with the bar pinned
+   there is nothing for a height change to disturb anyway. */
+.fv .fv-panel:focus { outline: none; }
+.fv .fv-panel:focus-visible { outline: 2px solid var(--vb-500); outline-offset: 8px; }
+
+/* --------------------------------------------------------------- cards ----
+   The "policies" card: icon tile on the left, title and body beside it.
+   Used for what-we-bring (three across) and for the terms (two across).
+   The first pass had what-we-bring as a rotating orbit of six circles. It had
+   to go: GSAP's entrance tween wrote an inline transform onto the same nodes
+   the counter-rotation animation was using, so the labels stopped cancelling
+   the ring's spin and every word sat at its own angle — and a wheel that
+   turns for 46 seconds is a poor way to read six plain facts anyway. */
+.fv .fv-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+.fv .fv-cards--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fv .fv-cards li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+  padding: var(--card-p);
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: 10px;
+}
+.fv .fv-cards li > div { min-width: 0; }
+.fv .fv-cards strong {
+  display: block;
+  margin-bottom: var(--s-2);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.35;
+  color: var(--n-900);
+}
+.fv .fv-cards p {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--n-700);
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------- rail ----
+   The "included, privately" strip from the tour-detail page: one bordered,
+   warm-tinted container, six evenly spaced columns, icon tile over label. */
+.fv .fv-rail {
+  list-style: none;
+  margin: 0;
+  padding: var(--card-p);
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--s-6) var(--s-5);
+  background: var(--n-100);
+  border: 1px solid var(--n-200);
+  border-radius: 12px;
+}
+.fv .fv-rail li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+/* Explicit margins rather than a flex gap plus a -6px pull on the caption,
+   which is what held this together before. */
+.fv .fv-rail .fv-ictile { background: var(--n-0); margin-bottom: var(--s-3); }
+.fv .fv-rail strong {
+  margin-bottom: var(--s-1);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--n-900);
+}
+.fv .fv-rail li > span:last-child {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--n-600);
+}
+
+/* ------------------------------------------------------------ timeline ----
+   Five stops across the page: a sienna rule running between the dots, the
+   dots solid on top of it, name and line of detail underneath. */
+.fv .fv-steps { position: relative; }
+.fv .fv-steps__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0 var(--s-3);
+}
+.fv .fv-steps__line {
+  position: absolute;
+  top: 28px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: var(--sf-500);
+  transform-origin: left center;
+}
+.fv .fv-steps__list li {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.fv .fv-steps__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--s-5);
+  border-radius: 50%;
+  background: var(--sf-500);
+  color: var(--n-0);
+}
+.fv .fv-steps strong {
+  margin-bottom: var(--s-2);
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(19px, 1.7vw, 23px);
+  line-height: 1.25;
+  color: var(--n-900);
+}
+.fv .fv-steps__list li > span:last-child {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--n-600);
+  max-width: 22ch;
+}
+
+/* ----------------------------------------------------------------- FAQ ----
+   The /mice pattern: ruled top and bottom, a chevron that rotates, and more
+   than one answer open at a time — someone comparing "what does it cost"
+   against "how do I earn" should not have to close one to read the other. */
+.fv .fv-faq { list-style: none; margin: 0; padding: 0; max-width: 980px; }
+.fv .fv-faq li { border-top: 1px solid var(--n-200); }
+.fv .fv-faq li:last-child { border-bottom: 1px solid var(--n-200); }
+.fv .fv-faq h4 { margin: 0; }
+.fv .fv-faq button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  width: 100%;
+  min-height: 60px;
+  padding: var(--s-5) 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(18px, 1.5vw, 21px);
+  line-height: 1.35;
+  color: var(--n-900);
+}
+.fv .fv-faq button svg {
+  flex: none;
+  color: var(--vb-500);
+  transition: transform 0.22s var(--ease-out);
+}
+.fv .fv-faq li.is-open button svg { transform: rotate(180deg); }
+.fv .fv-faq__a p {
+  margin: 0 0 var(--s-5);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: var(--n-700);
+  max-width: 66ch;
+  text-wrap: pretty;
+}
+
+/* ============================================================================
+   APPLY
+   ========================================================================== */
+
+.fv .fv-apply {
+  background: var(--n-0);
+  padding: var(--sec-y) 0;
+}
+.fv .fv-apply__grid {
+  display: grid;
+  gap: var(--head-gap) clamp(40px, 5vw, 72px);
+  align-items: start;
+}
+@media (min-width: 981px) {
+  .fv .fv-apply__grid { grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); }
+  /* The pitch stays put while the three steps scroll past it — the reassurance
+     line is the thing most likely to be wanted at step 3, not step 1. */
+  .fv .fv-apply__copy { position: sticky; top: calc(var(--fv-navh) + var(--s-6)); }
+}
+.fv .fv-apply__copy .fv-sechead { margin-bottom: 0; }
+.fv .fv-apply__copy .fv-lead { max-width: 40ch; }
+.fv .fv-apply__reassure {
+  margin: var(--s-6) 0 0;
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--n-200);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--n-600);
+  max-width: 40ch;
+}
+
+/* --- the franchise desk, in the apply column ----------------------------- */
+.fv .fv-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+}
+.fv .fv-contact__h {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--n-600);
+}
+.fv .fv-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 28px;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--n-900);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.fv .fv-contact a svg { color: var(--vb-500); flex: none; }
+.fv .fv-contact a:hover { color: var(--vb-500); }
+
+.fv .fv-card {
+  position: relative;
+  padding: var(--form-p);
+  background: var(--n-50);
+  border: 1px solid var(--n-200);
+  border-radius: 10px;
+}
+
+.fv .fv-prog {
+  height: 3px;
+  margin-bottom: var(--s-6);
+  background: var(--n-200);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.fv .fv-prog i {
+  display: block;
+  height: 100%;
+  background: var(--sf-500);
+  transition: width 0.5s var(--ease-out);
+}
+
+.fv .fv-step-no {
+  margin: 0 0 var(--s-3);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sf-500);
+}
+.fv .fv-pane__h {
+  margin: 0 0 var(--s-6);
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(23px, 2.3vw, 29px);
+  line-height: 1.3;
+  color: var(--n-900);
+}
+.fv .fv-pane__h:focus { outline: none; }
+
+/* Each question is a block with real air around it — the first pass ran them
+   at 22px apart with a 9px gap under the label, which put the chips almost
+   touching the question above them. */
+.fv .fv-q { margin: 0 0 var(--s-6); }
+.fv .fv-q:last-of-type { margin-bottom: 0; }
+.fv .fv-q label,
+.fv .fv-q .fv-q__label {
+  display: block;
+  margin: 0 0 var(--s-3);
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--n-800);
+}
+/* The two-up row carries the SAME bottom margin as a single question, because
+   it is one. Without it the City/State row butted straight into the question
+   under it with no gap at all — the two inner .fv-q's have their own margin
+   zeroed (they sit in a grid, the row-gap spaces them), and nothing replaced
+   it on the row itself. Adjacent margins collapse, so this never doubles up
+   against .fv-navb's matching top margin. */
+.fv .fv-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
+  margin: 0 0 var(--s-6);
+}
+.fv .fv-row2 .fv-q { margin-bottom: 0; }
+
+/* 16px input text is not a style choice — anything smaller makes iOS Safari
+   zoom the page on focus, which throws the visitor out of the card. */
+.fv .fv-card input[type="text"],
+.fv .fv-card input[type="tel"],
+.fv .fv-card input[type="email"] {
+  width: 100%;
+  padding: 14px var(--s-3);
+  border: 1px solid var(--n-200);
+  border-radius: 4px;
+  background: var(--n-0);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 20px;
+  color: var(--n-900);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.fv .fv-card input::placeholder { color: var(--n-500); opacity: 1; }
+.fv .fv-card input:focus {
+  outline: 0;
+  border-color: var(--vb-500);
+  box-shadow: 0 0 0 3px rgba(11, 90, 177, 0.14);
+}
+.fv .fv-card input[aria-invalid="true"] { border-color: var(--err); }
+
+/* Option chips. Buttons in a roving-tabindex radiogroup — explicitly sized by
+   their own padding, with the text held on one line, because the first pass
+   (a <label> wrapping a visually-hidden radio) rendered as boxes the width of
+   their own text with the words spilling out of them. */
+.fv .fv-opts { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.fv .fv-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-height: 44px;
+  padding: 12px var(--s-4);
+  border: 1px solid var(--n-200);
+  border-radius: 4px;
+  background: var(--n-0);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--n-800);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.fv .fv-opt:hover { border-color: var(--n-500); }
+.fv .fv-opt.is-sel {
+  background: var(--vb-500);
+  border-color: var(--vb-500);
+  color: var(--n-100);
+}
+/* Selection is not carried by colour alone: the tick appears with it, and the
+   chip grows its own gap rather than reserving dead space when unselected. */
+.fv .fv-opt .fv-opt__tick {
+  width: 0;
+  opacity: 0;
+  transition: width 0.18s var(--ease-out), opacity 0.18s ease, margin-right 0.18s var(--ease-out);
+}
+.fv .fv-opt.is-sel .fv-opt__tick { width: 14px; opacity: 1; margin-right: var(--s-2); }
+
+.fv .fv-navb {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-top: var(--s-6);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--n-200);
+}
+.fv .fv-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--n-600);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+.fv .fv-link:hover { color: var(--n-900); }
+
+.fv .fv-err {
+  margin: var(--s-4) 0 0;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--err);
+}
+
+/* --------------------------------------------------------------- success -- */
+.fv .fv-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  pointer-events: none;
+}
+.fv .fv-done { text-align: center; padding: var(--s-4) 0 var(--s-2); }
+.fv .fv-burst { position: relative; width: 96px; height: 96px; margin: 0 auto var(--s-5); }
+.fv .fv-burst__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--sf-500);
+  opacity: 0;
+}
+.fv .fv-burst__core {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  background: var(--sf-500);
+  color: var(--n-0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fv .fv-done__h {
+  margin: 0 0 var(--s-3);
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(26px, 3vw, 32px);
+  line-height: 1.25;
+  color: var(--n-900);
+}
+.fv .fv-done__h:focus { outline: none; }
+.fv .fv-done p {
+  margin: 0 auto;
+  max-width: 44ch;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--n-700);
+  text-wrap: pretty;
+}
+.fv .fv-done .fv-done__ref { margin-top: var(--s-5); font-size: 13px; color: var(--n-600); }
+.fv .fv-done .fv-done__ref b { font-weight: 500; color: var(--n-900); }
+
+/* ============================================================================
+   TERMS + the legal note
+   ========================================================================== */
+
+.fv .fv-terms {
+  background: var(--n-50);
+  padding: var(--sec-y) 0;
+}
+
+/* The policy segmented control: a warm track, the live group lifted out of it
+   on a white pill, each group carrying how many terms are inside it. */
+.fv .fv-segbar {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  padding: var(--s-1);
+  margin-bottom: var(--s-5);
+  background: var(--n-100);
+  border: 1px solid var(--n-200);
+  border-radius: 10px;
+}
+.fv .fv-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 11px var(--s-4);
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--n-700);
+  transition: background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+}
+.fv .fv-seg:hover { color: var(--n-900); }
+.fv .fv-seg svg { color: var(--n-500); transition: color 0.22s ease; }
+.fv .fv-seg.is-on {
+  background: var(--n-0);
+  border-color: var(--n-200);
+  color: var(--vb-500);
+  box-shadow: 0 1px 3px rgba(31, 42, 54, 0.07);
+}
+.fv .fv-seg.is-on svg { color: var(--sf-500); }
+.fv .fv-seg small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--n-150);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--n-700);
+}
+.fv .fv-seg.is-on small { background: var(--vb-500); color: var(--n-0); }
+
+.fv .fv-terms__foot {
+  margin: var(--s-6) 0 0;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--n-600);
+  max-width: 82ch;
+  text-wrap: pretty;
+}
+
+.fv .fv-legal {
+  background: var(--n-50);
+  padding: 0 0 var(--s-8);
+}
+.fv .fv-legal .fv-rule { margin: 0 0 var(--s-5); }
+.fv .fv-legal p {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.66;
+  color: var(--n-600);
+  max-width: 96ch;
+  text-wrap: pretty;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1180px) {
+  .fv .fv-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fv .fv-rail { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fv .fv-steps strong { font-size: 19px; }
+}
+
+@media (max-width: 980px) {
+  .fv .fv-panel { min-height: 0; }
+  /* THE TIMELINE TURNS. Five stops do not fit across a narrow page, so the
+     rule runs DOWN the left edge and each stop sits beside it.
+
+     Each stop is a two-row grid rather than a wrapping flex row: dot in
+     column one spanning both rows, name in row one of column two, detail
+     directly under it in row two. That is what puts the name and its detail
+     on ONE left edge. The flex version needed the detail to be flex-basis
+     100% on its own line, held in place by a padding-left that had to be
+     kept in sync with the dot's width by hand — and below 560px that padding
+     was being zeroed, which is what threw the detail back to the gutter. */
+  .fv .fv-steps__list { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .fv .fv-steps__line {
+    top: 28px;
+    bottom: 28px;
+    left: 27px;
+    right: auto;
+    width: 2px;
+    height: auto;
+    transform-origin: center top;
+  }
+  .fv .fv-steps__list li {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    column-gap: var(--s-5);
+    row-gap: 2px;
+    align-items: center;
+    text-align: left;
+    padding-bottom: var(--s-6);
+  }
+  .fv .fv-steps__list li:last-child { padding-bottom: 0; }
+  /* Spans both rows, so the name and the detail straddle its centre. */
+  .fv .fv-steps__dot { grid-area: 1 / 1 / 3 / 2; margin-bottom: 0; }
+  .fv .fv-steps strong {
+    grid-area: 1 / 2 / 2 / 3;
+    align-self: end;
+    margin-bottom: 0;
+  }
+  .fv .fv-steps__list li > span:last-child {
+    grid-area: 2 / 2 / 3 / 3;
+    align-self: start;
+    max-width: none;
+  }
+}
+
+@media (max-width: 860px) {
+  /* THE MOBILE HERO IS STACKED, NOT LAYERED — /sitemap's arrangement.
+     On a phone the map cannot be a backdrop: the viewBox is 2.13:1, so
+     `slice` scales it to cover the HEIGHT and throws 655px off each side of a
+     390px screen, and whatever survives has to hide under a 96%-opaque scrim
+     to keep the headline readable. A map you cannot see, paid for in
+     contrast. So it stops being a background and becomes a block of its own:
+     copy, then the map at its true proportions, then the controls under it —
+     the map's own caption being the ticker. */
+  .fv .fv-hero {
+    min-height: 0;
+    justify-content: flex-start;
+    text-align: center;
+    padding-top: calc(var(--fv-navh) + var(--s-7));
+    padding-bottom: var(--s-7);
+  }
+
+  .fv .fv-hero__inner { order: 1; }
+  .fv .fv-hero__copy { max-width: 560px; margin-inline: auto; }
+  .fv .fv-hero__title { max-width: 100%; }
+  .fv .fv-hero__sub { max-width: 46ch; margin-inline: auto; }
+
+  /* A plate of a FIXED shape, with each map framed whole inside it. The two
+     maps are different shapes once they are no longer being cropped — the
+     world is 2.07:1, India 1.16:1 — so sizing the block to its contents would
+     jump it ~150px and shove everything below it down the screen every time
+     the switch is touched.
+
+     9:5 rather than the 7:5 this started at. 7:5 left the world map — the one
+     the hero opens on — floating in about 90px of dead plate, which read as
+     the map sitting too low. At 9:5 it very nearly fills its plate, and India
+     is still 250px across. */
+  .fv .fv-hero__maplayer {
+    position: static;
+    order: 2;
+    width: 100%;
+    max-width: 560px;
+    margin: var(--s-6) auto 0;
+    aspect-ratio: 9 / 5;
+  }
+  .fv .fv-map { position: static; display: block; height: 100%; }
+  .fv .fv-map svg { width: 100%; height: 100%; }
+  /* Nothing left to veil. */
+  .fv .fv-hero__scrim { display: none; }
+  .fv .fv-mlab { font-size: 13px; }
+  .fv .fv-mlab--live { font-size: 15px; }
+
+  /* Directly under the map, ABOVE the hairline that opens the map's own
+     caption-and-switch block. */
+  .fv .fv-hero__ctarow {
+    order: 3;
+    margin-top: var(--s-5);
+  }
+
+  .fv .fv-hero__foot {
+    position: static;
+    order: 4;
+    padding-bottom: 0;
+    margin-top: var(--s-6);
+  }
+  .fv .fv-hero__ctarow .fv-btn {
+    width: 100%;
+    max-width: 360px;
+  }
+  .fv .fv-hero__contact { justify-content: center; }
+  /* column-reverse so the ticker sits directly under the map, where it reads
+     as the map's caption, and the switch sits below it. */
+  .fv .fv-hero__footin {
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--s-4);
+    padding-top: var(--s-5);
+  }
+  .fv .fv-switch { width: 100%; max-width: 360px; }
+  .fv .fv-switch__btn { flex: 1; justify-content: center; }
+  .fv .fv-ticker {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-1);
+  }
+  .fv .fv-ticker__name { font-size: 21px; min-width: 0; }
+}
+
+@media (max-width: 720px) {
+  .fv .fv-cards,
+  .fv .fv-cards--two { grid-template-columns: minmax(0, 1fr); }
+  .fv .fv-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fv .fv-tab { padding: 16px var(--s-3); font-size: 13.5px; }
+  /* Full width, wrapping, labels kept. An earlier version dropped the label
+     and fell back to a data-short attribute nothing set, which would have
+     left three unlabelled icons. */
+  .fv .fv-segbar { display: flex; width: 100%; }
+  .fv .fv-seg { flex: 1; justify-content: center; gap: var(--s-2); padding: 11px var(--s-2); font-size: 13px; }
+  .fv .fv-seg svg { display: none; }
+}
+
+@media (max-width: 560px) {
+  .fv .fv-hero__title { font-size: clamp(30px, 8.4vw, 42px); }
+  .fv .fv-row2 { grid-template-columns: 1fr; gap: var(--s-6); }
+  .fv .fv-row2 .fv-q { margin-bottom: 0; }
+  .fv .fv-steps__list li > span:last-child { padding-left: 0; }
+  .fv .fv-steps__line { display: none; }
+  .fv .fv-steps__list li { gap: 0 var(--s-4); }
+}
+
+/* ============================================================================
+   REDUCED MOTION
+
+   GSAP already sits behind gsap.matchMedia(), so this only has to silence the
+   CSS-owned loops: the pings, the ticker and every hover transition. Nothing
+   here hides anything — every element's resting state is already its visible
+   one.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .fv *,
+  .fv *::before,
+  .fv *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  /* Without the transition the tick would pop the chip's width around, so it
+     is simply always there on the selected chip. */
+  .fv .fv-opt .fv-opt__tick { width: 0; opacity: 0; }
+  .fv .fv-opt.is-sel .fv-opt__tick { width: 14px; opacity: 1; margin-right: var(--s-2); }
+}

@@ -30,6 +30,7 @@ import PressMedia from './pages/PressMedia';
 import Testimonials from './pages/Testimonials';
 import Collaborate from './pages/Collaborate';
 import Franchise from './pages/Franchise';
+import FranchiseV2 from './pages/FranchiseV2';
 import Mice from './pages/Mice';
 import Terms from './pages/Terms';
 import Sitemap from './pages/Sitemap';
@@ -286,6 +287,16 @@ export default function App() {
               /become-a-partner (sales agents) and /collaborate (creators).
               Form-first; linked from the footer's "Partner with us" column. */}
           <Route path="/franchise" element={<Franchise />} />
+
+          {/* The same franchise offer, rebuilt on the `franchise_2_2` prototype
+              in the project root: a destination-map hero that switches between
+              the worldwide and the India network, the four-tab offer, the
+              three-step eligibility form with its qualified/nurture routing,
+              and the twelve plain-words terms — all of it in the design.md
+              system and the house chrome. Unlinked, reachable by URL only, so
+              /franchise is untouched while the two are compared. */}
+          <Route path="/franchise-v2" element={<FranchiseV2 />} />
+
           <Route path="/mice" element={<Mice />} />
 
           {/* INSPIRATION — "Dispatches", the journal. The create-desire job given
