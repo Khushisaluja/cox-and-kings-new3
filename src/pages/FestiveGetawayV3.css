@@ -1,0 +1,299 @@
+/* ============================================================================
+   The Great Festive Getaway v3 — /festive-getaway-v3
+
+   OVERRIDES ONLY. FestiveGetawayV3.jsx imports FestiveGetaway.css first and
+   then this file, and wears one extra class on the root:
+
+     <div class="h26 new-typo n3 fg fgv3">
+
+   So v3 gets the whole page for free and this file carries nothing but the
+   hero. Everything here is scoped to `.fgv3` and cannot reach v1 or v2.
+
+   THE IDEA. The collage stops being a thing beside the words and becomes the
+   ground under them: five columns of European moments drifting behind the
+   entire band, and a scrim that is near-solid where the type runs and nearly
+   clear where the photographs should be seen. The headline gets v1's full
+   width back and the page still opens on twelve experiences.
+
+   Colour, type and easing are v1's throughout. Nothing new was invented for
+   v3 but the gradient — which is the only thing that needed inventing.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ band */
+
+.fgv3 .fg-hero {
+  align-items: center;
+  min-height: min(100svh, 920px);
+  padding-block: clamp(136px, 14vw, 184px) clamp(58px, 6vw, 92px);
+  background: var(--nd-900);
+}
+/* v1's photograph and veil are for the narrow layout only; above 1040px the
+   wall is the hero image and these stay out of it. A display:none element's
+   background-image is never fetched, so the desktop visitor does not pay for
+   a photograph they will not see. */
+.fgv3 .fg-hero__bg,
+.fgv3 .fg-hero__veil { display: none; }
+/* Warm light thrown from the right, where the photographs are — the festive
+   register lands on the imagery instead of on an empty half. */
+.fgv3 .fg-hero__glow {
+  opacity: .5;
+  background:
+    radial-gradient(58% 60% at 84% 46%, rgba(189, 64, 17, .34) 0%, rgba(113, 38, 10, .12) 40%, rgba(2, 19, 48, 0) 72%),
+    radial-gradient(42% 44% at 6% 92%, rgba(215, 140, 112, .16) 0%, rgba(2, 19, 48, 0) 70%);
+}
+
+/* ============================================================== THE WALL */
+
+.fgv3 .fgv3-wall {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+  overflow: hidden;
+  background: var(--nd-900);
+}
+/* Columns leave from the right as the screen narrows, so the ones that go are
+   the ones furthest from the type — and the two that survive to a phone are
+   the two with no repeated photograph in them. */
+@media (max-width: 1240px) {
+  .fgv3 .fgv3-wall { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .fgv3 .fgv3-wall__col:nth-child(5) { display: none; }
+}
+.fgv3 .fgv3-wall__col { overflow: hidden; }
+/* A RESTING stagger, in margin, so the columns are offset before anything
+   moves. Without it the tile rows line up straight across the wall, and a
+   visitor who has asked for reduced motion — where the marquee never runs —
+   gets a rigid grid instead of a collage. The animation's transform composes
+   with this rather than replacing it. */
+.fgv3 .fgv3-wall__col:nth-child(2) .fgv3-wall__track { margin-top: -14vw; }
+.fgv3 .fgv3-wall__col:nth-child(3) .fgv3-wall__track { margin-top: -5vw; }
+.fgv3 .fgv3-wall__col:nth-child(4) .fgv3-wall__track { margin-top: -19vw; }
+.fgv3 .fgv3-wall__col:nth-child(5) .fgv3-wall__track { margin-top: -9vw; }
+.fgv3 .fgv3-wall__track {
+  display: block;
+  /* Column-gap as MARGIN, not grid gap: the marquee translates exactly one
+     list length, and a flex `gap` puts one fewer space in a list than there
+     are items — which is a 3px seam every loop. Margin on every tile makes
+     the two halves identical, so -50% lands on nothing at all. */
+  will-change: transform;
+}
+.fgv3 .fgv3-wall__t {
+  overflow: hidden;
+  margin-bottom: 7px;
+  aspect-ratio: 3 / 4;
+  border-radius: 3px;
+  background: #081B36;
+}
+/* One square in every three. The column list is printed twice and the pattern
+   repeats on three, so both halves are identical and the loop is still
+   seamless — the wall just stops being a column of identical rectangles. */
+.fgv3 .fgv3-wall__t:nth-child(3n + 2) { aspect-ratio: 1 / 1; }
+.fgv3 .fgv3-wall__t img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* A half-step of saturation out, so the wall sits UNDER the page's sienna
+     rather than competing with it. */
+  filter: saturate(.92) contrast(1.02);
+}
+
+/* Up, down, up, down, up — every column disagrees with both its neighbours,
+   at five durations that share no common multiple, so the wall never resolves
+   into a repeating pattern and no row ever holds still long enough to be read
+   as a row. Negative delays start each column mid-loop, so the wall is already
+   in motion on the first frame rather than setting off from a dead stop. */
+@media (prefers-reduced-motion: no-preference) {
+  .fgv3 .fgv3-wall__col:nth-child(1) .fgv3-wall__track { animation: fgv3-drift-up 68s linear infinite; }
+  .fgv3 .fgv3-wall__col:nth-child(2) .fgv3-wall__track { animation: fgv3-drift-down 84s linear infinite; animation-delay: -31s; }
+  .fgv3 .fgv3-wall__col:nth-child(3) .fgv3-wall__track { animation: fgv3-drift-up 76s linear infinite; animation-delay: -26s; }
+  .fgv3 .fgv3-wall__col:nth-child(4) .fgv3-wall__track { animation: fgv3-drift-down 91s linear infinite; animation-delay: -12s; }
+  .fgv3 .fgv3-wall__col:nth-child(5) .fgv3-wall__track { animation: fgv3-drift-up 63s linear infinite; animation-delay: -44s; }
+}
+@keyframes fgv3-drift-up {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, -50%, 0); }
+}
+@keyframes fgv3-drift-down {
+  from { transform: translate3d(0, -50%, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+
+/* ================================================================ SCRIM */
+/* The whole treatment. Near-solid navy under the words, clear over the
+   photographs, and the turn between the two happens across the middle third
+   where nothing is set. The second layer darkens the top edge so the site nav
+   keeps its contrast, and the bottom so the band lands on the cream section
+   below instead of being cut off by it. */
+
+.fgv3 .fgv3-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background:
+    linear-gradient(94deg,
+      #021330 0%,
+      rgba(2, 19, 48, .97) 24%,
+      rgba(2, 19, 48, .88) 40%,
+      rgba(2, 19, 48, .58) 60%,
+      rgba(2, 19, 48, .3) 78%,
+      rgba(2, 19, 48, .16) 100%),
+    linear-gradient(180deg,
+      rgba(2, 19, 48, .82) 0%,
+      rgba(2, 19, 48, .12) 22%,
+      rgba(2, 19, 48, 0) 52%,
+      rgba(2, 19, 48, .44) 84%,
+      rgba(2, 19, 48, .78) 100%);
+}
+/* A last breath of ink right behind the type, tapering out well before the
+   photographs — it buys the sub-copy its contrast without darkening the wall.
+   The screen blend keeps it from reading as a shape. */
+.fgv3 .fg-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: radial-gradient(74% 86% at 4% 52%, rgba(1, 10, 26, .82) 0%, rgba(1, 10, 26, .34) 42%, rgba(2, 19, 48, 0) 72%);
+}
+/* Grain, so five stacked gradients cannot band on a good screen. */
+.fgv3 .fg-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .45;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+}
+
+/* ================================================================= COPY */
+
+.fgv3 .fgv3-hero__inner {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+}
+/* 54% of the column, which is where the scrim is still above .8 — the text
+   block and the opaque part of the gradient are the same measurement, and
+   that is not a coincidence to be tuned away later. */
+.fgv3 .fgv3-hero__copy { max-width: min(700px, 54%); }
+@media (max-width: 1040px) { .fgv3 .fgv3-hero__copy { max-width: none; } }
+
+/* The headline has the room v2 took away from it — one step under v1, because
+   here it is competing with twelve photographs rather than sitting on one. */
+.fgv3 .fg-hero__title { font-size: clamp(2.7rem, 6vw, 5rem); }
+.fgv3 .fg-hero__support { max-width: 26ch; }
+.fgv3 .fg-hero__sub { max-width: 44ch; }
+
+/* The figures are a ruled band under the copy, inside the opaque side — v1
+   gives them their own column, but that column is the photographs now. */
+.fgv3 .fgv3-hero__proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px clamp(26px, 3.4vw, 56px);
+  margin-top: clamp(26px, 3vw, 38px);
+  padding: 22px 0 0;
+  border-top: 1px solid rgba(223, 225, 230, .22);
+  border-left: 0;
+}
+@media (min-width: 1041px) {
+  .fgv3 .fgv3-hero__proof { display: flex; padding: 22px 0 0; border-left: 0; }
+}
+
+/* ------------------------------------------------- narrow: v1's hero back */
+/* Below 1041px v3 wears v1's hero outright: the single full-bleed photograph
+   under the navy veil, at v1's sizes and in v1's colours. The wall is a
+   desktop-only treatment — five columns beside the type need width that a
+   phone has not got, and at two columns the collage was doing less for the
+   opening than one good photograph does.
+
+   Every value here is a v1 value RESTATED, not unset. FestiveGetawayV3.css
+   loads after FestiveGetaway.css at equal specificity, so v3 wins every tie,
+   and the only way back to a v1 value is to say it again. That is also why
+   this block is long: it is not new design, it is v3 standing down. */
+
+@media (max-width: 1040px) {
+  /* the wall, and everything that existed only to sit on it */
+  .fgv3 .fgv3-wall,
+  .fgv3 .fgv3-scrim { display: none; }
+  /* The scrim's two pseudo-layers are emptied rather than `display: none`d.
+     A `display` declaration on ::before/::after — even inside a media query
+     that does not match — changes how Chrome layerises the hero, and the
+     glass button's 1px bottom border rasterises differently for it on the
+     DESKTOP layout. Measured: 494 pixels that had no business changing.
+     Taking the paint away instead leaves the boxes, the layers and the wide
+     screen exactly as they were. */
+  .fgv3 .fg-hero::before { background: none; }
+  .fgv3 .fg-hero::after { background-image: none; opacity: 0; }
+
+  /* v1's photograph and veil, in */
+  .fgv3 .fg-hero__bg,
+  .fgv3 .fg-hero__veil { display: block; }
+
+  /* v1's band: floorless, bottom-aligned, ad-traffic top padding */
+  .fgv3 .fg-hero {
+    align-items: flex-end;
+    min-height: 0;
+    padding-block: clamp(104px, 18vw, 150px) clamp(52px, 5.5vw, 78px);
+  }
+
+  /* v1's lamp-glow, not the right-weighted one the wall was lit by */
+  .fgv3 .fg-hero__glow {
+    opacity: .6;
+    background:
+      radial-gradient(60% 55% at 78% 42%, rgba(189, 64, 17, .40) 0%, rgba(113, 38, 10, .16) 38%, rgba(2, 19, 48, 0) 70%),
+      radial-gradient(45% 45% at 12% 88%, rgba(215, 140, 112, .20) 0%, rgba(2, 19, 48, 0) 70%);
+  }
+
+  /* v1's type: its scale, its measures, its colours — and none of the extra
+     ink and shadow the collage needed, which on a veil only muddies. */
+  .fgv3 .fg-hero__title {
+    font-size: clamp(2.75rem, 7.2vw, 6.5rem);
+    text-shadow: 0 2px 30px rgba(2, 19, 48, .4);
+  }
+  .fgv3 .fg-hero__kicker { color: var(--sf-300); text-shadow: none; }
+  /* v1 splits the hero into a title and a `.fg-hero__body` beneath it, and
+     that body's 22px top margin collapses with the title's 14px bottom one to
+     22. v3 has no body element, so the 8px that collapse left over has to be
+     asked for here — without it every line from this one down sits 8px high of
+     where v1 puts it. */
+  .fgv3 .fg-hero__support {
+    max-width: 34ch;
+    margin-top: clamp(22px, 3vw, 38px);
+    color: #F3B9A2;
+    text-shadow: none;
+  }
+  .fgv3 .fg-hero__sub { max-width: 54ch; color: rgba(255, 255, 255, .9); text-shadow: none; }
+  .fgv3 .fg-hero__pill {
+    background: rgba(255, 255, 255, .14);
+    border-color: rgba(255, 255, 255, .28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* v1's figures: the ruled band, its gaps, its colours. */
+  .fgv3 .fg-hero__proof strong { color: var(--sf-300); text-shadow: none; }
+  .fgv3 .fg-hero__proof span { color: var(--nl-200); text-shadow: none; }
+  .fgv3 .fgv3-hero__proof {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px clamp(30px, 5vw, 76px);
+    width: 100%;
+    margin-top: clamp(26px, 3.5vw, 56px);
+    padding: 20px 0 0;
+    border-top: 1px solid rgba(223, 225, 230, .22);
+  }
+}
+
+/* v1's own phone step, which v3's `padding-block` would otherwise outrank. */
+@media (max-width: 560px) {
+  .fgv3 .fg-hero { padding-top: 100px; }
+}
+
+/* ------------------------------------------------------------ still wall */
+@media (prefers-reduced-motion: reduce) {
+  .fgv3 .fgv3-wall__track { animation: none !important; }
+}

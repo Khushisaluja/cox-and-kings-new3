@@ -32,6 +32,7 @@ import Collaborate from './pages/Collaborate';
 import Franchise from './pages/Franchise';
 import FranchiseV2 from './pages/FranchiseV2';
 import Mice from './pages/Mice';
+import FestiveGetawayV3 from './pages/FestiveGetawayV3';
 import Terms from './pages/Terms';
 import Sitemap from './pages/Sitemap';
 import Faq2 from './pages/Faq2';
@@ -341,6 +342,11 @@ export default function App() {
           <Route path="/private-italy-mobile" element={<PrivateItaly mobile />} />
           <Route path="/group-japan" element={<GroupJapan />} />
           <Route path="/group-japan-mobile" element={<GroupJapan mobile />} />
+
+          {/* THE GREAT FESTIVE GETAWAY — the festive Europe GIT campaign's
+              master landing page. Meta/Google ad traffic only: deliberately not
+              in the nav or the footer, reachable by URL alone. */}
+          <Route path="/festive-getaway-v3" element={<FestiveGetawayV3 />} />
 
           {/* CLIENT-FACING 404 — "you're wandering off the map". Reachable
               ONLY at its own /404 address for now: nothing links to it, and
