@@ -1346,3 +1346,114 @@
   .fv .fv-opt .fv-opt__tick { width: 0; opacity: 0; }
   .fv .fv-opt.is-sel .fv-opt__tick { width: 14px; opacity: 1; margin-right: var(--s-2); }
 }
+
+/* ==========================================================================
+   LOCAL CHROME — logo + CTA nav, and the /festive-getaway-v4 footer.
+   The shared SiteNav / SiteFooter are not used on this page and not touched.
+   ========================================================================== */
+
+/* The nav: the brand on the left, the one CTA on the right. Home2026.css
+   hides the nav pill under 1024px (the homepage has a thumb bar instead);
+   this page has no thumb bar, so the CTA stays, one size down. */
+.fv .fv-nav .fv-nav__cta { margin-left: auto; white-space: nowrap; }
+@media (max-width: 1024px) {
+  .fv .fv-nav .fv-nav__cta { display: inline-flex; }
+}
+@media (max-width: 560px) {
+  .fv .fv-nav .h26-brand img { height: 38px; }
+  .fv .fv-nav .fv-nav__cta { padding: 10px 14px; font-size: 12.5px; letter-spacing: .04em; }
+}
+
+/* The footer — a straight port of .fgv4-foot, values unchanged. */
+.fv .fv-foot {
+  --pad-x: clamp(20px, 5vw, 64px);
+  background: var(--paper-2);
+  color: var(--muted);
+  padding: 26px var(--pad-x) 20px;
+  font-family: var(--sans);
+}
+.fv .fv-foot__row,
+.fv .fv-foot__legal {
+  max-width: 1280px;
+  margin-inline: auto;
+}
+.fv .fv-foot__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px clamp(24px, 4vw, 56px);
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.fv .fv-foot__logo { height: 44px; width: auto; display: block; }
+
+.fv .fv-foot__help {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin-right: auto;
+  padding-left: clamp(0px, 3vw, 40px);
+}
+.fv .fv-foot__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.fv .fv-foot a {
+  color: var(--ink);
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: color .2s;
+}
+.fv .fv-foot a:hover { color: var(--blue); }
+.fv .fv-foot a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+.fv .fv-foot__contact {
+  display: flex;
+  align-items: center;
+  gap: 8px 22px;
+  flex-wrap: wrap;
+}
+.fv .fv-foot__contact a { display: inline-flex; align-items: center; gap: 7px; }
+
+.fv .fv-foot__legal {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  padding-top: 14px;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .02em;
+}
+
+@media (max-width: 1040px) {
+  .fv .fv-foot__row { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .fv .fv-foot__help { padding-left: 0; margin-right: 0; gap: 8px 18px; }
+  .fv .fv-foot__label { flex-basis: 100%; }
+}
+@media (max-width: 760px) {
+  .fv .fv-foot { padding: 28px var(--pad-x) calc(22px + env(safe-area-inset-bottom)); }
+  .fv .fv-foot__row { gap: 22px; padding-bottom: 0; border-bottom: 0; }
+  .fv .fv-foot__logo { height: 48px; }
+  .fv .fv-foot__help {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+    width: 100%;
+  }
+  .fv .fv-foot__label { grid-column: 1 / -1; margin-bottom: 2px; }
+  .fv .fv-foot a { font-size: 14.5px; }
+  .fv .fv-foot__contact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 18px 0;
+    border-block: 1px solid var(--border);
+  }
+  .fv .fv-foot__legal { flex-direction: column; gap: 4px; padding-top: 16px; line-height: 1.5; }
+}

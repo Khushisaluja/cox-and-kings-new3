@@ -22,7 +22,7 @@
    private palette, its own nav and its own footer. This page is a page of THIS
    site instead:
 
-     · SiteNav / SiteFooter — the same chrome as /new3, /mice and /journeys.
+     · Local chrome: a logo + CTA nav, and the /festive-getaway-v4 footer.
      · design.md throughout — Voyager Blue is the primary action, Sienna Flame
        the accent (numerals, eyebrows, the arcs on the map — never a button),
        dark ground is Neutrals-Dark/900 #021330, display type is Cormorant
@@ -68,9 +68,12 @@ import {
   ArrowRight, ArrowLeft, Check, ChevronDown,
   Globe2, MapPin, Inbox, FileCheck2, GraduationCap, ListChecks, Store,
   LayoutGrid, Users, Building2, Monitor, Table2, ClipboardList, Phone, Mail, FileText,
-  ShieldCheck, Calendar, Wallet, CircleX, BadgeCheck, Tag, Lock, Ban, Scale, Gavel,
+  ShieldCheck, Calendar, Wallet, CircleX, BadgeCheck, Tag, Lock, Ban, Scale, Gavel, PhoneCall,
 } from 'lucide-react';
-import { SiteNav, SiteFooter } from '../components/SiteChrome';
+import { Link } from 'react-router-dom';
+import { CONTACT_CK } from '../components/SiteChrome';
+import { SmartLink } from '../components/ScheduleCall';
+import { CALLBACK } from '../data/v3content';
 import './FranchiseV2.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -1436,6 +1439,38 @@ function Terms() {
    THE PAGE
    =========================================================================== */
 
+/* ---------------------------------------------------------------------------
+   THE NAV — logo and one CTA, local to this page (the shared SiteNav is
+   untouched). A prospective franchisee has one job here, so the header offers
+   one way forward instead of the whole travel catalogue. It keeps SiteNav's
+   classes and scroll behaviour, so it looks and moves the same, and it still
+   answers to `.h26-nav` for the --fv-navh measurement below.
+   --------------------------------------------------------------------------- */
+function FvNav({ onApply, solidAt = 90 }) {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > solidAt);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [solidAt]);
+
+  return (
+    <>
+      <a className="h26-skip" href="#fv-apply">Skip to the franchise application</a>
+      <header className={`h26-nav fv-nav${scrolled ? ' is-solid' : ''}`}>
+        <Link to="/" className="h26-brand" aria-label="Cox & Kings — home">
+          <img src="/cox-logo-new.png" alt="Cox & Kings" />
+        </Link>
+        <button type="button" className="h26-btn h26-btn-pill fv-nav__cta" onClick={onApply}>
+          Check if you qualify
+        </button>
+      </header>
+    </>
+  );
+}
+
 export default function FranchiseV2() {
   const root = useRef(null);
 
@@ -1540,7 +1575,7 @@ export default function FranchiseV2() {
 
   return (
     <div className="h26 new-typo n3 fv" ref={root}>
-      <SiteNav solidAt={90} skipTo="#fv-apply" skipLabel="Skip to the franchise application" />
+      <FvNav onApply={goToForm} />
 
       <Hero onApply={goToForm} />
 
@@ -1603,7 +1638,29 @@ export default function FranchiseV2() {
         </section>
       </main>
 
-      <SiteFooter />
+      {/* The marketing-page footer, the same one /festive-getaway-v4 carries
+          (the shared SiteFooter is untouched): the brand, a way to get help
+          and the legal line, in one row and a rule. */}
+      <footer className="fv-foot">
+        <div className="fv-foot__row">
+          <img className="fv-foot__logo" src="/cox-logo-new.png" alt="Cox & Kings" />
+          <nav className="fv-foot__help" aria-label="Help and support">
+            <span className="fv-foot__label">Help &amp; support</span>
+            <SmartLink to={CALLBACK}>Contact us</SmartLink>
+            <SmartLink to="/faq2">FAQs</SmartLink>
+            <SmartLink to="/terms#refund-policy">Refund policy</SmartLink>
+            <SmartLink to="/terms">Terms &amp; Conditions</SmartLink>
+          </nav>
+          <div className="fv-foot__contact">
+            <a href={CONTACT_CK.phoneHref}><PhoneCall size={14} aria-hidden="true" /> {CONTACT_CK.phoneDisplay}</a>
+            <a href={`mailto:${CONTACT_CK.email}`}>{CONTACT_CK.email}</a>
+          </div>
+        </div>
+        <div className="fv-foot__legal">
+          <span>© {new Date().getFullYear()} Cox &amp; Kings. Travelling the world since 1758.</span>
+          <span>IATA · TAAI · ASTA</span>
+        </div>
+      </footer>
     </div>
   );
 }
