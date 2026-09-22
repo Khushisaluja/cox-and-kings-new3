@@ -33,6 +33,7 @@ import Franchise from './pages/Franchise';
 import FranchiseV2 from './pages/FranchiseV2';
 import Mice from './pages/Mice';
 import FestiveGetawayV3 from './pages/FestiveGetawayV3';
+import FestiveGetawayV4 from './pages/FestiveGetawayV4';
 import Terms from './pages/Terms';
 import Sitemap from './pages/Sitemap';
 import Faq2 from './pages/Faq2';
@@ -347,6 +348,9 @@ export default function App() {
               master landing page. Meta/Google ad traffic only: deliberately not
               in the nav or the footer, reachable by URL alone. */}
           <Route path="/festive-getaway-v3" element={<FestiveGetawayV3 />} />
+          {/* v4 — one lightly veiled photograph, and an album of three
+              captioned prints on the right (the /mice hero pattern). */}
+          <Route path="/festive-getaway-v4" element={<FestiveGetawayV4 />} />
 
           {/* CLIENT-FACING 404 — "you're wandering off the map". Reachable
               ONLY at its own /404 address for now: nothing links to it, and
