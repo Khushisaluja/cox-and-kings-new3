@@ -35,6 +35,7 @@ import Mice from './pages/Mice';
 import FestiveGetawayV3 from './pages/FestiveGetawayV3';
 import FestiveGetawayV4 from './pages/FestiveGetawayV4';
 import SakuraJapan from './pages/SakuraJapan';
+import EuropeEarlyBooking from './pages/EuropeEarlyBooking';
 import Terms from './pages/Terms';
 import Sitemap from './pages/Sitemap';
 import Faq2 from './pages/Faq2';
@@ -348,6 +349,10 @@ export default function App() {
           {/* JAPAN IN FULL BLOOM: spring 2027 Japan group-departure campaign
               lander (cherry blossom). Ad traffic only; local crest + CTA nav. */}
           <Route path="/japan-cherry-blossom" element={<SakuraJapan />} />
+
+          {/* EUROPE, EARLY BOOKING: the same lander for the summer 2027 Europe
+              group departures, marketed on the early-bird price. */}
+          <Route path="/europe-early-booking" element={<EuropeEarlyBooking />} />
 
           {/* THE GREAT FESTIVE GETAWAY — the festive Europe GIT campaign's
               master landing page. Meta/Google ad traffic only: deliberately not
