@@ -14,8 +14,8 @@
 
      1  Hero              both CTAs inside the first fold on a 390×660 phone
      2  One price         what the price covers               (light)
-     3  Reviews           rating bar + photo cards            (light)
-     4  Tours             choose: map, dates, seats, CTAs     (light)
+     3  Tours             choose: map, dates, seats, CTAs     (light)
+     4  Reviews           rating bar + photo cards            (light)
      5  How booking works what happens after I pay           (white)
      6  The Promise       seal + four lines                   (white)
      7  Heritage          story, photo, facts, awards         (cream)
@@ -946,7 +946,24 @@ export default function SakuraJapan() {
           </div>
         </section>
 
-        {/* ------------------------------------------------ 3 REVIEWS — light; the same pattern as the
+        {/* ------------------------------------------------ 3 TOURS, straight after One price */}
+        <section className="skj-tours" id="tours" aria-labelledby="skj-tours-h">
+          <div className="skj-sechead">
+            <div>
+              <Eyebrow>Three ways to see the blossom</Eyebrow>
+              <h2 id="skj-tours-h" className="skj-h2">Choose your <em>spring</em></h2>
+              <p className="skj-sub">Prices below include the {inr(OFFER.onlineDiscount)} online discount.</p>
+            </div>
+            <RowControls row={toursRow} label="tour" />
+          </div>
+          <div className="skj-row skj-tours__row" ref={toursRow.ref}>
+            {TOURS.map((t) => (
+              <TourCard key={t.id} tour={t} selectedDep={picked[t.id]} onSelectDep={selectDep} onItinerary={setItinId} />
+            ))}
+          </div>
+        </section>
+
+        {/* ------------------------------------------------ 4 REVIEWS, after the tours; the same pattern as the
             homepage review strip: one rating bar, then photo cards. */}
         <section className="skj-reviews" aria-labelledby="skj-rev-h">
           <div className="skj-reviews__head">
@@ -975,23 +992,6 @@ export default function SakuraJapan() {
             {REVIEWS.map((r) => <ReviewCard key={r.name} r={r} />)}
           </ul>
           <Dots row={reviewsRow} label="Review" />
-        </section>
-
-        {/* ------------------------------------------------ 4 TOURS — straight after the reviews */}
-        <section className="skj-tours" id="tours" aria-labelledby="skj-tours-h">
-          <div className="skj-sechead">
-            <div>
-              <Eyebrow>Three ways to see the blossom</Eyebrow>
-              <h2 id="skj-tours-h" className="skj-h2">Choose your <em>spring</em></h2>
-              <p className="skj-sub">Prices below include the {inr(OFFER.onlineDiscount)} online discount.</p>
-            </div>
-            <RowControls row={toursRow} label="tour" />
-          </div>
-          <div className="skj-row skj-tours__row" ref={toursRow.ref}>
-            {TOURS.map((t) => (
-              <TourCard key={t.id} tour={t} selectedDep={picked[t.id]} onSelectDep={selectDep} onItinerary={setItinId} />
-            ))}
-          </div>
         </section>
 
         {/* ------------------------------------------------ 5 HOW BOOKING WORKS — answers "what happens after I pay?" right after the tours */}
