@@ -34,6 +34,7 @@ import FranchiseV2 from './pages/FranchiseV2';
 import Mice from './pages/Mice';
 import FestiveGetawayV3 from './pages/FestiveGetawayV3';
 import FestiveGetawayV4 from './pages/FestiveGetawayV4';
+import SakuraJapan from './pages/SakuraJapan';
 import Terms from './pages/Terms';
 import Sitemap from './pages/Sitemap';
 import Faq2 from './pages/Faq2';
@@ -343,6 +344,10 @@ export default function App() {
           <Route path="/private-italy-mobile" element={<PrivateItaly mobile />} />
           <Route path="/group-japan" element={<GroupJapan />} />
           <Route path="/group-japan-mobile" element={<GroupJapan mobile />} />
+
+          {/* JAPAN IN FULL BLOOM: spring 2027 Japan group-departure campaign
+              lander (cherry blossom). Ad traffic only; local crest + CTA nav. */}
+          <Route path="/japan-cherry-blossom" element={<SakuraJapan />} />
 
           {/* THE GREAT FESTIVE GETAWAY — the festive Europe GIT campaign's
               master landing page. Meta/Google ad traffic only: deliberately not
