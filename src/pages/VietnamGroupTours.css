@@ -1,0 +1,238 @@
+/* ============================================================================
+   /vietnam-group-tours: only what is new on top of SakuraJapan.css.
+   Every rule is scoped to `.skj.vn`, so the Japan and Europe pages, which
+   share SakuraJapan.css, are untouched.
+   ========================================================================== */
+
+.skj.vn {
+  --vn-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --vn-lantern-red: #C8352B;
+}
+
+/* ---- Nav: on desktop, three quiet links before the CTA ---------------- */
+.skj.vn .vn-nav__links { display: none; }
+@media (min-width: 1080px) {
+  .skj.vn .skj-nav { justify-content: flex-start; }
+  .skj.vn .vn-nav__links {
+    display: flex; gap: 32px; margin-left: auto; margin-right: 28px;
+  }
+  .skj.vn .vn-nav__links a {
+    position: relative; color: #fff; text-decoration: none;
+    font: 400 15px/1 var(--skj-sans); letter-spacing: .01em;
+    text-shadow: 0 1px 10px rgba(2,19,48,.35);
+  }
+  .skj.vn .vn-nav__links a::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+    background: currentColor; transform: scaleX(0); transform-origin: right;
+    transition: transform .45s var(--skj-ease);
+  }
+  .skj.vn .vn-nav__links a:hover::after { transform: scaleX(1); transform-origin: left; }
+}
+
+/* ======================================================================
+   1 HERO: sky → tint → VIỆT NAM → karsts → veil → copy
+   The sky and the karsts are the same frame, laid out identically (same
+   box, same object-fit, same object-position), so at rest the cut-out sits
+   exactly on its own pixels.
+   ====================================================================== */
+.skj.vn .vn-hero { background: var(--skj-navy); }
+.skj.vn .vn-hero__scene {
+  position: absolute; inset: 0; z-index: -3; overflow: hidden;
+  transform-origin: 50% 40%; will-change: transform;
+}
+.skj.vn .vn-hero__sky,
+.skj.vn .vn-hero__karsts {
+  position: absolute; inset: 0 0 -14% 0; will-change: transform;
+}
+.skj.vn .vn-hero__sky img,
+.skj.vn .vn-hero__karsts img {
+  width: 100%; height: 100%; display: block;
+  object-fit: cover; object-position: 50% 0%;
+}
+.skj.vn .vn-hero__karsts { z-index: 3; pointer-events: none; }
+/* Deepens the pale morning sky so a white word reads on it. Sits under the
+   karsts, so the rock keeps its own colour. */
+.skj.vn .vn-hero__tint {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(4,36,71,.62) 0%, rgba(11,90,177,.34) 34%, rgba(11,90,177,.12) 52%, rgba(11,90,177,0) 64%);
+}
+
+.skj.vn .vn-hero__mark {
+  position: absolute; left: 0; right: 0; z-index: 2;
+  top: 30%;
+  display: flex; justify-content: center;
+  will-change: transform;
+}
+.skj.vn .vn-hero__word {
+  display: flex; align-items: flex-end;
+  font: 500 min(15.2vw, 30vh)/.86 var(--vn-display);
+  letter-spacing: -.01em; color: #fff;
+  font-variant-numeric: normal;
+}
+/* Each letter rises out of its own slot. The slot is tall enough for the
+   circumflex and the dot below Ệ. */
+.skj.vn .vn-hero__chm { display: inline-block; overflow: hidden; padding: .2em .005em .18em; margin: -.2em 0 -.18em; }
+.skj.vn .vn-hero__ch { display: inline-block; will-change: transform; }
+.skj.vn .vn-hero__gap { display: inline-block; width: .28em; }
+
+/* Phones: the photo fills the top two-thirds, so the peaks rise into the
+   stacked word (VIỆT over NAM) and the copy gets plain navy below. */
+@media (max-width: 899px) {
+  .skj.vn .vn-hero__sky,
+  .skj.vn .vn-hero__karsts { inset: 0 0 auto 0; height: 68%; }
+}
+@media (max-width: 699px) {
+  .skj.vn .vn-hero__mark { top: 10.5%; }
+  .skj.vn .vn-hero__word {
+    flex-wrap: wrap; justify-content: center; width: 4.3em;
+    font-size: min(26vw, 13.5vh); line-height: .9;
+  }
+  .skj.vn .vn-hero__gap { width: 100%; height: .12em; }
+}
+
+.skj.vn .vn-hero__veil {
+  z-index: -2;
+  background: linear-gradient(180deg, rgba(2,19,48,0) 0%, rgba(2,19,48,0) 36%, rgba(2,19,48,.55) 48%, rgba(2,19,48,.9) 58%, var(--skj-navy) 64%);
+}
+@media (min-width: 900px) {
+  .skj.vn .vn-hero__veil {
+    background:
+      linear-gradient(90deg, rgba(2,19,48,.7) 0%, rgba(2,19,48,.3) 40%, rgba(2,19,48,0) 62%),
+      linear-gradient(180deg, rgba(2,19,48,0) 0%, rgba(2,19,48,0) 52%, rgba(2,19,48,.55) 78%, rgba(2,19,48,.85) 100%);
+    /* The left-hand gradient only below the word, not across the sky. */
+    -webkit-mask-image: linear-gradient(180deg, transparent 0 50%, #000 66%);
+    mask-image: linear-gradient(180deg, transparent 0 50%, #000 66%);
+  }
+}
+.skj.vn .vn-hero__title { font-size: clamp(34px, 4.2vw, 60px); line-height: 1.02; max-width: 15ch; }
+/* Desktop: the copy is one band along the bottom, headline left and the
+   offer and CTAs right, so the word above has the sky to itself. */
+@media (min-width: 900px) {
+  .skj.vn .vn-hero__copy {
+    max-width: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px);
+    column-gap: clamp(40px, 6vw, 112px); align-items: end;
+  }
+  .skj.vn .vn-hero__act .skj-hero__sub { margin-top: 0; }
+  .skj.vn .vn-hero__act .skj-hero__offer { margin-top: 18px; }
+  .skj.vn .vn-hero__act .skj-hero__ctas { margin-top: 20px; }
+}
+@media (max-width: 899px) {
+  .skj.vn .vn-hero__title { font-size: clamp(32px, 8.6vw, 44px); }
+}
+@media (max-height: 700px) and (max-width: 699px) {
+  .skj.vn .vn-hero__title { font-size: 30px; }
+}
+
+/* Birds over the bay: a slow drift and a lazy wingbeat. */
+.skj.vn .vn-birds { position: absolute; inset: 0; z-index: 2; pointer-events: none; color: rgba(14,34,52,.7); }
+.skj.vn .vn-bird { position: absolute; width: 30px; height: 9px; animation: vn-drift 46s linear infinite; }
+.skj.vn .vn-bird path { transform-origin: 50% 70%; animation: vn-flap 1.6s ease-in-out infinite; }
+.skj.vn .vn-bird--0 { top: 13%; left: 56%; }
+.skj.vn .vn-bird--1 { top: 18%; left: 63%; width: 38px; animation-duration: 54s; animation-delay: -12s; }
+.skj.vn .vn-bird--1 path { animation-delay: -.5s; }
+.skj.vn .vn-bird--2 { top: 21%; left: 58%; width: 24px; animation-duration: 40s; animation-delay: -6s; }
+.skj.vn .vn-bird--2 path { animation-delay: -1s; }
+@media (max-width: 699px) { .skj.vn .vn-birds { display: none; } }
+@keyframes vn-drift {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-18vw, -2vh); }
+  100% { transform: translate(-36vw, 1vh); }
+}
+@keyframes vn-flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.35); } }
+
+/* ======================================================================
+   Text arrivals (SplitText masks). A little room under each masked line so
+   descenders and italic overhangs are not clipped.
+   ====================================================================== */
+.skj.vn .vn-line { padding: 0 .06em .1em; margin: 0 -.06em -.1em; }
+
+/* Tour photos drift with the scroll (GSAP), so drop the CSS hover zoom that
+   would fight the inline transform. */
+.skj.vn .skj-tour__media img { transition: none; }
+.skj.vn .skj-tour:hover .skj-tour__media img { transform: none; }
+
+/* Map: Vietnam on paper, its neighbours a shade greyer. */
+.skj.vn .vn-map__near { fill: #ECEAE0; stroke: var(--skj-n200); }
+
+/* ======================================================================
+   7 HERITAGE: the lantern arch
+   ====================================================================== */
+.skj.vn .skj-heritage { overflow: hidden; }
+.skj.vn .vn-archwrap { padding-top: 64px; }
+.skj.vn .vn-arch {
+  position: relative; overflow: hidden;
+  height: 380px; border-radius: 999px 999px 0 0;
+  clip-path: inset(0 0 0 0 round 999px 999px 0 0);
+  box-shadow: 0 40px 70px -44px rgba(4,36,71,.55);
+  background: var(--skj-n150);
+}
+.skj.vn .vn-arch__img {
+  width: 100%; height: 100%; display: block; object-fit: cover; object-position: 30% 50%;
+  transform-origin: 50% 70%; will-change: transform;
+}
+@media (min-width: 900px) {
+  .skj.vn .vn-archwrap { padding-top: 92px; padding-bottom: 44px; }
+  .skj.vn .vn-arch { height: 560px; }
+}
+
+/* A lantern hangs from the top edge of the figure on its own string. */
+.skj.vn .vn-lantern {
+  position: absolute; top: 0; left: var(--x); z-index: 2;
+  width: calc(78px * var(--s)); pointer-events: none;
+}
+.skj.vn .vn-lantern__drop,
+.skj.vn .vn-lantern__swing,
+.skj.vn .vn-lantern__push { transform-origin: 50% 0; }
+.skj.vn .vn-lantern__push { position: relative; display: flex; flex-direction: column; align-items: center; }
+.skj.vn .vn-lantern__string {
+  display: block; width: 2px; height: calc(var(--len) + 30px); margin-top: -30px;
+  background: #3A2417; border-radius: 1px;
+}
+.skj.vn .vn-lantern__svg { display: block; width: 100%; height: auto; margin-top: -1px; position: relative; }
+.skj.vn .vn-lantern__body { position: relative; display: block; width: 100%; }
+.skj.vn .vn-lantern__glow {
+  position: absolute; left: 50%; top: 38%;
+  width: 210%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 45%, transparent), transparent 75%);
+  animation: vn-glow 3.4s ease-in-out infinite;
+}
+/* nth-of-type counts the arch's div too, so the lanterns are 2, 3 and 4. */
+.skj.vn .vn-lantern:nth-of-type(3) .vn-lantern__glow { animation-delay: -1.1s; }
+.skj.vn .vn-lantern:nth-of-type(4) .vn-lantern__glow { animation-delay: -2.2s; }
+@keyframes vn-glow { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+@media (max-width: 899px) {
+  .skj.vn .vn-lantern { width: calc(56px * var(--s)); }
+  .skj.vn .vn-lantern__string { height: calc(var(--len) * .7 + 30px); }
+}
+
+/* The card sits over the arch's foot on desktop, as on the Japan page. */
+@media (min-width: 900px) {
+  .skj.vn .vn-archwrap .skj-heritage__card { bottom: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skj.vn .vn-bird, .skj.vn .vn-bird path, .skj.vn .vn-lantern__glow { animation: none; }
+}
+
+/* ======================================================================
+   8 FINAL: a lighter veil than Japan/Europe, so Hoi An's lanterns glow
+   through it; it darkens only behind the type.
+   ====================================================================== */
+.skj.vn .skj-final::before {
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 50%, rgba(2,19,48,.72), rgba(2,19,48,.25) 100%),
+    linear-gradient(180deg, rgba(2,19,48,.35), rgba(2,19,48,.2) 50%, rgba(2,19,48,.75));
+}
+.skj.vn .skj-final__img { will-change: transform; }
+
+/* Package popup footer: Book now (primary) + Talk to an expert (secondary).
+   Phones: price on its own row, the two buttons share the row below,
+   with Book now on the right where the thumb lands. */
+.skj.vn .skj-itin__foot { flex-wrap: wrap; }
+.skj.vn .vn-itin__ctas { display: flex; gap: 10px; }
+@media (max-width: 559px) {
+  .skj.vn .vn-itin__ctas { width: 100%; }
+  .skj.vn .vn-itin__ctas .skj-btn { flex: 1; padding-inline: 10px; gap: 7px; font-size: 12.5px; letter-spacing: .02em; white-space: nowrap; }
+  .skj.vn .vn-itin__ctas .skj-btn--wa { flex: 1.25; }
+}
