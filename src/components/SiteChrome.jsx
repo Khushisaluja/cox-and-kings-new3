@@ -29,7 +29,7 @@ import { useLocation } from 'react-router-dom';
 import { SmartLink as Link, CALLBACK, useScheduleCall } from './ScheduleCall';
 import { EINAYA, useEinaya } from './Einaya';
 import {
-  ChevronDown, ChevronRight, Phone, Menu, X, ArrowRight, ArrowUpRight,
+  ChevronDown, Phone, Menu, X, ArrowRight, ArrowUpRight,
   Instagram, Facebook, Youtube, Linkedin,
 } from 'lucide-react';
 
@@ -55,133 +55,90 @@ const INSPIRATION_TO = '/inspiration';
 const soon = (name) => `/journeys/coming-soon?dest=${encodeURIComponent(name)}`;
 
 /* ---------------------------------------------------------------------------
-   The Destinations panel. Two regions, each split into a handful of buckets;
-   the countries live one level down, inside the bucket.
+   The Destinations panel: an atlas index, not a browser.
 
-   The old flyout listed nine places in a flat column, which is all a 300px
-   panel can hold — so "over 100 countries" was a claim the menu itself
-   contradicted. Splitting it means the left rail stays a short, stable list of
-   buckets (five continents, four kinds of Indian holiday) while the countries
-   ride in the right pane, where there is room for as many as a bucket needs.
+   The list is the "countries we cater to" sheet (trfed.xlsx): 56 destinations
+   in the seven regions it names, nothing else. The old panel was a hover rail
+   (pick a bucket, see its countries in a pane), and that shape cannot survive
+   honest data. Europe has 23 places and Antarctica has one, so a pane sized for
+   Europe sits nearly empty for half the rail.
+
+   So every destination is on screen at once, alphabetical inside its region,
+   on one shared four-column grid. The three big regions run full width; the
+   four small ones share a single band, one region per column, which is where a
+   one-place region looks deliberate instead of stranded. The panel is full
+   because the whole list is in it, not because anything was padded.
+
+   Region names are the sheet's own. Two spellings were corrected for display:
+   "Antartica" and "United States Of America".
    --------------------------------------------------------------------------- */
-const DEST_REGIONS = [
-  {
-    heading: 'International Immersions',
-    groups: [
-      {
-        label: 'Asia',
-        note: 'Temples, street food and bullet trains.',
-        places: [
-          { label: 'Japan', desc: 'Cherry blossom to neon', to: '/journeys/japan-2' },
-          { label: 'Thailand', desc: 'Islands & temple cities', to: soon('Thailand') },
-          { label: 'Vietnam', desc: 'Halong Bay & old quarters', to: soon('Vietnam') },
-          { label: 'Bali & Indonesia', desc: 'Rice terraces & reefs', to: soon('Bali & Indonesia') },
-          { label: 'Singapore', desc: 'A city that runs on design', to: soon('Singapore') },
-          { label: 'Sri Lanka', desc: 'Tea country & leopards', to: soon('Sri Lanka') },
-          { label: 'Maldives', desc: 'Overwater, undisturbed', to: soon('Maldives') },
-          { label: 'Bhutan & Nepal', desc: 'Himalayan monasteries', to: soon('Bhutan & Nepal') },
-        ],
-      },
-      {
-        label: 'Europe',
-        note: 'Alpine rail, old cities and long coastlines.',
-        places: [
-          { label: 'Switzerland', desc: 'Alpine railways & lakes', to: soon('Switzerland') },
-          { label: 'Italy', desc: 'Cities, coast & countryside', to: soon('Italy') },
-          { label: 'France', desc: 'Paris, Provence & the Loire', to: soon('France') },
-          { label: 'Spain & Portugal', desc: 'Iberian food & flamenco', to: soon('Spain & Portugal') },
-          { label: 'Greece', desc: 'Ruins & island hopping', to: soon('Greece') },
-          { label: 'Iceland', desc: 'Volcanoes, glaciers, geysers', to: soon('Iceland') },
-          { label: 'Norway & Finland', desc: 'Fjords & northern lights', to: soon('Norway & Finland') },
-          { label: 'UK & Ireland', desc: 'Castles, moors & pubs', to: soon('UK & Ireland') },
-        ],
-      },
-      {
-        label: 'Africa & Middle East',
-        note: 'Big-five wilderness and desert cities.',
-        places: [
-          { label: 'Kenya', desc: 'The Mara migration', to: soon('Kenya') },
-          { label: 'Tanzania', desc: 'Serengeti & Zanzibar', to: soon('Tanzania') },
-          { label: 'South Africa', desc: 'Cape, wine & Kruger', to: soon('South Africa') },
-          { label: 'Egypt', desc: 'Nile, pyramids & temples', to: soon('Egypt') },
-          { label: 'Morocco', desc: 'Medinas & the Sahara', to: soon('Morocco') },
-          { label: 'Dubai & Abu Dhabi', desc: 'Desert, souks & skyline', to: soon('Dubai & Abu Dhabi') },
-        ],
-      },
-      {
-        label: 'The Americas',
-        note: 'Andes, canyons and rainforest.',
-        places: [
-          { label: 'USA', desc: 'Parks, coasts & big cities', to: soon('USA') },
-          { label: 'Canada', desc: 'Rockies & maple country', to: soon('Canada') },
-          { label: 'Peru', desc: 'Machu Picchu & the Andes', to: soon('Peru') },
-          { label: 'Brazil', desc: 'Rio, Amazon & Iguazu', to: soon('Brazil') },
-          { label: 'Argentina & Chile', desc: 'Patagonia end to end', to: soon('Argentina & Chile') },
-          { label: 'Mexico', desc: 'Maya ruins & Pacific coast', to: soon('Mexico') },
-        ],
-      },
-      {
-        label: 'Australia & Pacific',
-        note: 'Reef, outback and the long way south.',
-        places: [
-          { label: 'Australia', desc: 'Reef, outback & Sydney', to: soon('Australia') },
-          { label: 'New Zealand', desc: 'Both islands, end to end', to: soon('New Zealand') },
-          { label: 'Fiji', desc: 'Islands at their slowest', to: soon('Fiji') },
-        ],
-      },
-    ],
-  },
-  {
-    heading: 'Indian Getaways',
-    groups: [
-      {
-        label: 'Hills & Mountains',
-        note: 'Where the air thins and the pace drops.',
-        places: [
-          { label: 'Himachal', desc: 'Shimla, Manali & Spiti', to: soon('Himachal') },
-          { label: 'Uttarakhand', desc: 'Rishikesh & the Garhwal', to: soon('Uttarakhand') },
-          { label: 'Kashmir', desc: 'Dal Lake & Gulmarg', to: soon('Kashmir') },
-          { label: 'Ladakh', desc: 'High desert & monasteries', to: soon('Ladakh') },
-          { label: 'Sikkim & Darjeeling', desc: 'Tea gardens under Kanchenjunga', to: soon('Sikkim & Darjeeling') },
-          { label: 'North East', desc: 'Meghalaya & Arunachal', to: soon('North East') },
-        ],
-      },
-      {
-        label: 'Beaches & Islands',
-        note: 'Coastline, from the busy to the barely-there.',
-        places: [
-          { label: 'Goa', desc: 'Beaches & Portuguese charm', to: soon('Goa') },
-          { label: 'Andaman Islands', desc: 'Diving & empty sand', to: soon('Andaman Islands') },
-          { label: 'Kerala Coast', desc: 'Kovalam & Varkala', to: soon('Kerala Coast') },
-          { label: 'Lakshadweep', desc: 'Lagoons, almost to yourself', to: soon('Lakshadweep') },
-          { label: 'Gokarna', desc: 'Goa without the crowds', to: soon('Gokarna') },
-        ],
-      },
-      {
-        label: 'Heritage & Palaces',
-        note: 'The plains, and everything built on them.',
-        places: [
-          { label: 'Golden Triangle', desc: 'Delhi, Agra & Jaipur', to: soon('Golden Triangle') },
-          { label: 'Rajasthan', desc: 'Palaces, forts & desert', to: soon('Rajasthan') },
-          { label: 'Varanasi', desc: 'The Ganges at dawn', to: soon('Varanasi') },
-          { label: 'Hampi', desc: 'A ruined capital in boulders', to: soon('Hampi') },
-          { label: 'Khajuraho & Orchha', desc: 'Temple carving & river forts', to: soon('Khajuraho & Orchha') },
-        ],
-      },
-      {
-        label: 'Backwaters & Wildlife',
-        note: 'Water, grass and whatever is moving through it.',
-        places: [
-          { label: 'Kerala Backwaters', desc: 'Houseboats & tea hills', to: soon('Kerala Backwaters') },
-          { label: 'Ranthambore', desc: 'Tigers in fort country', to: soon('Ranthambore') },
-          { label: 'Kaziranga', desc: 'One-horned rhino country', to: soon('Kaziranga') },
-          { label: 'Sundarbans', desc: 'Mangrove delta by boat', to: soon('Sundarbans') },
-          { label: 'Periyar', desc: 'Elephants & cardamom hills', to: soon('Periyar') },
-        ],
-      },
-    ],
-  },
-];
+const place = (label, to = soon(label)) => ({ label, to });
+
+const DEST_ATLAS = {
+  /* Full-width regions, each flowing down the four columns. */
+  wide: [
+    {
+      region: 'Asia',
+      places: [
+        place('Bhutan'), place('Hong Kong'), place('India'), place('Indonesia'),
+        place('Japan', '/journeys/japan-2'), place('Malaysia'), place('Maldives'),
+        place('Mauritius'), place('Nepal'), place('Philippines'), place('Seychelles'),
+        place('Singapore'), place('South Korea'), place('Sri Lanka'), place('Thailand'),
+        place('Vietnam'),
+      ],
+    },
+    {
+      region: 'Europe',
+      places: [
+        place('Austria'), place('Belgium'), place('Croatia'), place('Czech Republic'),
+        place('Denmark'), place('Finland'), place('France'), place('Georgia'),
+        place('Germany'), place('Greece'), place('Hungary'), place('Iceland'),
+        place('Ireland'), place('Italy'), place('Netherlands'), place('Norway'),
+        place('Portugal'), place('Romania'), place('Spain'), place('Sweden'),
+        place('Switzerland'), place('Turkey'), place('United Kingdom'),
+      ],
+    },
+    {
+      region: 'North Africa & Middle East',
+      places: [
+        place('Abu Dhabi'), place('Dubai'), place('Egypt'), place('Jordan'),
+        place('Morocco'), place('Oman'), place('Saudi Arabia'), place('United Arab Emirates'),
+      ],
+    },
+  ],
+  /* The small regions, one per column of the same grid. */
+  band: [
+    { region: 'Africa', places: [place('Kenya'), place('South Africa'), place('Tanzania')] },
+    { region: 'North America', places: [place('Canada'), place('Mexico'), place('United States of America')] },
+    { region: 'Australia & New Zealand', places: [place('Australia'), place('New Zealand')] },
+    { region: 'Antarctica', places: [place('Antarctica')] },
+  ],
+  /* The three campaign landers that are live right now. They carry the only
+     imagery in the panel, and they answer "what should I look at first" for
+     someone who opened the menu without a country in mind. */
+  season: [
+    {
+      title: 'Japan in Full Bloom',
+      meta: 'Cherry-blossom group tours, spring 2027',
+      to: '/japan-cherry-blossom',
+      img: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?auto=format&fit=crop&w=480&q=70',
+    },
+    {
+      title: 'Europe, Early Booking',
+      meta: 'Summer 2027 departures at the early price',
+      to: '/europe-early-booking',
+      img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=480&q=70',
+    },
+    {
+      title: 'Vietnam Group Tours',
+      meta: 'Ha Long Bay to Hoi An, spring 2027',
+      to: '/vietnam-group-tours',
+      img: '/vietnam/halong-sky.jpg',
+    },
+  ],
+};
+const DEST_COUNT = [...DEST_ATLAS.wide, ...DEST_ATLAS.band]
+  .reduce((n, r) => n + r.places.length, 0);
 
 /* Four groups. "Destinations" is split by KIND — places, then the itineraries
    that used to live under a competing "Journeys" menu — with a section rule
@@ -204,11 +161,10 @@ const NAV_MENU = [
        sitemap), instead of scrolling the homepage down to the destinations
        section — the flyout already covers the shortlist. */
     label: 'Destinations', to: '/sitemap',
-    blurb: 'Over 100 countries, shaped by specialists who know them first-hand.',
-    /* `regions` instead of `items` — this one renders as the two-pane mega
-       panel (buckets on the left, countries on the right), not the single
-       column every other menu uses. See DEST_REGIONS above. */
-    regions: DEST_REGIONS,
+    blurb: `${DEST_COUNT} destinations in seven regions, shaped by specialists who know them first-hand.`,
+    /* `atlas` instead of `items`: this one renders as the wide index panel,
+       not the single column every other menu uses. See DEST_ATLAS above. */
+    atlas: DEST_ATLAS,
     /* The catch-all. Not one more destination — a way out of the list. */
     all: { label: 'All destinations', meta: '31 journeys', to: '/journeys4' },
   },
@@ -274,74 +230,72 @@ function ChromeLink({ item, home, className, children, onClick, ...rest }) {
   return <Link to={`/${item.href}`} className={className} onClick={onClick} {...rest}>{children}</Link>;
 }
 
-/* The Destinations mega panel. Two columns: a rail of buckets grouped under the
-   two red region headings, and a pane showing the countries in whichever bucket
-   the pointer (or keyboard focus) is on. Hovering a bucket only swaps the pane —
-   you still have to click a country to go anywhere, so nothing moves under a
-   cursor that is only passing through.
-
-   Focus drives the same state as hover, which is what makes it keyboard-usable:
-   tab onto "Europe" and the European countries become the next tab stops. */
-function DestFlyout({ group, active, onActivate, onLeave }) {
-  const region = group.regions[active.r] ?? group.regions[0];
-  const bucket = region.groups[active.g] ?? region.groups[0];
-
+/* One region of the atlas: a sienna eyebrow with its count, then the places.
+   `--rows` makes the list fill DOWN each column before moving right, so a
+   region reads alphabetically top-to-bottom like an index, not in zigzag. */
+function AtlasRegion({ reg, cols = 4 }) {
+  const rows = Math.ceil(reg.places.length / cols);
   return (
-    <div className="hi-nav-flyout n3-mega-flyout" role="menu" onMouseLeave={onLeave}>
-      <div className="hi-nav-flyout-inner n3-mega-inner">
-        <div className="n3-mega">
-          <div className="n3-mega-rail">
-            <p className="hi-nav-blurb n3-mega-blurb">{group.blurb}</p>
+    <div className="n3-atlas-region">
+      <p className="n3-atlas-rhead">
+        {reg.region}
+        <span className="n3-atlas-count">{reg.places.length}</span>
+      </p>
+      <ul className="n3-atlas-list" style={{ '--rows': rows }}>
+        {reg.places.map((p) => (
+          <li key={p.label}>
+            <Link to={p.to} role="menuitem" className="n3-atlas-place">{p.label}</Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
-            {group.regions.map((reg, ri) => (
-              <div className="n3-mega-region" key={reg.heading}>
-                <p className="n3-mega-region-head">{reg.heading}</p>
-                <ul className="n3-mega-cats">
-                  {reg.groups.map((cat, gi) => {
-                    const on = active.r === ri && active.g === gi;
-                    const show = () => onActivate({ r: ri, g: gi });
-                    return (
-                      <li key={cat.label}>
-                        <button
-                          type="button"
-                          className={`n3-mega-cat${on ? ' is-active' : ''}`}
-                          aria-current={on ? 'true' : undefined}
-                          onMouseEnter={show}
-                          onFocus={show}
-                          onClick={show}
-                        >
-                          <span className="n3-mega-cat-label">{cat.label}</span>
-                          <span className="n3-mega-cat-count">{cat.places.length}</span>
-                          <ChevronRight size={14} className="n3-mega-cat-arrow" aria-hidden="true" />
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
+/* The Destinations panel. Plain links, no hover state: everything the menu
+   holds is visible the moment it opens, and Tab walks it region by region. */
+function DestFlyout({ group }) {
+  const { wide, band, season } = group.atlas;
+  return (
+    <div className="hi-nav-flyout n3-atlas-flyout" role="menu">
+      <div className="hi-nav-flyout-inner n3-atlas-inner">
+        <div className="n3-atlas">
+          <div className="n3-atlas-main">
+            <div className="n3-atlas-head">
+              <p className="n3-atlas-title">Where we travel</p>
+              <p className="n3-atlas-blurb">{group.blurb}</p>
+            </div>
+
+            {wide.map((reg) => <AtlasRegion key={reg.region} reg={reg} />)}
+
+            <div className="n3-atlas-band">
+              {band.map((reg) => <AtlasRegion key={reg.region} reg={reg} cols={1} />)}
+            </div>
           </div>
 
-          {/* aria-live so a screen reader hears the pane change rather than
-              silently losing track of what the rail is pointing at. */}
-          <div className="n3-mega-pane" aria-live="polite">
-            <p className="n3-mega-pane-head">{bucket.label}</p>
-            <p className="n3-mega-pane-note">{bucket.note}</p>
-            <ul className="n3-mega-places">
-              {bucket.places.map((p) => (
-                <li key={p.label}>
-                  <Link to={p.to} role="menuitem" className="n3-mega-place">
-                    <span className="n3-mega-place-label">{p.label}</span>
-                    <span className="n3-mega-place-desc">{p.desc}</span>
+          <aside className="n3-atlas-season" aria-label="Open for booking">
+            <p className="n3-atlas-season-head">Open for booking</p>
+            <ul className="n3-atlas-cards">
+              {season.map((c) => (
+                <li key={c.to}>
+                  <Link to={c.to} role="menuitem" className="n3-atlas-card">
+                    <span className="n3-atlas-card-img">
+                      <img src={c.img} alt="" loading="lazy" decoding="async" />
+                    </span>
+                    <span className="n3-atlas-card-title">
+                      {c.title}
+                      <ArrowUpRight size={14} aria-hidden="true" />
+                    </span>
+                    <span className="n3-atlas-card-meta">{c.meta}</span>
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </aside>
         </div>
 
         {group.all && (
-          <Link to={group.all.to} role="menuitem" className="n3-navall n3-mega-all">
+          <Link to={group.all.to} role="menuitem" className="n3-navall n3-atlas-all">
             <span className="n3-navall-label">{group.all.label}</span>
             <span className="n3-navall-meta">{group.all.meta}</span>
             <ArrowRight size={15} className="n3-navall-arrow" aria-hidden="true" />
@@ -362,12 +316,6 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState(null);  // open accordion in the drawer
-
-  /* Which bucket the Destinations mega panel is showing on the right. Reset to
-     the first one whenever the pointer leaves, so the panel always opens on
-     Asia rather than on wherever the last visit happened to stop. */
-  const [dest, setDest] = useState({ r: 0, g: 0 });
-  const resetDest = useCallback(() => setDest({ r: 0, g: 0 }), []);
 
   const openScheduleCall = useScheduleCall();
   const openCallback = useCallback(() => { setMenuOpen(false); openScheduleCall(); }, [openScheduleCall]);
@@ -426,10 +374,10 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
               </ChromeLink>
 
               {/* The Destinations panel is a different shape from the rest:
-                  a rail of buckets on the left, the countries inside the hovered
-                  bucket on the right. Everything else stays a single column. */}
-              {group.regions ? (
-                <DestFlyout group={group} active={dest} onActivate={setDest} onLeave={resetDest} />
+                  a wide index of every destination. Everything else stays a
+                  single column. */}
+              {group.atlas ? (
+                <DestFlyout group={group} />
               ) : (
               <div className="hi-nav-flyout" role="menu">
                 <div className="hi-nav-flyout-inner">
@@ -516,24 +464,21 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
                   </button>
 
                   <div className="n3-macc-panel" hidden={!open}>
-                    {/* Destinations carries `regions` rather than a flat
-                        `items` list. There is no room for a hover pane on a
-                        phone, so the same three levels stack: red region
-                        heading, bucket heading, then the countries. */}
-                    {g.regions ? g.regions.map((reg) => (
-                      <Fragment key={reg.heading}>
-                        <span className="n3-macc-region">{reg.heading}</span>
-                        {reg.groups.map((cat) => (
-                          <Fragment key={cat.label}>
-                            <span className="n3-macc-group">{cat.label}</span>
-                            {cat.places.map((p) => (
-                              <ChromeLink key={p.label} item={p} home={home} className="n3-macc-link" onClick={closeMenu}>
-                                <span className="n3-macc-lbl">{p.label}</span>
-                                <span className="n3-macc-desc">{p.desc}</span>
-                              </ChromeLink>
-                            ))}
-                          </Fragment>
-                        ))}
+                    {/* Destinations carries `atlas` rather than a flat
+                        `items` list. On a phone it is one long index: the red
+                        region heading, then its places two to a row, so 56
+                        names cost 28 rows of scrolling instead of 56. The
+                        campaign cards stay desktop-only. */}
+                    {g.atlas ? [...g.atlas.wide, ...g.atlas.band].map((reg) => (
+                      <Fragment key={reg.region}>
+                        <span className="n3-macc-region">{reg.region}</span>
+                        <div className="n3-macc-atlas">
+                          {reg.places.map((p) => (
+                            <Link key={p.label} to={p.to} className="n3-macc-atlas-link" onClick={closeMenu}>
+                              {p.label}
+                            </Link>
+                          ))}
+                        </div>
                       </Fragment>
                     )) : g.items.map((it, idx) => (
                       <Fragment key={it.label}>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import New3 from './pages/New3';
+import New3Marketing from './pages/New3Marketing';
 import EasyEscapesV2 from './pages/EasyEscapesV2';
 /* TEMP — restored design explorations for local review only. Not part of the
    live site; remove these three imports + routes before shipping. */
@@ -184,6 +185,12 @@ export default function App() {
               screenshots still point at it. */}
           <Route path="/" element={<New3 />} />
           <Route path="/new3" element={<New3 />} />
+
+          {/* The same homepage with its hero handed to the three live campaigns
+              (Japan cherry blossom, Europe early booking, Vietnam): an
+              auto-advancing banner stage, a redesigned search dock and a GSAP
+              ScrollTrigger layer over every section. Unlinked, URL only. */}
+          <Route path="/new3-marketing" element={<New3Marketing />} />
 
           {/* TEMP — restored explorations for local review only. Remove with the
               imports above before shipping. */}

@@ -17,7 +17,7 @@
    hero paints above the sheet so its search dropdowns can overflow,
    so the two must not overlap.
    ============================================================ */
-import { useRef, useState, useEffect, useMemo, useCallback } from 'react';
+import { useRef, useState, useEffect, useMemo, useCallback, createContext, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { SmartLink as Link, CALLBACK, useScheduleCall } from '../components/ScheduleCall';
@@ -132,7 +132,7 @@ const HERO_STATS = [
    the catalogue actually files it under, before building the URL. Anything that
    doesn't resolve (someone typing freely) is passed as ?q=, which /journeys4
    runs as a full-text search rather than discarding. */
-const JOURNEYS_PATH = '/journeys4';
+export const JOURNEYS_PATH = '/journeys4';
 
 /* Canonical regions, mirroring REGIONS in Journeys4.jsx. */
 const REGION_ALIASES = [
@@ -148,7 +148,7 @@ const REGION_ALIASES = [
   [/(usa|america|united states|canada)/, 'USA'],
   [/(europe|greece|santorini|mykonos|spain|portugal|christmas market)/, 'Europe'],
 ];
-function toRegion(raw) {
+export function toRegion(raw) {
   const q = (raw || '').trim().toLowerCase();
   if (!q) return null;
   for (const [re, region] of REGION_ALIASES) if (re.test(q)) return region;
@@ -182,7 +182,7 @@ const ANY_WHO = { label: 'Anyone', any: true };
    `key` is the stable slug carried to a COUNTRY page (e.g. ?who=couple), where
    it seeds that page's own "Who's travelling" filter — the country pages don't
    share /journeys4's style/pace vocabulary, so they key off this instead. */
-const HERO_WHO_OPTS = [
+export const HERO_WHO_OPTS = [
   { key: 'couple', label: 'Couple — just the two of us', style: 'Honeymoon' },
   { key: 'family', label: 'Family with children', style: 'Family' },
   { key: 'friends', label: 'A group of friends', style: 'Group Tour' },
@@ -201,14 +201,14 @@ const HERO_QUICK_PICKS = ['India', 'Japan', 'Europe', 'Maldives', 'Safari'];
    Keyed by the canonical region (see toRegion), so "Kyoto, Japan", "Japan" and
    the quick-pick chip all resolve to the same page. Add a route here as each
    country page ships. */
-const DEST_PAGES = {
+export const DEST_PAGES = {
   Japan: '/journeys/japan-2',
 };
-const destPage = (name) => DEST_PAGES[toRegion(name) || name] || null;
+export const destPage = (name) => DEST_PAGES[toRegion(name) || name] || null;
 
 /* Where a specific destination lands when its country page isn't built yet —
    an honest "coming soon" screen rather than a silent redirect to Japan. */
-const COMING_SOON_PATH = '/journeys/coming-soon';
+export const COMING_SOON_PATH = '/journeys/coming-soon';
 
 /* --- "When" calendar (the hi-cal-* component the /improved hero used).
    Replaces luxe2's fixed "Next 3 months / Later in 2026 / …" option list, so
@@ -217,7 +217,7 @@ const WK_DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 const MON_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 /* Must mirror FLEX_STEPS in Journeys4.jsx — it validates ?flex= against that
    exact list, so an off-list value (it has no ±1) silently arrives as 0. */
-const FLEX_OPTS = [0, 2, 3, 4];
+export const FLEX_OPTS = [0, 2, 3, 4];
 function buildCalendar(monthStart) {
   const y = monthStart.getFullYear(), m = monthStart.getMonth();
   const firstDow = new Date(y, m, 1).getDay();
@@ -270,10 +270,19 @@ const SCATTER = [
 /* Hand-tuned spans so the 8-card destination grid tiles with zero gaps. */
 const DEST_SPANS = ['tall', 'wide', 'tall', 'wide', 'normal', 'normal', 'normal', 'normal'];
 
+/* ---- Who animates the reveals ----
+   'framer' (default): Reveal/WordReveal run their own whileInView blur-ins.
+   'gsap': they render STATIC markup and leave the motion to a page-level GSAP
+   ScrollTrigger layer (/new3-marketing). Two engines must never tween the same
+   node, so the variant switches framer off rather than layering on top of it. */
+const MotionMode = createContext('framer');
+
 /* ---- Reusable blur-to-focus reveal (from /improved) ---- */
 function Reveal({ children, className = '', delay = 0, y = 24, as = 'div' }) {
   const M = motion[as] || motion.div;
   const reduce = useReducedMotion();
+  const mode = useContext(MotionMode);
+  if (mode === 'gsap') { const T = as; return <T className={className} data-reveal="">{children}</T>; }
   if (reduce) return <M className={className}>{children}</M>;
   return (
     <M
@@ -291,7 +300,9 @@ function Reveal({ children, className = '', delay = 0, y = 24, as = 'div' }) {
 /* ---- Word-by-word blur reveal for display headlines ---- */
 function WordReveal({ text, className = '', accent = [], delay = 0 }) {
   const words = text.split(' ');
-  const reduce = useReducedMotion();
+  const reducedPref = useReducedMotion();
+  const mode = useContext(MotionMode);
+  const reduce = reducedPref || mode === 'gsap';
   return (
     <span className={className} aria-label={text}>
       {words.map((w, i) => (
@@ -982,7 +993,15 @@ function Shelf({ col, list }) {
 /* ============================================================
    THE PAGE
    ============================================================ */
-export default function New3() {
+/* `Nav` is an injection point, not a feature: /new3-v2 renders this exact page
+   with a different primary nav (see SiteChromeV2), and the alternative was a
+   100KB fork of the whole homepage to change four menu labels. Left unset it is
+   <SiteNav>, so /, /new3 and every existing link render byte-for-byte as before. */
+/* `Hero`, `rootClass` and `motion` are the /new3-marketing seams: a different
+   hero (given heroRef, so the thumb-bar and parallax still key off it), a
+   scoping class for that page's CSS, and 'gsap' to hand every reveal to its
+   ScrollTrigger layer. All unset on / and /new3, which render as before. */
+export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motion: motionMode = 'framer' }) {
   useLxReveal();
   const navigate = useNavigate();
 
@@ -1350,14 +1369,14 @@ export default function New3() {
   const openCallback = useScheduleCall();
 
   return (
-    <>
+    <MotionMode.Provider value={motionMode}>
     {/* `n3` scopes New3.css — without it those rules would hit every other
         .h26 page (/, /new-homepage, /new2, /improved) too. */}
-    <div className="h26 new-typo n3">
+    <div className={`h26 new-typo n3${rootClass ? ` ${rootClass}` : ''}`}>
       {/* The navbar, the mobile drawer and the skip link are the shared
           <SiteChrome> ones now. `solidAt={80}` keeps this page's threshold:
           the hero is tall, so the nav stays transparent well down it. */}
-      <SiteNav solidAt={80} skipTo="#top" />
+      <Nav solidAt={80} skipTo="#top" />
 
       {/* The /improved hero was transparent over a FIXED full-page backdrop
           (.h26-bg). The luxe2 hero brings its own, so that backdrop is gone
@@ -1370,6 +1389,7 @@ export default function New3() {
            Wrapped in .lx2i so it picks up that system's tokens (--gold,
            --glass-dark, --ease…) and the Cormorant/Work Sans override that
            NewTypography.css hangs off `.new-typo .lx2i`. */}
+      {Hero ? <Hero heroRef={heroRef} /> : (
       <div className="lx2i n3-herowrap">
         <section className="lx2i-hero" id="top" ref={heroRef}>
           <div className="lx2i-hero__bgwrap" aria-hidden="true">
@@ -1523,6 +1543,7 @@ export default function New3() {
           </a>
         </section>
       </div>
+      )}
 
       {/* ---------- SHEET (everything below scrolls over the backdrop) ---------- */}
       <div className="h26-sheet">
@@ -1964,6 +1985,6 @@ export default function New3() {
     {/* ENAYA — the working AI concierge (from /luxe2-improved). Rendered
         OUTSIDE the page wrapper so scoped colour/font styles can't bleed in. */}
     <ChatBot open={chatOpen} onOpenChange={setChatOpen} openExpanded={chatCentred} hideFab name="Einaya" />
-    </>
+    </MotionMode.Provider>
   );
 }

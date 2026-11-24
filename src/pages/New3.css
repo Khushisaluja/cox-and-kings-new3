@@ -1467,3 +1467,280 @@
   color: var(--sienna, #BD4011);
 }
 .n3 .n3-macc-panel > .n3-macc-region:first-child { margin-top: 4px; }
+
+/* ---- 20. The Destinations atlas ------------------------------------------
+   Replaces the section-19 rail-and-pane panel on /new3 (the n3-mega rules
+   above stay because /new3-v2's SiteChromeV2 still renders that panel).
+
+   Every destination from the catered list is on screen at once: three wide
+   regions on a shared four-column grid, then one band where the four small
+   regions take a column each, so Antarctica's single entry is one column of a
+   full row rather than a near-empty pane. Right column: the three campaign
+   pages that are live, the panel's only imagery.
+
+   Centred under its trigger (the base flyout behaviour, which section 19
+   switched off): at ~950px it fits every desktop width down to the 1180px
+   breakpoint, where the campaign column drops away.
+
+   Link colours use the `.h26-nav .h26-links` chain for the same reason as
+   section 18: Home2026.css whites out every <a> in the bar once it goes solid. */
+.n3 .n3-atlas-inner {
+  width: min(952px, calc(100vw - 32px));
+  max-height: calc(100vh - 116px);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* On a short laptop screen the index scrolls inside the panel, and the
+   catch-all stays pinned under it instead of being pushed out of view. */
+.n3 .n3-atlas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 232px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ---- index ---- */
+.n3 .n3-atlas-main {
+  padding: 18px 22px 20px 24px;
+}
+.n3 .n3-atlas-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.n3 .n3-atlas-title {
+  margin: 0;
+  flex-shrink: 0;
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.n3 .n3-atlas-blurb {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.n3 .n3-atlas-region + .n3-atlas-region,
+.n3 .n3-atlas-band {
+  margin-top: 14px;
+}
+/* Sienna eyebrow, same token as the old rail headings, with the count set
+   quietly after it: how much is in a region is worth seeing before reading. */
+.n3 .n3-atlas-rhead {
+  margin: 0 0 4px 8px;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--sienna, #BD4011);
+}
+.n3 .n3-atlas-count {
+  margin-left: 7px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted-2, #696960);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fills down each column first (grid-auto-flow: column), so a region reads
+   A to Z top-to-bottom. `--rows` comes from the component. */
+.n3 .n3-atlas-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows, 1), auto);
+  grid-auto-flow: column;
+  gap: 0 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* The small regions share one row of the same four columns. */
+.n3 .n3-atlas-band {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.n3 .n3-atlas-band .n3-atlas-region { margin-top: 0; }
+.n3 .n3-atlas-band .n3-atlas-list { grid-template-columns: minmax(0, 1fr); }
+/* "Australia & New Zealand" and "United States of America" are longer than a
+   band column; they wrap rather than truncate (the wide regions never need to). */
+.n3 .n3-atlas-band .n3-atlas-rhead { letter-spacing: 0.12em; }
+.n3 .h26-nav .h26-links .n3-atlas-band .n3-atlas-place { white-space: normal; }
+
+.n3 .h26-nav .h26-links .n3-atlas-place,
+.n3 .h26-nav.is-solid .h26-links .n3-atlas-place {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.3;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.n3 .h26-nav .h26-links .n3-atlas-place:hover,
+.n3 .h26-nav .h26-links .n3-atlas-place:focus-visible {
+  background: rgba(11, 90, 177, 0.08);
+  color: var(--blue-d, #07366A);
+  outline: none;
+}
+.n3 .n3-atlas-place::after,
+.n3 .n3-atlas-card::after { display: none; }
+
+/* ---- campaign column ---- */
+.n3 .n3-atlas-season {
+  padding: 18px 18px 20px;
+  border-left: 1px solid var(--border);
+  background: rgba(31, 42, 54, 0.025);
+}
+.n3 .n3-atlas-season-head {
+  margin: 0 0 12px;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sienna, #BD4011);
+}
+.n3 .n3-atlas-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.n3 .h26-nav .h26-links .n3-atlas-card,
+.n3 .h26-nav.is-solid .h26-links .n3-atlas-card {
+  display: block;
+  color: var(--ink);
+  text-decoration: none;
+}
+.n3 .n3-atlas-card-img {
+  display: block;
+  aspect-ratio: 16 / 8;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--border);
+}
+.n3 .n3-atlas-card-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.n3 .n3-atlas-card-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--ink);
+  transition: color 0.16s ease;
+}
+.n3 .n3-atlas-card-title svg {
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.n3 .n3-atlas-card-meta {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--muted-2, #696960);
+}
+.n3 .h26-nav .h26-links .n3-atlas-card:hover .n3-atlas-card-title,
+.n3 .h26-nav .h26-links .n3-atlas-card:focus-visible .n3-atlas-card-title {
+  color: var(--blue-d, #07366A);
+}
+.n3 .n3-atlas-card:hover .n3-atlas-card-title svg,
+.n3 .n3-atlas-card:focus-visible .n3-atlas-card-title svg {
+  opacity: 1;
+  transform: translate(1px, -1px);
+}
+.n3 .n3-atlas-card:hover .n3-atlas-card-img img,
+.n3 .n3-atlas-card:focus-visible .n3-atlas-card-img img {
+  transform: scale(1.04);
+}
+.n3 .h26-nav .h26-links .n3-atlas-card:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* Full-width catch-all under both columns, as before. */
+.n3 .h26-nav .h26-links .n3-atlas-all {
+  flex-shrink: 0;
+  margin: 0;
+  border-width: 1px 0 0;
+  border-radius: 0;
+  padding: 12px 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .n3 .h26-nav .h26-links .n3-atlas-place,
+  .n3 .n3-atlas-card-img img,
+  .n3 .n3-atlas-card-title svg { transition: none; }
+  .n3 .n3-atlas-card:hover .n3-atlas-card-img img { transform: none; }
+}
+
+/* Under ~1180px the panel would reach past the window, so the campaign
+   column goes and the index alone fills the width. The desktop nav itself
+   disappears at 1080px. */
+@media (max-width: 1180px) {
+  .n3 .n3-atlas-inner { width: min(720px, calc(100vw - 24px)); }
+  .n3 .n3-atlas { grid-template-columns: minmax(0, 1fr); }
+  .n3 .n3-atlas-season { display: none; }
+}
+
+/* ---- mobile drawer: the same index, two places to a row ---- */
+.n3 .n3-macc-atlas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 12px;
+  margin: 2px 0 6px;
+}
+/* Re-specified in full: `.h26-menu-primary a` would set these at 26px serif. */
+.n3 .h26-menu-primary .n3-macc-atlas-link {
+  display: block;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0;
+  color: var(--ink);
+  transition: color 0.2s ease;
+}
+.n3 .h26-menu-primary .n3-macc-atlas-link:hover,
+.n3 .h26-menu-primary .n3-macc-atlas-link:focus-visible {
+  color: var(--blue);
+  outline: none;
+}
