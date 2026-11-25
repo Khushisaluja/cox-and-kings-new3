@@ -1,0 +1,480 @@
+/* ============================================================================
+   /japan-cherry-blossom-v3 — additions on top of SakuraJapan.css.
+   Every rule is scoped to `.skj.v3`, so v1 (and the Europe/Vietnam pages that
+   also import SakuraJapan.css) are untouched.
+
+   Grounds still alternate (user rule: neighbours never share a background):
+   One price n50 · Tours n0 · Reviews n150 · Booking n100 ·
+   Promise n0 · Heritage n100 · FAQ n50 · Final (photo).
+   ========================================================================== */
+
+/* ---- One price: the "never pay for" lines get a green tick ------------- */
+.skj.v3 .skj-never svg {
+  width: 18px; height: 18px; padding: 3px; border-radius: 50%;
+  background: #E3F1EB; color: var(--skj-success);
+}
+
+/* ---- Tours: two real packages, side by side from 900px ----------------- */
+@media (min-width: 900px) {
+  .skj.v3 .skj-tours__row {
+    grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); grid-auto-columns: auto;
+    overflow: visible; margin-inline: 0; padding: 0; gap: 24px;
+  }
+}
+.skj.v3 .skj-tour__name { font-size: 24px; }
+@media (min-width: 700px) { .skj.v3 .skj-tour__name { font-size: 28px; } }
+
+.skj.v3 .v2-hl { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.skj.v3 .v2-hl li {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 999px; background: var(--skj-n50); border: 1px solid var(--skj-n150);
+  font-size: 12px; line-height: 1.3; color: var(--skj-n800);
+}
+.skj.v3 .v2-hl svg { color: var(--skj-success); flex: none; }
+@media (max-width: 699px) {
+  /* Phones: four chips are enough to set the two tours apart. */
+  .skj.v3 .v2-hl li:nth-child(n+5) { display: none; }
+}
+
+.skj.v3 .v2-from {
+  display: flex; align-items: flex-start; gap: 6px; margin-top: 8px;
+  font-size: 12.5px; line-height: 1.4; color: var(--skj-n700);
+}
+.skj.v3 .v2-from svg { flex: none; margin-top: 2px; color: var(--skj-blue); }
+.skj.v3 .v2-from b { font-weight: 600; color: var(--skj-n900); }
+
+.skj.v3 .v2-emiline {
+  display: flex; align-items: center; gap: 6px; margin-top: 4px;
+  font-size: 12.5px; color: var(--skj-n800);
+}
+.skj.v3 .v2-emiline svg { flex: none; color: var(--skj-success); }
+.skj.v3 .v2-emiline b { font-weight: 600; color: var(--skj-n900); }
+
+/* ---- Itinerary popup ---------------------------------------------------- */
+.skj.v3 .v2-itin-src { font-size: 12.5px; color: var(--skj-n700); }
+.skj.v3 .v2-itin-src a { color: var(--skj-blue); text-decoration: underline; text-underline-offset: 2px; }
+.skj.v3 .skj-itin__foot { flex-wrap: wrap; }
+.skj.v3 .skj-itin__foot small { font-size: 12px; color: var(--skj-n700); }
+.skj.v3 .v2-foot-ctas { display: flex; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 699px) {
+  .skj.v3 .v2-foot-ctas { width: 100%; }
+  .skj.v3 .v2-foot-ctas .skj-btn { flex: 1 1 100%; }
+  .skj.v3 .v2-foot-ctas .skj-btn--primary { order: -1; }
+}
+
+/* ---- Tenure chips (booking sheet EMI option) ---------------------------- */
+.skj.v3 .v2-tenures { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.skj.v3 .v2-tenure,
+.skj.v3 .v2-seg__b {
+  min-height: 44px; padding: 8px 6px; border-radius: 8px;
+  border: 1px solid var(--skj-n500); background: var(--skj-n0); color: var(--skj-n900);
+  font: 500 13.5px/1.2 var(--skj-sans); cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.skj.v3 .v2-tenure:hover:not(.is-on),
+.skj.v3 .v2-seg__b:hover:not(.is-on) { border-color: var(--skj-blue); }
+.skj.v3 .v2-tenure.is-on,
+.skj.v3 .v2-seg__b.is-on { background: var(--skj-blue); border-color: var(--skj-blue); color: var(--skj-n100); }
+.skj.v3 .v2-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+/* Booking sheet EMI block */
+.skj.v3 .v2-sheet-emi {
+  margin: 0; padding: 12px 14px 14px; border: 1px solid var(--skj-n200); border-radius: 12px; background: var(--skj-n0);
+  display: grid; gap: 10px;
+}
+.skj.v3 .v2-sheet-emi legend {
+  display: inline-flex; align-items: center; gap: 6px; padding: 0 6px; margin-left: -6px;
+  font: 600 11px/1.4 var(--skj-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--skj-n800);
+}
+.skj.v3 .v2-sheet-emi legend svg { color: var(--skj-success); }
+.skj.v3 .v2-sheet-emi .v2-tenure { min-height: 40px; }
+.skj.v3 .v2-sheet-emi__amt { font-size: 13.5px; color: var(--skj-n800); }
+.skj.v3 .v2-sheet-emi__amt b { font: 600 22px/1 var(--skj-serif); color: var(--skj-blue); margin-right: 4px; }
+.skj.v3 .v2-sheet-emi__amt small { display: block; font-size: 11.5px; color: var(--skj-n700); margin-top: 2px; }
+
+/* ---- Footer: WhatsApp beside the phone, same number as every CTA -------- */
+.skj.v3 .skj-foot__contact a svg { color: #1F8F4E; }
+
+/* Re-assert lining figures after this file's `font:` shorthands too. */
+.skj.v3, .skj.v3 * { font-variant-numeric: lining-nums !important; }
+
+/* Two cards fit side by side from 900px, so the swipe controls go. */
+@media (min-width: 900px) {
+  .skj.v3 .skj-tours .skj-rowctl { display: none; }
+  .skj.v3 .skj-dates { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding-inline: 0; }
+}
+
+/* ======================================================================
+   Round 2
+   ====================================================================== */
+.skj.v3 .v2-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ---- Booking amount: struck ₹55,000, then ₹45,000 (one form, everywhere) */
+.skj.v3 .v2-dep { white-space: nowrap; }
+.skj.v3 .v2-dep s {
+  font-weight: 400; color: inherit; opacity: .6;
+  text-decoration-thickness: 1.5px; font-size: .86em;
+}
+.skj.v3 .v2-dep b { font-weight: 600; }
+.skj.v3 .v2-h2-was { font-weight: 400; opacity: .45; text-decoration-thickness: 2px; font-size: .7em; }
+.skj.v3 .skj-sticky__info b .v2-dep s { font: 400 14px/1 var(--skj-sans); color: var(--skj-n700); opacity: 1; }
+.skj.v3 .skj-bill .is-today dd .v2-dep s { font: 400 14px/1 var(--skj-sans); color: var(--skj-n700); opacity: 1; margin-right: 4px; }
+
+/* ---- Hero: inclusions as one line of ticks ------------------------------ */
+.skj.v3 .v2-hero-inc {
+  list-style: none; margin: 18px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 8px 18px;
+  font: 500 14px/1.3 var(--skj-sans); color: #fff;
+}
+.skj.v3 .v2-hero-inc li { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.skj.v3 .v2-hero-inc__tick {
+  flex: none; width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center; background: #3FA77F; color: #fff;
+}
+@media (min-width: 900px) {
+  .skj.v3 .v2-hero-inc { margin-top: 26px; font-size: 15.5px; gap: 10px 22px; }
+  .skj.v3 .v2-hero-inc__tick { width: 20px; height: 20px; }
+  .skj.v3 .skj-hero__sub { margin-top: 24px; }
+}
+@media (max-width: 699px) {
+  .skj.v3 .v2-hero-inc { gap: 7px 14px; font-size: 13px; margin-top: 14px; }
+  .skj.v3 .skj-hero__sub { margin-top: 12px; }
+  .skj.v3 .skj-hero__trust { display: none; }
+}
+
+/* ---- Hero: booking amount as a plain price note, not a button ----------- */
+.skj.v3 .v2-hero-dep {
+  margin-top: 14px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px;
+  font-size: 13.5px; line-height: 1.4; color: rgba(255,255,255,.88);
+}
+.skj.v3 .v2-hero-dep__k {
+  font: 500 10.5px/1.4 var(--skj-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--skj-sienna-1);
+}
+.skj.v3 .v2-hero-dep__v .v2-dep b { font: 600 19px/1 var(--skj-serif); color: #fff; }
+.skj.v3 .v2-hero-dep__v .v2-dep s { font-size: 13.5px; opacity: .7; }
+.skj.v3 .v2-hero-dep__v small { font-size: 13px; color: rgba(255,255,255,.78); margin-left: 4px; }
+@media (min-width: 900px) {
+  .skj.v3 .v2-hero-dep { margin-top: 18px; font-size: 14.5px; }
+  .skj.v3 .v2-hero-dep__v .v2-dep b { font-size: 22px; }
+}
+
+/* ---- Promise: two swipeable cards of four ------------------------------- */
+.skj.v3 .skj-promises { display: block; }
+.skj.v3 .v2-pr-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px 32px; margin-bottom: 26px; }
+.skj.v3 .v2-pr-head .skj-promises__head { flex-direction: row; align-items: center; gap: 20px; }
+.skj.v3 .v2-pr-row { grid-auto-columns: 88%; gap: 14px; }
+@media (min-width: 700px) { .skj.v3 .v2-pr-row { grid-auto-columns: 74%; gap: 20px; } }
+@media (min-width: 1200px) { .skj.v3 .v2-pr-row { grid-auto-columns: min(66%, 900px); } }
+.skj.v3 .v2-pcard {
+  background: var(--skj-n50); border: 1px solid var(--skj-n150); border-radius: 18px;
+  padding: 20px 18px 8px;
+}
+.skj.v3 .v2-pcard__k {
+  display: flex; align-items: baseline; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--skj-n200);
+  font: 600 22px/1.2 var(--skj-serif); color: var(--skj-n900);
+}
+.skj.v3 .v2-pcard__k span { font: 500 11px/1 var(--skj-sans); letter-spacing: .12em; color: var(--skj-sienna); }
+.skj.v3 .v2-pcard__list { list-style: none; margin: 0; padding: 0; }
+.skj.v3 .v2-pi { display: flex; gap: 14px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid var(--skj-n150); }
+.skj.v3 .v2-pi:last-child { border-bottom: 0; }
+.skj.v3 .v2-pi .skj-pitem__icon { width: 40px; height: 40px; }
+.skj.v3 .v2-pi__t { font: 600 18px/1.25 var(--skj-serif); color: var(--skj-n900); }
+.skj.v3 .v2-pi__t .v2-dep b { color: var(--skj-blue); }
+.skj.v3 .v2-pi__b { margin-top: 4px; font-size: 13.5px; line-height: 1.5; color: var(--skj-n700); }
+@media (min-width: 900px) {
+  .skj.v3 .v2-pcard { padding: 28px 30px 12px; }
+  .skj.v3 .v2-pcard__k { font-size: 26px; }
+  .skj.v3 .v2-pcard__list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+  .skj.v3 .v2-pi { padding: 22px 0; }
+  .skj.v3 .v2-pi:nth-last-child(2) { border-bottom: 0; }
+  .skj.v3 .v2-pi__t { font-size: 20px; }
+}
+/* Unlike the tours, this row keeps its swipe controls on desktop too. */
+.skj.v3 .skj-promises .skj-dots { margin-top: 4px; }
+
+/* ---- FAQ (n50) ------------------------------------------------------------ */
+.skj.v3 .v2-faq { padding: var(--skj-py) var(--skj-pad); background: var(--skj-n50); display: grid; gap: 28px; }
+.skj.v3 .v2-faq__head .skj-lead { margin-top: 10px; }
+.skj.v3 .v2-faq__head .skj-btn { margin-top: 18px; }
+.skj.v3 .v2-faq__list { border-top: 1px solid var(--skj-n200); }
+.skj.v3 .v2-faq__item { border-bottom: 1px solid var(--skj-n200); }
+.skj.v3 .v2-faq__item summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 18px 0; min-height: 44px;
+  font: 600 18px/1.3 var(--skj-serif); color: var(--skj-n900);
+}
+.skj.v3 .v2-faq__item summary::-webkit-details-marker { display: none; }
+.skj.v3 .v2-faq__item summary svg { flex: none; color: var(--skj-blue); transition: transform .25s var(--skj-ease); }
+.skj.v3 .v2-faq__item[open] summary svg { transform: rotate(45deg); }
+.skj.v3 .v2-faq__item summary:hover span { color: var(--skj-blue); }
+.skj.v3 .v2-faq__a { padding: 0 32px 20px 0; font-size: 14.5px; line-height: 1.6; color: var(--skj-n800); display: grid; gap: 10px; }
+.skj.v3 .v2-faq__a ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.skj.v3 .v2-faq__a a { color: var(--skj-blue); text-decoration: underline; text-underline-offset: 2px; }
+.skj.v3 .v2-faq__a .v2-dep b { color: var(--skj-n900); }
+@media (min-width: 900px) {
+  .skj.v3 .v2-faq { grid-template-columns: 4fr 7fr; gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .skj.v3 .v2-faq__head { position: sticky; top: calc(var(--skj-navh) + 32px); }
+  .skj.v3 .v2-faq__item summary { font-size: 20px; padding: 22px 0; }
+}
+
+/* Re-assert lining figures for the round-2 shorthands too. */
+.skj.v3, .skj.v3 * { font-variant-numeric: lining-nums !important; }
+
+/* Hero fit: one line of ticks on desktop; on phones the photo sits higher
+   so Fuji clears the taller copy block. */
+@media (min-width: 900px) { .skj.v3 .skj-hero__copy { max-width: 980px; } }
+@media (max-width: 899px) { .skj.v3 .skj-hero__imgwrap { bottom: 36%; } }
+@media (max-width: 420px) { .skj.v3 .v2-hero-inc { gap: 7px 12px; } }
+
+/* Sticky bar: the struck amount sits above the live one so it fits a phone. */
+@media (max-width: 479px) {
+  .skj.v3 .skj-sticky__info b { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 6px; }
+  .skj.v3 .skj-sticky__info b .v2-dep { display: inline-flex; flex-direction: column; gap: 3px; }
+  .skj.v3 .skj-sticky__info b .v2-dep s { font-size: 12px; line-height: 1; }
+  .skj.v3 .skj-sticky__info > span { display: none; }
+}
+/* The tick row can cross Fuji's snow on wide screens: keep it legible. */
+.skj.v3 .v2-hero-inc, .skj.v3 .v2-hero-dep { text-shadow: 0 1px 2px rgba(2,19,48,.7), 0 0 14px rgba(2,19,48,.55); }
+@media (min-width: 480px) {
+  .skj.v3 .skj-sticky__info b { white-space: nowrap; }
+}
+@media (min-width: 900px) { .skj.v3 .skj-sticky { width: min(700px, calc(100% - 32px)); } }
+
+/* ======================================================================
+   Round 3 · Tour cards: same structure, clearer hierarchy, one screen tall.
+   where (photo + city line) → nights bar → map + highlights → inclusions
+   strip → dates (one row) → price + CTA on a tinted band.
+   ====================================================================== */
+.skj.v3 .v2-tc .skj-tour__media { height: 128px; }
+.skj.v3 .v2-tc .skj-tour__media::after { background: linear-gradient(180deg, rgba(2,19,48,0) 15%, rgba(2,19,48,.88) 100%); }
+.skj.v3 .v2-tc .skj-tour__title { bottom: 10px; row-gap: 2px; }
+.skj.v3 .v2-tc .skj-tour__name { font-size: 24px; }
+.skj.v3 .v2-tc__dest {
+  flex-basis: 100%; display: flex; align-items: center; gap: 5px;
+  font: 500 11px/1.3 var(--skj-sans); letter-spacing: .1em; text-transform: uppercase; color: var(--skj-sienna-1);
+}
+.skj.v3 .v2-tc .skj-tour__body { padding: 14px 14px 0; gap: 12px; }
+
+/* Nights bar: one segment per hotel stay, width ∝ nights */
+.skj.v3 .v2-tc__k { font: 500 10.5px/1.3 var(--skj-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--skj-n700); margin-bottom: 6px; }
+.skj.v3 .v2-nights { list-style: none; margin: 0; padding: 0; display: flex; gap: 3px; }
+.skj.v3 .v2-nights li {
+  flex: 1 1 auto; min-width: max-content;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
+  padding: 8px 10px; background: var(--skj-blue); color: #fff;
+  font-size: 13px; line-height: 1.1;
+}
+.skj.v3 .v2-nights li.is-alt { background: var(--skj-blue-7); }
+.skj.v3 .v2-nights li:first-child { border-radius: 8px 0 0 8px; }
+.skj.v3 .v2-nights li:last-child { border-radius: 0 8px 8px 0; }
+.skj.v3 .v2-nights b { font-weight: 600; }
+.skj.v3 .v2-nights span { font: 600 15px/1 var(--skj-serif); color: var(--skj-blue-1); }
+.skj.v3 .v2-tc__day { margin-top: 6px; display: flex; align-items: center; flex-wrap: wrap; gap: 3px 5px; font-size: 12px; color: var(--skj-n700); }
+.skj.v3 .v2-tc__day i { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--skj-blue); background: #fff; }
+.skj.v3 .v2-tc__day b { font-weight: 600; color: var(--skj-n900); }
+
+/* Map + highlights */
+.skj.v3 .v2-tc__mid { display: grid; gap: 10px; }
+.skj.v3 .v2-tc .skj-map > svg { aspect-ratio: 2 / 1; }
+.skj.v3 .v2-tc .skj-map figcaption { display: none; }
+.skj.v3 .v2-tc .v2-hl {
+  flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+  margin-inline: -14px; padding-inline: 14px;
+}
+.skj.v3 .v2-tc .v2-hl::-webkit-scrollbar { display: none; }
+.skj.v3 .v2-tc .v2-hl li { white-space: nowrap; }
+.skj.v3 .v2-tc .v2-hl li:nth-child(n+5) { display: inline-flex; }
+
+/* Inclusions strip */
+.skj.v3 .v2-tc__inc {
+  list-style: none; margin: 0; padding: 8px 4px;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
+  border-radius: 10px; background: #EEF4EF; border: 1px solid #D6E7DD;
+}
+.skj.v3 .v2-tc__inc li { display: grid; justify-items: center; gap: 3px; text-align: center; font-size: 10.5px; line-height: 1.15; color: var(--skj-n800); }
+.skj.v3 .v2-tc__inc svg { color: var(--skj-success); }
+
+/* Dates: always one swipeable row */
+.skj.v3 .v2-tc .skj-tour__label { margin-bottom: 6px; }
+.skj.v3 .v2-tc__from { letter-spacing: .1em; color: var(--skj-n700); }
+.skj.v3 .v2-tc .skj-dates { flex-wrap: nowrap; overflow-x: auto; margin-inline: -14px; padding: 2px 14px 4px; }
+.skj.v3 .v2-tc .skj-date { width: 54px; min-height: 58px; padding: 5px 3px; }
+.skj.v3 .v2-tc .skj-date__d { font-size: 17px; }
+
+/* Price + CTA band */
+.skj.v3 .v2-tc__buy {
+  margin: 2px -14px 0; padding: 12px 14px 14px; border-top: 1px solid var(--skj-n200);
+  background: var(--skj-n50); gap: 10px;
+}
+.skj.v3 .v2-tc.is-featured .v2-tc__buy { background: #EDF3FA; border-top-color: var(--skj-blue-1); }
+.skj.v3 .v2-tc__pk { font: 500 10.5px/1.3 var(--skj-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--skj-n700); }
+.skj.v3 .v2-tc .skj-tour__amt { font-size: 30px; line-height: 1.1; color: var(--skj-blue); }
+.skj.v3 .v2-tc .skj-tour__amt s { margin: 0 4px 0 0; font-size: 14px; }
+.skj.v3 .v2-tc .v2-emiline { margin-top: 2px; font-size: 12px; }
+
+@media (min-width: 700px) {
+  .skj.v3 .v2-tc .skj-tour__media { height: 168px; }
+  .skj.v3 .v2-tc .skj-tour__name { font-size: 28px; }
+  .skj.v3 .v2-tc .skj-tour__body { padding: 18px 20px 0; gap: 14px; }
+  .skj.v3 .v2-tc .skj-dates, .skj.v3 .v2-tc .v2-hl { margin-inline: -20px; padding-inline: 20px; }
+  .skj.v3 .v2-tc__buy {
+    margin-inline: -20px; padding: 14px 20px 16px;
+    grid-template-columns: 1fr auto; align-items: center;
+  }
+  .skj.v3 .v2-tc .skj-tour__amt { font-size: 34px; }
+  .skj.v3 .v2-tc .skj-tour__ctas .skj-btn--primary { padding-inline: 22px; }
+  .skj.v3 .v2-tc__inc li { font-size: 11.5px; }
+}
+@media (min-width: 900px) {
+  /* Map on the left, highlights listed beside it. */
+  .skj.v3 .v2-tc__mid { grid-template-columns: 1.25fr 1fr; align-items: center; gap: 16px; }
+  .skj.v3 .v2-tc .skj-map > svg { aspect-ratio: 16 / 11; }
+  .skj.v3 .v2-tc .v2-hl { flex-direction: column; flex-wrap: nowrap; overflow: visible; margin: 0; padding: 0; gap: 5px; }
+  .skj.v3 .v2-tc .v2-hl li { background: none; border: 0; padding: 2px 0; font-size: 13px; white-space: normal; }
+  .skj.v3 .v2-tc .skj-dates { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; }
+}
+/* Round 3 fit tweaks */
+.skj.v3 .v2-tc__pp { font: 400 13px var(--skj-sans); color: var(--skj-n700); }
+@media (max-width: 699px) {
+  .skj.v3 .v2-tc__pk { display: none; }
+  .skj.v3 .v2-tc .skj-map > svg { aspect-ratio: 2.25 / 1; }
+  .skj.v3 .v2-tc__inc { padding: 7px 2px; }
+  .skj.v3 .v2-tc__inc li { font-size: 10px; letter-spacing: -.01em; white-space: nowrap; }
+  .skj.v3 .v2-nights li { padding: 8px; gap: 4px; font-size: 12.5px; }
+  .skj.v3 .v2-tc__buy { padding-top: 10px; gap: 8px; }
+}
+@media (min-width: 900px) { .skj.v3 .v2-tc .skj-map > svg { aspect-ratio: 16 / 10; } }
+@media (max-width: 699px) {
+  /* Four stays must fit 280px: stack city over nights. */
+  .skj.v3 .v2-nights li { flex-direction: column; align-items: flex-start; gap: 3px; padding: 6px 7px; font-size: 12px; }
+  .skj.v3 .v2-nights span { font-size: 14px; }
+}
+@media (min-width: 700px) {
+  .skj.v3 .v2-tc .skj-tour__media { height: 140px; }
+  .skj.v3 .v2-tc .skj-tour__body { gap: 12px; }
+  .skj.v3 .v2-tc__buy { padding-block: 12px 14px; }
+}
+@media (min-width: 700px) {
+  .skj.v3 .v2-tc .skj-tour__media { height: 128px; }
+  .skj.v3 .v2-tc .skj-tour__body { gap: 10px; }
+}
+@media (max-width: 699px) { .skj.v3 .v2-tc__inc { column-gap: 4px; } .skj.v3 .v2-tc__inc li { font-size: 9.5px; } }
+
+/* ============================================================================
+   v3 — flat prices with EMI beside them, the calmer map panel, EMI plans.
+   ========================================================================== */
+
+/* Price + EMI: "₹2,90,000 or ₹19,600/month" */
+.skj.v3 .v3-pe { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin: 0; }
+.skj.v3 .v3-pe__amt { font: 600 30px/1.1 var(--skj-serif); color: var(--skj-blue); white-space: nowrap; }
+.skj.v3 .v3-pe__or { font: 400 13px var(--skj-sans); color: var(--skj-n700); }
+.skj.v3 .v3-pe__emi {
+  display: inline-flex; align-items: baseline; gap: 1px; white-space: nowrap;
+  padding: 4px 10px; border-radius: 999px; background: #E3F0E8; border: 1px solid #C4DFCF;
+  font: 500 13px/1.2 var(--skj-sans); color: var(--skj-success);
+}
+.skj.v3 .v3-pe__emi b { display: inline; font: 700 17px/1.2 var(--skj-sans); color: #1F5E48; }
+.skj.v3 .v3-pe__fine { margin-top: 4px; font-size: 11.5px; line-height: 1.35; color: var(--skj-n700); }
+@media (min-width: 700px) { .skj.v3 .v2-tc .v3-pe__amt { font-size: 34px; } }
+.skj.v3 .v3-pe--ticket .v3-pe__amt { font-size: clamp(34px, 4.4vw, 48px); line-height: 1.05; }
+.skj.v3 .v3-pe--ticket { margin: 2px 0 6px; }
+.skj.v3 .skj-itin__foot .v3-pe { margin-bottom: 2px; }
+.skj.v3 .skj-itin__foot .v3-pe__amt { font-size: 26px; }
+.skj.v3 .skj-itin__foot > div > small { display: block; font-size: 12px; color: var(--skj-n700); }
+
+/* The trip panel: map + where you stay, in one frame */
+.skj.v3 .v3-trip {
+  display: grid; border: 1px solid var(--skj-n200); border-radius: 12px; overflow: hidden; background: #fff;
+}
+.skj.v3 .v3-trip .skj-map { border: 0; border-radius: 0; }
+.skj.v3 .v3-trip .skj-map > svg { display: block; width: 100%; aspect-ratio: 2.6 / 1; }
+.skj.v3 .v3-trip .skj-map figcaption { display: none; }
+.skj.v3 .v3-trip__info { padding: 10px 12px 12px; border-top: 1px solid var(--skj-n200); }
+.skj.v3 .v3-trip__info .v2-tc__k { margin-bottom: 6px; }
+.skj.v3 .v3-stays { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.skj.v3 .v3-stays li {
+  display: inline-flex; align-items: baseline; gap: 5px; padding: 4px 9px 4px 7px;
+  border-radius: 6px; background: #EDF3FA; font: 500 13px/1.2 var(--skj-sans); color: var(--skj-n900);
+}
+.skj.v3 .v3-stays b { font: 600 15px/1 var(--skj-serif); color: var(--skj-blue); }
+.skj.v3 .v3-trip__day { margin-top: 7px; font-size: 12px; color: var(--skj-n700); }
+.skj.v3 .v3-trip__day b { font-weight: 600; color: var(--skj-n900); }
+.skj.v3 .v3-trip__hl { display: none; list-style: none; margin: 10px 0 0; padding: 10px 0 0; border-top: 1px dashed var(--skj-n200); }
+.skj.v3 .v3-trip__hl li { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--skj-n800); padding: 2px 0; }
+.skj.v3 .v3-trip__hl svg { color: var(--skj-success); flex: none; }
+@media (min-width: 900px) {
+  .skj.v3 .v3-trip { grid-template-columns: 1.15fr 1fr; }
+  .skj.v3 .v3-trip .skj-map > svg { height: 100%; aspect-ratio: auto; min-height: 196px; }
+  .skj.v3 .v3-trip__info { border-top: 0; border-left: 1px solid var(--skj-n200); padding: 14px 16px; align-self: stretch; }
+  .skj.v3 .v3-trip__hl { display: block; }
+}
+
+/* Sticky bar: plain booking amount now, so one line is enough */
+.skj.v3 .skj-sticky__info b .v2-dep { font: inherit; }
+@media (max-width: 479px) { .skj.v3 .skj-sticky__info b { display: block; } }
+
+/* EMI plans (n50, under How booking works) */
+.skj.v3 .v3-emi { padding: var(--skj-py) var(--skj-pad); background: var(--skj-n50); border-top: 1px solid var(--skj-n200); }
+.skj.v3 .v3-emi__inner { max-width: 1200px; margin: 0 auto; display: grid; gap: 28px; }
+.skj.v3 .v3-emi__copy .skj-lead { margin-top: 12px; }
+.skj.v3 .v3-emi__points { list-style: none; margin: 18px 0 22px; padding: 0; display: grid; gap: 8px; }
+.skj.v3 .v3-emi__points li { display: flex; align-items: center; gap: 8px; font-size: 14.5px; color: var(--skj-n800); }
+.skj.v3 .v3-emi__points svg { color: var(--skj-success); flex: none; }
+.skj.v3 .v3-emi__card {
+  background: #fff; border: 1px solid var(--skj-n200); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 12px 32px -18px rgba(2, 19, 48, .25);
+}
+.skj.v3 .v3-emi__table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.skj.v3 .v3-emi__table th, .skj.v3 .v3-emi__table td { padding: 12px 14px; text-align: right; border-bottom: 1px solid var(--skj-n200); vertical-align: middle; }
+.skj.v3 .v3-emi__table th:first-child { text-align: left; }
+.skj.v3 .v3-emi__table thead th {
+  background: var(--skj-blue); color: #fff; font: 600 14px/1.25 var(--skj-sans);
+}
+.skj.v3 .v3-emi__table thead th:first-child { font: 500 11px/1.3 var(--skj-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--skj-blue-1); }
+.skj.v3 .v3-emi__table thead small { display: block; margin-top: 3px; font: 600 17px/1.1 var(--skj-serif); color: var(--skj-blue-1); }
+.skj.v3 .v3-emi__table tbody th { font-weight: 500; color: var(--skj-n900); }
+.skj.v3 .v3-emi__table td { color: var(--skj-n800); white-space: nowrap; }
+.skj.v3 .v3-emi__table td b { font: 600 19px/1 var(--skj-serif); color: var(--skj-blue); }
+.skj.v3 .v3-emi__table td small { font-size: 12px; color: var(--skj-n700); margin-left: 2px; }
+.skj.v3 .v3-emi__table .is-today th, .skj.v3 .v3-emi__table .is-today td { background: #F3F6F9; }
+.skj.v3 .v3-emi__table .is-today td { font-weight: 600; color: var(--skj-n900); }
+.skj.v3 .v3-emi__table .is-bal th, .skj.v3 .v3-emi__table .is-bal td { background: #F3F6F9; font-size: 13px; color: var(--skj-n700); border-bottom: 2px solid var(--skj-n200); }
+.skj.v3 .v3-emi__table .is-low th, .skj.v3 .v3-emi__table .is-low td { background: #EEF4EF; }
+.skj.v3 .v3-emi__table .is-low td b { color: #1F5E48; }
+.skj.v3 .v3-emi__tag {
+  display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; vertical-align: 1px;
+  background: var(--skj-success); color: #fff; font: 600 10.5px/1.4 var(--skj-sans); letter-spacing: .04em;
+}
+.skj.v3 .v3-emi__table tbody tr:last-child > * { border-bottom: 0; }
+.skj.v3 .v3-emi__fine { padding: 12px 14px 14px; font-size: 12px; line-height: 1.45; color: var(--skj-n700); border-top: 1px solid var(--skj-n200); }
+@media (max-width: 479px) {
+  .skj.v3 .v3-emi__table th, .skj.v3 .v3-emi__table td { padding: 10px 9px; }
+  .skj.v3 .v3-emi__table { font-size: 13px; }
+  .skj.v3 .v3-emi__table thead th { font-size: 12.5px; }
+  .skj.v3 .v3-emi__table thead small { font-size: 15px; }
+  .skj.v3 .v3-emi__table td b { font-size: 16px; }
+  .skj.v3 .v3-emi__table td small { display: block; margin: 2px 0 0; font-size: 11px; }
+  .skj.v3 .v3-emi__tag { display: block; width: max-content; margin: 4px 0 0; }
+}
+@media (min-width: 900px) {
+  .skj.v3 .v3-emi__inner { grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; }
+  .skj.v3 .v3-emi__table th, .skj.v3 .v3-emi__table td { padding: 14px 20px; }
+  .skj.v3 .v3-emi__fine { padding-inline: 20px; }
+}
+/* Cards in a row share a height: let the price band fill the shorter one. */
+.skj.v3 .v2-tc { display: flex; flex-direction: column; }
+.skj.v3 .v2-tc .skj-tour__body { flex: 1 0 auto; display: flex; flex-direction: column; }
+.skj.v3 .v2-tc__buy { flex: 1 0 auto; align-content: start; }
+/* Plain booking amount: Deposit is now the <b> itself */
+.skj.v3 .v2-hero-dep__v b.v2-dep { font: 600 19px/1 var(--skj-serif); color: #fff; }
+@media (min-width: 900px) { .skj.v3 .v2-hero-dep__v b.v2-dep { font-size: 22px; } }
+.skj.v3 .v2-pi__t b.v2-dep { color: var(--skj-blue); }
+/* Small phones (375): keep the whole card inside one screen. */
+@media (max-width: 400px) {
+  .skj.v3 .v3-trip .skj-map > svg { aspect-ratio: 3 / 1; }
+  .skj.v3 .v3-stays { gap: 5px; }
+  .skj.v3 .v3-stays li { padding: 3px 8px 3px 6px; font-size: 12.5px; }
+}
