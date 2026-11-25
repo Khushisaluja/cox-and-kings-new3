@@ -42,6 +42,7 @@ import SakuraJapanV2 from './pages/SakuraJapanV2';
 import SakuraJapanV3 from './pages/SakuraJapanV3';
 import EuropeEarlyBooking from './pages/EuropeEarlyBooking';
 import VietnamGroupTours from './pages/VietnamGroupTours';
+import VietnamGroupToursV2 from './pages/VietnamGroupToursV2';
 import Terms from './pages/Terms';
 import Sitemap from './pages/Sitemap';
 import Faq2 from './pages/Faq2';
@@ -378,6 +379,7 @@ export default function App() {
           {/* VIETNAM: the same lander for the spring 2027 Vietnam group
               departures (karst hero, lantern arch). */}
           <Route path="/vietnam-group-tours" element={<VietnamGroupTours />} />
+          <Route path="/vietnam-group-tours-v2" element={<VietnamGroupToursV2 />} />
 
           {/* THE GREAT FESTIVE GETAWAY — the festive Europe GIT campaign's
               master landing page. Meta/Google ad traffic only: deliberately not

@@ -1,0 +1,638 @@
+/* ============================================================================
+   Vietnam v2 (/vietnam-group-tours-v2), self-contained: PART 1 is a copy of
+   VietnamGroupTours.css (the lander's base styles) rescoped from .skj.vn to
+   .skj.vn2, so v1 and v2 can change independently. PART 2 is v2's own
+   rules (Japan v3's price + EMI system, glass hero bar, decluttered card).
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- PART 1 */
+/* ============================================================================
+   /vietnam-group-tours: only what is new on top of SakuraJapan.css.
+   Every rule is scoped to `.skj.vn2`, so the Japan and Europe pages, which
+   share SakuraJapan.css, are untouched.
+   ========================================================================== */
+
+.skj.vn2 {
+  --vn-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --vn-lantern-red: #C8352B;
+}
+
+/* ---- Nav: on desktop, three quiet links before the CTA ---------------- */
+.skj.vn2 .vn-nav__links { display: none; }
+@media (min-width: 1080px) {
+  .skj.vn2 .skj-nav { justify-content: flex-start; }
+  .skj.vn2 .vn-nav__links {
+    display: flex; gap: 32px; margin-left: auto; margin-right: 28px;
+  }
+  .skj.vn2 .vn-nav__links a {
+    position: relative; color: #fff; text-decoration: none;
+    font: 400 15px/1 var(--skj-sans); letter-spacing: .01em;
+    text-shadow: 0 1px 10px rgba(2,19,48,.35);
+  }
+  .skj.vn2 .vn-nav__links a::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+    background: currentColor; transform: scaleX(0); transform-origin: right;
+    transition: transform .45s var(--skj-ease);
+  }
+  .skj.vn2 .vn-nav__links a:hover::after { transform: scaleX(1); transform-origin: left; }
+}
+
+/* ======================================================================
+   1 HERO: sky → tint → VIỆT NAM → karsts → veil → copy
+   The sky and the karsts are the same frame, laid out identically (same
+   box, same object-fit, same object-position), so at rest the cut-out sits
+   exactly on its own pixels.
+   ====================================================================== */
+.skj.vn2 .vn-hero { background: var(--skj-navy); }
+.skj.vn2 .vn-hero__scene {
+  position: absolute; inset: 0; z-index: -3; overflow: hidden;
+  transform-origin: 50% 40%; will-change: transform;
+}
+.skj.vn2 .vn-hero__sky,
+.skj.vn2 .vn-hero__karsts {
+  position: absolute; inset: 0 0 -14% 0; will-change: transform;
+}
+.skj.vn2 .vn-hero__sky img,
+.skj.vn2 .vn-hero__karsts img {
+  width: 100%; height: 100%; display: block;
+  object-fit: cover; object-position: 50% 0%;
+}
+.skj.vn2 .vn-hero__karsts { z-index: 3; pointer-events: none; }
+/* Deepens the pale morning sky so a white word reads on it. Sits under the
+   karsts, so the rock keeps its own colour. */
+.skj.vn2 .vn-hero__tint {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(4,36,71,.62) 0%, rgba(11,90,177,.34) 34%, rgba(11,90,177,.12) 52%, rgba(11,90,177,0) 64%);
+}
+
+.skj.vn2 .vn-hero__mark {
+  position: absolute; left: 0; right: 0; z-index: 2;
+  top: 30%;
+  display: flex; justify-content: center;
+  will-change: transform;
+}
+.skj.vn2 .vn-hero__word {
+  display: flex; align-items: flex-end;
+  font: 500 min(15.2vw, 30vh)/.86 var(--vn-display);
+  letter-spacing: -.01em; color: #fff;
+  font-variant-numeric: normal;
+}
+/* Each letter rises out of its own slot. The slot is tall enough for the
+   circumflex and the dot below Ệ. */
+.skj.vn2 .vn-hero__chm { display: inline-block; overflow: hidden; padding: .2em .005em .18em; margin: -.2em 0 -.18em; }
+.skj.vn2 .vn-hero__ch { display: inline-block; will-change: transform; }
+.skj.vn2 .vn-hero__gap { display: inline-block; width: .28em; }
+
+/* Phones: the photo fills the top two-thirds, so the peaks rise into the
+   stacked word (VIỆT over NAM) and the copy gets plain navy below. */
+@media (max-width: 899px) {
+  .skj.vn2 .vn-hero__sky,
+  .skj.vn2 .vn-hero__karsts { inset: 0 0 auto 0; height: 68%; }
+}
+@media (max-width: 699px) {
+  .skj.vn2 .vn-hero__mark { top: 10.5%; }
+  .skj.vn2 .vn-hero__word {
+    flex-wrap: wrap; justify-content: center; width: 4.3em;
+    font-size: min(26vw, 13.5vh); line-height: .9;
+  }
+  .skj.vn2 .vn-hero__gap { width: 100%; height: .12em; }
+}
+
+.skj.vn2 .vn-hero__veil {
+  z-index: -2;
+  background: linear-gradient(180deg, rgba(2,19,48,0) 0%, rgba(2,19,48,0) 36%, rgba(2,19,48,.55) 48%, rgba(2,19,48,.9) 58%, var(--skj-navy) 64%);
+}
+@media (min-width: 900px) {
+  .skj.vn2 .vn-hero__veil {
+    background:
+      linear-gradient(90deg, rgba(2,19,48,.7) 0%, rgba(2,19,48,.3) 40%, rgba(2,19,48,0) 62%),
+      linear-gradient(180deg, rgba(2,19,48,0) 0%, rgba(2,19,48,0) 52%, rgba(2,19,48,.55) 78%, rgba(2,19,48,.85) 100%);
+    /* The left-hand gradient only below the word, not across the sky. */
+    -webkit-mask-image: linear-gradient(180deg, transparent 0 50%, #000 66%);
+    mask-image: linear-gradient(180deg, transparent 0 50%, #000 66%);
+  }
+}
+.skj.vn2 .vn-hero__title { font-size: clamp(34px, 4.2vw, 60px); line-height: 1.02; max-width: 15ch; }
+/* Desktop: the copy is one band along the bottom, headline left and the
+   offer and CTAs right, so the word above has the sky to itself. */
+@media (min-width: 900px) {
+  .skj.vn2 .vn-hero__copy {
+    max-width: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px);
+    column-gap: clamp(40px, 6vw, 112px); align-items: end;
+  }
+  .skj.vn2 .vn-hero__act .skj-hero__sub { margin-top: 0; }
+  .skj.vn2 .vn-hero__act .skj-hero__offer { margin-top: 18px; }
+  .skj.vn2 .vn-hero__act .skj-hero__ctas { margin-top: 20px; }
+}
+@media (max-width: 899px) {
+  .skj.vn2 .vn-hero__title { font-size: clamp(32px, 8.6vw, 44px); }
+}
+@media (max-height: 700px) and (max-width: 699px) {
+  .skj.vn2 .vn-hero__title { font-size: 30px; }
+}
+
+/* Birds over the bay: a slow drift and a lazy wingbeat. */
+.skj.vn2 .vn-birds { position: absolute; inset: 0; z-index: 2; pointer-events: none; color: rgba(14,34,52,.7); }
+.skj.vn2 .vn-bird { position: absolute; width: 30px; height: 9px; animation: vn2-drift 46s linear infinite; }
+.skj.vn2 .vn-bird path { transform-origin: 50% 70%; animation: vn2-flap 1.6s ease-in-out infinite; }
+.skj.vn2 .vn-bird--0 { top: 13%; left: 56%; }
+.skj.vn2 .vn-bird--1 { top: 18%; left: 63%; width: 38px; animation-duration: 54s; animation-delay: -12s; }
+.skj.vn2 .vn-bird--1 path { animation-delay: -.5s; }
+.skj.vn2 .vn-bird--2 { top: 21%; left: 58%; width: 24px; animation-duration: 40s; animation-delay: -6s; }
+.skj.vn2 .vn-bird--2 path { animation-delay: -1s; }
+@media (max-width: 699px) { .skj.vn2 .vn-birds { display: none; } }
+@keyframes vn2-drift {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-18vw, -2vh); }
+  100% { transform: translate(-36vw, 1vh); }
+}
+@keyframes vn2-flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.35); } }
+
+/* ======================================================================
+   Text arrivals (SplitText masks). A little room under each masked line so
+   descenders and italic overhangs are not clipped.
+   ====================================================================== */
+.skj.vn2 .vn-line { padding: 0 .06em .1em; margin: 0 -.06em -.1em; }
+
+/* Tour photos drift with the scroll (GSAP), so drop the CSS hover zoom that
+   would fight the inline transform. */
+.skj.vn2 .skj-tour__media img { transition: none; }
+.skj.vn2 .skj-tour:hover .skj-tour__media img { transform: none; }
+
+/* Map: Vietnam on paper, its neighbours a shade greyer. */
+.skj.vn2 .vn-map__near { fill: #ECEAE0; stroke: var(--skj-n200); }
+
+/* ======================================================================
+   7 HERITAGE: the lantern arch
+   ====================================================================== */
+.skj.vn2 .skj-heritage { overflow: hidden; }
+.skj.vn2 .vn-archwrap { padding-top: 64px; }
+.skj.vn2 .vn-arch {
+  position: relative; overflow: hidden;
+  height: 380px; border-radius: 999px 999px 0 0;
+  clip-path: inset(0 0 0 0 round 999px 999px 0 0);
+  box-shadow: 0 40px 70px -44px rgba(4,36,71,.55);
+  background: var(--skj-n150);
+}
+.skj.vn2 .vn-arch__img {
+  width: 100%; height: 100%; display: block; object-fit: cover; object-position: 30% 50%;
+  transform-origin: 50% 70%; will-change: transform;
+}
+@media (min-width: 900px) {
+  .skj.vn2 .vn-archwrap { padding-top: 92px; padding-bottom: 44px; }
+  .skj.vn2 .vn-arch { height: 560px; }
+}
+
+/* A lantern hangs from the top edge of the figure on its own string. */
+.skj.vn2 .vn-lantern {
+  position: absolute; top: 0; left: var(--x); z-index: 2;
+  width: calc(78px * var(--s)); pointer-events: none;
+}
+.skj.vn2 .vn-lantern__drop,
+.skj.vn2 .vn-lantern__swing,
+.skj.vn2 .vn-lantern__push { transform-origin: 50% 0; }
+.skj.vn2 .vn-lantern__push { position: relative; display: flex; flex-direction: column; align-items: center; }
+.skj.vn2 .vn-lantern__string {
+  display: block; width: 2px; height: calc(var(--len) + 30px); margin-top: -30px;
+  background: #3A2417; border-radius: 1px;
+}
+.skj.vn2 .vn-lantern__svg { display: block; width: 100%; height: auto; margin-top: -1px; position: relative; }
+.skj.vn2 .vn-lantern__body { position: relative; display: block; width: 100%; }
+.skj.vn2 .vn-lantern__glow {
+  position: absolute; left: 50%; top: 38%;
+  width: 210%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 45%, transparent), transparent 75%);
+  animation: vn2-glow 3.4s ease-in-out infinite;
+}
+/* nth-of-type counts the arch's div too, so the lanterns are 2, 3 and 4. */
+.skj.vn2 .vn-lantern:nth-of-type(3) .vn-lantern__glow { animation-delay: -1.1s; }
+.skj.vn2 .vn-lantern:nth-of-type(4) .vn-lantern__glow { animation-delay: -2.2s; }
+@keyframes vn2-glow { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+@media (max-width: 899px) {
+  .skj.vn2 .vn-lantern { width: calc(56px * var(--s)); }
+  .skj.vn2 .vn-lantern__string { height: calc(var(--len) * .7 + 30px); }
+}
+
+/* The card sits over the arch's foot on desktop, as on the Japan page. */
+@media (min-width: 900px) {
+  .skj.vn2 .vn-archwrap .skj-heritage__card { bottom: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skj.vn2 .vn-bird, .skj.vn2 .vn-bird path, .skj.vn2 .vn-lantern__glow { animation: none; }
+}
+
+/* ======================================================================
+   8 FINAL: a lighter veil than Japan/Europe, so Hoi An's lanterns glow
+   through it; it darkens only behind the type.
+   ====================================================================== */
+.skj.vn2 .skj-final::before {
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 50%, rgba(2,19,48,.72), rgba(2,19,48,.25) 100%),
+    linear-gradient(180deg, rgba(2,19,48,.35), rgba(2,19,48,.2) 50%, rgba(2,19,48,.75));
+}
+.skj.vn2 .skj-final__img { will-change: transform; }
+
+/* Package popup footer: Book now (primary) + Talk to an expert (secondary).
+   Phones: price on its own row, the two buttons share the row below,
+   with Book now on the right where the thumb lands. */
+.skj.vn2 .skj-itin__foot { flex-wrap: wrap; }
+@media (max-width: 559px) { .skj.vn2 .skj-itin__foot .skj-btn { width: 100%; } }
+
+/* ======================================================================
+   3 THE PACKAGE: the sheet has one Vietnam package, so the tours row holds
+   a single wide card. Phones: the normal stacked card. Desktop: photo on
+   the left, everything else on the right.
+   ====================================================================== */
+.skj.vn2 .vn-tours__one { display: grid; grid-template-columns: minmax(0, 1fr); }
+.skj.vn2 .vn-tours__one .skj-tour { max-width: 1120px; width: 100%; margin-inline: auto; }
+
+.skj.vn2 .vn-tour__from { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--skj-n800); }
+.skj.vn2 .vn-tour__from svg { color: var(--skj-blue); flex: none; }
+
+.skj.vn2 .vn-tour__hl ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px 16px; }
+@media (min-width: 700px) { .skj.vn2 .vn-tour__hl ul { grid-template-columns: 1fr 1fr; } }
+.skj.vn2 .vn-tour__hl li { display: flex; gap: 7px; align-items: flex-start; font-size: 13px; line-height: 1.4; color: var(--skj-n900); }
+.skj.vn2 .vn-tour__hl svg { flex: none; margin-top: 2px; color: var(--skj-success, #1F7A4D); }
+
+/* Departure windows: the sheet gives date ranges, not fixed dates. */
+.skj.vn2 .vn-wins { display: flex; flex-wrap: wrap; gap: 8px; }
+.skj.vn2 .vn-win {
+  display: grid; gap: 2px; text-align: left; padding: 8px 12px; min-height: 52px;
+  border-radius: 8px; border: 1px solid var(--skj-n500); background: var(--skj-n0);
+  color: var(--skj-n900); font-family: var(--skj-sans); cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s;
+}
+.skj.vn2 .vn-win__d { font: 600 16px/1.15 var(--skj-serif); white-space: nowrap; }
+.skj.vn2 .vn-win__d i { font-style: normal; opacity: .6; }
+.skj.vn2 .vn-win__y { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--skj-n700); }
+.skj.vn2 .vn-win:hover:not(.is-sold) { border-color: var(--skj-blue); }
+.skj.vn2 .vn-win.is-on { background: var(--skj-blue); border-color: var(--skj-blue); color: var(--skj-n100); }
+.skj.vn2 .vn-win.is-on .vn-win__y { color: var(--skj-n100); }
+.skj.vn2 .vn-win.is-sold { cursor: not-allowed; border-style: dashed; color: var(--skj-n700); background: var(--skj-n100); }
+
+/* One price: the never-pay lines get ticks, and the sheet's exclusions. */
+.skj.vn2 .skj-never svg { color: var(--skj-success, #1F7A4D); }
+.skj.vn2 .vn-notinc { margin-top: 12px; font-size: 12.5px; line-height: 1.5; color: var(--skj-n700); }
+.skj.vn2 .vn-notinc b { color: var(--skj-n900); font-weight: 600; }
+
+/* Package popup: the sheet's inclusions and exclusions, after the days. */
+.skj.vn2 .vn-incl { display: grid; gap: 20px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--skj-n200); }
+@media (min-width: 700px) { .skj.vn2 .vn-incl { grid-template-columns: 1.6fr 1fr; } }
+.skj.vn2 .vn-incl__h { font: 500 11px/1.4 var(--skj-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--skj-n700); margin-bottom: 10px; }
+.skj.vn2 .vn-incl__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.skj.vn2 .vn-incl__list li { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; line-height: 1.45; color: var(--skj-n900); }
+.skj.vn2 .vn-incl__list svg { flex: none; margin-top: 3px; color: var(--skj-success, #1F7A4D); }
+.skj.vn2 .vn-incl__list.is-ex svg { color: var(--skj-n700); }
+.skj.vn2 .vn-itin-src { margin-top: 16px; font-size: 12.5px; color: var(--skj-n700); }
+.skj.vn2 .vn-itin-src a { display: inline-flex; align-items: center; gap: 4px; color: var(--skj-blue); text-decoration: underline; text-underline-offset: 2px; }
+.skj.vn2 .skj-itin__foot s { font-size: 13px; color: var(--skj-n700); margin-left: 4px; }
+
+/* Booking sheet: four fields, two by two (the base rule spans the first). */
+@media (min-width: 700px) { .skj.vn2 .vn-sheet__grid .skj-field:first-child { grid-column: auto; } }
+.skj.vn2 .skj-field input[type="date"] {
+  width: 100%; min-height: 48px; padding: 0 12px; border-radius: 4px; font-size: 16px;
+  border: 1px solid var(--skj-n500); background: var(--skj-n0); color: var(--skj-n900); font-family: var(--skj-sans);
+}
+
+/* ======================================================================
+   ONE BUTTON: "Talk to an Expert" everywhere, opening the lead form.
+   ====================================================================== */
+.skj.vn2 .skj-hero__ctas .skj-btn { min-width: 220px; }
+@media (max-width: 559px) { .skj.vn2 .skj-hero__ctas .skj-btn { width: 100%; } }
+.skj.vn2 .skj-btn--nav { white-space: nowrap; }
+
+/* The package link under the card's price: text, not a second button. */
+.skj.vn2 .vn-tour__more {
+  display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+  min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer;
+  font: 500 14px/1.3 var(--skj-sans); color: var(--skj-blue);
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px;
+}
+.skj.vn2 .vn-tour__more:hover { text-decoration-thickness: 2px; }
+.skj.vn2 .vn-tour__more:focus-visible { outline: 2px solid var(--skj-blue); outline-offset: 3px; border-radius: 2px; }
+
+/* The lead form */
+.skj.vn2 .vn-lead__intro { margin: 0 0 18px; font-size: 14.5px; line-height: 1.5; color: var(--skj-n800); }
+.skj.vn2 .vn-lead__grid { margin-bottom: 4px; align-items: start; }
+.skj.vn2 .vn-lead form > .skj-btn--block, .skj.vn2 form > .skj-btn--block { margin-top: 18px; }
+@media (min-width: 700px) {
+  .skj.vn2 .vn-lead__grid .skj-field:first-child { grid-column: 1 / -1; }
+}
+.skj.vn2 .vn-lead__f input {
+  width: 100%; min-height: 48px; padding: 0 12px; border-radius: 4px; font-size: 16px;
+  border: 1px solid var(--skj-n500); background: var(--skj-n0); color: var(--skj-n900); font-family: var(--skj-sans);
+}
+.skj.vn2 .vn-lead__f input:focus-visible { outline: 2px solid var(--skj-blue); outline-offset: 1px; border-color: var(--skj-blue); }
+.skj.vn2 .vn-lead__f.is-err input { border-color: #B3261E; }
+.skj.vn2 .vn-lead__err { font: 500 12.5px/1.35 var(--skj-sans); color: #B3261E; }
+.skj.vn2 .vn-lead__fail { margin: 0 0 12px; font-size: 13.5px; }
+.skj.vn2 .vn-lead__fail a { color: inherit; }
+.skj.vn2 .vn-lead__done { display: grid; gap: 18px; justify-items: start; padding-top: 4px; }
+.skj.vn2 .vn-lead__done p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--skj-n800); }
+.skj.vn2 .vn-lead__tick {
+  display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
+  background: var(--skj-success); color: #fff;
+}
+
+/* ======================================================================
+   THE CARD FITS ONE SCREEN (nav excluded): ≤ ~770px tall on a 390×844
+   phone, ≤ ~580px on desktop. The body is a grid; its children change
+   places between the two layouts. Short screens fold the highlights
+   (TourCard's `fold` query uses the same heights).
+   ====================================================================== */
+.skj.vn2 .vn-tours__one .skj-tour { max-width: 1180px; }
+.skj.vn2 .vn-card .skj-tour__media { height: 104px; }
+.skj.vn2 .vn-card .skj-tour__name { font-size: 22px; }
+.skj.vn2 .vn-card__body {
+  display: grid; gap: 10px 14px; padding: 12px 14px 14px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-areas:
+    "map from"
+    "map dates"
+    "hl hl"
+    "buy buy";
+  grid-template-rows: auto 1fr auto auto;
+}
+.skj.vn2 .vn-card__blurb { display: none; grid-area: blurb; }
+.skj.vn2 .vn-card__from { grid-area: from; align-items: flex-start; font-size: 12.5px; line-height: 1.35; }
+.skj.vn2 .vn-card__from svg { margin-top: 1px; }
+.skj.vn2 .vn-card__map { grid-area: map; }
+.skj.vn2 .vn-card__map .skj-map > svg { aspect-ratio: auto; }
+.skj.vn2 .vn-card__map .skj-map figcaption { font-size: 11px; left: 6px; right: 6px; bottom: 6px; gap: 4px; flex-wrap: wrap; }
+.skj.vn2 .vn-card__map .skj-map figcaption span { padding: 3px 7px; }
+.skj.vn2 .vn-card__hl { grid-area: hl; }
+.skj.vn2 .vn-card__hl ul { gap: 4px 16px; grid-template-columns: minmax(0, 1fr); }
+.skj.vn2 .vn-card__hl li { font-size: 12.5px; line-height: 1.35; }
+.skj.vn2 .vn-card__hl li svg { margin-top: 1px; }
+.skj.vn2 .vn-card__hl .skj-tour__label { margin-bottom: 6px; }
+.skj.vn2 .vn-card__hlhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.skj.vn2 .vn-card__hlhead .skj-tour__label { margin: 0; }
+.skj.vn2 .vn-card__hltoggle { min-height: 40px; padding: 0; border: 0; background: none; cursor: pointer; }
+.skj.vn2 .vn-card__hltoggle svg { transition: transform .2s; }
+.skj.vn2 .vn-card__hltoggle[aria-expanded="true"] svg { transform: rotate(90deg); }
+.skj.vn2 .vn-card__hlhead .vn-tour__more { min-height: 40px; font-size: 13px; align-self: center; }
+.skj.vn2 .vn-card__hlhead > * { white-space: nowrap; }
+.skj.vn2 .vn-card__hlhead .vn-card__hltoggle { letter-spacing: .12em; }
+.skj.vn2 .vn-card__buy .skj-tour__note { white-space: nowrap; }
+.skj.vn2 .vn-card__dates { grid-area: dates; }
+.skj.vn2 .vn-card__dates .vn-wins { flex-direction: column; gap: 6px; }
+.skj.vn2 .vn-card__dates .vn-win { min-height: 40px; padding: 4px 10px; }
+.skj.vn2 .vn-card__dates .vn-win__d { font-size: 15px; }
+.skj.vn2 .vn-card__dates .vn-win__y { font-size: 10px; }
+.skj.vn2 .vn-card__buy { grid-area: buy; margin-top: 0; padding-top: 10px; gap: 8px; }
+.skj.vn2 .vn-card__buy .skj-tour__amt { font-size: 26px; white-space: nowrap; }
+.skj.vn2 .vn-card__buy .skj-tour__note { font-size: 12px; }
+@media (max-width: 979px) { .skj.vn2 .vn-card__map .skj-map figcaption { display: none; } }
+
+/* Desktop: photo | map | everything else, in one screen-height row. */
+@media (min-width: 980px) {
+  .skj.vn2 .vn-card { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 2fr); }
+  .skj.vn2 .vn-card .skj-tour__media { height: auto; min-height: 100%; }
+  .skj.vn2 .vn-card .skj-tour__media img { position: absolute; inset: 0; }
+  .skj.vn2 .vn-card .skj-tour__title { left: 22px; right: 22px; bottom: 20px; }
+  .skj.vn2 .vn-card .skj-tour__name { font-size: 30px; }
+  .skj.vn2 .vn-card__body {
+    padding: 22px 24px; gap: 12px 26px;
+    grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+    grid-template-areas:
+      "from  blurb"
+      "map   hl"
+      "map   dates"
+      "map   buy";
+    grid-template-rows: auto auto auto 1fr;
+  }
+  .skj.vn2 .vn-card__blurb { display: block; font-size: 13.5px; line-height: 1.5; }
+  .skj.vn2 .vn-card__map { align-self: start; }
+  .skj.vn2 .vn-card__hl ul { grid-template-columns: 1fr 1fr; gap: 6px 18px; }
+  .skj.vn2 .vn-card__hl li { font-size: 13px; }
+  .skj.vn2 .vn-card__dates .vn-wins { flex-direction: row; flex-wrap: wrap; }
+  .skj.vn2 .vn-card__buy { align-self: end; grid-template-columns: minmax(0, 1fr) auto; column-gap: 18px; align-items: center; }
+  .skj.vn2 .vn-card__buy .skj-tour__ctas .skj-btn { min-width: 240px; }
+}
+
+/* Hero glass bar: price + CTA, same glass as the homepage search bar
+   (rgba white .08, blur 22 saturate 150%, white .18 hairline, 8px radius). */
+.skj.vn2 .vn-herobar {
+  margin-top: 22px; display: flex; align-items: stretch; gap: 0;
+  width: min(760px, 100%); padding: 7px; border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 24px 60px -24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.18);
+  text-shadow: none;
+}
+.skj.vn2 .vn-herobar__price { flex: 1; min-width: 0; margin: 0; padding: 6px 12px; display: grid; align-content: center; gap: 3px; color: #fff; }
+.skj.vn2 .vn-herobar__k { font: 500 10.5px/1.3 var(--skj-sans); letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.72); }
+.skj.vn2 .vn-herobar__v { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
+.skj.vn2 .vn-herobar__v b { font: 600 24px/1.1 var(--skj-serif); color: #fff; }
+.skj.vn2 .vn-herobar__v s { font-size: 13.5px; color: rgba(255,255,255,.6); }
+.skj.vn2 .vn-herobar__v small { font-size: 12.5px; color: rgba(255,255,255,.8); }
+.skj.vn2 .vn-herobar__s { font-size: 12px; color: rgba(255,255,255,.72); }
+.skj.vn2 .vn-herobar__div { width: 1px; margin: 8px 6px; background: rgba(255,255,255,.18); }
+.skj.vn2 .vn-herobar__ctas { margin: 0; display: flex; align-items: stretch; gap: 7px; }
+.skj.vn2 .vn-herobar__ctas .skj-btn { min-height: 52px; border-radius: 5px; }
+.skj.vn2 .vn-herobar__ctas .skj-btn--ghost { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.28); }
+@media (max-width: 699px) {
+  .skj.vn2 .vn-herobar { flex-direction: column; padding: 6px; }
+  .skj.vn2 .vn-herobar__price { padding: 8px 10px 10px; }
+  .skj.vn2 .vn-herobar__div { width: auto; height: 1px; margin: 0 4px 6px; }
+  .skj.vn2 .vn-herobar__ctas { flex-direction: column; }
+  .skj.vn2 .vn-herobar__ctas .skj-btn { width: 100%; justify-content: center; min-height: 48px; }
+}
+.skj.vn2 .vn-herobar .skj-hero__offer-tag { justify-self: start; margin-bottom: 2px; }
+
+
+/* ---------------------------------------------------------------- PART 2 */
+/* Vietnam v2 (/vietnam-group-tours-v2): Japan v3's price + EMI system, copied
+   from SakuraJapanV3.css and rescoped from .skj.vn2 to .skj.vn2. Loaded after
+   VietnamGroupTours.css. */
+.skj.vn2 .v2-tenures { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.skj.vn2 .v2-tenure,
+.skj.vn2 .v2-seg__b {
+  min-height: 44px; padding: 8px 6px; border-radius: 8px;
+  border: 1px solid var(--skj-n500); background: var(--skj-n0); color: var(--skj-n900);
+  font: 500 13.5px/1.2 var(--skj-sans); cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.skj.vn2 .v2-tenure:hover:not(.is-on),
+.skj.vn2 .v2-seg__b:hover:not(.is-on) { border-color: var(--skj-blue); }
+.skj.vn2 .v2-tenure.is-on,
+.skj.vn2 .v2-seg__b.is-on { background: var(--skj-blue); border-color: var(--skj-blue); color: var(--skj-n100); }
+.skj.vn2 .v2-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+/* Booking sheet EMI block */
+.skj.vn2 .v2-sheet-emi {
+  margin: 0; padding: 12px 14px 14px; border: 1px solid var(--skj-n200); border-radius: 12px; background: var(--skj-n0);
+  display: grid; gap: 10px;
+}
+.skj.vn2 .v2-sheet-emi legend {
+  display: inline-flex; align-items: center; gap: 6px; padding: 0 6px; margin-left: -6px;
+  font: 600 11px/1.4 var(--skj-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--skj-n800);
+}
+.skj.vn2 .v2-sheet-emi legend svg { color: var(--skj-success); }
+.skj.vn2 .v2-sheet-emi .v2-tenure { min-height: 40px; }
+.skj.vn2 .v2-sheet-emi__amt { font-size: 13.5px; color: var(--skj-n800); }
+.skj.vn2 .v2-sheet-emi__amt b { font: 600 22px/1 var(--skj-serif); color: var(--skj-blue); margin-right: 4px; }
+.skj.vn2 .v2-sheet-emi__amt small { display: block; font-size: 11.5px; color: var(--skj-n700); margin-top: 2px; }
+.skj.vn2 .v3-pe { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin: 0; }
+.skj.vn2 .v3-pe__amt { font: 600 30px/1.1 var(--skj-serif); color: var(--skj-blue); white-space: nowrap; }
+.skj.vn2 .v3-pe__or { font: 400 13px var(--skj-sans); color: var(--skj-n700); }
+.skj.vn2 .v3-pe__emi {
+  display: inline-flex; align-items: baseline; gap: 1px; white-space: nowrap;
+  padding: 4px 10px; border-radius: 999px; background: #E3F0E8; border: 1px solid #C4DFCF;
+  font: 500 13px/1.2 var(--skj-sans); color: var(--skj-success);
+}
+.skj.vn2 .v3-pe__emi b { display: inline; font: 700 17px/1.2 var(--skj-sans); color: #1F5E48; }
+.skj.vn2 .v3-pe__fine { margin-top: 4px; font-size: 11.5px; line-height: 1.35; color: var(--skj-n700); }
+@media (min-width: 700px) { .skj.vn2 .v2-tc .v3-pe__amt { font-size: 34px; } }
+.skj.vn2 .v3-pe--ticket .v3-pe__amt { font-size: clamp(34px, 4.4vw, 48px); line-height: 1.05; }
+.skj.vn2 .v3-pe--ticket { margin: 2px 0 6px; }
+.skj.vn2 .skj-itin__foot .v3-pe { margin-bottom: 2px; }
+.skj.vn2 .skj-itin__foot .v3-pe__amt { font-size: 26px; }
+.skj.vn2 .v3-emi { padding: var(--skj-py) var(--skj-pad); background: var(--skj-n50); border-top: 1px solid var(--skj-n200); }
+.skj.vn2 .v3-emi__inner { max-width: 1200px; margin: 0 auto; display: grid; gap: 28px; }
+.skj.vn2 .v3-emi__copy .skj-lead { margin-top: 12px; }
+.skj.vn2 .v3-emi__points { list-style: none; margin: 18px 0 22px; padding: 0; display: grid; gap: 8px; }
+.skj.vn2 .v3-emi__points li { display: flex; align-items: center; gap: 8px; font-size: 14.5px; color: var(--skj-n800); }
+.skj.vn2 .v3-emi__points svg { color: var(--skj-success); flex: none; }
+.skj.vn2 .v3-emi__card {
+  background: #fff; border: 1px solid var(--skj-n200); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 12px 32px -18px rgba(2, 19, 48, .25);
+}
+.skj.vn2 .v3-emi__table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.skj.vn2 .v3-emi__table th, .skj.vn2 .v3-emi__table td { padding: 12px 14px; text-align: right; border-bottom: 1px solid var(--skj-n200); vertical-align: middle; }
+.skj.vn2 .v3-emi__table th:first-child { text-align: left; }
+.skj.vn2 .v3-emi__table thead th {
+  background: var(--skj-blue); color: #fff; font: 600 14px/1.25 var(--skj-sans);
+}
+.skj.vn2 .v3-emi__table thead th:first-child { font: 500 11px/1.3 var(--skj-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--skj-blue-1); }
+.skj.vn2 .v3-emi__table thead small { display: block; margin-top: 3px; font: 600 17px/1.1 var(--skj-serif); color: var(--skj-blue-1); }
+.skj.vn2 .v3-emi__table tbody th { font-weight: 500; color: var(--skj-n900); }
+.skj.vn2 .v3-emi__table td { color: var(--skj-n800); white-space: nowrap; }
+.skj.vn2 .v3-emi__table td b { font: 600 19px/1 var(--skj-serif); color: var(--skj-blue); }
+.skj.vn2 .v3-emi__table td small { font-size: 12px; color: var(--skj-n700); margin-left: 2px; }
+.skj.vn2 .v3-emi__table .is-today th, .skj.vn2 .v3-emi__table .is-today td { background: #F3F6F9; }
+.skj.vn2 .v3-emi__table .is-today td { font-weight: 600; color: var(--skj-n900); }
+.skj.vn2 .v3-emi__table .is-bal th, .skj.vn2 .v3-emi__table .is-bal td { background: #F3F6F9; font-size: 13px; color: var(--skj-n700); border-bottom: 2px solid var(--skj-n200); }
+.skj.vn2 .v3-emi__table .is-low th, .skj.vn2 .v3-emi__table .is-low td { background: #EEF4EF; }
+.skj.vn2 .v3-emi__table .is-low td b { color: #1F5E48; }
+.skj.vn2 .v3-emi__tag {
+  display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; vertical-align: 1px;
+  background: var(--skj-success); color: #fff; font: 600 10.5px/1.4 var(--skj-sans); letter-spacing: .04em;
+}
+.skj.vn2 .v3-emi__table tbody tr:last-child > * { border-bottom: 0; }
+.skj.vn2 .v3-emi__fine { padding: 12px 14px 14px; font-size: 12px; line-height: 1.45; color: var(--skj-n700); border-top: 1px solid var(--skj-n200); }
+@media (max-width: 479px) {
+  .skj.vn2 .v3-emi__table th, .skj.vn2 .v3-emi__table td { padding: 10px 9px; }
+  .skj.vn2 .v3-emi__table { font-size: 13px; }
+  .skj.vn2 .v3-emi__table thead th { font-size: 12.5px; }
+  .skj.vn2 .v3-emi__table thead small { font-size: 15px; }
+  .skj.vn2 .v3-emi__table td b { font-size: 16px; }
+  .skj.vn2 .v3-emi__table td small { display: block; margin: 2px 0 0; font-size: 11px; }
+  .skj.vn2 .v3-emi__tag { display: block; width: max-content; margin: 4px 0 0; }
+}
+@media (min-width: 900px) {
+  .skj.vn2 .v3-emi__inner { grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; }
+  .skj.vn2 .v3-emi__table th, .skj.vn2 .v3-emi__table td { padding: 14px 20px; }
+  .skj.vn2 .v3-emi__fine { padding-inline: 20px; }
+}
+
+/* ---- Hero: the offer as a plain price note (Japan v3's booking note), no
+   filled tag, so nothing in the hero but the CTA looks pressable. --------- */
+.skj.vn2 .vn2-hero-price {
+  margin-top: 14px; display: flex; flex-direction: column; gap: 4px;
+  font-size: 13.5px; line-height: 1.4; color: rgba(255,255,255,.88);
+  text-shadow: 0 1px 2px rgba(2,19,48,.7), 0 0 14px rgba(2,19,48,.55);
+}
+.skj.vn2 .vn2-hero-price__k {
+  font: 500 10.5px/1.4 var(--skj-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--skj-sienna-1, #F2B58F);
+}
+.skj.vn2 .vn2-hero-price__v b { font: 600 22px/1 var(--skj-serif); color: #fff; }
+.skj.vn2 .vn2-hero-price__v small { font-size: 13px; color: rgba(255,255,255,.8); margin-left: 4px; }
+@media (min-width: 900px) {
+  .skj.vn2 .vn2-hero-price { margin-top: 18px; font-size: 14.5px; }
+  .skj.vn2 .vn2-hero-price__v b { font-size: 26px; }
+}
+
+/* ---- Package popup footer ---------------------------------------------- */
+.skj.vn2 .skj-itin__foot small { font-size: 12px; color: var(--skj-n700); }
+
+/* ---- Tour card: price + EMI, still inside one screen -------------------- */
+.skj.vn2 .vn-card__buy .v3-pe__amt { font-size: 26px; }
+.skj.vn2 .vn-card__buy .v3-pe__fine { margin-top: 3px; }
+@media (min-width: 980px) { .skj.vn2 .vn-card__buy .v3-pe__fine { white-space: nowrap; } }
+
+/* EMI section: a single package column, so keep the card narrower. */
+@media (min-width: 900px) { .skj.vn2 .v3-emi__inner { grid-template-columns: 1fr 1fr; } }
+/* The EMI pill adds a line to the price block: win it back on phones so the
+   card still fits a 390×844 screen. */
+@media (max-width: 979px) {
+  .skj.vn2 .vn-card .skj-tour__media { height: 96px; }
+  .skj.vn2 .vn-card__hl li { line-height: 1.3; }
+}
+/* Desktop card: "₹1,44,000 or ₹12,000/month" on one line across the column,
+   the small print and the CTA side by side under it. */
+@media (min-width: 980px) {
+  .skj.vn2 .vn-card__buy { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "pe pe" "fine cta"; row-gap: 6px; }
+  .skj.vn2 .vn-card__buy .skj-tour__price { display: contents; }
+  .skj.vn2 .vn-card__buy .v3-pe { grid-area: pe; flex-wrap: nowrap; }
+  .skj.vn2 .vn-card__buy .v3-pe__fine { grid-area: fine; white-space: normal; margin: 0; max-width: 30ch; }
+  .skj.vn2 .vn-card__buy .skj-tour__ctas { grid-area: cta; }
+}
+.skj.vn2 .skj-sheet .v2-sheet-emi { margin: 14px 0 12px; }
+
+/* ---- Card, decluttered: no blurb, four highlights as a quiet list, short
+   price note. The other four highlights open in the package popup. ------- */
+.skj.vn2 .vn-card__hl ul { gap: 7px; }
+.skj.vn2 .vn-card__hl li {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 13.5px; line-height: 1.4; color: var(--skj-n800);
+}
+.skj.vn2 .vn-card__hl li svg { flex: none; margin-top: 3px; color: var(--skj-success); }
+.skj.vn2 .vn-card__hlhead .vn-tour__more { gap: 5px; text-decoration: none; font-weight: 500; }
+.skj.vn2 .vn-card__hlhead .vn-tour__more:hover { text-decoration: underline; }
+.skj.vn2 .vn2-hl { margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--skj-n200); }
+@media (min-width: 700px) { .skj.vn2 .vn2-hl .vn-incl__list { grid-template-columns: 1fr 1fr; column-gap: 24px; } }
+@media (min-width: 980px) {
+  .skj.vn2 .vn-card__body {
+    grid-template-areas:
+      "from  hl"
+      "map   hl"
+      "map   dates"
+      "map   buy";
+    grid-template-rows: auto auto auto 1fr;
+    row-gap: 20px;
+  }
+  .skj.vn2 .vn-card__hl ul { grid-template-columns: 1fr; }
+  .skj.vn2 .vn-card__hl li { font-size: 14.5px; }
+}
+
+/* ---- Hero: price + CTA on a glass bar (the homepage search bar's glass:
+   white 8%, blur 22px + saturate, hairline border, inner top highlight). - */
+.skj.vn2 .vn2-hero-glass {
+  margin-top: 18px; padding: 14px; border-radius: 12px;
+  display: grid; gap: 12px;
+  background: rgba(255,255,255,.08);
+  -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 24px 60px -24px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.skj.vn2 .vn2-hero-glass .vn2-hero-price { margin: 0; padding: 0 4px; text-shadow: none; }
+.skj.vn2 .vn2-hero-glass .skj-hero__ctas { margin: 0; }
+.skj.vn2 .vn2-hero-glass .skj-hero__ctas .skj-btn { width: 100%; }
+@media (min-width: 560px) {
+  .skj.vn2 .vn2-hero-glass {
+    grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 24px;
+    padding: 10px 10px 10px 18px; width: fit-content; max-width: 100%;
+  }
+  .skj.vn2 .vn2-hero-glass .skj-hero__ctas .skj-btn { width: auto; min-width: 220px; }
+}
+@media (min-width: 900px) {
+  .skj.vn2 .vn-hero__act .vn2-hero-glass { margin-top: 22px; }
+  .skj.vn2 .vn2-hero-glass .vn2-hero-price { font-size: 14px; }
+}
+.skj.vn2 .vn2-hero-price__v { white-space: nowrap; }
+.skj.vn2 .vn2-hero-price__emi { font-size: 13px; color: rgba(255,255,255,.8); }
+.skj.vn2 .vn2-hero-price__emi b { font-weight: 600; color: #BFE3CD; }
