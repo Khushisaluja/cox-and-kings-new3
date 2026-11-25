@@ -38,6 +38,7 @@ import Mice from './pages/Mice';
 import FestiveGetawayV3 from './pages/FestiveGetawayV3';
 import FestiveGetawayV4 from './pages/FestiveGetawayV4';
 import SakuraJapan from './pages/SakuraJapan';
+import SakuraJapanV2 from './pages/SakuraJapanV2';
 import EuropeEarlyBooking from './pages/EuropeEarlyBooking';
 import VietnamGroupTours from './pages/VietnamGroupTours';
 import Terms from './pages/Terms';
@@ -366,6 +367,7 @@ export default function App() {
           {/* JAPAN IN FULL BLOOM: spring 2027 Japan group-departure campaign
               lander (cherry blossom). Ad traffic only; local crest + CTA nav. */}
           <Route path="/japan-cherry-blossom" element={<SakuraJapan />} />
+          <Route path="/japan-cherry-blossom-v2" element={<SakuraJapanV2 />} />
 
           {/* EUROPE, EARLY BOOKING: the same lander for the summer 2027 Europe
               group departures, marketed on the early-bird price. */}
