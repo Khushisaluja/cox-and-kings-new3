@@ -1,0 +1,53 @@
+/* Europe early-booking: the few rules SakuraJapan.css doesn't have.
+   Everything is scoped to `.skj.eu`, so the Japan page is untouched. */
+
+/* Four packages: 2 × 2 on mid desktops, one row of four on wide screens. */
+@media (min-width: 1240px) {
+  .skj.eu .skj-tours__row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1440px) {
+  .skj.eu .skj-tours__row { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+}
+
+/* Month chips above the date chips: the sheet lists 20 to 130 departures per
+   package, too many for one scrolling row. */
+.skj.eu .eu-months {
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none;
+  margin: 0 -14px 8px; padding: 2px 14px;
+}
+.skj.eu .eu-months::-webkit-scrollbar { display: none; }
+.skj.eu .eu-month {
+  flex: none; min-height: 32px; padding: 4px 11px;
+  border-radius: 999px; border: 1px solid var(--skj-n200); background: var(--skj-n0);
+  font: 500 12px/1 var(--skj-sans); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--skj-n800); cursor: pointer; transition: border-color .2s, background .2s, color .2s;
+}
+.skj.eu .eu-month:hover { border-color: var(--skj-blue); }
+.skj.eu .eu-month.is-on { background: var(--skj-blue-1); border-color: var(--skj-blue); color: var(--skj-blue-8); }
+
+/* "One price": the never-pay lines are good news, so green ticks. */
+.skj.eu .skj-never svg { color: var(--skj-success); }
+.skj.eu .eu-notinc { margin-top: 12px; font-size: 12.5px; line-height: 1.5; color: var(--skj-n700); }
+.skj.eu .eu-notinc b { color: var(--skj-n900); font-weight: 600; }
+
+/* Package popup: the sheet's inclusions and exclusions, after the days. */
+.skj.eu .eu-incl { display: grid; gap: 20px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--skj-n200); }
+@media (min-width: 700px) { .skj.eu .eu-incl { grid-template-columns: 1.6fr 1fr; } }
+.skj.eu .eu-incl__h { font: 500 11px/1.4 var(--skj-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--skj-n700); margin-bottom: 10px; }
+.skj.eu .eu-incl__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.skj.eu .eu-incl__list li { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; line-height: 1.45; color: var(--skj-n900); }
+.skj.eu .eu-incl__list svg { flex: none; margin-top: 3px; color: var(--skj-success); }
+.skj.eu .eu-incl__list.is-ex svg { color: var(--skj-n700); }
+.skj.eu .eu-itin-src { margin-top: 16px; font-size: 12.5px; color: var(--skj-n700); }
+.skj.eu .eu-itin-src a { color: var(--skj-blue); text-decoration: underline; text-underline-offset: 2px; }
+.skj.eu .skj-bill small { font-size: 11.5px; color: var(--skj-n700); font-weight: 400; margin-left: 4px; }
+
+/* Package popup footer: price on the left, both CTAs on the right; on
+   phones the CTAs wrap under the price at full width. */
+.skj.eu .skj-itin__foot { flex-wrap: wrap; }
+.skj.eu .skj-itin__foot small { font-size: 12px; color: var(--skj-n700); }
+.skj.eu .eu-foot-ctas { display: flex; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 599px) {
+  .skj.eu .eu-foot-ctas { width: 100%; }
+  .skj.eu .eu-foot-ctas .skj-btn { flex: 1 1 100%; }
+}

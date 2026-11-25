@@ -5,6 +5,8 @@
    design and most of the copy, re-pointed at Europe and marketed on the
    EARLY-BOOKING price instead of the blossom: book online before
    OFFER.earlyBy and the ₹10,000 saving comes off the tour price.
+   Packages, prices, the ₹55,000 booking amount and the inclusions are the
+   PM's product sheet (see europe/data.js).
 
    It reuses SakuraJapan.css as-is (every rule is scoped to `.skj`), so the
    two pages stay visually identical. Nothing in the Japan page changes.
@@ -33,10 +35,11 @@ import {
   UtensilsCrossed, CarFront, TrainFront, Bus, Camera, Sparkles, Ticket, ShieldPlus, CreditCard, ScrollText,
 } from 'lucide-react';
 import {
-  OFFER, TOURS, INCLUDED, NEVER, REVIEWS, RATING, AWARDS, ITINERARIES, HOTELS, PAYMENT_URL, PHONE, EMAIL, inr, waLink, img,
+  OFFER, TOURS, INCLUDED, NEVER, NOT_INCLUDED, REVIEWS, RATING, AWARDS, ITINERARIES, PAYMENT_URL, PHONE, EMAIL, inr, waLink, img,
 } from './europe/data';
-import { EU_PATH, EU_CITIES } from './europe/europeMap';
+import { EU_PATH, EU_CITIES as EU_BASE } from './europe/europeMap';
 import './SakuraJapan.css';
+import './EuropeEarlyBooking.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -45,17 +48,17 @@ const HERO_IMG = '1502602898657-3e91760cbb34'; // the Eiffel Tower above the Sei
 const FINAL_IMG = '1499856871958-5b9627545d1a';
 
 /* One icon per inclusion, in data.js INCLUDED order. */
-const INC_ICONS = [Plane, Hotel, UtensilsCrossed, CarFront, TrainFront, Bus, Camera, Sparkles, Ticket, FileCheck2, ShieldPlus, Receipt, CreditCard];
+const INC_ICONS = [Plane, Hotel, UtensilsCrossed, UtensilsCrossed, CarFront, Headset, Camera, Sparkles, TrainFront, Wallet, ShieldPlus, FileCheck2, Receipt];
 
 const PROMISES = [
   { icon: Route, t: 'Crafted, unhurried journeys', b: 'Must-sees and meaningful experiences, with fewer hotel changes and less time on the road.' },
-  { icon: Hotel, t: 'Hotels & meals assured', b: 'Hotels named before you book, never substituted. Three meals a day: Indian, vegetarian & Jain.' },
+  { icon: Hotel, t: 'Hotels & meals assured', b: 'Hotels named in your itinerary (or similar). Daily breakfast, with Indian lunches and dinners as listed.' },
   { icon: Headset, t: 'A tour manager, start to finish', b: 'Hindi & English help from booking to homecoming, pre-departure briefings and a WhatsApp group.' },
   { icon: ClipboardList, t: 'Every detail upfront', b: 'Daily itinerary, flights and hotels in writing. No compulsory shopping stops, and birthdays celebrated.' },
 ];
 const STEPS = [
-  { t: `Pay ${inr(OFFER.depositOnline)} online`, b: 'Your early-bird price is locked in' },
-  { t: 'We file your visa', b: 'Appointment booked for you' },
+  { t: `Book at ${inr(OFFER.booking)}`, b: 'Your seat and your price are held' },
+  { t: 'We help with your visa', b: 'Documents, processing and appointment' },
   { t: 'Visa approved', b: 'Only then is the balance due' },
   { t: 'Fly to Europe', b: 'Briefing first, then the summer' },
 ];
@@ -263,9 +266,26 @@ function RowControls({ row, label }) {
    each tour's own stops so a 300px card still reads as a route, not a dot on
    an archipelago. Day-trip stops (0 nights) are hollow.
    -------------------------------------------------------------------------- */
+/* Cities the generated map module doesn't carry, in its projection
+   (x = (lon + 11) × cos 48° × 30, y = (58 − lat) × 30). "Tuscany" is the
+   sheet's overnight; it sits on Florence. Padova (Venice's overnight) is
+   9px from Venice, so the map shows Venice only. */
+const EU_CITIES = {
+  ...EU_BASE,
+  London: [218.2, 194.8],
+  Geneva: [344.1, 353.9],
+  Zurich: [392.3, 318.7],
+  Tuscany: EU_BASE.Florence,
+};
+
 const LABEL_POS = {
+  London: [-1, 0.35, 'end'],
+  Geneva: [-1, 0.35, 'end'],
+  Zurich: [0, -0.9, 'middle'],
+  Pisa: [-1, 0.35, 'end'],
+  Tuscany: [1, 0.35, 'start'],
   Paris: [-1, 0.35, 'end'],
-  Brussels: [-1, 0.35, 'end'],
+  Brussels: [1, 0.35, 'start'],
   Amsterdam: [1, 0.35, 'start'],
   Lucerne: [-1, 0.35, 'end'],
   Innsbruck: [1, 0.35, 'start'],
@@ -289,7 +309,7 @@ function RouteMap({ tour }) {
   // Europe routes span far more ground than Japan's, so the margins are wider,
   // with extra room at the bottom for the caption chip.
   const padX = 120; const padY = 40;
-  x0 -= padX; x1 += padX; y0 -= padY; y1 += padY * 2.2;
+  x0 -= padX; x1 += padX; y0 -= padY; y1 += padY * 3.4; // room for the caption chip under Rome
   // Hold a 16:10 frame so all three cards' maps share one shape.
   const want = 1.6;
   let w = x1 - x0; let h = y1 - y0;
@@ -306,8 +326,8 @@ function RouteMap({ tour }) {
     d += ` Q${(mx - dy * bow).toFixed(1)} ${(my + dx * bow).toFixed(1)} ${bx} ${by}`;
   }
 
-  const hotels = tour.stops.filter((s) => s.nights > 0).length;
-  const nights = tour.stops.reduce((a, s) => a + s.nights, 0);
+  const hotels = tour.hotels.length;
+  const nights = tour.hotels.reduce((a, h) => a + h.nights, 0);
 
   return (
     <figure className="skj-map">
@@ -351,7 +371,10 @@ function RouteMap({ tour }) {
 function TourCard({ tour, selectedDep, onSelectDep, onItinerary }) {
   const live = tour.deps.filter((d) => !d.soldOut);
   const chosen = tour.deps.find((d) => d.id === selectedDep) || live[0];
-  const onlinePrice = tour.price - OFFER.onlineDiscount;
+  /* 20 to 130 departures per package (the sheet's list): one month at a time. */
+  const months = [...new Set(tour.deps.map((d) => d.month))];
+  const [month, setMonth] = useState(chosen.month);
+  const shown = tour.deps.filter((d) => d.month === month);
 
   /* Compact on phones: the name sits ON the photo, the map caption sits ON
      the map, and price + both CTAs share one block — about half the height
@@ -373,9 +396,15 @@ function TourCard({ tour, selectedDep, onSelectDep, onItinerary }) {
         <RouteMap tour={tour} />
 
         <div className="skj-tour__dates">
-          <p className="skj-tour__label" id={`${tour.id}-dl`}><CalendarDays size={14} aria-hidden="true" /> Summer 2027 departures</p>
+          <p className="skj-tour__label" id={`${tour.id}-dl`}><CalendarDays size={14} aria-hidden="true" /> 2027 departures · {tour.deps.length} dates</p>
+          <div className="eu-months" role="group" aria-label="Month">
+            {months.map((m) => (
+              <button key={m} type="button" className={`eu-month${m === month ? ' is-on' : ''}`} aria-pressed={m === month}
+                onClick={() => { setMonth(m); onSelectDep(tour.id, live.find((d) => d.month === m).id); }}>{m}</button>
+            ))}
+          </div>
           <div className="skj-dates" role="radiogroup" aria-labelledby={`${tour.id}-dl`}>
-            {tour.deps.map((d) => {
+            {shown.map((d) => {
               const on = chosen && chosen.id === d.id;
               return (
                 <button
@@ -400,8 +429,8 @@ function TourCard({ tour, selectedDep, onSelectDep, onItinerary }) {
 
         <div className="skj-tour__buy">
           <div className="skj-tour__price">
-            <p className="skj-tour__amt">{inr(onlinePrice)} <s>{inr(tour.price)}</s></p>
-            <p className="skj-tour__note">Per person, all-inclusive · early-bird price</p>
+            <p className="skj-tour__amt">{inr(tour.price)}</p>
+            <p className="skj-tour__note">Per person, twin sharing · book at {inr(OFFER.booking)}</p>
           </div>
           <div className="skj-tour__ctas">
             {/* Opens the package: day-by-day itinerary, hotels, meals, with
@@ -456,11 +485,9 @@ function useModal(open, onClose, panel) {
    ITINERARY — day by day, with the hotel, the travel and the meals on every
    day. Used in the popup (from a tour card) and inline in the booking sheet.
    -------------------------------------------------------------------------- */
-const MEAL_NAMES = { B: 'Breakfast', L: 'Lunch', D: 'Dinner' };
 
 function ItineraryBody({ tour }) {
   const days = ITINERARIES[tour.id] || [];
-  const stays = tour.stops.filter((st) => st.nights > 0);
   return (
     <div className="skj-itin">
       <dl className="skj-itin__facts">
@@ -469,18 +496,18 @@ function ItineraryBody({ tour }) {
           <dd>{tour.flights.out}<br />{tour.flights.back}</dd>
         </div>
         <div>
-          <dt><Hotel size={15} aria-hidden="true" /> Hotels, never substituted</dt>
+          <dt><Hotel size={15} aria-hidden="true" /> Hotels</dt>
           <dd>
             <ul>
-              {stays.map((st) => (
-                <li key={st.city}><b>{HOTELS[st.city]}</b> <span>{st.city}, {st.nights} night{st.nights > 1 ? 's' : ''}</span></li>
+              {tour.hotels.map((h) => (
+                <li key={h.city}><b>{h.name}</b> <span>{h.city}, {h.nights} night{h.nights > 1 ? 's' : ''}</span></li>
               ))}
             </ul>
           </dd>
         </div>
         <div>
           <dt><UtensilsCrossed size={15} aria-hidden="true" /> Meals</dt>
-          <dd>Breakfast, lunch and dinner every day, with Indian, vegetarian and Jain options.</dd>
+          <dd>Daily breakfast, with Indian lunches and dinners as listed below. Packed meals on some days.</dd>
         </div>
       </dl>
 
@@ -493,13 +520,29 @@ function ItineraryBody({ tour }) {
               <p className="skj-day__d">{d.d}</p>
               <ul className="skj-day__meta">
                 <li><Bus size={14} aria-hidden="true" /> {d.travel}</li>
-                {d.stay && <li><BedDouble size={14} aria-hidden="true" /> {HOTELS[d.stay]}</li>}
-                <li><UtensilsCrossed size={14} aria-hidden="true" /> {d.meals.split(' ').map((m) => MEAL_NAMES[m]).join(', ')}</li>
+                {d.stay && <li><BedDouble size={14} aria-hidden="true" /> {d.stay}</li>}
+                <li><UtensilsCrossed size={14} aria-hidden="true" /> {d.meals.join(', ')}</li>
               </ul>
             </div>
           </li>
         ))}
       </ol>
+
+      <div className="eu-incl">
+        <div>
+          <h4 className="eu-incl__h">Inclusions</h4>
+          <ul className="eu-incl__list">
+            {tour.inclusions.map((t) => <li key={t}><Check size={14} aria-hidden="true" /> {t}</li>)}
+          </ul>
+        </div>
+        <div>
+          <h4 className="eu-incl__h">Exclusions</h4>
+          <ul className="eu-incl__list is-ex">
+            {tour.exclusions.map((t) => <li key={t}><X size={14} aria-hidden="true" /> {t}</li>)}
+          </ul>
+        </div>
+      </div>
+      <p className="eu-itin-src">Hotels are as named “or similar”. <a href={tour.url} target="_blank" rel="noopener noreferrer">Full package on coxandkings.com</a></p>
     </div>
   );
 }
@@ -520,10 +563,15 @@ function ItineraryDialog({ tour, onClose, onBook }) {
         </div>
         <ItineraryBody tour={tour} />
         <div className="skj-itin__foot">
-          <p><b>{inr(tour.price - OFFER.onlineDiscount)}</b> per person, early-bird price</p>
-          <button type="button" className="skj-btn skj-btn--primary" onClick={() => onBook(tour.id)}>
-            Deposit &amp; book<span className="skj-only-wide">&nbsp;· {inr(OFFER.depositOnline)}</span>
-          </button>
+          <p><b>{inr(tour.price)}</b> per person, twin sharing<br /><small>Book at {inr(OFFER.booking)}, balance after your visa</small></p>
+          <div className="eu-foot-ctas">
+            <a className="skj-btn skj-btn--wa" href={waLink(`Hi Cox & Kings, I'd like to talk to an expert about ${tour.name}.`)} target="_blank" rel="noopener noreferrer">
+              <WhatsAppGlyph /> Talk to an Expert
+            </a>
+            <button type="button" className="skj-btn skj-btn--primary" onClick={() => onBook(tour.id)}>
+              Book online &amp; Save {inr(OFFER.onlineDiscount).replace(',000', 'K')}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -557,8 +605,8 @@ function BookingSheet({ open, initial, onClose }) {
   const maxPax = Math.min(6, dep.seats);
   const n = Math.min(pax, maxPax);
   const onlinePrice = tour.price - OFFER.onlineDiscount;
-  const today = OFFER.depositOnline * n;
-  const balance = (onlinePrice - OFFER.depositOnline) * n;
+  const today = OFFER.booking * n;
+  const balance = (onlinePrice - OFFER.booking) * n;
 
   /* Low-commitment next step: no payment here. Dummy until the booking
      flow exists; set PAYMENT_URL in data.js and it goes there instead. */
@@ -573,8 +621,8 @@ function BookingSheet({ open, initial, onClose }) {
       <div className="skj-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="skj-sheet-h" ref={panel}>
         <div className="skj-sheet__head">
           <div>
-            <Eyebrow>Deposit &amp; book</Eyebrow>
-            <h2 id="skj-sheet-h" className="skj-sheet__title">Hold your seats for {inr(OFFER.depositOnline)} each</h2>
+            <Eyebrow>Book now</Eyebrow>
+            <h2 id="skj-sheet-h" className="skj-sheet__title">Book at {inr(OFFER.booking)} each</h2>
           </div>
           <button type="button" className="skj-iconbtn" onClick={onClose} aria-label="Close"><X size={18} /></button>
         </div>
@@ -612,8 +660,8 @@ function BookingSheet({ open, initial, onClose }) {
 
         <dl className="skj-bill">
           <div><dt>Tour price × {n}</dt><dd>{inr(tour.price * n)}</dd></div>
-          <div className="is-save"><dt>Early-bird discount</dt><dd>−{inr(OFFER.onlineDiscount * n)}</dd></div>
-          <div className="is-today"><dt>Pay today <small>instead of {inr(OFFER.depositOffline * n)}</small></dt><dd>{inr(today)}</dd></div>
+          <div className="is-save"><dt>Early-bird discount <small>online, till {OFFER.earlyBy}</small></dt><dd>−{inr(OFFER.onlineDiscount * n)}</dd></div>
+          <div className="is-today"><dt>Booking amount, pay today</dt><dd>{inr(today)}</dd></div>
           <div><dt>Balance, after visa approval</dt><dd>{inr(balance)}</dd></div>
         </dl>
 
@@ -625,7 +673,7 @@ function BookingSheet({ open, initial, onClose }) {
         <p className="skj-sheet__note">
           <Info size={16} aria-hidden="true" />
           <span>
-            The deposit is <b>non-refundable</b>: it covers reservation commitments, insurance and visa appointments.
+            The booking amount is <b>non-refundable</b>: it covers reservation commitments, insurance and visa appointments.
             If Cox &amp; Kings cancels the departure, you get a <b>full refund</b>, advance included.
           </span>
         </p>
@@ -786,7 +834,7 @@ export default function EuropeEarlyBooking() {
 
 
   return (
-    <div className={`skj${showSticky ? ' has-sticky' : ''}`} ref={root}>
+    <div className={`skj eu${showSticky ? ' has-sticky' : ''}`} ref={root}>
       <a className="skj-skip" href="#tours" onClick={scrollToTours}>Skip to the tours</a>
 
       {/* ------------------------------------------------ NAV */}
@@ -816,15 +864,15 @@ export default function EuropeEarlyBooking() {
               Europe,<br className="skj-br" /> <em>booked early.</em>
             </h1>
             <p className="skj-hero__sub" data-hero-in>
-              Expertly crafted holidays. Everything taken care of: flights, 4-star hotels, every meal, your visa.
+              Expertly crafted holidays. Flights, hotels, Indian meals, sightseeing and visa assistance, all in one price.
             </p>
             <p className="skj-hero__offer" data-hero-in>
               <span className="skj-hero__offer-tag">Early bird</span>
-              <span>Pay <b>{inr(OFFER.depositOnline)}</b> <s>{inr(OFFER.depositOffline)}</s> today · balance after visa</span>
+              <span>Book at just <b>{inr(OFFER.booking)}</b> · pay the balance after you get your visa</span>
             </p>
             <div className="skj-hero__ctas" ref={heroCtas} data-hero-in>
               <a className="skj-btn skj-btn--primary" href="#tours" onClick={scrollToTours}>
-                Explore tours <ArrowDown size={16} aria-hidden="true" />
+                Explore Tours <ArrowDown size={16} aria-hidden="true" />
               </a>
               <a className="skj-btn skj-btn--ghost" href={waLink('Hi Cox & Kings, I’d like to talk to an expert about the Europe summer 2027 tours.')}
                 target="_blank" rel="noopener noreferrer">
@@ -854,8 +902,8 @@ export default function EuropeEarlyBooking() {
               <div className="skj-ticket__top">
                 <div>
                   <span className="skj-ticket__lbl">From, per person</span>
-                  <p className="skj-ticket__amt">{inr(TOURS[0].price - OFFER.onlineDiscount)} <s>{inr(TOURS[0].price)}</s></p>
-                  <span className="skj-ticket__sub">{inr(OFFER.onlineDiscount)} off when you book early online · hold your seat with {inr(OFFER.depositOnline)}</span>
+                  <p className="skj-ticket__amt">{inr(Math.min(...TOURS.map((t) => t.price)))}</p>
+                  <span className="skj-ticket__sub">Book at {inr(OFFER.booking)}, pay the balance after your visa · {inr(OFFER.onlineDiscount)} off online till {OFFER.earlyBy}</span>
                 </div>
               </div>
               <ul className="skj-incs" aria-label="Included in the price">
@@ -865,8 +913,9 @@ export default function EuropeEarlyBooking() {
                 })}
               </ul>
               <ul className="skj-never" aria-label="What you will never pay for">
-                {NEVER.map((t) => <li key={t}><X size={14} aria-hidden="true" /> {t}</li>)}
+                {NEVER.map((t) => <li key={t}><Check size={14} aria-hidden="true" /> {t}</li>)}
               </ul>
+              <p className="eu-notinc"><b>Not included:</b> {NOT_INCLUDED}</p>
             </div>
           </div>
         </section>
@@ -875,9 +924,9 @@ export default function EuropeEarlyBooking() {
         <section className="skj-tours" id="tours" aria-labelledby="skj-tours-h">
           <div className="skj-sechead">
             <div>
-              <Eyebrow>Three ways to see Europe</Eyebrow>
+              <Eyebrow>Four ways to see Europe</Eyebrow>
               <h2 id="skj-tours-h" className="skj-h2">Choose your <em>summer</em></h2>
-              <p className="skj-sub">Prices below include the {inr(OFFER.onlineDiscount)} early-bird discount, till {OFFER.earlyBy}.</p>
+              <p className="skj-sub">Per person on twin sharing, flying from seven Indian cities. Book online before {OFFER.earlyBy} and {inr(OFFER.onlineDiscount)} comes off.</p>
             </div>
             <RowControls row={toursRow} label="tour" />
           </div>
@@ -922,7 +971,7 @@ export default function EuropeEarlyBooking() {
         {/* ------------------------------------------------ 5 HOW BOOKING WORKS — answers "what happens after I pay?" right after the tours */}
         <section className="skj-book" aria-labelledby="skj-book-h">
           <Eyebrow>Book early, save {inr(OFFER.onlineDiscount)}</Eyebrow>
-          <h2 id="skj-book-h" className="skj-h2">Hold your seat for <em>{inr(OFFER.depositOnline)}</em></h2>
+          <h2 id="skj-book-h" className="skj-h2">Book at just <em>{inr(OFFER.booking)}</em></h2>
           <ol className="skj-steps">
             <span className="skj-steps__line" aria-hidden="true"><i /></span>
             {STEPS.map(({ t, b }, i) => (
@@ -937,7 +986,7 @@ export default function EuropeEarlyBooking() {
           </ol>
           <div className="skj-book__notes">
             <p><ShieldCheck size={16} aria-hidden="true" /><span><b>Guaranteed departures.</b> If we cancel, you get a full refund, advance included.</span></p>
-            <p><Info size={16} aria-hidden="true" /><span>The deposit is non-refundable. It covers reservation commitments, insurance and visa appointments.</span></p>
+            <p><Info size={16} aria-hidden="true" /><span>The booking amount is non-refundable. Terms and conditions apply.</span></p>
           </div>
         </section>
 
@@ -1022,10 +1071,10 @@ export default function EuropeEarlyBooking() {
           <div className="skj-final__inner">
             <Eyebrow light>Talk to us</Eyebrow>
             <h2 id="skj-final-h" className="skj-h2 is-light">The best seats go early. <br className="skj-br-wide" /><em>So does the best price.</em></h2>
-            <p className="skj-final__sub">Ask a Europe specialist anything on WhatsApp, or hold your seats online for {inr(OFFER.depositOnline)}. The early-bird price ends {OFFER.earlyBy}.</p>
+            <p className="skj-final__sub">Ask a Europe specialist anything on WhatsApp, or book online at {inr(OFFER.booking)} and pay the rest after your visa. The early-bird price ends {OFFER.earlyBy}.</p>
             <div className="skj-final__ctas">
               <button type="button" className="skj-btn skj-btn--primary" onClick={() => openBook()}>
-                Deposit &amp; book · {inr(OFFER.depositOnline)}
+                Book now · {inr(OFFER.booking)}
               </button>
               <a className="skj-btn skj-btn--ghost" href={waLink('Hi Cox & Kings, I have a question about the Europe summer 2027 tours.')} target="_blank" rel="noopener noreferrer">
                 <WhatsAppGlyph /> WhatsApp us
@@ -1059,11 +1108,11 @@ export default function EuropeEarlyBooking() {
       {/* ------------------------------------------------ STICKY CTA BAR */}
       <div className={`skj-sticky${showSticky ? ' is-on' : ''}`} aria-hidden={!showSticky}>
         <div className="skj-sticky__info">
-          <b>{inr(OFFER.depositOnline)} <small>to book</small></b>
-          <span>Tour from {inr(TOURS[0].price - OFFER.onlineDiscount)} pp</span>
+          <b>{inr(OFFER.booking)} <small>to book</small></b>
+          <span>Tours from {inr(Math.min(...TOURS.map((t) => t.price)))} pp</span>
         </div>
         <button type="button" className="skj-btn skj-btn--primary" onClick={() => openBook()} tabIndex={showSticky ? 0 : -1}>
-          Deposit &amp; book
+          Book now
         </button>
         <a className="skj-btn skj-btn--wa skj-btn--icon" href={waLink('Hi Cox & Kings, I’d like to know more about the Europe summer 2027 tours.')}
           target="_blank" rel="noopener noreferrer" tabIndex={showSticky ? 0 : -1} aria-label="Chat on WhatsApp">

@@ -46,7 +46,9 @@ const unsplash = (id, w = 1600) => `https://images.unsplash.com/photo-${id}?auto
 const MONTH = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function summarise(D) {
-  const from = Math.min(...D.TOURS.map((t) => t.price)) - D.OFFER.onlineDiscount;
+  /* Europe prints the sheet's price as-is (FROM_PRICE) and has one booking
+     amount (OFFER.booking); Japan and Vietnam still net the online saving. */
+  const from = D.FROM_PRICE ?? Math.min(...D.TOURS.map((t) => t.price)) - D.OFFER.onlineDiscount;
   const nights = D.TOURS.map((t) => Number((t.nd.match(/(\d+)\s*Nights/) || [])[1])).filter(Boolean);
   const live = D.TOURS.flatMap((t) => t.deps.filter((d) => !d.soldOut).map((d) => d.iso)).sort();
   const m0 = Number(live[0].slice(5, 7)) - 1;
@@ -54,7 +56,7 @@ function summarise(D) {
   const seats = D.TOURS.flatMap((t) => t.deps).reduce((a, d) => a + d.seats, 0);
   return {
     from: D.inr(from),
-    deposit: D.inr(D.OFFER.depositOnline),
+    deposit: D.inr(D.OFFER.booking ?? D.OFFER.depositOnline),
     save: D.inr(D.OFFER.onlineDiscount),
     nights: `${Math.min(...nights)}–${Math.max(...nights)} nights`,
     window: m0 === m1 ? MONTH[m0] : `${MONTH[m0]} to ${MONTH[m1]}`,

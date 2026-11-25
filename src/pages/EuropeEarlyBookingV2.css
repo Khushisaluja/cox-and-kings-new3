@@ -1,0 +1,168 @@
+/* Europe early-booking, VARIANT 2 (/europe-early-booking-v2).
+   Layered on SakuraJapan.css + EuropeEarlyBooking.css (both untouched).
+   Everything here is scoped to `.skj.eu2`, so v1 and the Japan pages don't change.
+   The price + EMI and EMI-table rules are Japan v3's (SakuraJapanV3.css),
+   rescoped. */
+
+.skj.eu2 .v2-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+.skj.eu2, .skj.eu2 * { font-variant-numeric: lining-nums !important; }
+
+/* ---- Hero: booking amount as a plain price note, not a pill ------------- */
+.skj.eu2 .eu2-hero-dep {
+  margin-top: 14px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px;
+  font-size: 13.5px; line-height: 1.4; color: rgba(255,255,255,.88);
+  text-shadow: 0 1px 2px rgba(2,19,48,.7), 0 0 14px rgba(2,19,48,.55);
+}
+.skj.eu2 .eu2-hero-dep__k {
+  font: 500 10.5px/1.4 var(--skj-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--skj-sienna-1);
+}
+.skj.eu2 .eu2-hero-dep__v b { font: 600 19px/1 var(--skj-serif); color: #fff; }
+.skj.eu2 .eu2-hero-dep__v small { font-size: 13px; color: rgba(255,255,255,.8); margin-left: 4px; }
+@media (min-width: 900px) {
+  .skj.eu2 .eu2-hero-dep { margin-top: 18px; font-size: 14.5px; }
+  .skj.eu2 .eu2-hero-dep__v b { font-size: 22px; }
+}
+
+/* ---- Price + EMI: "₹2,80,000 or ₹18,000/month" --------------------------- */
+.skj.eu2 .v3-pe { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin: 0; }
+.skj.eu2 .v3-pe__amt { font: 600 28px/1.1 var(--skj-serif); color: var(--skj-blue); white-space: nowrap; }
+.skj.eu2 .v3-pe__or { font: 400 13px var(--skj-sans); color: var(--skj-n700); }
+.skj.eu2 .v3-pe__emi {
+  display: inline-flex; align-items: baseline; gap: 1px; white-space: nowrap;
+  padding: 4px 10px; border-radius: 999px; background: #E3F0E8; border: 1px solid #C4DFCF;
+  font: 500 13px/1.2 var(--skj-sans); color: var(--skj-success);
+}
+.skj.eu2 .v3-pe__emi b { display: inline; font: 700 16px/1.2 var(--skj-sans); color: #1F5E48; }
+.skj.eu2 .v3-pe__fine { margin-top: 4px; font-size: 11.5px; line-height: 1.35; color: var(--skj-n700); }
+.skj.eu2 .v3-pe--ticket .v3-pe__amt { font-size: clamp(34px, 4.4vw, 48px); line-height: 1.05; }
+.skj.eu2 .v3-pe--ticket { margin: 2px 0 6px; }
+.skj.eu2 .skj-itin__foot .v3-pe { margin-bottom: 2px; }
+.skj.eu2 .skj-itin__foot .v3-pe__amt { font-size: 26px; }
+.skj.eu2 .skj-itin__foot > div > small { display: block; font-size: 12px; color: var(--skj-n700); }
+
+/* ---- Tour card, calmer --------------------------------------------------- */
+.skj.eu2 .eu2-tc { display: flex; flex-direction: column; }
+.skj.eu2 .eu2-tc .skj-tour__body { flex: 1 0 auto; display: flex; flex-direction: column; }
+
+/* One panel: the map (city names only) and a single line under it. */
+.skj.eu2 .eu2-trip { border: 1px solid var(--skj-n200); border-radius: 12px; overflow: hidden; background: #fff; }
+.skj.eu2 .eu2-trip .skj-map { border: 0; border-radius: 0; }
+.skj.eu2 .eu2-trip .skj-map > svg { display: block; width: 100%; }
+.skj.eu2 .eu2-trip__info {
+  display: flex; align-items: flex-start; gap: 7px; margin: 0;
+  padding: 9px 12px; border-top: 1px solid var(--skj-n200);
+  font-size: 12.5px; line-height: 1.4; color: var(--skj-n700);
+}
+.skj.eu2 .eu2-trip__info svg { flex: none; margin-top: 2px; color: var(--skj-n700); }
+.skj.eu2 .eu2-trip__info b { font-weight: 600; color: var(--skj-n900); }
+
+/* Dates: label + month dropdown on one line, then the day chips. */
+.skj.eu2 .eu2-dates__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.skj.eu2 .eu2-dates__head .skj-tour__label { margin: 0; }
+.skj.eu2 .eu2-monthsel { position: relative; display: inline-flex; align-items: center; }
+.skj.eu2 .eu2-monthsel select {
+  appearance: none; -webkit-appearance: none; min-height: 34px; padding: 5px 30px 5px 12px;
+  border: 1px solid var(--skj-n200); border-radius: 999px; background: var(--skj-n0);
+  font: 500 13px/1.2 var(--skj-sans); color: var(--skj-n900); cursor: pointer;
+}
+.skj.eu2 .eu2-monthsel select:hover { border-color: var(--skj-blue); }
+.skj.eu2 .eu2-monthsel select:focus-visible { outline: 2px solid var(--skj-blue); outline-offset: 2px; }
+.skj.eu2 .eu2-monthsel svg { position: absolute; right: 11px; pointer-events: none; color: var(--skj-n700); }
+.skj.eu2 .eu2-tc .skj-date { min-height: 0; padding-block: 8px; }
+.skj.eu2 .eu2-seats { margin-top: 8px; font-size: 12px; color: var(--skj-n700); }
+.skj.eu2 .eu2-seats b { font-weight: 600; color: var(--skj-warn-7); }
+
+.skj.eu2 .eu2-buy { flex: 1 0 auto; align-content: end; }
+.skj.eu2 .eu2-pk { font: 500 10.5px/1.3 var(--skj-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--skj-n700); margin-bottom: 4px; }
+
+/* ---- Booking sheet: EMI option ------------------------------------------ */
+.skj.eu2 .v2-tenures { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.skj.eu2 .v2-tenure {
+  min-height: 40px; padding: 8px 6px; border-radius: 8px;
+  border: 1px solid var(--skj-n500); background: var(--skj-n0); color: var(--skj-n900);
+  font: 500 13.5px/1.2 var(--skj-sans); cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.skj.eu2 .v2-tenure:hover:not(.is-on) { border-color: var(--skj-blue); }
+.skj.eu2 .v2-tenure.is-on { background: var(--skj-blue); border-color: var(--skj-blue); color: var(--skj-n100); }
+.skj.eu2 .v2-sheet-emi {
+  margin: 0; padding: 12px 14px 14px; border: 1px solid var(--skj-n200); border-radius: 12px; background: var(--skj-n0);
+  display: grid; gap: 10px;
+}
+.skj.eu2 .v2-sheet-emi legend {
+  display: inline-flex; align-items: center; gap: 6px; padding: 0 6px; margin-left: -6px;
+  font: 600 11px/1.4 var(--skj-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--skj-n800);
+}
+.skj.eu2 .v2-sheet-emi legend svg { color: var(--skj-success); }
+.skj.eu2 .v2-sheet-emi__amt { font-size: 13.5px; color: var(--skj-n800); }
+.skj.eu2 .v2-sheet-emi__amt b { font: 600 22px/1 var(--skj-serif); color: var(--skj-blue); margin-right: 4px; }
+.skj.eu2 .v2-sheet-emi__amt small { display: block; font-size: 11.5px; color: var(--skj-n700); margin-top: 2px; }
+
+/* ---- Sticky bar ---------------------------------------------------------- */
+@media (max-width: 479px) { .skj.eu2 .skj-sticky__info b { display: block; } }
+
+/* ---- EMI plans (under How booking works) --------------------------------- */
+.skj.eu2 .v3-emi { padding: var(--skj-py) var(--skj-pad); background: var(--skj-n50); border-top: 1px solid var(--skj-n200); }
+.skj.eu2 .v3-emi__inner { max-width: 1200px; margin: 0 auto; display: grid; gap: 28px; }
+.skj.eu2 .v3-emi__copy .skj-lead { margin-top: 12px; }
+.skj.eu2 .v3-emi__points { list-style: none; margin: 18px 0 22px; padding: 0; display: grid; gap: 8px; }
+.skj.eu2 .v3-emi__points li { display: flex; align-items: center; gap: 8px; font-size: 14.5px; color: var(--skj-n800); }
+.skj.eu2 .v3-emi__points svg { color: var(--skj-success); flex: none; }
+.skj.eu2 .v3-emi__card {
+  min-width: 0; background: #fff; border: 1px solid var(--skj-n200); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 12px 32px -18px rgba(2, 19, 48, .25);
+}
+/* Four packages: on phones the table scrolls sideways, plan names pinned. */
+.skj.eu2 .eu2-emi__scroll { overflow-x: auto; }
+.skj.eu2 .eu2-emi__scroll:focus-visible { outline: 2px solid var(--skj-blue); outline-offset: -2px; }
+.skj.eu2 .v3-emi__table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.skj.eu2 .v3-emi__table th, .skj.eu2 .v3-emi__table td { padding: 12px 14px; text-align: right; border-bottom: 1px solid var(--skj-n200); vertical-align: middle; }
+.skj.eu2 .v3-emi__table th:first-child { text-align: left; }
+.skj.eu2 .v3-emi__table thead th { background: var(--skj-blue); color: #fff; font: 600 13.5px/1.25 var(--skj-sans); }
+.skj.eu2 .v3-emi__table thead th:first-child { font: 500 11px/1.3 var(--skj-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--skj-blue-1); }
+.skj.eu2 .v3-emi__table thead small { display: block; margin-top: 3px; font: 600 16px/1.1 var(--skj-serif); color: var(--skj-blue-1); }
+.skj.eu2 .v3-emi__table tbody th { font-weight: 500; color: var(--skj-n900); }
+.skj.eu2 .v3-emi__table td { color: var(--skj-n800); white-space: nowrap; }
+.skj.eu2 .v3-emi__table td b { font: 600 18px/1 var(--skj-serif); color: var(--skj-blue); }
+.skj.eu2 .v3-emi__table td small { font-size: 12px; color: var(--skj-n700); margin-left: 2px; }
+.skj.eu2 .v3-emi__table .is-today th, .skj.eu2 .v3-emi__table .is-today td { background: #F3F6F9; }
+.skj.eu2 .v3-emi__table .is-today td { font-weight: 600; color: var(--skj-n900); }
+.skj.eu2 .v3-emi__table .is-bal th, .skj.eu2 .v3-emi__table .is-bal td { background: #F3F6F9; font-size: 13px; color: var(--skj-n700); border-bottom: 2px solid var(--skj-n200); }
+.skj.eu2 .v3-emi__table .is-low th, .skj.eu2 .v3-emi__table .is-low td { background: #EEF4EF; }
+.skj.eu2 .v3-emi__table .is-low td b { color: #1F5E48; }
+.skj.eu2 .v3-emi__tag {
+  display: block; width: max-content; margin: 4px 0 0; padding: 2px 8px; border-radius: 999px;
+  background: var(--skj-success); color: #fff; font: 600 10.5px/1.4 var(--skj-sans); letter-spacing: .04em;
+}
+.skj.eu2 .v3-emi__table tbody tr:last-child > * { border-bottom: 0; }
+.skj.eu2 .v3-emi__fine { padding: 12px 14px 14px; font-size: 12px; line-height: 1.45; color: var(--skj-n700); border-top: 1px solid var(--skj-n200); }
+@media (max-width: 699px) {
+  .skj.eu2 .v3-emi__table { font-size: 13px; }
+  .skj.eu2 .v3-emi__table th, .skj.eu2 .v3-emi__table td { padding: 10px 10px; }
+  .skj.eu2 .v3-emi__table th:first-child {
+    position: sticky; left: 0; z-index: 1; min-width: 118px; background: #fff;
+    box-shadow: 1px 0 0 var(--skj-n200);
+  }
+  .skj.eu2 .v3-emi__table thead th:first-child { background: var(--skj-blue); }
+  .skj.eu2 .v3-emi__table .is-today th, .skj.eu2 .v3-emi__table .is-bal th { background: #F3F6F9; }
+  .skj.eu2 .v3-emi__table .is-low th { background: #EEF4EF; }
+  .skj.eu2 .v3-emi__table td b { font-size: 16px; }
+  .skj.eu2 .v3-emi__table td small { display: block; margin: 2px 0 0; font-size: 11px; }
+}
+@media (min-width: 900px) {
+  .skj.eu2 .v3-emi__inner { grid-template-columns: 1fr 1.6fr; gap: 48px; align-items: center; }
+  .skj.eu2 .v3-emi__table th, .skj.eu2 .v3-emi__table td { padding: 13px 16px; }
+  .skj.eu2 .v3-emi__fine { padding-inline: 16px; }
+}
+
+/* Four cards in one row (≥1440): cards are ~300px, so the price and its EMI
+   pill step down a size to stay on one line in every card. */
+@media (min-width: 1440px) {
+  .skj.eu2 .eu2-tc .v3-pe { gap: 4px 6px; }
+  .skj.eu2 .eu2-tc .v3-pe__amt { font-size: 24px; }
+  .skj.eu2 .eu2-tc .v3-pe__emi { padding: 3px 8px; font-size: 12px; }
+  .skj.eu2 .eu2-tc .v3-pe__emi b { font-size: 14.5px; }
+}

@@ -295,7 +295,7 @@ export default function CampaignHero({ heroRef }) {
                     <div className="n3m-offer" data-in>
                       <span className="n3m-offer__tag">{s.tag}</span>
                       <span className="n3m-offer__from">from <b>{inr(s.from)}</b> <small>per person</small></span>
-                      <span className="n3m-offer__dep">Pay {inr(s.deposit)} <s>{inr(s.depositWas)}</s> today{s.deadline ? ` · until ${s.deadline}` : ''}</span>
+                      <span className="n3m-offer__dep">Pay {inr(s.deposit)} {s.depositWas ? <s>{inr(s.depositWas)}</s> : null} today{s.deadline ? ` · until ${s.deadline}` : ''}</span>
                     </div>
                     <div className="n3m-ctas" data-in>
                       <a href={s.to} className="n3m-btn n3m-btn--acc" onClick={(e) => { e.preventDefault(); navigate(s.to); }}>

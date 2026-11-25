@@ -42,6 +42,7 @@ import SakuraJapan from './pages/SakuraJapan';
 import SakuraJapanV2 from './pages/SakuraJapanV2';
 import SakuraJapanV3 from './pages/SakuraJapanV3';
 import EuropeEarlyBooking from './pages/EuropeEarlyBooking';
+import EuropeEarlyBookingV2 from './pages/EuropeEarlyBookingV2';
 import VietnamGroupTours from './pages/VietnamGroupTours';
 import VietnamGroupToursV2 from './pages/VietnamGroupToursV2';
 import Terms from './pages/Terms';
@@ -377,6 +378,7 @@ export default function App() {
           {/* EUROPE, EARLY BOOKING: the same lander for the summer 2027 Europe
               group departures, marketed on the early-bird price. */}
           <Route path="/europe-early-booking" element={<EuropeEarlyBooking />} />
+          <Route path="/europe-early-booking-v2" element={<EuropeEarlyBookingV2 />} />
 
           {/* VIETNAM: the same lander for the spring 2027 Vietnam group
               departures (karst hero, lantern arch). */}
