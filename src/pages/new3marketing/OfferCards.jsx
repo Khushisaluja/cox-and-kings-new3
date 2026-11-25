@@ -23,7 +23,7 @@ const IDLE_MS = 7000;     // quiet time after a manual scroll before autoplay re
    from the nearest positioned ancestor, not the row). */
 const cardLeft = (t, c) => c.getBoundingClientRect().left - t.getBoundingClientRect().left + t.scrollLeft;
 
-export default function OfferCards({ campaigns, copy = {}, label = 'This season', title = 'Journeys open for booking' }) {
+export default function OfferCards({ campaigns, copy = {}, label = 'This season', title = 'Trending packages' }) {
   const navigate = useNavigate();
   const trackRef = useRef(null);
   const cardRefs = useRef([]);

@@ -626,7 +626,7 @@ export function CampaignCards() {
       <div className="n3c-cards__head">
         <div>
           <p className="n3c-eyebrow">This season’s departures</p>
-          <h2 id="n3c-cards-h" className="n3c-h2" data-split>Three journeys, <em>ready to board.</em></h2>
+          <h2 id="n3c-cards-h" className="n3c-h2" data-split>Trending <em>packages.</em></h2>
         </div>
         <div className="n3c-cards__side">
           <p className="n3c-feat__line" data-in>
