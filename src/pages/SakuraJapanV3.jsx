@@ -41,7 +41,7 @@ import {
   UtensilsCrossed, CarFront, TrainFront, Bus, Camera, Sparkles, Ticket, ShieldPlus, CreditCard, ScrollText,
 } from 'lucide-react';
 import {
-  OFFER, TOURS, INCLUDED, NEVER, REVIEWS, RATING, AWARDS, ITINERARIES, PAYMENT_URL, PHONE, WHATSAPP, EMAIL, EMI, EXTRA_CITIES,
+  OFFER, TOURS as SHEET_TOURS, INCLUDED, NEVER, REVIEWS, RATING, AWARDS, ITINERARIES, PAYMENT_URL, PHONE, WHATSAPP, EMAIL, EMI, EXTRA_CITIES,
   WA_NUMBER, inr, waLink, img,
 } from './sakura/dataV2';
 import { JP_PATH, JP_CITIES } from './sakura/japanMap';
@@ -51,6 +51,20 @@ import './SakuraJapanV3.css';
 gsap.registerPlugin(ScrollTrigger);
 
 const CITIES = { ...JP_CITIES, ...EXTRA_CITIES };
+/* ⚠ DUMMY sold-out departures (PM ask, round 5): the sheet marks none, so
+   these are placeholders to show the sold-out state. Replace with the real
+   list before launch. Kept here so dataV2.js (and live v2) stay untouched. */
+const DUMMY_SOLD = new Set([
+  'japan-s-cherry-blossom-trail-2027-03-06',
+  'japan-s-cherry-blossom-trail-2027-03-14',
+  'japan-s-cherry-blossom-trail-2027-03-28',
+  'japan-sakura-explorer-2027-03-26',
+  'japan-sakura-explorer-2027-03-30',
+]);
+const TOURS = SHEET_TOURS.map((t) => ({
+  ...t,
+  deps: t.deps.map((d) => (DUMMY_SOLD.has(d.id) ? { ...d, soldOut: true, seats: 0 } : d)),
+}));
 /* The four CTA labels this page is allowed (PM note 6). */
 const CTA = {
   book: `Book online & Save ${inr(OFFER.onlineDiscount).replace(',000', 'K')}`,
@@ -81,12 +95,21 @@ const TEN_K = inr(OFFER.onlineDiscount).replace(',000', 'K');
 function Deposit({ mult = 1 }) {
   return <b className="v2-dep">{inr(OFFER.depositOnline * mult)}</b>;
 }
+/* Hero only (PM, round 4): ₹55,000 struck, then ₹45,000. */
+function DepositStruck() {
+  return (
+    <span className="v2-dep">
+      <s><span className="v2-sr">was </span>{inr(OFFER.depositOffline)}</s>{' '}
+      <b><span className="v2-sr">now </span>{inr(OFFER.depositOnline)}</b>
+    </span>
+  );
+}
 const DEP_NOTE = `${inr(OFFER.depositOnline)} (after ${TEN_K} discount, online only)`;
 
 /* Hero inclusions, one horizontal line of ticks (all from INCLUDED). */
-const HERO_INC = ['Return flights', 'Japan visa', '7 nights’ hotels', 'Indian meals', 'Bullet train', 'Insurance'];
+const HERO_INC = ['Return flights', 'Japan visa', '7 nights’ hotels', 'Indian meals', 'Sightseeing', 'Insurance'];
 
-const HERO_IMG = '1490806843957-31f4c9a91c65';
+const HERO_IMG = '1681317474675-494bd8e91d7d'; // Chureito pagoda, Mt Fuji and cherry blossom
 /* Meguro river at night under lit blossom — dark enough to carry white type. */
 const FINAL_IMG = '1524413840807-0c3cb6fa808d';
 
@@ -469,29 +492,25 @@ const CARD_INC = [
   { icon: FileCheck2, t: 'Visa' },
   { icon: Hotel, t: 'Hotels' },
   { icon: UtensilsCrossed, t: 'Meals' },
-  { icon: TrainFront, t: 'Bullet train' },
+  { icon: Camera, t: 'Sightseeing' },
   { icon: ShieldPlus, t: 'Insurance' },
 ];
-const shortCity = (c) => c.replace(' Airport', '');
 
 function TourCard({ tour, selectedDep, onSelectDep, onItinerary }) {
   const live = tour.deps.filter((d) => !d.soldOut);
   const chosen = tour.deps.find((d) => d.id === selectedDep) || live[0];
-  const dayTrips = tour.stops.filter((x) => !x.nights).map((x) => x.city);
 
   /* Hierarchy, top to bottom: where (photo + city line), how long where
      (the nights bar), what you see (map + highlights), what's covered (icon
      strip), when (dates), then price + CTA on their own tinted band.
      Sized so the whole card fits one screen on a phone and on a laptop. */
   return (
-    <article className={`skj-tour v2-tc${tour.featured ? ' is-featured' : ''}`} aria-labelledby={`${tour.id}-h`}>
+    <article className="skj-tour v2-tc" aria-labelledby={`${tour.id}-h`}>
       <div className="skj-tour__media">
         <img src={img(tour.image, 900)} alt={tour.alt} loading="lazy" width="900" height="600" />
-        <span className="skj-tour__tag">{tour.tag}</span>
         <div className="skj-tour__title">
           <h3 id={`${tour.id}-h`} className="skj-tour__name">{tour.name}</h3>
           <span className="skj-tour__nd">{tour.nd}</span>
-          <p className="v2-tc__dest"><MapPin size={12} aria-hidden="true" /> {tour.stops.map((x) => x.city).join(' · ')}</p>
         </div>
       </div>
 
@@ -502,26 +521,12 @@ function TourCard({ tour, selectedDep, onSelectDep, onItinerary }) {
         <div className="v3-trip">
           <RouteMap tour={tour} />
           <div className="v3-trip__info">
-            <p className="v2-tc__k">Where you stay</p>
-            <ol className="v3-stays" aria-label={`Itinerary: ${tour.hotels.map((h) => `${h.nights} nights in ${shortCity(h.city)}`).join(', ')}`}>
-              {tour.hotels.map((h) => (
-                <li key={h.city}><b>{h.nights}N</b> {shortCity(h.city)}</li>
-              ))}
-            </ol>
-            {dayTrips.length > 0 && (
-              <p className="v3-trip__day">Day trips to <b>{dayTrips.join(', ')}</b></p>
-            )}
-            <ul className="v3-trip__hl" aria-label="Highlights">
+            <p className="v2-tc__k">Highlights</p>
+            <ul className="v3-trip__hl">
               {tour.highlights.slice(0, 3).map((h) => <li key={h}><Check size={13} aria-hidden="true" /> {h}</li>)}
             </ul>
           </div>
         </div>
-
-        <ul className="v2-tc__inc" aria-label="Included in the price">
-          {CARD_INC.map(({ icon: Icon, t }) => (
-            <li key={t}><Icon size={17} strokeWidth={1.7} aria-hidden="true" /><span>{t}</span></li>
-          ))}
-        </ul>
 
         <div className="skj-tour__dates">
           <p className="skj-tour__label" id={`${tour.id}-dl`}>
@@ -555,7 +560,6 @@ function TourCard({ tour, selectedDep, onSelectDep, onItinerary }) {
           <div className="skj-tour__price">
             <p className="v2-tc__pk">Per person, twin sharing</p>
             <PriceEmi tour={tour} />
-            <p className="v3-pe__fine">{EMI_FINE}</p>
           </div>
           <div className="skj-tour__ctas">
             <button type="button" className="skj-btn skj-btn--primary" onClick={() => onItinerary(tour.id)}
@@ -1127,7 +1131,7 @@ export default function SakuraJapanV3() {
                 box, no fill, so it cannot be mistaken for a third CTA. */}
             <p className="v2-hero-dep" data-hero-in>
               <span className="v2-hero-dep__k">Booking amount</span>
-              <span className="v2-hero-dep__v"><Deposit /> <small>per person, online only · pay the rest after your visa</small></span>
+              <span className="v2-hero-dep__v"><DepositStruck /> <small>per person, online only · pay the rest after your visa</small></span>
             </p>
           </div>
         </section>
@@ -1170,7 +1174,14 @@ export default function SakuraJapanV3() {
             <div>
               <Eyebrow>Two ways to see the blossom</Eyebrow>
               <h2 id="skj-tours-h" className="skj-h2">Choose your <em>spring</em></h2>
-              <p className="skj-sub">7 nights, 8 days, March and April 2027. Prices include the {TEN_K} online discount.</p>
+              <p className="skj-sub">7 nights, 8 days, March and April 2027.</p>
+              {/* Said once for both tours, not repeated on every card. */}
+              <ul className="v3-allinc" aria-label="Both tours include">
+                <li className="v3-allinc__k">Both tours include</li>
+                {CARD_INC.map(({ icon: Icon, t }) => (
+                  <li key={t}><Icon size={16} strokeWidth={1.8} aria-hidden="true" /> {t}</li>
+                ))}
+              </ul>
             </div>
             <RowControls row={toursRow} label="tour" />
           </div>
