@@ -29,7 +29,7 @@ import { useLocation } from 'react-router-dom';
 import { SmartLink as Link, CALLBACK, useScheduleCall } from './ScheduleCall';
 import { EINAYA, useEinaya } from './Einaya';
 import {
-  ChevronDown, Phone, Menu, X, ArrowRight, ArrowUpRight,
+  ChevronDown, ChevronRight, Phone, Menu, X, ArrowRight, ArrowUpRight,
   Instagram, Facebook, Youtube, Linkedin,
 } from 'lucide-react';
 
@@ -55,90 +55,99 @@ const INSPIRATION_TO = '/inspiration';
 const soon = (name) => `/journeys/coming-soon?dest=${encodeURIComponent(name)}`;
 
 /* ---------------------------------------------------------------------------
-   The Destinations panel: an atlas index, not a browser.
+   The Destinations panel. The list is the "countries we cater to" sheet
+   (trfed.xlsx): 56 destinations in the seven regions it names, nothing else.
 
-   The list is the "countries we cater to" sheet (trfed.xlsx): 56 destinations
-   in the seven regions it names, nothing else. The old panel was a hover rail
-   (pick a bucket, see its countries in a pane), and that shape cannot survive
-   honest data. Europe has 23 places and Antarctica has one, so a pane sized for
-   Europe sits nearly empty for half the rail.
-
-   So every destination is on screen at once, alphabetical inside its region,
-   on one shared four-column grid. The three big regions run full width; the
-   four small ones share a single band, one region per column, which is where a
-   one-place region looks deliberate instead of stranded. The panel is full
-   because the whole list is in it, not because anything was padded.
+   Same rail-and-pane panel as before: regions on the left, the hovered
+   region's places on the right. What changed is how the pane copes with
+   regions of very different sizes (Europe 23, Antarctica 1):
+     - nine or more places: a compact three-column list of names;
+     - eight or fewer: two columns, each place with a one-line description;
+     - and the foot of every pane holds one quiet next step (the live
+       campaign pages where a region has them, a specialist otherwise), so a
+       short region ends on something useful rather than blank paper.
 
    Region names are the sheet's own. Two spellings were corrected for display:
    "Antartica" and "United States Of America".
    --------------------------------------------------------------------------- */
-const place = (label, to = soon(label)) => ({ label, to });
+const place = (label, desc, to = soon(label)) => ({ label, desc, to });
 
-const DEST_ATLAS = {
-  /* Full-width regions, each flowing down the four columns. */
-  wide: [
-    {
-      region: 'Asia',
-      places: [
-        place('Bhutan'), place('Hong Kong'), place('India'), place('Indonesia'),
-        place('Japan', '/journeys/japan-2'), place('Malaysia'), place('Maldives'),
-        place('Mauritius'), place('Nepal'), place('Philippines'), place('Seychelles'),
-        place('Singapore'), place('South Korea'), place('Sri Lanka'), place('Thailand'),
-        place('Vietnam'),
-      ],
-    },
-    {
-      region: 'Europe',
-      places: [
-        place('Austria'), place('Belgium'), place('Croatia'), place('Czech Republic'),
-        place('Denmark'), place('Finland'), place('France'), place('Georgia'),
-        place('Germany'), place('Greece'), place('Hungary'), place('Iceland'),
-        place('Ireland'), place('Italy'), place('Netherlands'), place('Norway'),
-        place('Portugal'), place('Romania'), place('Spain'), place('Sweden'),
-        place('Switzerland'), place('Turkey'), place('United Kingdom'),
-      ],
-    },
-    {
-      region: 'North Africa & Middle East',
-      places: [
-        place('Abu Dhabi'), place('Dubai'), place('Egypt'), place('Jordan'),
-        place('Morocco'), place('Oman'), place('Saudi Arabia'), place('United Arab Emirates'),
-      ],
-    },
-  ],
-  /* The small regions, one per column of the same grid. */
-  band: [
-    { region: 'Africa', places: [place('Kenya'), place('South Africa'), place('Tanzania')] },
-    { region: 'North America', places: [place('Canada'), place('Mexico'), place('United States of America')] },
-    { region: 'Australia & New Zealand', places: [place('Australia'), place('New Zealand')] },
-    { region: 'Antarctica', places: [place('Antarctica')] },
-  ],
-  /* The three campaign landers that are live right now. They carry the only
-     imagery in the panel, and they answer "what should I look at first" for
-     someone who opened the menu without a country in mind. */
-  season: [
-    {
-      title: 'Japan in Full Bloom',
-      meta: 'Cherry-blossom group tours, spring 2027',
-      to: '/japan-cherry-blossom',
-      img: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?auto=format&fit=crop&w=480&q=70',
-    },
-    {
-      title: 'Europe, Early Booking',
-      meta: 'Summer 2027 departures at the early price',
-      to: '/europe-early-booking',
-      img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=480&q=70',
-    },
-    {
-      title: 'Vietnam Group Tours',
-      meta: 'Ha Long Bay to Hoi An, spring 2027',
-      to: '/vietnam-group-tours',
-      img: '/vietnam/halong-sky.jpg',
-    },
-  ],
-};
-const DEST_COUNT = [...DEST_ATLAS.wide, ...DEST_ATLAS.band]
-  .reduce((n, r) => n + r.places.length, 0);
+const DEST_REGIONS = [
+  {
+    region: 'Asia',
+    note: 'Temples, street food and island coastlines.',
+    places: [
+      place('Bhutan'), place('Hong Kong'), place('India'), place('Indonesia'),
+      place('Japan', '', '/journeys/japan-2'), place('Malaysia'), place('Maldives'),
+      place('Mauritius'), place('Nepal'), place('Philippines'), place('Seychelles'),
+      place('Singapore'), place('South Korea'), place('Sri Lanka'), place('Thailand'),
+      place('Vietnam'),
+    ],
+    open: [
+      { label: 'Japan in Full Bloom', meta: 'Spring 2027', to: '/japan-cherry-blossom' },
+      { label: 'Vietnam group tours', meta: 'Spring 2027', to: '/vietnam-group-tours' },
+    ],
+  },
+  {
+    region: 'Europe',
+    note: 'Alpine rail, old cities and long coastlines.',
+    places: [
+      place('Austria'), place('Belgium'), place('Croatia'), place('Czech Republic'),
+      place('Denmark'), place('Finland'), place('France'), place('Georgia'),
+      place('Germany'), place('Greece'), place('Hungary'), place('Iceland'),
+      place('Ireland'), place('Italy'), place('Netherlands'), place('Norway'),
+      place('Portugal'), place('Romania'), place('Spain'), place('Sweden'),
+      place('Switzerland'), place('Turkey'), place('United Kingdom'),
+    ],
+    open: [{ label: 'Europe, early booking', meta: 'Summer 2027', to: '/europe-early-booking' }],
+  },
+  {
+    region: 'North Africa & Middle East',
+    note: 'Desert cities, souks and ancient stone.',
+    places: [
+      place('Abu Dhabi', 'Grand Mosque & desert dunes'),
+      place('Dubai', 'Skyline, souks & the desert'),
+      place('Egypt', 'Nile, pyramids & temples'),
+      place('Jordan', 'Petra & Wadi Rum'),
+      place('Morocco', 'Medinas & the Sahara'),
+      place('Oman', 'Forts, wadis & coastline'),
+      place('Saudi Arabia', 'AlUla & the old caravan roads'),
+      place('United Arab Emirates', 'Seven emirates, one coast'),
+    ],
+  },
+  {
+    region: 'Africa',
+    note: 'Big-five wilderness and the long horizon.',
+    places: [
+      place('Kenya', 'The Mara migration'),
+      place('South Africa', 'Cape, wine & Kruger'),
+      place('Tanzania', 'Serengeti & Zanzibar'),
+    ],
+  },
+  {
+    region: 'North America',
+    note: 'Canyons, coastlines and great cities.',
+    places: [
+      place('Canada', 'Rockies & maple country'),
+      place('Mexico', 'Maya ruins & Pacific coast'),
+      place('United States of America', 'Parks, coasts & big cities'),
+    ],
+  },
+  {
+    region: 'Australia & New Zealand',
+    note: 'Reef, outback and the long way south.',
+    places: [
+      place('Australia', 'Reef, outback & Sydney'),
+      place('New Zealand', 'Both islands, end to end'),
+    ],
+  },
+  {
+    region: 'Antarctica',
+    note: 'The last continent, at the very end of the map.',
+    places: [place('Antarctica', 'The White Continent, by expedition ship')],
+  },
+];
+const DEST_COUNT = DEST_REGIONS.reduce((n, r) => n + r.places.length, 0);
 
 /* Four groups. "Destinations" is split by KIND — places, then the itineraries
    that used to live under a competing "Journeys" menu — with a section rule
@@ -161,10 +170,11 @@ const NAV_MENU = [
        sitemap), instead of scrolling the homepage down to the destinations
        section — the flyout already covers the shortlist. */
     label: 'Destinations', to: '/sitemap',
-    blurb: `${DEST_COUNT} destinations in seven regions, shaped by specialists who know them first-hand.`,
-    /* `atlas` instead of `items`: this one renders as the wide index panel,
-       not the single column every other menu uses. See DEST_ATLAS above. */
-    atlas: DEST_ATLAS,
+    blurb: `${DEST_COUNT} destinations, shaped by specialists who know them first-hand.`,
+    /* `atlas` instead of `items`: this one renders as the two-pane panel
+       (regions left, places right), not the single column every other menu
+       uses. See DEST_REGIONS. */
+    atlas: DEST_REGIONS,
     /* The catch-all. Not one more destination — a way out of the list. */
     all: { label: 'All destinations', meta: '31 journeys', to: '/journeys4' },
   },
@@ -230,72 +240,96 @@ function ChromeLink({ item, home, className, children, onClick, ...rest }) {
   return <Link to={`/${item.href}`} className={className} onClick={onClick} {...rest}>{children}</Link>;
 }
 
-/* One region of the atlas: a sienna eyebrow with its count, then the places.
-   `--rows` makes the list fill DOWN each column before moving right, so a
-   region reads alphabetically top-to-bottom like an index, not in zigzag. */
-function AtlasRegion({ reg, cols = 4 }) {
-  const rows = Math.ceil(reg.places.length / cols);
-  return (
-    <div className="n3-atlas-region">
-      <p className="n3-atlas-rhead">
-        {reg.region}
-        <span className="n3-atlas-count">{reg.places.length}</span>
-      </p>
-      <ul className="n3-atlas-list" style={{ '--rows': rows }}>
-        {reg.places.map((p) => (
-          <li key={p.label}>
-            <Link to={p.to} role="menuitem" className="n3-atlas-place">{p.label}</Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/* The Destinations panel. Plain links, no hover state: everything the menu
-   holds is visible the moment it opens, and Tab walks it region by region. */
+/* The Destinations panel: a rail of regions on the left, the hovered region's
+   places on the right. Hover (or focus) only swaps the pane; nothing navigates
+   until a place is clicked. It reopens on Asia every time. */
 function DestFlyout({ group }) {
-  const { wide, band, season } = group.atlas;
+  const regions = group.atlas;
+  const [active, setActive] = useState(0);
+  const reg = regions[active];
+  const n = reg.places.length;
+  /* Nine or more: names in three columns. Three or fewer: one soft card per
+     place (a single place gets a taller one). In between: two columns. */
+  const layout = n > 8 ? ' is-dense' : n === 1 ? ' is-few is-one' : n <= 3 ? ' is-few' : '';
+  const dense = n > 8;
+
   return (
-    <div className="hi-nav-flyout n3-atlas-flyout" role="menu">
-      <div className="hi-nav-flyout-inner n3-atlas-inner">
-        <div className="n3-atlas">
-          <div className="n3-atlas-main">
-            <div className="n3-atlas-head">
-              <p className="n3-atlas-title">Where we travel</p>
-              <p className="n3-atlas-blurb">{group.blurb}</p>
-            </div>
-
-            {wide.map((reg) => <AtlasRegion key={reg.region} reg={reg} />)}
-
-            <div className="n3-atlas-band">
-              {band.map((reg) => <AtlasRegion key={reg.region} reg={reg} cols={1} />)}
+    <div className="hi-nav-flyout n3-mega-flyout n3-dest-flyout" role="menu" onMouseLeave={() => setActive(0)}>
+      <div className="hi-nav-flyout-inner n3-mega-inner">
+        <div className="n3-mega">
+          <div className="n3-mega-rail">
+            <p className="hi-nav-blurb n3-mega-blurb">{group.blurb}</p>
+            <div className="n3-mega-region">
+              <p className="n3-mega-region-head">Where we travel</p>
+              <ul className="n3-mega-cats">
+                {regions.map((r, i) => {
+                  const on = i === active;
+                  const show = () => setActive(i);
+                  return (
+                    <li key={r.region}>
+                      <button
+                        type="button"
+                        className={`n3-mega-cat${on ? ' is-active' : ''}`}
+                        aria-current={on ? 'true' : undefined}
+                        onMouseEnter={show}
+                        onFocus={show}
+                        onClick={show}
+                      >
+                        <span className="n3-mega-cat-label">{r.region}</span>
+                        <span className="n3-mega-cat-count">{r.places.length}</span>
+                        <ChevronRight size={14} className="n3-mega-cat-arrow" aria-hidden="true" />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           </div>
 
-          <aside className="n3-atlas-season" aria-label="Open for booking">
-            <p className="n3-atlas-season-head">Open for booking</p>
-            <ul className="n3-atlas-cards">
-              {season.map((c) => (
-                <li key={c.to}>
-                  <Link to={c.to} role="menuitem" className="n3-atlas-card">
-                    <span className="n3-atlas-card-img">
-                      <img src={c.img} alt="" loading="lazy" decoding="async" />
-                    </span>
-                    <span className="n3-atlas-card-title">
-                      {c.title}
-                      <ArrowUpRight size={14} aria-hidden="true" />
-                    </span>
-                    <span className="n3-atlas-card-meta">{c.meta}</span>
+          {/* aria-live so a screen reader hears the pane change. */}
+          <div className="n3-mega-pane n3-dest-pane" aria-live="polite">
+            <p className="n3-mega-pane-head">{reg.region}</p>
+            <p className="n3-mega-pane-note">{reg.note}</p>
+            <ul className={`n3-mega-places${layout}`}>
+              {reg.places.map((p) => (
+                <li key={p.label}>
+                  <Link to={p.to} role="menuitem" className="n3-mega-place">
+                    <span className="n3-mega-place-label">{p.label}</span>
+                    {!dense && p.desc && <span className="n3-mega-place-desc">{p.desc}</span>}
+                    {n <= 3 && <ArrowRight size={15} className="n3-mega-place-arrow" aria-hidden="true" />}
                   </Link>
                 </li>
               ))}
             </ul>
-          </aside>
+
+            {/* One quiet next step at the foot of every pane. */}
+            <div className="n3-dest-next">
+              {reg.open ? (
+                <>
+                  <span className="n3-dest-next-head">Open for booking</span>
+                  {reg.open.map((o) => (
+                    <Link key={o.to} to={o.to} role="menuitem" className="n3-dest-next-link">
+                      {o.label}
+                      <span className="n3-dest-next-meta">{o.meta}</span>
+                      <ArrowRight size={13} aria-hidden="true" />
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <span className="n3-dest-next-head">Not sure where to start?</span>
+                  <Link to={CALLBACK} role="menuitem" className="n3-dest-next-link">
+                    Talk to our {reg.region} specialists
+                    <ArrowRight size={13} aria-hidden="true" />
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
         {group.all && (
-          <Link to={group.all.to} role="menuitem" className="n3-navall n3-atlas-all">
+          <Link to={group.all.to} role="menuitem" className="n3-navall n3-mega-all">
             <span className="n3-navall-label">{group.all.label}</span>
             <span className="n3-navall-meta">{group.all.meta}</span>
             <ArrowRight size={15} className="n3-navall-arrow" aria-hidden="true" />
@@ -374,7 +408,7 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
               </ChromeLink>
 
               {/* The Destinations panel is a different shape from the rest:
-                  a wide index of every destination. Everything else stays a
+                  a rail of regions beside a pane of places. Everything else stays a
                   single column. */}
               {group.atlas ? (
                 <DestFlyout group={group} />
@@ -467,9 +501,8 @@ export function SiteNav({ solidAt = 40, skipTo = '#main', skipLabel = 'Skip to c
                     {/* Destinations carries `atlas` rather than a flat
                         `items` list. On a phone it is one long index: the red
                         region heading, then its places two to a row, so 56
-                        names cost 28 rows of scrolling instead of 56. The
-                        campaign cards stay desktop-only. */}
-                    {g.atlas ? [...g.atlas.wide, ...g.atlas.band].map((reg) => (
+                        names cost 28 rows of scrolling instead of 56. */}
+                    {g.atlas ? g.atlas.map((reg) => (
                       <Fragment key={reg.region}>
                         <span className="n3-macc-region">{reg.region}</span>
                         <div className="n3-macc-atlas">
