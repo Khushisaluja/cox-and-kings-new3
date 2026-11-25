@@ -31,7 +31,7 @@ import './New3Marketing.css';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
-function useSectionMotion() {
+export function useSectionMotion() {
   useLayoutEffect(() => {
     const root = document.querySelector('.n3m');
     if (!root) return undefined;

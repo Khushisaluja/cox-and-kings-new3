@@ -17,7 +17,7 @@
    hero paints above the sheet so its search dropdowns can overflow,
    so the two must not overlap.
    ============================================================ */
-import { useRef, useState, useEffect, useMemo, useCallback, createContext, useContext } from 'react';
+import { useRef, useState, useEffect, useMemo, useCallback, createContext, useContext, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { SmartLink as Link, CALLBACK, useScheduleCall } from '../components/ScheduleCall';
@@ -833,6 +833,58 @@ const THEMES = [
     cta: 'Explore heritage trips', to: '/vibe/culture-heritage' },
 ];
 
+/* ---------- Overridable copy ----------
+   Every headline and paragraph of the sections below the hero, in one place.
+   These are the strings / and /new3 have always shown; a page passes
+   `copy={{ ...overrides }}` to <New3> to restate them (see
+   new3marketing/voice.js for the /new3-marketing-v2 brand-voice pass). */
+export const NEW3_COPY = {
+  introLabel: 'The Cox & Kings way',
+  introLine1: 'Specialists, not salespeople.', introAccent1: [0],
+  introLine2: 'Every detail, handled.', introAccent2: [2],
+  introText: 'Your journey is shaped by someone who has actually walked it. Then flights, visas, hotels and transfers are coordinated end to end, with one team you can reach on WhatsApp before, during and after the trip.',
+  assurance: ASSURANCE,
+  forkLabel: 'Start here',
+  forkTitle: 'How would you like to travel?',
+  lane1Tag: 'Escorted small groups', lane1Title: 'Find Your Journey',
+  lane1Text: 'Fixed departures, capped at 18, with a tour manager throughout. Everything handled, fine company along the way.',
+  lane1Cta: 'See group journeys',
+  lane2Badge: 'Recommended', lane2Tag: 'Tailor-made & private', lane2Title: 'Design it around you',
+  lane2Text: 'Know exactly where you\'re going, or haven\'t the faintest? Answer a few questions and Einaya will shape a private journey around you.',
+  lane2Cta: 'Design it with Einaya',
+  lane3Tag: 'A real person', lane3Title: 'Just talk to someone',
+  lane3Text: 'Prefer a conversation? Pick a time that suits you and a specialist will call. No scripts, no call centre, no obligation.',
+  lane3Cta: 'Schedule a call',
+  destLabel: '100+ countries', destTitle: 'Where will you go?', destLink: 'All destinations', destHooks: {},
+  herCardEyebrow: 'SINCE 1758', herCardTitle: 'Bespoke Itineraries',
+  herCardText: 'Each journey we curate is a masterpiece, crafted with care and precision to reflect you alone.',
+  herEyebrow: 'OUR HERITAGE',
+  herTitle: <>Crafting <strong>unforgettable<br />journeys</strong> since 1758</>,
+  herCopy: 'From the age of sail to the era of bespoke travel, Cox & Kings has guided generations of explorers across the globe, under the same name and the same standard, for over a quarter of a millennium.',
+  trustBadges: TRUST_BADGES,
+  stats: [
+    { value: 267, suffix: '', label: 'Years of journeys' },
+    { value: 100, suffix: '+', label: 'Countries' },
+    { value: 98, suffix: '%', label: 'Would travel again' },
+  ],
+  herCta: 'Discover our story',
+  relaxedCol: RELAXED_COL,
+  themes: THEMES,
+  themeEyebrow: '// EXPLORE & DISCOVER',
+  themeTitle: <>What&apos;s your<br />vibe?</>,
+  reelsLabel: 'Clips', reelsTitle: 'Real moments, in 30 seconds.', reelsLink: 'Explore journeys',
+  reelsHint: 'Swipe through traveller films. Tap any to watch the full journey.',
+  revEyebrow: 'TRAVELLER STORIES',
+  revTitle: <>Real journeys, captured<br />by <strong>real travellers</strong></>,
+  revAgg: '4.9 / 5', revAggLabel: 'from 2,400+ verified reviews', revPlatforms: true,
+  revMore: 'View all 2,400+ reviews',
+  contactEyebrow: 'Talk to us',
+  contactLine1: "Let's plan", contactLine2: 'your next journey.', contactAccent2: [2],
+  contactSub: "Speak to a specialist who's actually walked the route. Message us now, or pick a time and we'll call you. No scripts, no call centres, no obligation.",
+  contactCall: 'Schedule a callback', contactWa: 'WhatsApp us',
+  contactAlt: 'Travel experts available 9am\u20139pm IST, every day',
+};
+
 /* WhatsApp glyph (lucide has no brand icon) — used on the enquiry CTA. */
 const WaIcon = ({ size = 15 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -1001,7 +1053,11 @@ function Shelf({ col, list }) {
    hero (given heroRef, so the thumb-bar and parallax still key off it), a
    scoping class for that page's CSS, and 'gsap' to hand every reveal to its
    ScrollTrigger layer. All unset on / and /new3, which render as before. */
-export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motion: motionMode = 'framer' }) {
+export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, rootClass = '', motion: motionMode = 'framer', copy = null }) {
+  /* Copy overrides (/new3-marketing-v2 brand-voice pass). null = the defaults,
+     so /, /new3 and /new3-marketing render exactly as before. */
+  const C = copy ? { ...NEW3_COPY, ...copy } : NEW3_COPY;
+  const THEMES = C.themes;
   useLxReveal();
   const navigate = useNavigate();
 
@@ -1563,19 +1619,17 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
           ))}
 
           <div className="h26-intro-copy">
-            <Reveal className="h26-label" as="p">The Cox &amp; Kings way</Reveal>
+            <Reveal className="h26-label" as="p">{C.introLabel}</Reveal>
             <h2 className="h26-statement">
-              <WordReveal text="Specialists, not salespeople." accent={[0]} />
+              <WordReveal text={C.introLine1} accent={C.introAccent1} />
               <br />
-              <WordReveal text="Every detail, handled." accent={[2]} delay={0.2} />
+              <WordReveal text={C.introLine2} accent={C.introAccent2} delay={0.2} />
             </h2>
             <Reveal className="h26-intro-text" as="p" delay={0.3}>
-              Your journey is shaped by someone who has actually walked it. Then
-              flights, visas, hotels and transfers are coordinated end to end, with
-              one team you can reach on WhatsApp before, during and after the trip.
+              {C.introText}
             </Reveal>
             <ul className="hi-spec-points">
-              {ASSURANCE.map((a, i) => (
+              {C.assurance.map((a, i) => (
                 <Reveal key={a} as="li" delay={0.36 + i * 0.06} y={0}>
                   <Check size={15} className="hi-spec-points-ic" aria-hidden="true" />
                   <span>{a}</span>
@@ -1585,11 +1639,14 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
           </div>
         </section>
 
+        {/* Optional section slotted after the intro (/new3-marketing-v3's banners). */}
+        {AfterIntro && <AfterIntro />}
+
         {/* FORK — "How would you like to travel?" (from /improved) */}
         <section className="h26-section hi-fork" id="paths">
           <div className="h26-head hi-center">
-            <Reveal className="h26-label" as="p">Start here</Reveal>
-            <Reveal as="h2" className="h26-h2" delay={0.05}>How would you like to travel?</Reveal>
+            <Reveal className="h26-label" as="p">{C.forkLabel}</Reveal>
+            <Reveal as="h2" className="h26-h2" delay={0.05}>{C.forkTitle}</Reveal>
           </div>
           <div className="hi-fork-grid hi-fork-grid--three" ref={forkRef}>
             <Reveal className="hi-lane" y={0}>
@@ -1598,10 +1655,10 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
                   <img src={img('https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99', 800)} alt="An escorted small-group journey" loading="lazy" />
                 </div>
                 <div className="hi-lane-body">
-                  <span className="hi-lane-tag">Escorted small groups</span>
-                  <h3>Find Your Journey</h3>
-                  <p>Fixed departures, capped at 18, with a tour manager throughout. Everything handled, fine company along the way.</p>
-                  <span className="h26-btn h26-btn-pill">See group journeys <ArrowRight size={16} /></span>
+                  <span className="hi-lane-tag">{C.lane1Tag}</span>
+                  <h3>{C.lane1Title}</h3>
+                  <p>{C.lane1Text}</p>
+                  <span className="h26-btn h26-btn-pill">{C.lane1Cta} <ArrowRight size={16} /></span>
                 </div>
               </Link>
             </Reveal>
@@ -1609,18 +1666,18 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
                 the same question, whether you already know what you want. Both
                 now open Einaya, who works it out with you either way. */}
             <Reveal className="hi-lane is-featured" y={0}>
-              <span className="hi-lane-badge">Recommended</span>
+              <span className="hi-lane-badge">{C.lane2Badge}</span>
               <div className="hi-lane-media">
                 <img src={img('https://images.unsplash.com/photo-1488646953014-85cb44e25828', 800)} alt="Planning a trip together over a map" loading="lazy" />
               </div>
               <div className="hi-lane-body">
-                <span className="hi-lane-tag">Tailor-made &amp; private</span>
-                <h3>Design it around you</h3>
-                <p>Know exactly where you&apos;re going, or haven&apos;t the faintest? Answer a few questions and Einaya will shape a private journey around you.</p>
+                <span className="hi-lane-tag">{C.lane2Tag}</span>
+                <h3>{C.lane2Title}</h3>
+                <p>{C.lane2Text}</p>
                 {/* Same pill as the other two: the badge alone marks this as the
                     recommended path, so the CTA doesn't have to shout as well. */}
                 <button type="button" className="h26-btn h26-btn-pill" onClick={openEinaya}>
-                  Design it with Einaya <ArrowRight size={16} />
+                  {C.lane2Cta} <ArrowRight size={16} />
                 </button>
               </div>
             </Reveal>
@@ -1629,14 +1686,14 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
                 <img src={img('https://images.unsplash.com/photo-1521737604893-d14cc237f11d', 800)} alt="A travel specialist ready to talk" loading="lazy" />
               </div>
               <div className="hi-lane-body">
-                <span className="hi-lane-tag">A real person</span>
-                <h3>Just talk to someone</h3>
-                <p>Prefer a conversation? Pick a time that suits you and a specialist will call. No scripts, no call centre, no obligation.</p>
+                <span className="hi-lane-tag">{C.lane3Tag}</span>
+                <h3>{C.lane3Title}</h3>
+                <p>{C.lane3Text}</p>
                 {/* Opens the callback dialog rather than dialling straight out:
                     a tel: link fires an unexpected call, is dead on desktop, and
                     tells us nothing about who is calling or what they need. */}
                 <button type="button" className="h26-btn h26-btn-pill" onClick={openCallback}>
-                  Schedule a call <ArrowRight size={16} />
+                  {C.lane3Cta} <ArrowRight size={16} />
                 </button>
               </div>
             </Reveal>
@@ -1648,11 +1705,11 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
         <section className="h26-section" id="destinations">
           <div className="h26-head h26-head-row">
             <div>
-              <Reveal className="h26-label" as="p">100+ countries</Reveal>
-              <Reveal as="h2" className="h26-h2" delay={0.05}>Where will you go?</Reveal>
+              <Reveal className="h26-label" as="p">{C.destLabel}</Reveal>
+              <Reveal as="h2" className="h26-h2" delay={0.05}>{C.destTitle}</Reveal>
             </div>
             <Reveal as="div" delay={0.1}>
-              <Link to="/journeys4" className="h26-textlink">All destinations <ArrowUpRight size={16} /></Link>
+              <Link to="/journeys4" className="h26-textlink">{C.destLink} <ArrowUpRight size={16} /></Link>
             </Reveal>
           </div>
           <div className="h26-dest-grid" ref={destRef}>
@@ -1664,7 +1721,7 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
                   <div className="h26-dest-veil" />
                   <div className="h26-dest-body">
                     <h3>{d.name}</h3>
-                    <p>{d.hook}</p>
+                    <p>{C.destHooks[d.name] || d.hook}</p>
                     {d.priceFrom && <span className="h26-dest-price">from {d.priceFrom} <small>/ person</small></span>}
                   </div>
                   <span className="h26-dest-arrow"><ArrowUpRight size={18} /></span>
@@ -1694,23 +1751,20 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
               <div className="lx2i-heritage__media lx2i-reveal">
                 <div className="lx2i-heritage__photo lx2i-heritage__photo--main" style={{ backgroundImage: `url(${sizedUnsplash('1599661046289-e31897846e41', 900)})` }} />
                 <div className="lx2i-heritage__card lx2i-glass">
-                  <span className="lx2i-eyebrow">SINCE 1758</span>
-                  <h4>Bespoke Itineraries</h4>
-                  <p>Each journey we curate is a masterpiece, crafted with care and precision to reflect you alone.</p>
+                  <span className="lx2i-eyebrow">{C.herCardEyebrow}</span>
+                  <h4>{C.herCardTitle}</h4>
+                  <p>{C.herCardText}</p>
                   <div className="lx2i-heritage__photo lx2i-heritage__photo--inset" style={{ backgroundImage: `url(${sizedUnsplash('1523906834658-6e24ef2386f9', 600)})` }} />
                 </div>
               </div>
 
               <div className="lx2i-heritage__text lx2i-reveal">
-                <span className="lx2i-eyebrow">OUR HERITAGE</span>
-                <h2 className="lx2i-h2">Crafting <strong>unforgettable<br />journeys</strong> since 1758</h2>
-                <p className="lx2i-heritage__copy">
-                  From the age of sail to the era of bespoke travel, Cox &amp; Kings has guided generations
-                  of explorers across the globe, under the same name and the same standard, for over a quarter of a millennium.
-                </p>
+                <span className="lx2i-eyebrow">{C.herEyebrow}</span>
+                <h2 className="lx2i-h2">{C.herTitle}</h2>
+                <p className="lx2i-heritage__copy">{C.herCopy}</p>
 
                 <ul className="lx2i-trust" aria-label="Why travellers trust Cox & Kings">
-                  {TRUST_BADGES.map((b) => {
+                  {C.trustBadges.map((b) => {
                     const Icon = b.icon;
                     return (
                       <li key={b.stat} className="lx2i-trust__item">
@@ -1725,13 +1779,14 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
                 </ul>
 
                 <div className="lx2i-statband" ref={statsRef}>
-                  <Stat value={267} suffix="" label="Years of journeys" run={statsRun} />
-                  <span className="lx2i-statband__div" />
-                  <Stat value={100} suffix="+" label="Countries" run={statsRun} />
-                  <span className="lx2i-statband__div" />
-                  <Stat value={98} suffix="%" label="Would travel again" run={statsRun} />
+                  {C.stats.map((st, i) => (
+                    <Fragment key={st.label}>
+                      {i > 0 && <span className="lx2i-statband__div" />}
+                      <Stat value={st.value} suffix={st.suffix} label={st.label} run={statsRun} />
+                    </Fragment>
+                  ))}
                 </div>
-                <Link to="/about-us2" className="lx2i-btn lx2i-btn--primary">Discover our story <ArrowRight size={16} /></Link>
+                <Link to="/about-us2" className="lx2i-btn lx2i-btn--primary">{C.herCta} <ArrowRight size={16} /></Link>
               </div>
             </div>
           </section>
@@ -1751,7 +1806,7 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
         {/* RELAXED PACE — "Relaxed pace, for a calm vacation" shelf (from /journeys) */}
         <div className="jl jl4" id="relaxed">
           <div className="jl-collections">
-            <Shelf col={RELAXED_COL} list={RELAXED_JOURNEYS} />
+            <Shelf col={C.relaxedCol} list={RELAXED_JOURNEYS} />
           </div>
         </div>
 
@@ -1770,8 +1825,8 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
                 display:contents reorder in New3.css). */}
             <div className="n3d__intro">
               <div className="n3d__head lx2i-reveal">
-                <span className="n3d__eyebrow">// EXPLORE &amp; DISCOVER</span>
-                <h2 className="n3d__title">What&apos;s your<br />vibe?</h2>
+                <span className="n3d__eyebrow">{C.themeEyebrow}</span>
+                <h2 className="n3d__title">{C.themeTitle}</h2>
                 <p className="n3d__copy">{theme.blurb}</p>
               </div>
               <div className="n3d__meta lx2i-reveal">
@@ -1847,14 +1902,14 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
         <section className="h26-section h26-reels-sec" id="reels">
           <div className="h26-head h26-head-row">
             <div>
-              <Reveal className="h26-label" as="p">Clips</Reveal>
-              <Reveal as="h2" className="h26-h2" delay={0.05}>Real moments, in 30 seconds.</Reveal>
+              <Reveal className="h26-label" as="p">{C.reelsLabel}</Reveal>
+              <Reveal as="h2" className="h26-h2" delay={0.05}>{C.reelsTitle}</Reveal>
             </div>
             <Reveal as="div" delay={0.1}>
-              <Link to="/journeys4" className="h26-textlink">Explore journeys <ArrowUpRight size={16} /></Link>
+              <Link to="/journeys4" className="h26-textlink">{C.reelsLink} <ArrowUpRight size={16} /></Link>
             </Reveal>
           </div>
-          <Reveal as="p" className="h26-reels-hint" delay={0.05}>Swipe through traveller films. Tap any to watch the full journey.</Reveal>
+          <Reveal as="p" className="h26-reels-hint" delay={0.05}>{C.reelsHint}</Reveal>
           <div className="h26-reels" ref={reelsRef}>
             {REELS.map((r, i) => (
               <Reveal key={r.id} className="h26-reel" delay={(i % 4) * 0.05} y={0}>
@@ -1881,17 +1936,19 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
             <div className="lx2i-container">
               <div className="lx2i-reviews__head lx2i-reveal">
                 <div>
-                  <span className="lx2i-eyebrow">TRAVELLER STORIES</span>
-                  <h2 className="lx2i-h2">Real journeys, captured<br />by <strong>real travellers</strong></h2>
+                  <span className="lx2i-eyebrow">{C.revEyebrow}</span>
+                  <h2 className="lx2i-h2">{C.revTitle}</h2>
                 </div>
                 <div className="lx2i-reviews__agg lx2i-glass">
                   <span className="lx2i-stars lx2i-stars--lg">{[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}</span>
-                  <strong>4.9 / 5</strong>
-                  <span>from 2,400+ verified reviews</span>
-                  <div className="lx2i-reviews__plats">
-                    <span className="lx2i-revplat"><GoogleG /> <b>4.8</b> on Google</span>
-                    <span className="lx2i-revplat"><TripAdvisorOwl /> <b>4.9</b> on Tripadvisor</span>
-                  </div>
+                  <strong>{C.revAgg}</strong>
+                  <span>{C.revAggLabel}</span>
+                  {C.revPlatforms && (
+                    <div className="lx2i-reviews__plats">
+                      <span className="lx2i-revplat"><GoogleG /> <b>4.8</b> on Google</span>
+                      <span className="lx2i-revplat"><TripAdvisorOwl /> <b>4.9</b> on Tripadvisor</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1902,7 +1959,7 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
               </div>
 
               <div className="lx2i-reviews__more lx2i-reveal">
-                <Link to="/testimonials" className="lx2i-btn lx2i-btn--outline lx2i-btn--lg">View all 2,400+ reviews <ArrowRight size={16} /></Link>
+                <Link to="/testimonials" className="lx2i-btn lx2i-btn--outline lx2i-btn--lg">{C.revMore} <ArrowRight size={16} /></Link>
               </div>
             </div>
           </section>
@@ -1919,27 +1976,26 @@ export default function New3({ Nav = SiteNav, Hero = null, rootClass = '', motio
           <div className="h26-contact-grain" aria-hidden="true" />
           <div className="h26-contact-inner">
             <Reveal className="h26-contact-eyebrow" as="p">
-              <span className="h26-contact-rule" aria-hidden="true" /> Talk to us
+              <span className="h26-contact-rule" aria-hidden="true" /> {C.contactEyebrow}
             </Reveal>
             <h2 className="h26-contact-title">
-              <WordReveal text="Let's plan" />
+              <WordReveal text={C.contactLine1} />
               <br />
-              <WordReveal text="your next journey." accent={[2]} delay={0.18} />
+              <WordReveal text={C.contactLine2} accent={C.contactAccent2} delay={0.18} />
             </h2>
             <Reveal as="p" className="h26-contact-sub" delay={0.2}>
-              Speak to a specialist who's actually walked the route. Message us now, or
-              pick a time and we'll call you. No scripts, no call centres, no obligation.
+              {C.contactSub}
             </Reveal>
             <Reveal as="div" className="h26-contact-ctas" delay={0.3} y={0}>
               <button type="button" className="h26-btn h26-btn-accent h26-btn-lg" onClick={openCallback}>
-                <Phone size={17} /> Schedule a callback
+                <Phone size={17} /> {C.contactCall}
               </button>
               <a href={CONTACT_IMP.whatsappHref} target="_blank" rel="noopener noreferrer" className="h26-btn h26-btn-lg h26-contact-wa">
-                <WaIcon size={18} /> WhatsApp us
+                <WaIcon size={18} /> {C.contactWa}
               </a>
             </Reveal>
             <Reveal as="p" className="h26-contact-alt" delay={0.38}>
-              <Clock size={14} aria-hidden="true" /> Travel experts available 9am–9pm IST, every day
+              <Clock size={14} aria-hidden="true" /> {C.contactAlt}
             </Reveal>
           </div>
         </section>

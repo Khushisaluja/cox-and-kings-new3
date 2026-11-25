@@ -29,8 +29,8 @@
 /* New3.css paints the page near-black (.h26.n3, 0,2,0) for its own hero seam.
    Here the stage scales down on scroll and must reveal cream around it, and
    the sheet butts straight onto the dock, so over-specify once (0,3,0). */
-.h26.n3.n3m { background: var(--nm-n50); }
-.n3m .h26-sheet { border-radius: 0; box-shadow: none; margin-top: 0; }
+.h26.n3.n3m:not(.n3m--orighero) { background: var(--nm-n50); }
+.n3m:not(.n3m--orighero) .h26-sheet { border-radius: 0; box-shadow: none; margin-top: 0; }
 
 .n3m-sr {
   position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -473,3 +473,108 @@
 /* "Ask Einaya" stays out of the way while the search dock is on screen. */
 .n3m .lx2i-aifab { transition: opacity 0.4s var(--nm-ease), transform 0.4s var(--nm-ease); }
 .n3m-dockin .n3m .lx2i-aifab { opacity: 0; transform: translateY(24px); pointer-events: none; }
+
+/* ===================== OFFER CARDS (/new3-marketing-v3) =====================
+   Third section: the campaigns as a sideways row of wide cards. White, so it
+   differs from the intro (n-50) above and the fork (n-100) below. */
+.n3m-offers {
+  background: var(--nm-n0);
+  padding: clamp(64px, 8vw, 112px) 0 clamp(56px, 7vw, 96px);
+  font-family: var(--nm-sans);
+  --pad: clamp(20px, 6vw, 110px);
+}
+.n3m-offers__head {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+  padding: 0 var(--pad); margin-bottom: clamp(24px, 3vw, 40px);
+}
+.n3m-offers__title {
+  margin: 0; font: 500 clamp(34px, 4vw, 56px)/1.05 var(--nm-serif); color: var(--nm-ink);
+}
+.n3m-offers__ctrl { display: flex; gap: 8px; }
+.n3m-offers__ctrl button {
+  width: 44px; height: 44px; border-radius: 4px; display: grid; place-items: center; cursor: pointer;
+  background: var(--nm-n0); color: var(--nm-blue8); border: 1px solid var(--nm-n200);
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+.n3m-offers__ctrl button:hover { background: var(--nm-blue8); color: #fff; border-color: var(--nm-blue8); }
+.n3m-offers__ctrl button[hidden] { display: none; }
+
+.n3m-offers__track {
+  display: flex; gap: clamp(14px, 1.6vw, 24px);
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory; scroll-padding-left: var(--pad);
+  padding: 4px var(--pad) 8px;
+  scrollbar-width: none;
+}
+.n3m-offers__track::-webkit-scrollbar { display: none; }
+
+.n3m-ocard {
+  position: relative; flex: 0 0 min(860px, 74vw); height: clamp(420px, 58vh, 540px);
+  scroll-snap-align: start; border-radius: 18px; overflow: hidden; isolation: isolate;
+  /* clip-path keeps the corners round while the photo scales (Safari paints
+     them square during a transform on an overflow:hidden child otherwise). */
+  clip-path: inset(0 round 18px); transform: translateZ(0);
+  background: #0B1F3A; color: #fff;
+}
+.n3m-ocard__media, .n3m-ocard__media img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.n3m-ocard__media img { object-fit: cover; display: block; transition: transform 1.2s var(--nm-ease); }
+.n3m .n3m-ocard__media img { background: none; }
+.n3m-ocard:hover .n3m-ocard__media img { transform: scale(1.04); }
+.n3m-ocard__veil {
+  position: absolute; inset: 0; z-index: 1;
+  background:
+    linear-gradient(0deg, rgba(3, 10, 22, 0.88) 0%, rgba(3, 10, 22, 0.45) 38%, rgba(3, 10, 22, 0) 64%),
+    linear-gradient(90deg, rgba(3, 10, 22, 0.55) 0%, rgba(3, 10, 22, 0) 55%);
+}
+.n3m-ocard__body {
+  position: absolute; inset: auto 0 0 0; z-index: 2;
+  padding: clamp(22px, 3vw, 40px); display: grid; gap: 12px;
+}
+.n3m-ocard__eyebrow {
+  margin: 0; display: inline-flex; align-items: center; gap: 10px;
+  font: 400 11.5px/1.4 var(--nm-sans); letter-spacing: 0.22em; text-transform: uppercase; color: var(--nm-sienna1);
+}
+.n3m-ocard__eyebrow i { width: 26px; height: 1px; background: currentColor; opacity: 0.7; }
+.n3m-ocard__title { margin: 0; font: 500 clamp(32px, 3.6vw, 52px)/1.02 var(--nm-serif); }
+.n3m-ocard__title em { font-style: italic; color: var(--nm-sienna1); }
+.n3m-ocard__sub {
+  margin: 0; max-width: 560px; font-size: 15px; line-height: 1.55; color: rgba(255, 255, 255, 0.88);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.n3m-ocard__foot { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-top: 6px; }
+.n3m-ocard__price { display: flex; align-items: center; gap: 14px; font-size: 14px; }
+.n3m-ocard__price b { font: 500 28px/1 var(--nm-serif); }
+.n3m-ocard__price small { font-size: 12.5px; opacity: 0.8; }
+.n3m-ocard__tag {
+  padding: 5px 9px; border-radius: 4px; background: var(--nm-sienna); color: #fff;
+  font: 500 10.5px/1 var(--nm-sans); letter-spacing: 0.16em; text-transform: uppercase;
+}
+.n3m-ocard__cta {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 22px;
+  border-radius: 4px; background: var(--nm-blue); color: #fff; text-decoration: none;
+  font: 500 13px/1 var(--nm-sans); letter-spacing: 0.1em; text-transform: uppercase;
+  transition: background 0.25s;
+}
+.n3m-ocard__cta:hover { background: var(--nm-blueh); }
+.n3m-ocard__cta:focus-visible, .n3m-offers button:focus-visible { outline: 2px solid var(--nm-blue); outline-offset: 3px; }
+
+.n3m-offers__dots { display: flex; justify-content: center; gap: 4px; margin-top: 22px; }
+.n3m-offers__dots button { width: 44px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.n3m-offers__dots i { display: block; width: 28px; height: 3px; border-radius: 3px; background: var(--nm-n200); transition: background 0.3s, width 0.3s var(--nm-ease); }
+.n3m-offers__dots .is-on i { background: var(--nm-sienna); width: 40px; }
+
+@media (max-width: 760px) {
+  .n3m-offers__ctrl button:first-child, .n3m-offers__ctrl button:last-child { display: none; }
+  .n3m-ocard { flex-basis: 86vw; height: 500px; }
+  .n3m-ocard__veil { background: linear-gradient(0deg, rgba(3, 10, 22, 0.94) 0%, rgba(3, 10, 22, 0.6) 50%, rgba(3, 10, 22, 0) 78%); }
+  .n3m-ocard__sub { font-size: 14px; -webkit-line-clamp: 3; }
+  .n3m-ocard__cta { width: 100%; justify-content: center; }
+  .n3m-ocard__eyebrow { font-size: 10px; letter-spacing: 0.16em; gap: 8px; flex-wrap: wrap; }
+  .n3m-ocard__eyebrow i { width: 16px; }
+  .n3m-ocard__price { flex-wrap: wrap; gap: 8px 12px; }
+  .n3m-ocard__price b { font-size: 24px; }
+}
+.n3m-ocard__tag, .n3m-ocard__price small { white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+  .n3m-ocard__media img { transition: none; }
+}

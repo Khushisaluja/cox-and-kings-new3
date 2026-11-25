@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import New3 from './pages/New3';
 import New3Marketing from './pages/New3Marketing';
+import New3MarketingV3 from './pages/New3MarketingV3';
 import New3Campaigns from './pages/New3Campaigns';
 import New3CampaignCards from './pages/New3CampaignCards';
 import EasyEscapesV2 from './pages/EasyEscapesV2';
@@ -196,6 +197,7 @@ export default function App() {
               auto-advancing banner stage, a redesigned search dock and a GSAP
               ScrollTrigger layer over every section. Unlinked, URL only. */}
           <Route path="/new3-marketing" element={<New3Marketing />} />
+          <Route path="/new3-marketing-v3" element={<New3MarketingV3 />} />
 
           {/* Two more campaign homepages, both reachable by URL only:
               /new3-campaigns puts Japan, Europe and Vietnam in three separate
