@@ -4,7 +4,10 @@
    A copy of /europe-early-booking with the Japan v3 price system:
      · Every price is flat and carries its EMI: "₹2,80,000 or ₹18,000/month"
        (12 months on the balance after the early-bird discount and the
-       ₹55,000 booking amount). No strikethroughs.
+       booking amount).
+     · Round 2 (PM list): the hero shows the booking amount as ₹55,000
+       struck, then ₹45,000 online; hero ticks + a card icon strip with
+       "Sightseeing"; dummy sold-out dates are back.
      · An "Easy EMIs" plan table (3/6/9/12 months × the four packages) after
        "How booking works", and an EMI option in the booking sheet.
      · Hero: the trust line is gone, and the orange "Early bird" pill (which
@@ -64,13 +67,26 @@ gsap.registerPlugin(ScrollTrigger);
 /* ---- Price system (as Japan v3) -------------------------------------------
    The tour price is shown flat. Its EMI is the balance (price − early-bird
    discount − booking amount) over the longest tenure, rounded up to ₹100. */
+/* Hero ticks and the card icon strip: all from INCLUDED. */
+const HERO_INC = ['Return flights', 'Visa assistance', '4-star hotels', 'Indian meals', 'Sightseeing', 'Insurance'];
+const CARD_INC = [
+  { icon: Plane, t: 'Flights' },
+  { icon: FileCheck2, t: 'Visa' },
+  { icon: Hotel, t: 'Hotels' },
+  { icon: UtensilsCrossed, t: 'Meals' },
+  { icon: Camera, t: 'Sightseeing' },
+  { icon: ShieldPlus, t: 'Insurance' },
+];
 const CHEAPEST = TOURS.reduce((a, t) => (t.price < a.price ? t : a), TOURS[0]);
 const MAX_TENURE = Math.max(...EMI.tenures);
 const TEN_K = inr(OFFER.onlineDiscount).replace(',000', 'K');
-const balanceOf = (tour) => tour.price - OFFER.onlineDiscount - OFFER.booking;
+/* Booking amount: ₹55,000, or ₹45,000 when you book online. The ₹10K
+   early-bird saving comes off the booking amount (as Japan v2), so the hero
+   shows ₹55,000 struck through and ₹45,000. */
+const BOOK = OFFER.booking - OFFER.onlineDiscount;
+const balanceOf = (tour) => tour.price - OFFER.onlineDiscount - BOOK;
 const emiFor = (tour, n) => Math.ceil(balanceOf(tour) / n / 100) * 100;
-const EMI_FINE = `EMI over ${MAX_TENURE} months on the balance, after the ${inr(OFFER.booking)} booking amount`;
-const EMI_FINE_SHORT = `${MAX_TENURE}-month EMI, after ${inr(OFFER.booking)} to book`;
+const EMI_FINE = `EMI over ${MAX_TENURE} months on the balance, after the ${inr(BOOK)} booking amount`;
 const TENURES_TXT = EMI.tenures.join(', ').replace(/, (\d+)$/, ' or $1');
 const CTA = {
   book: `Book online & Save ${TEN_K}`,
@@ -97,14 +113,31 @@ const FINAL_IMG = '1499856871958-5b9627545d1a';
 /* One icon per inclusion, in data.js INCLUDED order. */
 const INC_ICONS = [Plane, Hotel, UtensilsCrossed, UtensilsCrossed, CarFront, Headset, Camera, Sparkles, TrainFront, Wallet, ShieldPlus, FileCheck2, Receipt];
 
-const PROMISES = [
-  { icon: Route, t: 'Crafted, unhurried journeys', b: 'Must-sees and meaningful experiences, with fewer hotel changes and less time on the road.' },
-  { icon: Hotel, t: 'Hotels & meals assured', b: 'Hotels named in your itinerary (or similar). Daily breakfast, with Indian lunches and dinners as listed.' },
-  { icon: Headset, t: 'A tour manager, start to finish', b: 'Hindi & English help from booking to homecoming, pre-departure briefings and a WhatsApp group.' },
-  { icon: ClipboardList, t: 'Every detail upfront', b: 'Daily itinerary, flights and hotels in writing. No compulsory shopping stops, and birthdays celebrated.' },
+/* The Cox & Kings Promise as two swipeable cards of four, as on Japan v3,
+   in Europe's terms: visa assistance (embassy fees are extra), hotels
+   "or similar", meals as listed. */
+const PROMISE_CARDS = [
+  {
+    k: 'Your trip, taken care of',
+    items: [
+      { icon: Route, t: 'Crafted, unhurried journeys', b: 'Must-sees and meaningful experiences, with fewer hotel changes, less time on the road and comfortable pacing.' },
+      { icon: Hotel, t: 'Hotels & meals assured', b: 'Hotels named in your itinerary (or similar). Daily breakfast plus Indian lunches & dinners as listed, with vegetarian & Jain options.' },
+      { icon: Headset, t: 'A tour manager, start to finish', b: 'Hindi & English help from booking to homecoming, pre-departure briefings, a WhatsApp group and travel guidance.' },
+      { icon: ClipboardList, t: 'Every detail upfront', b: 'Daily itinerary, flights, hotels and inclusions in writing, booked ahead. No compulsory shopping stops, and birthdays & anniversaries celebrated.' },
+    ],
+  },
+  {
+    k: 'Your money, protected',
+    items: [
+      { icon: Receipt, t: 'All-inclusive, fixed price', b: 'Flights, hotels, meals, transfers, sightseeing, entry tickets, driver & guide tips, insurance, GST & TCS. No exchange-rate impact, hidden charges or costly optional sightseeing.' },
+      { icon: Wallet, t: <>Book for {inr(BOOK)}, the rest after your visa</>, b: 'We help with your documents and book your visa appointment. The booking amount is non-refundable: it covers reservation commitments, insurance and visa appointments.' },
+      { icon: ShieldCheck, t: 'Guaranteed departures', b: 'If Cox & Kings cancels a departure, you get a full refund, booking amount included.' },
+      { icon: Landmark, t: 'Heritage & best price', b: 'Travelling since 1758, 260+ years on, now backed by Wilson & Hughes, with a guaranteed best price on every tour here.' },
+    ],
+  },
 ];
 const STEPS = [
-  { t: `Book at ${inr(OFFER.booking)}`, b: 'Your seat and your price are held' },
+  { t: `Book at ${inr(BOOK)}`, b: 'Your seat and your price are held' },
   { t: 'We help with your visa', b: 'Documents, processing and appointment' },
   { t: 'Visa approved', b: 'Only then is the balance due' },
   { t: 'Fly to Europe', b: 'Briefing first, then the summer' },
@@ -375,7 +408,7 @@ function RouteMap({ tour }) {
 
   return (
     <figure className="skj-map">
-      <svg viewBox={`${x0.toFixed(1)} ${y0.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`} role="img"
+      <svg viewBox={`${x0.toFixed(1)} ${y0.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`} preserveAspectRatio="xMidYMid slice" role="img"
         aria-label={`Route map: ${tour.stops.map((s) => s.city).join(', then ')}`}>
         <defs>
           <clipPath id={`c${clipId}`}><rect x={x0} y={y0} width={w} height={h} /></clipPath>
@@ -408,30 +441,35 @@ function RouteMap({ tour }) {
 /* --------------------------------------------------------------------------
    THE TOUR CARD
    -------------------------------------------------------------------------- */
+/* Three highlights per package, in the sheet's own inclusions (data.js). */
+const HIGHLIGHTS = {
+  'fascinating-europe-summer-2027': ['Eiffel Tower 3rd level & Seine cruise', 'Disneyland® Paris with fireworks', 'Jungfraujoch & Mount Titlis'],
+  'the-beauty-of-europe-summer-2027': ['Jungfraujoch by the Eiger Express', 'Gondola ride in Venice', 'Guided Florence, Rome & the Vatican'],
+  'europe-s-grand-circuit-summer-2027': ['Amsterdam canals & Giethoorn by boat', 'Jungfraujoch & the Swiss Alps', 'Venice gondola, Florence & Rome'],
+  'grand-wonders-of-europe-summer-2027': ['London Eye & a guided London tour', 'Amsterdam canals & Giethoorn by boat', 'Jungfraujoch, Venice & Rome'],
+};
+
 function TourCard({ tour, selectedDep, onSelectDep, onItinerary }) {
   const live = tour.deps.filter((d) => !d.soldOut);
   const chosen = tour.deps.find((d) => d.id === selectedDep) || live[0];
   /* 27 to 92 departures per package: one month at a time, picked from a
-     dropdown (v2) rather than a second row of chips. */
+     dropdown, so the chips stay one short row (Japan v3 shows all of its
+     few dates in one row). */
   const months = [...new Set(tour.deps.map((d) => d.month))];
   const [month, setMonth] = useState(chosen.month);
   const shown = tour.deps.filter((d) => d.month === month);
   const monthName = (m) => {
     const d = tour.deps.find((x) => x.month === m);
-    return new Date(`${d.iso}T00:00:00`).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+    return new Date(`${d.iso}T00:00:00`).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
   };
-  const nights = tour.hotels.reduce((a, h) => a + h.nights, 0);
-  const dayTrips = tour.stops.filter((x) => !x.nights).map((x) => x.city);
 
-  /* v2, calmer: photo + name, one map panel (city names only, one quiet
-     line under it), dates, then price + EMI and the two CTAs. The blurb,
-     map nights, caption chips and per-chip seat counts are gone; the popup
-     carries the full detail. */
+  /* As Japan v3: photo + name, one panel (map, three highlights beside it
+     on desktop), dates, then price + CTA on a tinted band. Inclusions are
+     said once above all four cards; stays and day trips live in View Package. */
   return (
     <article className={`skj-tour eu2-tc${tour.featured ? ' is-featured' : ''}`} aria-labelledby={`${tour.id}-h`}>
       <div className="skj-tour__media">
         <img src={img(tour.image, 900)} alt={tour.alt} loading="lazy" width="900" height="600" />
-        <span className="skj-tour__tag">{tour.tag}</span>
         <div className="skj-tour__title">
           <h3 id={`${tour.id}-h`} className="skj-tour__name">{tour.name}</h3>
           <span className="skj-tour__nd">{tour.nd}</span>
@@ -441,15 +479,19 @@ function TourCard({ tour, selectedDep, onSelectDep, onItinerary }) {
       <div className="skj-tour__body">
         <div className="eu2-trip">
           <RouteMap tour={tour} />
-          <p className="eu2-trip__info">
-            <BedDouble size={14} aria-hidden="true" />
-            <span><b>{nights} nights</b> in {tour.hotels.length} hotels{dayTrips.length > 0 && <> · day trip{dayTrips.length > 1 ? 's' : ''} to {dayTrips.join(', ')}</>}</span>
-          </p>
+          <div className="eu2-trip__info">
+            <p className="eu2-pk">Highlights</p>
+            <ul className="eu2-trip__hl">
+              {(HIGHLIGHTS[tour.id] || []).map((h) => <li key={h}><Check size={13} aria-hidden="true" /> {h}</li>)}
+            </ul>
+          </div>
         </div>
 
         <div className="skj-tour__dates">
           <div className="eu2-dates__head">
-            <p className="skj-tour__label" id={`${tour.id}-dl`}><CalendarDays size={14} aria-hidden="true" /> Departures</p>
+            <p className="skj-tour__label" id={`${tour.id}-dl`}>
+              <CalendarDays size={14} aria-hidden="true" /> {tour.deps.length} departures
+            </p>
             <label className="eu2-monthsel">
               <span className="v2-sr">Month</span>
               <select value={month} onChange={(e) => {
@@ -479,18 +521,17 @@ function TourCard({ tour, selectedDep, onSelectDep, onItinerary }) {
                 >
                   <span className="skj-date__d">{d.day}</span>
                   <span className="skj-date__m">{d.mon}</span>
+                  <span className="skj-date__s">{d.soldOut ? 'Sold out' : `${d.seats} left`}</span>
                 </button>
               );
             })}
           </div>
-          {chosen && <p className="eu2-seats" aria-live="polite"><b>{chosen.seats} seats left</b> on {chosen.label.replace(/ \d{4}$/, '')}</p>}
         </div>
 
         <div className="skj-tour__buy eu2-buy">
           <div className="skj-tour__price">
             <p className="eu2-pk">Per person, twin sharing</p>
             <PriceEmi tour={tour} />
-            <p className="v3-pe__fine">{EMI_FINE_SHORT}</p>
           </div>
           <div className="skj-tour__ctas">
             <button type="button" className="skj-btn skj-btn--primary" onClick={() => onItinerary(tour.id)}
@@ -664,8 +705,8 @@ function BookingSheet({ open, initial, onClose }) {
   const maxPax = Math.min(6, dep.seats);
   const n = Math.min(pax, maxPax);
   const onlinePrice = tour.price - OFFER.onlineDiscount;
-  const today = OFFER.booking * n;
-  const balance = (onlinePrice - OFFER.booking) * n;
+  const today = BOOK * n;
+  const balance = (onlinePrice - BOOK) * n;
 
   /* Low-commitment next step: no payment here. Dummy until the booking
      flow exists; set PAYMENT_URL in data.js and it goes there instead. */
@@ -681,7 +722,7 @@ function BookingSheet({ open, initial, onClose }) {
         <div className="skj-sheet__head">
           <div>
             <Eyebrow>Book now</Eyebrow>
-            <h2 id="skj-sheet-h" className="skj-sheet__title">Book at {inr(OFFER.booking)} each</h2>
+            <h2 id="skj-sheet-h" className="skj-sheet__title">Book at {inr(BOOK)} each</h2>
           </div>
           <button type="button" className="skj-iconbtn" onClick={onClose} aria-label="Close"><X size={18} /></button>
         </div>
@@ -719,7 +760,7 @@ function BookingSheet({ open, initial, onClose }) {
 
         <dl className="skj-bill">
           <div><dt>Tour price × {n}</dt><dd>{inr(tour.price * n)}</dd></div>
-          <div className="is-save"><dt>Early-bird discount <small>online, till {OFFER.earlyBy}</small></dt><dd>−{inr(OFFER.onlineDiscount * n)}</dd></div>
+          <div className="is-save"><dt>Early-bird saving <small>online, till {OFFER.earlyBy}</small></dt><dd>−{inr(OFFER.onlineDiscount * n)}</dd></div>
           <div className="is-today"><dt>Booking amount, pay today</dt><dd>{inr(today)}</dd></div>
           <div><dt>Balance, after visa approval</dt><dd>{inr(balance)}</dd></div>
         </dl>
@@ -773,7 +814,7 @@ function EmiPlans() {
         <div className="v3-emi__copy" data-rise>
           <Eyebrow>Easy EMIs</Eyebrow>
           <h2 id="eu2-emi-h" className="skj-h2">Europe now. <em>Pay monthly.</em></h2>
-          <p className="skj-lead">Book with {inr(OFFER.booking)}. Once your visa is approved, pay the balance in one go or spread it over {TENURES_TXT} months.</p>
+          <p className="skj-lead">Book with {inr(BOOK)}. Once your visa is approved, pay the balance in one go or spread it over {TENURES_TXT} months.</p>
           <ul className="v3-emi__points">
             <li><Check size={15} strokeWidth={2.6} aria-hidden="true" /> EMIs start only after your visa is approved</li>
             <li><Check size={15} strokeWidth={2.6} aria-hidden="true" /> Your expert checks eligibility with you on WhatsApp</li>
@@ -799,7 +840,7 @@ function EmiPlans() {
               <tbody>
                 <tr className="is-today">
                   <th scope="row">Booking amount today</th>
-                  {TOURS.map((t) => <td key={t.id}>{inr(OFFER.booking)}</td>)}
+                  {TOURS.map((t) => <td key={t.id}>{inr(BOOK)}</td>)}
                 </tr>
                 <tr className="is-bal">
                   <th scope="row">Balance, after your visa</th>
@@ -816,7 +857,7 @@ function EmiPlans() {
               </tbody>
             </table>
           </div>
-          <p className="v3-emi__fine">Balance is after the {TEN_K} early-bird discount (online, till {OFFER.earlyBy}). {EMI.note}</p>
+          <p className="v3-emi__fine">Booking amount is {inr(BOOK)} online ({inr(OFFER.booking)} offline) till {OFFER.earlyBy}. {EMI.note}</p>
         </div>
       </div>
     </section>
@@ -842,6 +883,7 @@ export default function EuropeEarlyBookingV2() {
 
   const reviewsRow = useSnapRow();
   const toursRow = useSnapRow();
+  const promiseRow = useSnapRow();
 
   const openBook = useCallback((tourId = null, depId = null) => {
     setSheet({ open: true, tourId: tourId || TOURS[1].id, depId });
@@ -999,8 +1041,13 @@ export default function EuropeEarlyBookingV2() {
               Europe,<br className="skj-br" /> <em>booked early.</em>
             </h1>
             <p className="skj-hero__sub" data-hero-in>
-              Expertly crafted holidays. Flights, hotels, Indian meals, sightseeing and visa assistance, all in one price.
+              Expertly crafted group holidays for summer 2027. Everything taken care of.
             </p>
+            <ul className="eu2-hero-inc" aria-label="Included in every tour" data-hero-in>
+              {HERO_INC.map((t) => (
+                <li key={t}><span className="eu2-hero-inc__tick"><Check size={12} strokeWidth={3.2} aria-hidden="true" /></span>{t}</li>
+              ))}
+            </ul>
             <div className="skj-hero__ctas" ref={heroCtas} data-hero-in>
               <a className="skj-btn skj-btn--primary" href="#tours" onClick={scrollToTours}>
                 {CTA.explore} <ArrowDown size={16} aria-hidden="true" />
@@ -1014,7 +1061,7 @@ export default function EuropeEarlyBookingV2() {
                 (as Japan v3): no pill, no fill, so it can't read as a third CTA. */}
             <p className="eu2-hero-dep" data-hero-in>
               <span className="eu2-hero-dep__k">Early-bird booking</span>
-              <span className="eu2-hero-dep__v"><b>{inr(OFFER.booking)}</b> <small>per person to book · pay the rest after your visa, in full or in EMIs</small></span>
+              <span className="eu2-hero-dep__v"><s>{inr(OFFER.booking)}</s> <b>{inr(BOOK)}</b> <small>per person, online only · pay the rest after your visa, in full or in EMIs</small></span>
             </p>
           </div>
         </section>
@@ -1035,7 +1082,7 @@ export default function EuropeEarlyBookingV2() {
                 <div>
                   <span className="skj-ticket__lbl">From, per person</span>
                   <PriceEmi tour={CHEAPEST} className="v3-pe--ticket" />
-                  <span className="skj-ticket__sub">Book at {inr(OFFER.booking)}, pay the balance after your visa · {EMI_FINE} · {TEN_K} early-bird discount online till {OFFER.earlyBy}</span>
+                  <span className="skj-ticket__sub">Book at {inr(BOOK)}, pay the balance after your visa · {EMI_FINE} · {TEN_K} early-bird saving online till {OFFER.earlyBy}</span>
                 </div>
               </div>
               <ul className="skj-incs" aria-label="Included in the price">
@@ -1058,7 +1105,14 @@ export default function EuropeEarlyBookingV2() {
             <div>
               <Eyebrow>Four ways to see Europe</Eyebrow>
               <h2 id="skj-tours-h" className="skj-h2">Choose your <em>summer</em></h2>
-              <p className="skj-sub">Per person on twin sharing, flying from seven Indian cities. Book online before {OFFER.earlyBy} and {inr(OFFER.onlineDiscount)} comes off.</p>
+              <p className="skj-sub">6 to 14 nights, summer 2027, flying from seven Indian cities.</p>
+              {/* Said once for all four tours, not repeated on every card. */}
+              <ul className="v3-allinc" aria-label="All four tours include">
+                <li className="v3-allinc__k">All four tours include</li>
+                {CARD_INC.map(({ icon: Icon, t }) => (
+                  <li key={t}><Icon size={16} strokeWidth={1.8} aria-hidden="true" /> {t}</li>
+                ))}
+              </ul>
             </div>
             <RowControls row={toursRow} label="tour" />
           </div>
@@ -1103,7 +1157,7 @@ export default function EuropeEarlyBookingV2() {
         {/* ------------------------------------------------ 5 HOW BOOKING WORKS — answers "what happens after I pay?" right after the tours */}
         <section className="skj-book" aria-labelledby="skj-book-h">
           <Eyebrow>Book early, save {inr(OFFER.onlineDiscount)}</Eyebrow>
-          <h2 id="skj-book-h" className="skj-h2">Book at just <em>{inr(OFFER.booking)}</em></h2>
+          <h2 id="skj-book-h" className="skj-h2">Book at just <em>{inr(BOOK)}</em></h2>
           <ol className="skj-steps">
             <span className="skj-steps__line" aria-hidden="true"><i /></span>
             {STEPS.map(({ t, b }, i) => (
@@ -1128,24 +1182,37 @@ export default function EuropeEarlyBookingV2() {
         {/* ------------------------------------------------ 6 THE PROMISE (white). A seal and four
             lines; the price, booking, refund and heritage points each have their own section. */}
         <section className="skj-promises" aria-labelledby="skj-pr-h">
-          <div className="skj-promises__head">
-            <PromiseSeal />
-            <div>
-              <Eyebrow>The Cox &amp; Kings Promise</Eyebrow>
-              <h2 id="skj-pr-h" className="skj-h2">Expertly crafted. <em>Everything taken care of.</em></h2>
+          <div className="v2-pr-head">
+            <div className="skj-promises__head">
+              <PromiseSeal />
+              <div>
+                <Eyebrow>The Cox &amp; Kings Promise</Eyebrow>
+                <h2 id="skj-pr-h" className="skj-h2">Expertly crafted. <em>Everything taken care of.</em></h2>
+              </div>
             </div>
+            <RowControls row={promiseRow} label="promise card" />
           </div>
-          <ul className="skj-promises__list">
-            {PROMISES.map(({ icon: Icon, t, b }, i) => (
-              <li key={t} className="skj-pitem" data-rise>
-                <span className="skj-pitem__icon"><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></span>
-                <div>
-                  <h3 className="skj-pitem__t"><span className="skj-pitem__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>{t}</h3>
-                  <p className="skj-pitem__b">{b}</p>
-                </div>
-              </li>
+          <div className="skj-row v2-pr-row" ref={promiseRow.ref}>
+            {PROMISE_CARDS.map((card, ci) => (
+              <article key={card.k} className="v2-pcard" aria-labelledby={`v2-pc-${ci}`}>
+                <h3 id={`v2-pc-${ci}`} className="v2-pcard__k">
+                  <span aria-hidden="true">{String(ci + 1).padStart(2, '0')}</span> {card.k}
+                </h3>
+                <ul className="v2-pcard__list">
+                  {card.items.map(({ icon: Icon, t, b }, i) => (
+                    <li key={i} className="v2-pi">
+                      <span className="skj-pitem__icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></span>
+                      <div>
+                        <p className="v2-pi__t">{t}</p>
+                        <p className="v2-pi__b">{b}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </article>
             ))}
-          </ul>
+          </div>
+          <Dots row={promiseRow} label="Promise card" />
         </section>
 
         {/* ------------------------------------------------ 7 HERITAGE (cream). Story + stats beside a
@@ -1206,10 +1273,10 @@ export default function EuropeEarlyBookingV2() {
           <div className="skj-final__inner">
             <Eyebrow light>Talk to us</Eyebrow>
             <h2 id="skj-final-h" className="skj-h2 is-light">The best seats go early. <br className="skj-br-wide" /><em>So does the best price.</em></h2>
-            <p className="skj-final__sub">Ask a Europe specialist anything on WhatsApp, or book online at {inr(OFFER.booking)} and pay the rest after your visa, in full or in EMIs. The early-bird price ends {OFFER.earlyBy}.</p>
+            <p className="skj-final__sub">Ask a Europe specialist anything on WhatsApp, or book online at {inr(BOOK)} and pay the rest after your visa, in full or in EMIs. The early-bird price ends {OFFER.earlyBy}.</p>
             <div className="skj-final__ctas">
               <button type="button" className="skj-btn skj-btn--primary" onClick={() => openBook()}>
-                Book now · {inr(OFFER.booking)}
+                Book now · {inr(BOOK)}
               </button>
               <a className="skj-btn skj-btn--ghost" href={waLink('Hi Cox & Kings, I have a question about the Europe summer 2027 tours.')} target="_blank" rel="noopener noreferrer">
                 <WhatsAppGlyph /> WhatsApp us
@@ -1243,7 +1310,7 @@ export default function EuropeEarlyBookingV2() {
       {/* ------------------------------------------------ STICKY CTA BAR */}
       <div className={`skj-sticky${showSticky ? ' is-on' : ''}`} aria-hidden={!showSticky}>
         <div className="skj-sticky__info">
-          <b>{inr(OFFER.booking)} <small>to book</small></b>
+          <b>{inr(BOOK)} <small>to book</small></b>
           <span>Tours from {inr(CHEAPEST.price)} or {inr(emiFor(CHEAPEST, MAX_TENURE))}/month</span>
         </div>
         <button type="button" className="skj-btn skj-btn--primary" onClick={() => openBook()} tabIndex={showSticky ? 0 : -1}>

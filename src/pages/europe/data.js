@@ -57,7 +57,26 @@ const MONTHS = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06
 
 /* The sheet's "Departures" cell, pasted verbatim ("Apr.27: 16, 19\nMay.27: 01"),
    turned into departure objects. */
-const fromSheet = (tourId, cell) => cell.trim().split('\n').flatMap((line) => {
+const fromSheet = (tourId, cell) => withSoldOut(parseSheet(tourId, cell));
+
+/* ⚠ DUMMY sold-out dates (the sheet has no inventory): each package's first
+   departure plus roughly one in eight others, never a whole month, so every
+   month still has a date to pick. Replace with live inventory. */
+const withSoldOut = (deps) => {
+  deps.forEach((d, i) => {
+    if (i === 0 || seatsFor(`${d.id}-sold`) % 8 === 0) { d.soldOut = true; d.seats = 0; }
+  });
+  [...new Set(deps.map((d) => d.month))].forEach((m) => {
+    const inMonth = deps.filter((d) => d.month === m);
+    if (inMonth.every((d) => d.soldOut)) {
+      const last = inMonth[inMonth.length - 1];
+      last.soldOut = false; last.seats = seatsFor(last.id);
+    }
+  });
+  return deps;
+};
+
+const parseSheet = (tourId, cell) => cell.trim().split('\n').flatMap((line) => {
   const [, mon, yy, list] = line.match(/^(\w{3})\.(\d{2}):\s*(.+)$/);
   return list.split(',').map((d) => {
     const iso = `20${yy}-${MONTHS[mon]}-${d.trim().padStart(2, '0')}`;

@@ -166,3 +166,179 @@
   .skj.eu2 .eu2-tc .v3-pe__emi { padding: 3px 8px; font-size: 12px; }
   .skj.eu2 .eu2-tc .v3-pe__emi b { font-size: 14.5px; }
 }
+
+/* ======================================================================
+   Round 2 (PM list)
+   ====================================================================== */
+/* Hero: inclusions as one line of ticks (as Japan v3) */
+.skj.eu2 .eu2-hero-inc {
+  list-style: none; margin: 18px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 8px 18px;
+  font: 500 14px/1.3 var(--skj-sans); color: #fff;
+  text-shadow: 0 1px 2px rgba(2,19,48,.7), 0 0 14px rgba(2,19,48,.55);
+}
+.skj.eu2 .eu2-hero-inc li { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.skj.eu2 .eu2-hero-inc__tick {
+  flex: none; width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center; background: #3FA77F; color: #fff;
+}
+@media (min-width: 900px) {
+  .skj.eu2 .eu2-hero-inc { margin-top: 24px; font-size: 15.5px; gap: 10px 22px; }
+  .skj.eu2 .eu2-hero-inc__tick { width: 20px; height: 20px; }
+}
+@media (max-width: 699px) { .skj.eu2 .eu2-hero-inc { gap: 7px 14px; font-size: 13px; margin-top: 14px; } }
+
+/* Hero: ₹55,000 struck, then ₹45,000 */
+.skj.eu2 .eu2-hero-dep__v s {
+  font: 400 15px/1 var(--skj-serif); color: rgba(255,255,255,.7);
+  text-decoration-thickness: 1.5px; margin-right: 2px;
+}
+@media (min-width: 900px) { .skj.eu2 .eu2-hero-dep__v s { font-size: 17px; } }
+
+/* Card: what's included, one quiet icon strip */
+.skj.eu2 .eu2-inc {
+  list-style: none; margin: 0; padding: 8px 4px;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
+  border-radius: 10px; background: #EEF4EF; border: 1px solid #D6E7DD;
+}
+.skj.eu2 .eu2-inc li { display: grid; justify-items: center; gap: 3px; text-align: center; font-size: 10.5px; line-height: 1.15; color: var(--skj-n800); }
+.skj.eu2 .eu2-inc svg { color: var(--skj-success); }
+@media (min-width: 1440px) { .skj.eu2 .eu2-inc li { font-size: 10px; } .skj.eu2 .eu2-inc svg { width: 16px; height: 16px; } }
+
+/* Dates: same chip size whether or not it says "Sold out" */
+.skj.eu2 .eu2-tc .skj-date { width: 58px; min-height: 60px; padding: 5px 3px; justify-content: center; }
+
+/* Price + CTAs on their own tinted band, as Japan v3 */
+.skj.eu2 .eu2-buy {
+  margin: 2px -14px -14px; padding: 12px 14px 14px; border-top: 1px solid var(--skj-n200);
+  background: var(--skj-n50);
+}
+@media (min-width: 700px) { .skj.eu2 .eu2-buy { margin: 2px -18px -18px; padding: 14px 18px 18px; } }
+/* Labels sized by their own width, so "Sightseeing" never runs into "Insurance". */
+.skj.eu2 .eu2-inc { display: flex; justify-content: space-between; gap: 4px; padding: 8px 10px; }
+/* Six hero ticks on one line on desktop (as Japan v3's wider copy column). */
+@media (min-width: 900px) { .skj.eu2 .skj-hero__copy { max-width: 980px; } }
+
+/* ======================================================================
+   Round 3: tour cards and the Promise, as Japan v3 (rescoped from
+   SakuraJapanV3.css). Overrides the round-1/2 card rules above.
+   ====================================================================== */
+/* Two cards side by side from 900px (2 × 2), as Japan v3; no 4-up row. */
+@media (min-width: 900px) {
+  .skj.eu2 .skj-tours__row {
+    grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); grid-auto-columns: auto;
+    overflow: visible; margin-inline: 0; padding: 0; gap: 24px;
+  }
+  .skj.eu2 .skj-tours .skj-rowctl { display: none; }
+}
+@media (min-width: 1440px) {
+  .skj.eu2 .skj-tours__row { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .skj.eu2 .eu2-tc .v3-pe { gap: 4px 8px; }
+  .skj.eu2 .eu2-tc .v3-pe__amt { font-size: 34px; }
+  .skj.eu2 .eu2-tc .v3-pe__emi { padding: 4px 10px; font-size: 13px; }
+  .skj.eu2 .eu2-tc .v3-pe__emi b { font-size: 16px; }
+}
+
+/* Inclusions, once for all four tours, under the section head. */
+.skj.eu2 .v3-allinc {
+  list-style: none; margin: 16px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px;
+}
+.skj.eu2 .v3-allinc li { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--skj-n900); }
+.skj.eu2 .v3-allinc svg { color: var(--skj-success); }
+.skj.eu2 .v3-allinc .v3-allinc__k {
+  font: 500 10.5px/1.3 var(--skj-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--skj-n700);
+  flex-basis: 100%;
+}
+@media (min-width: 900px) { .skj.eu2 .v3-allinc .v3-allinc__k { flex-basis: auto; margin-right: 4px; } }
+@media (max-width: 420px) { .skj.eu2 .v3-allinc { gap: 8px 14px; } .skj.eu2 .v3-allinc li { font-size: 13px; } }
+
+/* Card: shorter photo, Japan v3's type sizes */
+.skj.eu2 .eu2-tc .skj-tour__media { height: 128px; }
+.skj.eu2 .eu2-tc .skj-tour__media::after { background: linear-gradient(180deg, rgba(2,19,48,0) 15%, rgba(2,19,48,.88) 100%); }
+.skj.eu2 .eu2-tc .skj-tour__title { bottom: 10px; row-gap: 2px; }
+.skj.eu2 .eu2-tc .skj-tour__name { font-size: 24px; }
+.skj.eu2 .eu2-tc .skj-tour__body { padding: 14px 14px 0; gap: 12px; }
+@media (min-width: 700px) {
+  .skj.eu2 .eu2-tc .skj-tour__name { font-size: 28px; }
+  .skj.eu2 .eu2-tc .skj-tour__body { padding: 18px 20px 0; gap: 10px; }
+}
+
+/* The trip panel: map, and on desktop three highlights beside it.
+   Phones show the map alone. */
+.skj.eu2 .eu2-trip { display: grid; }
+.skj.eu2 .eu2-trip .skj-map > svg { aspect-ratio: 2.2 / 1; height: auto; }
+.skj.eu2 .eu2-trip__info {
+  display: none; margin: 0; padding: 14px 18px; border-top: 0;
+  border-left: 1px solid var(--skj-n200); font-size: 13.5px; color: var(--skj-n800);
+}
+.skj.eu2 .eu2-trip__info .eu2-pk { margin-bottom: 6px; }
+.skj.eu2 .eu2-trip__hl { list-style: none; margin: 0; padding: 0; }
+.skj.eu2 .eu2-trip__hl li { display: flex; align-items: flex-start; gap: 6px; padding: 4px 0; font-size: 13.5px; line-height: 1.35; color: var(--skj-n800); }
+.skj.eu2 .eu2-trip__hl svg { flex: none; margin-top: 3px; color: var(--skj-success); }
+@media (min-width: 900px) {
+  .skj.eu2 .eu2-trip { grid-template-columns: 1.3fr 1fr; }
+  .skj.eu2 .eu2-trip .skj-map > svg { aspect-ratio: 16 / 9; }
+  .skj.eu2 .eu2-trip__info { display: flex; flex-direction: column; justify-content: center; }
+}
+@media (max-width: 400px) { .skj.eu2 .eu2-trip .skj-map > svg { aspect-ratio: 2.6 / 1; } }
+
+/* Dates: one row of chips (one month at a time), seats on each chip */
+.skj.eu2 .eu2-tc .skj-dates { flex-wrap: nowrap; overflow-x: auto; margin-inline: -14px; padding: 2px 14px 4px; scrollbar-width: none; }
+.skj.eu2 .eu2-tc .skj-dates::-webkit-scrollbar { display: none; }
+@media (min-width: 700px) { .skj.eu2 .eu2-tc .skj-dates { margin-inline: -20px; padding-inline: 20px; } }
+.skj.eu2 .eu2-tc .skj-date { width: 54px; min-height: 58px; padding: 5px 3px; }
+.skj.eu2 .eu2-tc .skj-date__d { font-size: 17px; }
+.skj.eu2 .eu2-monthsel select { min-height: 32px; font-size: 12.5px; }
+
+/* Price + CTA band, as Japan v3 */
+.skj.eu2 .eu2-buy {
+  margin: 2px -14px 0; padding: 10px 14px 14px; border-top: 1px solid var(--skj-n200);
+  background: var(--skj-n50); gap: 8px;
+}
+.skj.eu2 .eu2-tc.is-featured .eu2-buy { background: #EDF3FA; border-top-color: var(--skj-blue-1); }
+@media (min-width: 700px) {
+  .skj.eu2 .eu2-buy {
+    margin: 2px -20px 0; padding: 12px 20px 14px;
+    grid-template-columns: 1fr auto; align-items: center;
+  }
+  .skj.eu2 .eu2-tc .v3-pe__amt { font-size: 34px; }
+  .skj.eu2 .eu2-tc .skj-tour__ctas .skj-btn--primary { padding-inline: 22px; }
+}
+@media (max-width: 699px) { .skj.eu2 .eu2-buy .eu2-pk { display: none; } }
+
+/* ---- Promise: two swipeable cards of four ------------------------------- */
+.skj.eu2 .skj-promises { display: block; }
+.skj.eu2 .v2-pr-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px 32px; margin-bottom: 26px; }
+.skj.eu2 .v2-pr-head .skj-promises__head { flex-direction: row; align-items: center; gap: 20px; }
+.skj.eu2 .v2-pr-row { grid-auto-columns: 88%; gap: 14px; }
+@media (min-width: 700px) { .skj.eu2 .v2-pr-row { grid-auto-columns: 74%; gap: 20px; } }
+@media (min-width: 1200px) { .skj.eu2 .v2-pr-row { grid-auto-columns: min(66%, 900px); } }
+.skj.eu2 .v2-pcard {
+  background: var(--skj-n50); border: 1px solid var(--skj-n150); border-radius: 18px;
+  padding: 20px 18px 8px;
+}
+.skj.eu2 .v2-pcard__k {
+  display: flex; align-items: baseline; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--skj-n200);
+  font: 600 22px/1.2 var(--skj-serif); color: var(--skj-n900);
+}
+.skj.eu2 .v2-pcard__k span { font: 500 11px/1 var(--skj-sans); letter-spacing: .12em; color: var(--skj-sienna); }
+.skj.eu2 .v2-pcard__list { list-style: none; margin: 0; padding: 0; }
+.skj.eu2 .v2-pi { display: flex; gap: 14px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid var(--skj-n150); }
+.skj.eu2 .v2-pi:last-child { border-bottom: 0; }
+.skj.eu2 .v2-pi .skj-pitem__icon { width: 40px; height: 40px; }
+.skj.eu2 .v2-pi__t { font: 600 18px/1.25 var(--skj-serif); color: var(--skj-n900); }
+.skj.eu2 .v2-pi__b { margin-top: 4px; font-size: 13.5px; line-height: 1.5; color: var(--skj-n700); }
+@media (min-width: 900px) {
+  .skj.eu2 .v2-pcard { padding: 28px 30px 12px; }
+  .skj.eu2 .v2-pcard__k { font-size: 26px; }
+  .skj.eu2 .v2-pcard__list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+  .skj.eu2 .v2-pi { padding: 22px 0; }
+  .skj.eu2 .v2-pi:nth-last-child(2) { border-bottom: 0; }
+  .skj.eu2 .v2-pi__t { font-size: 20px; }
+}
+.skj.eu2 .skj-promises .skj-dots { margin-top: 4px; }
+.skj.eu2, .skj.eu2 * { font-variant-numeric: lining-nums !important; }
+/* Map fills its half of the panel edge to edge (sliced, not letterboxed). */
+.skj.eu2 .eu2-trip .skj-map { height: 100%; }
+@media (min-width: 900px) { .skj.eu2 .eu2-trip .skj-map > svg { width: 100%; height: 100%; min-height: 190px; aspect-ratio: auto; } }
