@@ -631,3 +631,18 @@
 @media (max-width: 760px) { .n3m--orighero .lx2i-heritage h2 { font-size: 8.6vw; } }
 /* Clips row: no slow-zoom loop on every poster (phones). */
 .n3m--orighero .h26-reel-link > img { animation: none; }
+
+/* Loading: nothing fades in on scroll (the .lx2i-reveal blocks hold frosted
+   glass cards, which Chrome paints grey mid-fade). While a photo is still
+   downloading, its frame shows a quiet tone instead of an empty veil. */
+.n3m--orighero .lx2i-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+.n3m--orighero .h26-dest-link, .n3m--orighero .h26-reel-link, .n3m--orighero .n3m-ocard__media, .n3m--orighero .n3c-card__photo { background: #1F2B3D; }
+.n3m--orighero .h26-dest-link img, .n3m--orighero .h26-reel-link img, .n3m--orighero .n3m-ocard__media img, .n3m--orighero .n3c-card__photo img { background: transparent !important; }
+.n3m--orighero .jl-card-media, .n3m--orighero .hi-lane-media { background: #E8E2D4; }
+/* Hero: no staggered rise on load (the glass search bar rendered grey mid-fade). */
+.n3m--orighero .lx2i-fade { animation: none !important; opacity: 1 !important; transform: none !important; }
+/* No frosted glass below the hero. Every backdrop-filter chip is its own GPU
+   layer; while the page was still loading and painting, those layers showed
+   up as floating grey boxes over unpainted cards. Solid fills instead. */
+.n3m--orighero .h26-sheet *, .n3m--orighero .h26-sheet *::before, .n3m--orighero .h26-sheet *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+.n3m--orighero .h26-sheet .lx2i-glass { background: rgba(255, 255, 255, 0.94) !important; }

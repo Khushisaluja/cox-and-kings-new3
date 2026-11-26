@@ -279,20 +279,18 @@ const DEST_SPANS = ['tall', 'wide', 'tall', 'wide', 'normal', 'normal', 'normal'
 const MotionMode = createContext('framer');
 
 /* ---- Reusable blur-to-focus reveal (from /improved) ---- */
-function Reveal({ children, className = '', delay = 0, y = 24, as = 'div' }) {
+function Reveal({ children, className = '', delay = 0, y = 24, as = 'div', ...rest }) {
   const M = motion[as] || motion.div;
   const reduce = useReducedMotion();
   const mode = useContext(MotionMode);
   if (mode === 'gsap') { const T = as; return <T className={className} data-reveal="">{children}</T>; }
-  if (mode === 'light' && !reduce) {
-    /* Light mode: a short opacity fade only. No blur, no travel: animated
-       blur filters on every block made scrolling stutter. */
-    return (
-      <M className={className} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '0px 0px -8% 0px' }} transition={{ duration: 0.5, ease: 'easeOut' }}>
-        {children}
-      </M>
-    );
+  if (mode === 'light') {
+    /* Light mode renders content static: no fade at all. Cards here carry
+       frosted (backdrop-filter) chips, and Chrome paints those as grey boxes
+       while an ancestor's opacity animates, which read as the page breaking
+       while it loaded. */
+    const T = as;
+    return <T className={className} id={rest.id}>{children}</T>;
   }
   if (reduce) return <M className={className}>{children}</M>;
   return (

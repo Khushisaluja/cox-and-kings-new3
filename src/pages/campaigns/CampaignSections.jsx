@@ -611,15 +611,10 @@ export function CampaignCards() {
 
   useLayoutEffect(() => {
     if (!motionOK()) return undefined;
-    /* Light: one short fade for the cards, nothing else. No split-word
-       headings, petals, swinging lanterns or photo parallax. */
-    const ctx = gsap.context(() => {
-      gsap.fromTo('.n3c-card', { opacity: 0 }, {
-        opacity: 1, duration: 0.5, ease: 'power1.out', stagger: 0.06,
-        scrollTrigger: { trigger: '.n3c-cards__row', start: 'top 90%', once: true },
-      });
-    }, root);
-    return () => ctx.revert();
+    /* Static: no entrance motion at all (no fades, split-word headings,
+       petals, lanterns or parallax). The cards' frosted chips render as grey
+       boxes while a parent's opacity animates, which looked broken. */
+    return undefined;
   }, []);
 
   return (
