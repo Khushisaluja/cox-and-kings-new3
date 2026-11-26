@@ -412,9 +412,9 @@
   .skj.v3 .v3-trip__hl { display: block; }
 }
 
-/* Sticky bar: plain booking amount now, so one line is enough */
-.skj.v3 .skj-sticky__info b .v2-dep { font: inherit; }
-@media (max-width: 479px) { .skj.v3 .skj-sticky__info b { display: block; } }
+/* Booking popup heading: struck ₹55,000 sits smaller and grey beside ₹45,000 */
+.skj.v3 .skj-sheet__title .v2-dep s { font: 400 .62em/1 var(--skj-sans); color: var(--skj-n700); opacity: 1; margin-right: 2px; vertical-align: .12em; }
+.skj.v3 .skj-sheet__title .v2-dep b { font-weight: inherit; }
 
 /* EMI plans (n50, under How booking works) */
 .skj.v3 .v3-emi { padding: var(--skj-py) var(--skj-pad); background: var(--skj-n50); border-top: 1px solid var(--skj-n200); }

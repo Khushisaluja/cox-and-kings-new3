@@ -95,7 +95,7 @@ const TEN_K = inr(OFFER.onlineDiscount).replace(',000', 'K');
 function Deposit({ mult = 1 }) {
   return <b className="v2-dep">{inr(OFFER.depositOnline * mult)}</b>;
 }
-/* Hero only (PM, round 4): ₹55,000 struck, then ₹45,000. */
+/* Hero, sticky bar and booking popup heading: ₹55,000 struck, then ₹45,000. */
 function DepositStruck() {
   return (
     <span className="v2-dep">
@@ -733,7 +733,7 @@ function BookingSheet({ open, initial, onClose }) {
         <div className="skj-sheet__head">
           <div>
             <Eyebrow>Book online &amp; save {TEN_K}</Eyebrow>
-            <h2 id="skj-sheet-h" className="skj-sheet__title">Hold your seats for <Deposit /> each</h2>
+            <h2 id="skj-sheet-h" className="skj-sheet__title">Hold your seats for <DepositStruck /> each</h2>
           </div>
           <button type="button" className="skj-iconbtn" onClick={onClose} aria-label="Close"><X size={18} /></button>
         </div>
@@ -1402,7 +1402,7 @@ export default function SakuraJapanV3() {
       {/* ------------------------------------------------ STICKY CTA BAR */}
       <div className={`skj-sticky${showSticky ? ' is-on' : ''}`} aria-hidden={!showSticky}>
         <div className="skj-sticky__info">
-          <b><Deposit /> <small>to book</small></b>
+          <b><DepositStruck /> <small>to book</small></b>
           <span>Tour from {inr(CHEAPEST.price)} or {inr(emiFor(CHEAPEST, MAX_TENURE))}/month</span>
         </div>
         <button type="button" className="skj-btn skj-btn--primary" onClick={() => openBook()} tabIndex={showSticky ? 0 : -1}>
