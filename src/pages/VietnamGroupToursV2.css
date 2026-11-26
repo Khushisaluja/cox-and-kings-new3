@@ -636,3 +636,76 @@
 .skj.vn2 .vn2-hero-price__v { white-space: nowrap; }
 .skj.vn2 .vn2-hero-price__emi { font-size: 13px; color: rgba(255,255,255,.8); }
 .skj.vn2 .vn2-hero-price__emi b { font-weight: 600; color: #BFE3CD; }
+
+/* ---- Promise: Japan v3's two swipeable cards of four ------------------- */
+.skj.vn2 .skj-promises { display: block; }
+.skj.vn2 .v2-pr-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px 32px; margin-bottom: 26px; }
+.skj.vn2 .v2-pr-head .skj-promises__head { flex-direction: row; align-items: center; gap: 20px; }
+.skj.vn2 .v2-pr-row { grid-auto-columns: 88%; gap: 14px; }
+@media (min-width: 700px) { .skj.vn2 .v2-pr-row { grid-auto-columns: 74%; gap: 20px; } }
+@media (min-width: 1200px) { .skj.vn2 .v2-pr-row { grid-auto-columns: min(66%, 900px); } }
+.skj.vn2 .v2-pcard {
+  background: var(--skj-n50); border: 1px solid var(--skj-n150); border-radius: 18px;
+  padding: 20px 18px 8px;
+}
+.skj.vn2 .v2-pcard__k {
+  display: flex; align-items: baseline; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--skj-n200);
+  font: 600 22px/1.2 var(--skj-serif); color: var(--skj-n900);
+}
+.skj.vn2 .v2-pcard__k span { font: 500 11px/1 var(--skj-sans); letter-spacing: .12em; color: var(--skj-sienna); }
+.skj.vn2 .v2-pcard__list { list-style: none; margin: 0; padding: 0; }
+.skj.vn2 .v2-pi { display: flex; gap: 14px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid var(--skj-n150); }
+.skj.vn2 .v2-pi:last-child { border-bottom: 0; }
+.skj.vn2 .v2-pi .skj-pitem__icon { width: 40px; height: 40px; }
+.skj.vn2 .v2-pi__t { font: 600 18px/1.25 var(--skj-serif); color: var(--skj-n900); }
+.skj.vn2 .v2-pi__t .v2-dep b { color: var(--skj-blue); }
+.skj.vn2 .v2-pi__b { margin-top: 4px; font-size: 13.5px; line-height: 1.5; color: var(--skj-n700); }
+@media (min-width: 900px) {
+  .skj.vn2 .v2-pcard { padding: 28px 30px 12px; }
+  .skj.vn2 .v2-pcard__k { font-size: 26px; }
+  .skj.vn2 .v2-pcard__list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+  .skj.vn2 .v2-pi { padding: 22px 0; }
+  .skj.vn2 .v2-pi:nth-last-child(2) { border-bottom: 0; }
+  .skj.vn2 .v2-pi__t { font-size: 20px; }
+}
+/* Unlike the tours, this row keeps its swipe controls on desktop too. */
+.skj.vn2 .skj-promises .skj-dots { margin-top: 4px; }
+
+/* Departure pills: seats left (or Sold out) beside the year, as on Japan. */
+.skj.vn2 .vn-win__y { display: flex; align-items: baseline; gap: 8px; }
+.skj.vn2 .vn-win__s { font-size: 10.5px; font-weight: 600; letter-spacing: .04em; color: var(--skj-warn-7); white-space: nowrap; }
+.skj.vn2 .vn-win.is-on .vn-win__s { color: var(--skj-n100); }
+.skj.vn2 .vn-win.is-sold .vn-win__s { color: var(--skj-n700); font-weight: 500; }
+.skj.vn2 .vn-win.is-sold .vn-win__d { text-decoration: line-through; text-decoration-thickness: 1px; }
+
+/* Lead form, phone alignment: one even rhythm down the form (the base sheet
+   only gaps the panel's two children, so the form's own blocks were stacked
+   on ad-hoc margins and the fine print ran into the button). */
+.skj.vn2 .skj-sheet form { display: flex; flex-direction: column; gap: 14px; }
+.skj.vn2 .skj-sheet form > * { margin: 0; }
+.skj.vn2 .skj-sheet form > .v2-sheet-emi { margin: 4px 0 0; }
+.skj.vn2 .skj-sheet form > .skj-btn--block { margin-top: 4px; }
+.skj.vn2 .skj-sheet form > .skj-sheet__fine { margin-top: -4px; }
+.skj.vn2 .vn-lead__grid { gap: 14px 12px; }
+.skj.vn2 .vn-lead__grid .skj-field { min-width: 0; }
+/* Travellers: the stepper fills its column like every other control. */
+.skj.vn2 .vn-lead__grid .skj-stepper { width: 100%; justify-content: space-between; min-height: 48px; }
+.skj.vn2 .vn-lead__grid .skj-stepper button { height: 46px; }
+@media (max-width: 699px) {
+  /* The eyebrow wraps here; drop its rule so both lines start flush left. */
+  .skj.vn2 .skj-sheet__head .skj-eyebrow { display: block; letter-spacing: .14em; line-height: 1.5; }
+  .skj.vn2 .skj-sheet__head .skj-eyebrow::before { display: none; }
+  .skj.vn2 .skj-sheet__head .skj-iconbtn { flex: none; }
+  .skj.vn2 .skj-bill { padding: 4px 14px; }
+}
+
+/* Phone card: five departure pills now (two sold out), so they tighten to
+   match the map's height and the card still fits one screen. */
+@media (max-width: 979px) {
+  .skj.vn2 .vn-card__dates .vn-wins { gap: 4px; }
+  .skj.vn2 .vn-card__dates .vn-win { min-height: 0; padding: 4px 9px; gap: 1px; }
+  .skj.vn2 .vn-card__dates .vn-win__d { font-size: 14px; line-height: 1.1; }
+  .skj.vn2 .vn-card__dates .vn-win__y { font-size: 9.5px; gap: 6px; }
+  .skj.vn2 .vn-card__dates .vn-win__s { font-size: 9.5px; }
+  .skj.vn2 .vn-card__dates .skj-tour__label { margin-bottom: 4px; }
+}

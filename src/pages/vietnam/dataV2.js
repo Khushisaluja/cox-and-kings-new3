@@ -61,7 +61,7 @@ export const img = (id, w = 1400) =>
 const seatsFor = (key) => {
   let h = 2166136261;
   for (let i = 0; i < key.length; i += 1) h = Math.imul(h ^ key.charCodeAt(i), 16777619);
-  return 3 + (Math.abs(h) % 16);
+  return 3 + (Math.abs(h) % 6); // 3 to 8 seats left
 };
 
 const fmt = (iso, o) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', o);
@@ -69,7 +69,7 @@ const fmt = (iso, o) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', 
 /* A departure WINDOW: travel on any date from `iso` to `end`. `iso` is the
    first day so the shared campaign code (which reads d.iso) keeps working;
    it also reads d.end to know the last month. `seats` only feeds that code. */
-const win = (tourId, iso, end) => {
+const win = (tourId, iso, end, sold = false) => {
   const sameYear = iso.slice(0, 4) === end.slice(0, 4);
   return {
     id: `${tourId}-${iso}`,
@@ -79,8 +79,8 @@ const win = (tourId, iso, end) => {
     to: fmt(end, { day: 'numeric', month: 'short' }),
     year: sameYear ? iso.slice(0, 4) : `${iso.slice(0, 4)}–${end.slice(2, 4)}`,
     label: `${fmt(iso, { day: 'numeric', month: 'short', ...(sameYear ? {} : { year: 'numeric' }) })} to ${fmt(end, { day: 'numeric', month: 'short', year: 'numeric' })}`,
-    soldOut: end < new Date().toISOString().slice(0, 10),
-    seats: seatsFor(`${tourId}-${iso}`),
+    soldOut: sold || end < new Date().toISOString().slice(0, 10),
+    seats: sold ? 0 : seatsFor(`${tourId}-${iso}`),
   };
 };
 
@@ -125,7 +125,12 @@ export const TOURS = [
        31st Jan 27 & 16th Feb 27 to 30th Nov 27). */
     deps: [
       win('vietnam-from-heritage-to-paradise', '2026-11-21', '2026-12-19'),
+      /* ⚠ DUMMY: not on the sheet. Two sold-out windows in the sheet's gaps
+         (Christmas–New Year and early Feb), to show what a full window looks
+         like. Remove before launch. */
+      win('vietnam-from-heritage-to-paradise', '2026-12-20', '2027-01-05', true),
       win('vietnam-from-heritage-to-paradise', '2027-01-06', '2027-01-31'),
+      win('vietnam-from-heritage-to-paradise', '2027-02-01', '2027-02-15', true),
       win('vietnam-from-heritage-to-paradise', '2027-02-16', '2027-11-30'),
     ],
     url: 'https://coxandkings.com/private-tours/vietnam-from-heritage-to-paradise',

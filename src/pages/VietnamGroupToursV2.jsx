@@ -118,11 +118,28 @@ const LANTERNS = [
 /* One icon per inclusion, in data.js INCLUDED order. */
 const INC_ICONS = [Plane, PlaneTakeoff, FileCheck2, Hotel, UtensilsCrossed, UtensilsCrossed, CarFront, Bus, Ship, Ticket, Camera, ShieldPlus, Receipt];
 
-const PROMISES = [
-  { icon: Route, t: 'Crafted, unhurried journeys', b: 'Must-sees and meaningful experiences, with fewer hotel changes and less time on the road.' },
-  { icon: Hotel, t: 'Hotels & meals assured', b: 'Hotels named upfront (or similar). Breakfast every day, lunches and dinners as the itinerary lists them.' },
-  { icon: Headset, t: 'Guided, start to finish', b: 'A guide on every sightseeing day, and a Cox & Kings expert on call from your first question to homecoming.' },
-  { icon: ClipboardList, t: 'Every detail upfront', b: 'Daily itinerary, flights and hotels in writing. No compulsory shopping stops, and birthdays celebrated.' },
+/* All eight points of the Cox & Kings Promise, as two swipeable cards of
+   four (Japan v3's layout), worded for Vietnam: no booking amount, a guide
+   rather than a tour manager, hotels "or similar". */
+const PROMISE_CARDS = [
+  {
+    k: 'Your trip, taken care of',
+    items: [
+      { icon: Route, t: 'Crafted, unhurried journeys', b: 'Must-sees and meaningful experiences, with fewer hotel changes and less time on the road.' },
+      { icon: Hotel, t: 'Hotels & meals assured', b: 'Hotels named upfront (or similar). Breakfast every day, lunches and dinners as the itinerary lists them.' },
+      { icon: Headset, t: 'Guided, start to finish', b: 'A guide on every sightseeing day, and a Cox & Kings expert on call from your first question to homecoming.' },
+      { icon: ClipboardList, t: 'Every detail upfront', b: 'Daily itinerary, flights and hotels in writing. No compulsory shopping stops, and birthdays celebrated.' },
+    ],
+  },
+  {
+    k: 'Your money, protected',
+    items: [
+      { icon: Receipt, t: 'All-inclusive, fixed price', b: 'Flights, hotels, the meals listed, transfers, sightseeing, entry tickets, the Ha Long Bay cruise, visa fees, GST & TCS. No hidden charges.' },
+      { icon: Wallet, t: `Flat ${OFFER.dealPct}% off, or pay monthly`, b: `The ${OFFER.dealName} takes ${inr(OFFER.onlineDiscount)} off per person. Pay in full, or split the price into EMIs.` },
+      { icon: ShieldCheck, t: 'Guaranteed departures', b: 'If Cox & Kings cancels a departure, you get a full refund.' },
+      { icon: Landmark, t: 'Heritage & best price', b: 'Travelling since 1758, 260+ years on, now backed by Wilson & Hughes, with a guaranteed best price on this tour.' },
+    ],
+  },
 ];
 const STEPS = [
   { t: CTA, b: 'Leave your number. A Vietnam specialist calls you back' },
@@ -543,10 +560,10 @@ function TourCard({ tour, selectedDep, onSelectDep, onItinerary, onExpert }) {
                   tabIndex={d.soldOut ? -1 : 0}
                   className={`vn-win${d.soldOut ? ' is-sold' : ''}${on ? ' is-on' : ''}`}
                   onClick={() => !d.soldOut && onSelectDep(tour.id, d.id)}
-                  aria-label={`Departures ${d.label}${d.soldOut ? ', closed' : ''}`}
+                  aria-label={`Departures ${d.label}: ${d.soldOut ? 'sold out' : `${d.seats} seats left`}`}
                 >
                   <span className="vn-win__d">{d.from} <i aria-hidden="true">–</i> {d.to}</span>
-                  <span className="vn-win__y">{d.year}</span>
+                  <span className="vn-win__y">{d.year} <b className="vn-win__s">{d.soldOut ? 'Sold out' : `${d.seats} left`}</b></span>
                 </button>
               );
             })}
@@ -801,7 +818,7 @@ function LeadSheet({ open, initial, onClose }) {
       <div className="skj-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="skj-sheet-h" ref={panel}>
         <div className="skj-sheet__head">
           <div>
-            <Eyebrow>{tour.name} · {tour.nd}</Eyebrow>
+            <Eyebrow>{`${tour.name} · ${tour.nd.replace(/ /g, "\u00a0")}`}</Eyebrow>
             <h2 id="skj-sheet-h" className="skj-sheet__title">{status === 'sent' ? 'Thank you. We’ll call you soon.' : CTA}</h2>
           </div>
           <button type="button" className="skj-iconbtn" onClick={onClose} aria-label="Close"><X size={18} /></button>
@@ -965,6 +982,7 @@ export default function VietnamGroupToursV2() {
   const closeItin = useCallback(() => setItinId(null), []);
 
   const reviewsRow = useSnapRow();
+  const promiseRow = useSnapRow();
 
   const openLead = useCallback((tourId = null, depId = null) => {
     setSheet({ open: true, tourId: tourId || TOUR.id, depId });
@@ -1377,24 +1395,37 @@ export default function VietnamGroupToursV2() {
 
         {/* ------------------------------------------------ 6 THE PROMISE */}
         <section className="skj-promises" aria-labelledby="skj-pr-h">
-          <div className="skj-promises__head">
-            <PromiseSeal />
-            <div>
-              <Eyebrow>The Cox &amp; Kings Promise</Eyebrow>
-              <h2 id="skj-pr-h" className="skj-h2">Expertly crafted. <em>Everything taken care of.</em></h2>
+          <div className="v2-pr-head">
+            <div className="skj-promises__head">
+              <PromiseSeal />
+              <div>
+                <Eyebrow>The Cox &amp; Kings Promise</Eyebrow>
+                <h2 id="skj-pr-h" className="skj-h2">Expertly crafted. <em>Everything taken care of.</em></h2>
+              </div>
             </div>
+            <RowControls row={promiseRow} label="promise card" />
           </div>
-          <ul className="skj-promises__list">
-            {PROMISES.map(({ icon: Icon, t, b }, i) => (
-              <li key={t} className="skj-pitem" data-rise>
-                <span className="skj-pitem__icon"><Icon size={22} strokeWidth={1.6} aria-hidden="true" /></span>
-                <div>
-                  <h3 className="skj-pitem__t"><span className="skj-pitem__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>{t}</h3>
-                  <p className="skj-pitem__b">{b}</p>
-                </div>
-              </li>
+          <div className="skj-row v2-pr-row" ref={promiseRow.ref}>
+            {PROMISE_CARDS.map((card, ci) => (
+              <article key={card.k} className="v2-pcard" aria-labelledby={`v2-pc-${ci}`}>
+                <h3 id={`v2-pc-${ci}`} className="v2-pcard__k">
+                  <span aria-hidden="true">{String(ci + 1).padStart(2, '0')}</span> {card.k}
+                </h3>
+                <ul className="v2-pcard__list">
+                  {card.items.map(({ icon: Icon, t, b }) => (
+                    <li key={t} className="v2-pi">
+                      <span className="skj-pitem__icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></span>
+                      <div>
+                        <p className="v2-pi__t">{t}</p>
+                        <p className="v2-pi__b">{b}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </article>
             ))}
-          </ul>
+          </div>
+          <Dots row={promiseRow} label="Promise card" />
         </section>
 
         {/* ------------------------------------------------ 7 HERITAGE (cream). Story + stats beside the
