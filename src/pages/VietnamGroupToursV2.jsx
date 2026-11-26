@@ -88,6 +88,11 @@ function PriceEmi({ tour, className = '' }) {
     </p>
   );
 }
+/* The pre-offer price, struck through, beside the Steal Deal price
+   (hero, sticky bar, lead form). Screen readers hear "was ₹1,60,000". */
+function Was({ tour = TOURS[0], className = '' }) {
+  return <s className={`vn2-was ${className}`}><span className="skj-sr">was </span>{inr(tour.price)}</s>;
+}
 /* The one place the 10% off is explained. */
 const DEAL_NOTE = `${OFFER.dealName} price, flat ${OFFER.dealPct}% off ${inr(TOURS[0].price)}`;
 const EMI_FINE = `${DEAL_NOTE} · EMI over ${MAX_TENURE} months`;
@@ -820,6 +825,11 @@ function LeadSheet({ open, initial, onClose }) {
           <div>
             <Eyebrow>{`${tour.name} · ${tour.nd.replace(/ /g, "\u00a0")}`}</Eyebrow>
             <h2 id="skj-sheet-h" className="skj-sheet__title">{status === 'sent' ? 'Thank you. We’ll call you soon.' : CTA}</h2>
+            {status !== 'sent' && (
+              <p className="vn2-sheet-price">
+                <Was tour={tour} /> <b>{inr(dealPrice(tour))}</b> <span>per person · {OFFER.dealName}, {OFFER.dealPct}% off</span>
+              </p>
+            )}
           </div>
           <button type="button" className="skj-iconbtn" onClick={onClose} aria-label="Close"><X size={18} /></button>
         </div>
@@ -1281,7 +1291,7 @@ export default function VietnamGroupToursV2() {
               <div className="vn2-hero-glass" data-hero-in>
                 <p className="vn2-hero-price">
                   <span className="vn2-hero-price__k">{OFFER.dealName} · flat {OFFER.dealPct}% off</span>
-                  <span className="vn2-hero-price__v"><b>{inr(dealPrice(TOUR))}</b> <small>per person</small></span>
+                  <span className="vn2-hero-price__v"><Was /> <b>{inr(dealPrice(TOUR))}</b> <small>per person</small></span>
                   <span className="vn2-hero-price__emi">or <b>{inr(emiFor(TOUR, MAX_TENURE))}</b>/month on EMI</span>
                 </p>
                 <div className="skj-hero__ctas" ref={heroCtas}>
@@ -1520,8 +1530,8 @@ export default function VietnamGroupToursV2() {
       {/* ------------------------------------------------ STICKY CTA BAR */}
       <div className={`skj-sticky${showSticky ? ' is-on' : ''}`} aria-hidden={!showSticky}>
         <div className="skj-sticky__info">
-          <b>{inr(dealPrice(TOUR))} <small>per person</small></b>
-          <span>or {inr(emiFor(TOUR, MAX_TENURE))}/month · {OFFER.dealName}</span>
+          <b><Was /> {inr(dealPrice(TOUR))} <small className="vn2-pp-wide">per person</small></b>
+          <span><span className="vn2-pp-narrow">Per person · </span>or {inr(emiFor(TOUR, MAX_TENURE))}/month<span className="vn2-pp-wide"> · {OFFER.dealName}</span></span>
         </div>
         <button type="button" className="skj-btn skj-btn--primary" onClick={() => openLead()} tabIndex={showSticky ? 0 : -1}>
           {CTA}

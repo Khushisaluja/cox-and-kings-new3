@@ -709,3 +709,17 @@
   .skj.vn2 .vn-card__dates .vn-win__s { font-size: 9.5px; }
   .skj.vn2 .vn-card__dates .skj-tour__label { margin-bottom: 4px; }
 }
+
+/* Struck-through pre-offer price beside the Steal Deal price. */
+.skj.vn2 .vn2-was { font: 500 .62em/1 var(--skj-sans); text-decoration-thickness: 1.5px; color: var(--skj-n700); margin-right: 2px; white-space: nowrap; }
+.skj.vn2 .vn2-hero-price__v .vn2-was { font-size: 15px; color: rgba(255,255,255,.72); vertical-align: 2px; }
+.skj-sticky__info .vn2-was { font-size: 13px; vertical-align: 2px; }
+.skj.vn2 .vn2-sheet-price { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 13px; color: var(--skj-n700); }
+.skj.vn2 .vn2-sheet-price .vn2-was { font-size: 15px; margin: 0; }
+.skj.vn2 .vn2-sheet-price b { font: 600 24px/1 var(--skj-serif); color: var(--skj-blue); }
+.skj.vn2 .skj-sticky__info b { white-space: nowrap; }
+.skj.vn2 .vn2-pp-narrow { display: none; }
+@media (max-width: 559px) {
+  .skj.vn2 .vn2-pp-wide { display: none; }
+  .skj.vn2 .vn2-pp-narrow { display: inline; }
+}
