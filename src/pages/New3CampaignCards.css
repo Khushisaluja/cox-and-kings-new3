@@ -1,0 +1,53 @@
+/* ============================================================
+   /new3-campaign-cards: brand-voice + photography pass.
+   Scoped to .n3cc (the page wrapper), so no other .h26 / .n3 page
+   is touched.
+
+   Crops, the theme eyebrow lead-in and band colour for this page.
+   ============================================================ */
+/* (The warm photo grade was removed: a filter on images that GSAP
+   moves every frame forced a repaint per frame and made scrolling stutter.) */
+/* The closing band sits under a navy scrim: a window seat at sunset,
+   held on the lit horizon so the warmth survives the overlay. */
+.n3cc .h26-contact-bg { object-position: center 58%; opacity: 0.66; }
+
+/* Hero: the Kyoto pagoda sits on the right of the frame. On a portrait
+   phone, `center` crops it away, so hold it in view. */
+@media (max-width: 880px) {
+  .n3cc .lx2i-hero__bg { background-position: 80% center; }
+}
+
+/* The theme eyebrow lost its "//" prefix; give it the same hairline
+   lead-in the other section eyebrows carry. */
+.n3cc .n3d__eyebrow { display: inline-flex; align-items: center; gap: 12px; }
+.n3cc .n3d__eyebrow::before {
+  content: ''; width: 28px; height: 1px; background: currentColor; opacity: 0.6;
+}
+
+/* Neighbouring bands never share a colour: the relaxed shelf above and the
+   clips below are both paper (/50), so the theme band sits on /100, flat. */
+.n3cc .n3-disc { background: var(--n-100, #F1EFE2); }
+
+/* Hero subtitle + awards row (first two folds: say what this is, then why trust it). */
+.n3cc .lx2i-hero__sub { max-width: 620px; margin: 18px 0 26px; color: rgba(255,255,255,0.86); font-weight: 400; }
+.n3cc .n3-awards {
+  list-style: none; margin: 34px auto 0; padding: 22px 0 0; max-width: 760px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 28px;
+  border-top: 1px solid rgba(26, 24, 20, 0.14); text-align: center;
+}
+.n3cc .n3-awards li { display: flex; flex-direction: column; gap: 4px; }
+.n3cc .n3-awards b { font: 500 17px/1.25 'Cormorant Garamond', serif; color: #1A1814; }
+.n3cc .n3-awards span { font: 500 10.5px/1.45 'Work Sans', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6455; }
+@media (max-width: 760px) {
+  .n3cc .n3-awards { grid-template-columns: 1fr; gap: 14px; max-width: 340px; }
+}
+/* The two inner scatter photos (s5, s7) sat over the intro's points and
+   awards row; move them out to the gutters so nothing overlaps the copy. */
+@media (min-width: 1024px) {
+  .n3cc .h26-scatter.s5 { left: 16%; bottom: 4%; }
+  .n3cc .h26-scatter.s7 { right: 19%; bottom: 52%; }
+}
+/* Light motion: the falling petals are static decoration without GSAP; hide them. */
+.n3cc .n3c-petal { display: none; }
+/* Clips row: no slow-zoom loop on every poster (phones). */
+.n3cc .h26-reel-link > img { animation: none; }

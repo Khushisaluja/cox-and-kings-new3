@@ -242,9 +242,10 @@ const TRIP_SUGGESTIONS = [
 function ScatterImg({ src, cls, driftY, mx, my, depth }) {
   const x = useTransform(mx, (v) => v * depth);
   const y = useTransform([driftY, my], ([d, m]) => d + m * depth * 0.6);
+  const still = useContext(MotionMode) === 'light';
   return (
     <motion.img
-      style={{ x, y }}
+      style={still ? undefined : { x, y }}
       whileHover={{ scale: 1.14, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
       className={`h26-scatter ${cls}`}
       src={src}
@@ -283,6 +284,16 @@ function Reveal({ children, className = '', delay = 0, y = 24, as = 'div' }) {
   const reduce = useReducedMotion();
   const mode = useContext(MotionMode);
   if (mode === 'gsap') { const T = as; return <T className={className} data-reveal="">{children}</T>; }
+  if (mode === 'light' && !reduce) {
+    /* Light mode: a short opacity fade only. No blur, no travel: animated
+       blur filters on every block made scrolling stutter. */
+    return (
+      <M className={className} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '0px 0px -8% 0px' }} transition={{ duration: 0.5, ease: 'easeOut' }}>
+        {children}
+      </M>
+    );
+  }
   if (reduce) return <M className={className}>{children}</M>;
   return (
     <M
@@ -297,12 +308,19 @@ function Reveal({ children, className = '', delay = 0, y = 24, as = 'div' }) {
   );
 }
 
+/* One clip card. Light pages render it plain: a reveal per card inside a
+   sideways scroller made cards pop in and out as the row moved. */
+function ReelItem({ light, delay, children }) {
+  if (light) return <div className="h26-reel">{children}</div>;
+  return <Reveal className="h26-reel" delay={delay} y={0}>{children}</Reveal>;
+}
+
 /* ---- Word-by-word blur reveal for display headlines ---- */
 function WordReveal({ text, className = '', accent = [], delay = 0 }) {
   const words = text.split(' ');
   const reducedPref = useReducedMotion();
   const mode = useContext(MotionMode);
-  const reduce = reducedPref || mode === 'gsap';
+  const reduce = reducedPref || mode === 'gsap' || mode === 'light';
   return (
     <span className={className} aria-label={text}>
       {words.map((w, i) => (
@@ -883,6 +901,29 @@ export const NEW3_COPY = {
   contactSub: "Speak to a specialist who's actually walked the route. Message us now, or pick a time and we'll call you. No scripts, no call centres, no obligation.",
   contactCall: 'Schedule a callback', contactWa: 'WhatsApp us',
   contactAlt: 'Travel experts available 9am\u20139pm IST, every day',
+
+  /* Added for /new3-marketing-v3's brand-voice pass. Each default is exactly
+     what / and /new3 rendered before, so those pages are unchanged. */
+  /* Optional extras (null on / and /new3): a one-line hero subtitle and an
+     awards row under the intro points. */
+  heroSub: null, introAwards: null,
+  heroEyebrow: "THE WORLD'S MOST EXPERIENCED TRAVEL COMPANY · SINCE 1758",
+  heroTitle1: 'Discover the World', heroTitle2: 'in Luxury & Style.',
+  heroWhere: 'Where to?', heroWho: "Who's travelling?", heroWhen: 'When?', heroSearch: 'Search',
+  heroWhoOpts: HERO_WHO_OPTS,
+  heroRatingScore: '4.9', heroRatingLabel: 'from 2,400+ verified reviews',
+  heroQuickLabel: 'Popular right now', heroScroll: 'Scroll to explore',
+  heroStats: HERO_STATS,
+  lane1Img: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99', lane1Alt: 'An escorted small-group journey',
+  lane2Img: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828', lane2Alt: 'Planning a trip together over a map',
+  lane3Img: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d', lane3Alt: 'A travel specialist ready to talk',
+  destinations: DESTINATIONS,
+  herImgMain: '1599661046289-e31897846e41', herImgInset: '1523906834658-6e24ef2386f9',
+  pressLabel: 'AS FEATURED IN',
+  relaxedList: RELAXED_JOURNEYS,
+  reels: REELS,
+  reviews: LX_REVIEWS,
+  contactImg: 'https://images.unsplash.com/photo-1534445867742-43195f401b6c',
 };
 
 /* WhatsApp glyph (lucide has no brand icon) — used on the enquiry CTA. */
@@ -898,7 +939,7 @@ const WaIcon = ({ size = 15 }) => (
    same object: the sienna Private/Group tour-type badge, and the gallery
    browsable inline on the card (arrows + dots) rather than behind a
    "N photos" button that opened a lightbox. */
-function JourneyCard({ j, i }) {
+function JourneyCard({ j, i, viewCta = 'View Itinerary', askCta = 'Enquire Now' }) {
   const waHref = `${CONTACT_IMP.whatsappHref}?text=${encodeURIComponent(`Hi Cox & Kings, I'd like to enquire about the "${j.title}" journey.`)}`;
   const isGroup = j.tourType === 'Group Tour';
   const shots = j.gallery;
@@ -971,7 +1012,7 @@ function JourneyCard({ j, i }) {
           </span>
           <div className="jl-card-ctas">
             <Link to={j.to} className="jl-cbtn jl-cbtn-view">
-              View Itinerary <ArrowRight size={15} aria-hidden="true" />
+              {viewCta} <ArrowRight size={15} aria-hidden="true" />
             </Link>
             <a
               href={waHref}
@@ -980,7 +1021,7 @@ function JourneyCard({ j, i }) {
               className="jl-cbtn jl-cbtn-wa"
               aria-label={`Enquire about ${j.title} on WhatsApp`}
             >
-              <WaIcon size={15} /> Enquire Now
+              <WaIcon size={15} /> {askCta}
             </a>
           </div>
         </div>
@@ -1022,7 +1063,7 @@ function Shelf({ col, list }) {
     <section className="jl-shelf" aria-labelledby={`shelf-${col.key}`}>
       <div className="jl-shelf-head">
         <div className="jl-shelf-heading">
-          <Reveal className="h26-label jl-shelf-label" as="p">{list.length} journeys</Reveal>
+          <Reveal className="h26-label jl-shelf-label" as="p">{col.countLabel ? col.countLabel(list.length) : `${list.length} journeys`}</Reveal>
           <Reveal as="h2" className="jl-shelf-title" delay={0.04} id={`shelf-${col.key}`}>{col.title}</Reveal>
           <Reveal as="p" className="jl-shelf-sub" delay={0.08}>{col.sub}</Reveal>
         </div>
@@ -1036,7 +1077,7 @@ function Shelf({ col, list }) {
         </div>
       </div>
       <div className="jl-rail" ref={railRef} role="group" aria-label={`${col.title} — scroll for more`}>
-        {list.map((j, i) => <JourneyCard key={j.id} j={j} i={i} />)}
+        {list.map((j, i) => <JourneyCard key={j.id} j={j} i={i} viewCta={col.viewCta} askCta={col.askCta} />)}
       </div>
     </section>
   );
@@ -1127,7 +1168,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
 
   /* Rotate the glass stat chips in the hero. */
   useEffect(() => {
-    const t = setInterval(() => setStatIdx((i) => (i + 1) % HERO_STATS.length), 2600);
+    const t = setInterval(() => setStatIdx((i) => (i + 1) % C.heroStats.length), 2600);
     return () => clearInterval(t);
   }, []);
 
@@ -1172,8 +1213,8 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
     if (activeReel === null) return;
     const onKey = (e) => {
       if (e.key === 'Escape') setActiveReel(null);
-      else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') setActiveReel((i) => (i + 1) % REELS.length);
-      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') setActiveReel((i) => (i - 1 + REELS.length) % REELS.length);
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') setActiveReel((i) => (i + 1) % C.reels.length);
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') setActiveReel((i) => (i - 1 + C.reels.length) % C.reels.length);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -1242,7 +1283,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
   const reelsRef = useRef(null);
   useEffect(() => {
     const el = reelsRef.current;
-    if (!el || prefersReduced) return;
+    if (!el || prefersReduced || motionMode === 'light') return;
     const mq = window.matchMedia('(max-width: 680px)');
     if (!mq.matches) return;
     let paused = false; let resumeT;
@@ -1264,7 +1305,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
       el.removeEventListener('pointerdown', pause);
       el.removeEventListener('touchstart', pause);
     };
-  }, [prefersReduced]);
+  }, [prefersReduced, motionMode]);
 
   /* Trigger the heritage count-up when the stats band enters view. */
   useEffect(() => {
@@ -1455,11 +1496,12 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
 
           <div className="lx2i-hero__inner">
             <div className="lx2i-hero__left">
-              <span className="lx2i-eyebrow lx2i-eyebrow--light lx2i-fade" style={{ '--d': '.1s' }}>THE WORLD&apos;S MOST EXPERIENCED TRAVEL COMPANY · SINCE 1758</span>
+              <span className="lx2i-eyebrow lx2i-eyebrow--light lx2i-fade" style={{ '--d': '.1s' }}>{C.heroEyebrow}</span>
               <h1 className="lx2i-hero__title">
-                <span className="lx2i-fade" style={{ '--d': '.2s' }}>Discover the World</span>
-                <em className="lx2i-fade" style={{ '--d': '.36s' }}>in Luxury &amp; Style.</em>
+                <span className="lx2i-fade" style={{ '--d': '.2s' }}>{C.heroTitle1}</span>
+                <em className="lx2i-fade" style={{ '--d': '.36s' }}>{C.heroTitle2}</em>
               </h1>
+              {C.heroSub && <p className="lx2i-hero__sub lx2i-fade" style={{ '--d': '.5s' }}>{C.heroSub}</p>}
 
               {/* Glass search */}
               <form
@@ -1471,7 +1513,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
               >
                 <div className={`lx2i-search__field lx2i-search__field--trip ${openField === 'trip' ? 'is-open' : ''}`}>
                   <MapPin size={17} />
-                  <span className="lx2i-search__fixed" aria-hidden="true">Where to?</span>
+                  <span className="lx2i-search__fixed" aria-hidden="true">{C.heroWhere}</span>
                   <input
                     type="text"
                     aria-label="Where to"
@@ -1509,12 +1551,12 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
                 <div className={`lx2i-search__field lx2i-search__field--who ${openField === 'who' ? 'is-open' : ''}`}>
                   <Users size={17} />
                   <button type="button" className="lx2i-search__trigger" aria-haspopup="listbox" aria-expanded={openField === 'who'} onClick={() => setOpenField(openField === 'who' ? null : 'who')}>
-                    <span className={whoValue ? '' : 'lx2i-search__ph'}>{whoValue?.label || "Who's travelling?"}</span>
+                    <span className={whoValue ? '' : 'lx2i-search__ph'}>{whoValue?.label || C.heroWho}</span>
                     <ChevronDown size={15} className="lx2i-search__chev" />
                   </button>
                   {openField === 'who' && (
                     <div className="lx2i-search__drop" role="listbox" aria-label="Who's travelling">
-                      {HERO_WHO_OPTS.map((o) => (
+                      {C.heroWhoOpts.map((o) => (
                         <button
                           key={o.label}
                           type="button"
@@ -1542,26 +1584,26 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
                 <div className={`lx2i-search__field lx2i-search__field--when ${openField === 'when' ? 'is-open' : ''}`}>
                   <Calendar size={17} />
                   <button type="button" className="lx2i-search__trigger" aria-haspopup="dialog" aria-expanded={openField === 'when'} onClick={() => setOpenField(openField === 'when' ? null : 'when')}>
-                    <span className={whenLabel ? '' : 'lx2i-search__ph'}>{whenLabel || 'When?'}</span>
+                    <span className={whenLabel ? '' : 'lx2i-search__ph'}>{whenLabel || C.heroWhen}</span>
                     <ChevronDown size={15} className="lx2i-search__chev" />
                   </button>
                   {openField === 'when' && whenPicker}
                 </div>
-                <button type="submit" className="lx2i-search__btn" aria-label="Search journeys"><Search size={17} /><span>Search</span></button>
+                <button type="submit" className="lx2i-search__btn" aria-label="Search journeys"><Search size={17} /><span>{C.heroSearch}</span></button>
               </form>
 
               <div className="lx2i-hero__trust lx2i-fade" style={{ '--d': '.88s' }}>
                 <a href="#reviews" onClick={go('#reviews')} className="lx2i-hero__rating">
                   <span className="lx2i-stars">{[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}</span>
-                  <strong>4.9</strong>
-                  <span>from 2,400+ verified reviews</span>
+                  <strong>{C.heroRatingScore}</strong>
+                  <span>{C.heroRatingLabel}</span>
                   <ArrowRight size={15} />
                 </a>
               </div>
 
               {/* Above-the-fold quick picks - get to an answer without the form */}
               <div className="lx2i-hero__quick lx2i-fade" style={{ '--d': '.98s' }}>
-                <span className="lx2i-hero__quicklbl">Popular right now</span>
+                <span className="lx2i-hero__quicklbl">{C.heroQuickLabel}</span>
                 <div className="lx2i-hero__quickrow">
                   {HERO_QUICK_PICKS.map((q) => {
                     const page = destPage(q);
@@ -1587,14 +1629,14 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
 
             {/* Glass stat chips */}
             <div className="lx2i-hero__chips" aria-hidden="true">
-              {HERO_STATS.map((s, i) => (
+              {C.heroStats.map((s, i) => (
                 <span key={s} className={`lx2i-chip ${i === statIdx ? 'is-active' : ''}`} style={{ '--i': i }}>{s}</span>
               ))}
             </div>
           </div>
 
           <a href="#paths" onClick={go('#paths')} className="lx2i-hero__scroll" aria-label="Scroll to explore">
-            <span>Scroll to explore</span>
+            <span>{C.heroScroll}</span>
             <ChevronDown size={16} />
           </a>
         </section>
@@ -1636,6 +1678,13 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
                 </Reveal>
               ))}
             </ul>
+            {C.introAwards && (
+              <ul className="n3-awards" aria-label="Awards">
+                {C.introAwards.map((a) => (
+                  <li key={a.title}><b>{a.title}</b><span>{a.by}, {a.years}</span></li>
+                ))}
+              </ul>
+            )}
           </div>
         </section>
 
@@ -1652,7 +1701,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
             <Reveal className="hi-lane" y={0}>
               <Link to="/journeys4" className="hi-lane-link">
                 <div className="hi-lane-media">
-                  <img src={img('https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99', 800)} alt="An escorted small-group journey" loading="lazy" />
+                  <img src={img(C.lane1Img, 800)} alt={C.lane1Alt} loading="lazy" />
                 </div>
                 <div className="hi-lane-body">
                   <span className="hi-lane-tag">{C.lane1Tag}</span>
@@ -1668,7 +1717,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
             <Reveal className="hi-lane is-featured" y={0}>
               <span className="hi-lane-badge">{C.lane2Badge}</span>
               <div className="hi-lane-media">
-                <img src={img('https://images.unsplash.com/photo-1488646953014-85cb44e25828', 800)} alt="Planning a trip together over a map" loading="lazy" />
+                <img src={img(C.lane2Img, 800)} alt={C.lane2Alt} loading="lazy" />
               </div>
               <div className="hi-lane-body">
                 <span className="hi-lane-tag">{C.lane2Tag}</span>
@@ -1683,7 +1732,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
             </Reveal>
             <Reveal className="hi-lane" y={0}>
               <div className="hi-lane-media">
-                <img src={img('https://images.unsplash.com/photo-1521737604893-d14cc237f11d', 800)} alt="A travel specialist ready to talk" loading="lazy" />
+                <img src={img(C.lane3Img, 800)} alt={C.lane3Alt} loading="lazy" />
               </div>
               <div className="hi-lane-body">
                 <span className="hi-lane-tag">{C.lane3Tag}</span>
@@ -1713,11 +1762,11 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
             </Reveal>
           </div>
           <div className="h26-dest-grid" ref={destRef}>
-            {DESTINATIONS.slice(0, 8).map((d, i) => {
+            {C.destinations.slice(0, 8).map((d, i) => {
               const page = destPage(d.name);
               const inner = (
                 <>
-                  <img src={img(d.image, 900)} alt={d.name} loading="lazy" />
+                  <img src={img(d.image, 900)} alt={d.alt || d.name} loading="lazy" style={d.pos ? { objectPosition: d.pos } : undefined} />
                   <div className="h26-dest-veil" />
                   <div className="h26-dest-body">
                     <h3>{d.name}</h3>
@@ -1741,7 +1790,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
               );
             })}
           </div>
-          <CarouselDots scrollRef={destRef} count={Math.min(8, DESTINATIONS.length)} label="destinations" />
+          <CarouselDots scrollRef={destRef} count={Math.min(8, C.destinations.length)} label="destinations" />
         </section>
 
         {/* HERITAGE — "Crafting unforgettable journeys since 1758" (from /luxe2-improved) */}
@@ -1749,12 +1798,12 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
           <section className="lx2i-heritage" id="heritage">
             <div className="lx2i-container lx2i-heritage__grid">
               <div className="lx2i-heritage__media lx2i-reveal">
-                <div className="lx2i-heritage__photo lx2i-heritage__photo--main" style={{ backgroundImage: `url(${sizedUnsplash('1599661046289-e31897846e41', 900)})` }} />
+                <div className="lx2i-heritage__photo lx2i-heritage__photo--main" style={{ backgroundImage: `url(${sizedUnsplash(C.herImgMain, 900)})` }} />
                 <div className="lx2i-heritage__card lx2i-glass">
                   <span className="lx2i-eyebrow">{C.herCardEyebrow}</span>
                   <h4>{C.herCardTitle}</h4>
                   <p>{C.herCardText}</p>
-                  <div className="lx2i-heritage__photo lx2i-heritage__photo--inset" style={{ backgroundImage: `url(${sizedUnsplash('1523906834658-6e24ef2386f9', 600)})` }} />
+                  <div className="lx2i-heritage__photo lx2i-heritage__photo--inset" style={{ backgroundImage: `url(${sizedUnsplash(C.herImgInset, 600)})` }} />
                 </div>
               </div>
 
@@ -1794,7 +1843,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
           {/* AS SEEN IN — press marquee. Sits straight after heritage so the
               267-year story flows into the outlets that have covered it. */}
           <section className="lx2i-press" id="press" aria-label="As featured in">
-            <div className="lx2i-press__label"><span className="lx2i-eyebrow">AS FEATURED IN</span></div>
+            <div className="lx2i-press__label"><span className="lx2i-eyebrow">{C.pressLabel}</span></div>
             <div className="lx2i-press__track">
               {[...LX_PRESS, ...LX_PRESS].map((p, i) => (
                 <img key={i} className="lx2i-press__logo" src={p.src} alt={p.name} loading="lazy" />
@@ -1806,7 +1855,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
         {/* RELAXED PACE — "Relaxed pace, for a calm vacation" shelf (from /journeys) */}
         <div className="jl jl4" id="relaxed">
           <div className="jl-collections">
-            <Shelf col={C.relaxedCol} list={RELAXED_JOURNEYS} />
+            <Shelf col={C.relaxedCol} list={C.relaxedList} />
           </div>
         </div>
 
@@ -1911,8 +1960,8 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
           </div>
           <Reveal as="p" className="h26-reels-hint" delay={0.05}>{C.reelsHint}</Reveal>
           <div className="h26-reels" ref={reelsRef}>
-            {REELS.map((r, i) => (
-              <Reveal key={r.id} className="h26-reel" delay={(i % 4) * 0.05} y={0}>
+            {C.reels.map((r, i) => (
+              <ReelItem key={r.id} light={motionMode === 'light'} delay={(i % 4) * 0.05}>
                 <button type="button" className="h26-reel-link" onClick={() => setActiveReel(i)} aria-label={`Play clip: ${r.title}`}>
                   <img src={img(r.poster, 700)} alt={r.title} loading="lazy" />
                   <div className="h26-reel-veil" />
@@ -1924,10 +1973,10 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
                     <span className="h26-reel-views"><TiPlay size={11} /> {r.views} views</span>
                   </div>
                 </button>
-              </Reveal>
+              </ReelItem>
             ))}
           </div>
-          <CarouselDots scrollRef={reelsRef} count={REELS.length} label="clips" />
+          <CarouselDots scrollRef={reelsRef} count={C.reels.length} label="clips" />
         </section>
 
         {/* REVIEWS + PRESS (from /luxe2-improved) */}
@@ -1953,7 +2002,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
               </div>
 
               <div className="lx2i-wall">
-                {LX_REVIEWS.map((r, i) => (
+                {C.reviews.map((r, i) => (
                   <ReviewCard key={r.name} r={r} i={i} />
                 ))}
               </div>
@@ -1969,7 +2018,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
         <section className="h26-contact" id="contact">
           <img
             className="h26-contact-bg"
-            src={img('https://images.unsplash.com/photo-1534445867742-43195f401b6c', 1600)}
+            src={img(C.contactImg, 1600)}
             alt="" aria-hidden="true" loading="lazy"
           />
           <div className="h26-contact-scrim" aria-hidden="true" />
@@ -2033,7 +2082,7 @@ export default function New3({ Nav = SiteNav, Hero = null, AfterIntro = null, ro
       {/* Reel / shorts player */}
       <AnimatePresence>
         {activeReel !== null && (
-          <ReelPlayer reels={REELS} index={activeReel} setIndex={setActiveReel} onClose={() => setActiveReel(null)} />
+          <ReelPlayer reels={C.reels} index={activeReel} setIndex={setActiveReel} onClose={() => setActiveReel(null)} />
         )}
       </AnimatePresence>
     </div>

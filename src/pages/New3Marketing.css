@@ -578,3 +578,56 @@
 @media (prefers-reduced-motion: reduce) {
   .n3m-ocard__media img { transition: none; }
 }
+
+/* ============================================================================
+   /new3-marketing-v3 brand pass (copy + photographs live in voiceV3.jsx).
+   Everything below is scoped to .n3m--orighero, so /new3-marketing,
+   /new3-marketing-v2, / and /new3 are untouched.
+   ========================================================================== */
+
+/* No photo grade: a CSS filter on images that GSAP scrubs or clips
+   repaints them every frame and made the page stutter. */
+
+/* Crops: keep the subject in frame at every card shape. */
+.n3m--orighero .hi-lane-media img { object-position: 50% 40%; }
+.n3m--orighero .h26-contact-bg { object-position: 50% 35%; }
+
+/* Neighbouring bands must not share a colour: the relaxed shelf and the clips
+   are both cream /50, and the theme band between them faded in from /50 too,
+   so the three read as one long field. A solid /100 separates them. */
+.n3m--orighero .n3-disc { background: var(--nm-n100); }
+
+/* One eyebrow and one display weight across the page. The theme band was the
+   only section with a 14px / 4px-tracked eyebrow and a 300-weight title. */
+.n3m--orighero .n3d__eyebrow {
+  font: 600 11px/1.4 var(--nm-sans);
+  letter-spacing: 0.2em;
+}
+.n3m--orighero .n3d__title { font-weight: 500; letter-spacing: -0.01em; }
+.n3m--orighero .n3m-offers__title { letter-spacing: -0.01em; }
+
+/* Hero subtitle + awards row (first two folds: say what this is, then why trust it). */
+.n3m--orighero .lx2i-hero__sub { max-width: 620px; margin: 18px 0 26px; color: rgba(255,255,255,0.86); font-weight: 400; }
+.n3m--orighero .n3-awards {
+  list-style: none; margin: 34px auto 0; padding: 22px 0 0; max-width: 760px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 28px;
+  border-top: 1px solid rgba(26, 24, 20, 0.14); text-align: center;
+}
+.n3m--orighero .n3-awards li { display: flex; flex-direction: column; gap: 4px; }
+.n3m--orighero .n3-awards b { font: 500 17px/1.25 'Cormorant Garamond', serif; color: #1A1814; }
+.n3m--orighero .n3-awards span { font: 500 10.5px/1.45 'Work Sans', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6455; }
+@media (max-width: 760px) {
+  .n3m--orighero .n3-awards { grid-template-columns: 1fr; gap: 14px; max-width: 340px; }
+}
+/* The two inner scatter photos (s5, s7) sat over the intro's points and
+   awards row; move them out to the gutters so nothing overlaps the copy. */
+@media (min-width: 1024px) {
+  .n3m--orighero .h26-scatter.s5 { left: 16%; bottom: 4%; }
+  .n3m--orighero .h26-scatter.s7 { right: 19%; bottom: 52%; }
+}
+/* Heritage title: always two lines ("Since 1758," / "finding what others miss.").
+   The br sets the break; nowrap stops the second line splitting again. */
+.n3m--orighero .lx2i-heritage h2 { white-space: nowrap; }
+@media (max-width: 760px) { .n3m--orighero .lx2i-heritage h2 { font-size: 8.6vw; } }
+/* Clips row: no slow-zoom loop on every poster (phones). */
+.n3m--orighero .h26-reel-link > img { animation: none; }

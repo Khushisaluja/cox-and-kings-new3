@@ -49,7 +49,8 @@ import './Journeys2.css';
 import './Journeys4.css';  // the shelf uses the /journeys4 card
 import './NewTypography.css'; // Cormorant Garamond (primary) + Work Sans (secondary)
 import './New3.css';
-import { CampaignCards, CAMPAIGNS } from './campaigns/CampaignSections';           // seats the lx2i hero inside the h26 page
+import { CampaignCards, CAMPAIGNS } from './campaigns/CampaignSections';
+import './New3CampaignCards.css'; // brand-voice pass: photo grade, crops, eyebrows (scoped .n3cc)           // seats the lx2i hero inside the h26 page
 
 /* ---------- Shared contact (matches /improved & /luxe2-improved) ---------- */
 const CONTACT_IMP = {
@@ -124,13 +125,17 @@ function buildReelComments(r) {
    The rotating glass chips, the three search dropdowns, the typewriter
    suggestions that cycle through the "Where to?" field while it is idle,
    and the above-the-fold quick picks. */
+/* Brand-voice pass: no superlatives, no "tailor-made", and nothing the page
+   cannot stand behind ("24/7" contradicted the 9am to 9pm line below). */
 const HERO_STATS = [
-  'Est. 1758',
-  '2,400+ Traveller Reviews',
-  '100+ Destinations',
-  'Private, Tailor-Made',
-  '24/7 Concierge',
+  'Since 1758',
+  '2,400+ traveller reviews',
+  '100+ countries',
+  'Private or small group',
+  'Everything in writing',
 ];
+/* Years since 1758, so the heritage figure never goes stale. */
+const YEARS = new Date().getFullYear() - 1758;
 /* ---------- Where the hero search lands ----------
    /journeys4 is the listing page (the old /journeys is retired). Its filters
    seed from the URL by EXACT match against its own vocabulary — `seedList`
@@ -192,11 +197,11 @@ const ANY_WHO = { label: 'Anyone', any: true };
    it seeds that page's own "Who's travelling" filter — the country pages don't
    share /journeys4's style/pace vocabulary, so they key off this instead. */
 const HERO_WHO_OPTS = [
-  { key: 'couple', label: 'Couple — just the two of us', style: 'Honeymoon' },
+  { key: 'couple', label: 'A couple, just the two of you', style: 'Honeymoon' },
   { key: 'family', label: 'Family with children', style: 'Family' },
   { key: 'friends', label: 'A group of friends', style: 'Group Tour' },
   { key: 'seniors', label: 'Senior travellers', pace: 'Relaxed' },
-  { key: 'solo', label: 'Travelling solo', style: 'Bespoke Private' },
+  { key: 'solo', label: 'Travelling alone', style: 'Bespoke Private' },
 ];
 /* Same rule as HERO_POPULAR_DEST — "Rajasthan" returned nothing, so it is out. */
 const HERO_QUICK_PICKS = ['India', 'Japan', 'Europe', 'Maldives', 'Safari'];
@@ -253,7 +258,7 @@ function ScatterImg({ src, cls, driftY, mx, my, depth }) {
   const y = useTransform([driftY, my], ([d, m]) => d + m * depth * 0.6);
   return (
     <motion.img
-      style={{ x, y }}
+      /* light: no scroll drift or cursor parallax */
       whileHover={{ scale: 1.14, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
       className={`h26-scatter ${cls}`}
       src={src}
@@ -276,6 +281,35 @@ const SCATTER = [
   { src: img('https://images.unsplash.com/photo-1523906834658-6e24ef2386f9', 500), c: 's7' },
 ];
 
+/* ---------- Brand-voice copy (this page only) ----------
+   The shared v3content lists stay as they are for every other page; this
+   page restates them in the Cox & Kings voice. Names the specific place
+   (Curious), adds no claim the data does not already make (Precise). */
+/* Awards for the intro (fold two): the same entries the Europe lander lists
+   in europe/data.js, so nothing here is new or unsourced. */
+const AWARDS = [
+  { title: "India's Favourite Tour Operator", by: "Condé Nast Traveller Readers' Travel Awards", years: '2016, 2017, 2022' },
+  { title: "Asia's Leading Luxury Tour Operator", by: 'World Travel Awards', years: '2015 to 2019' },
+  { title: 'PATA Gold Award', by: 'Pacific Asia Travel Association', years: '2015' },
+];
+const INTRO_POINTS = [
+  'Private journeys, planned around you',
+  'A specialist who has walked the route',
+  'Indian and dietary meals on request',
+  'Visa support, with a 90% success rate',
+];
+const DEST_COPY = {
+  Switzerland: { hook: 'Lucerne, Zermatt and the Glacier Express', alt: 'Lauterbrunnen valley, a waterfall falling past the village', pos: '50% 60%' },
+  Japan: { hook: 'Kyoto, a ryokan night, the bullet train', alt: 'A vermilion torii gate standing in still water', pos: '50% 55%' },
+  Italy: { hook: 'Rome, Tuscany and the Amalfi Coast', alt: 'Coloured houses stacked above the sea on the Ligurian coast', pos: '50% 45%' },
+  'Scandinavia & the Northern Lights': { hook: 'Tromsø under the aurora, fjords by day', alt: 'The Northern Lights over a snowy forest', pos: '50% 40%' },
+  'Australia & New Zealand': { hook: 'The reef, Rotorua and long coast roads', alt: 'Sydney Harbour with the Opera House at midday', pos: '50% 50%' },
+  USA: { hook: 'Coast to coast, and the national parks', alt: 'The Golden Gate Bridge above a bright blue bay', pos: '50% 50%' },
+  'Southeast Asia': { hook: 'Islands, temples and street food', alt: 'A gilded temple spire against a clear sky', pos: '50% 35%' },
+  Maldives: { hook: 'An overwater villa and a house reef', alt: 'Overwater villas on a turquoise Maldives lagoon', pos: '50% 50%' },
+};
+const DESTS = DESTINATIONS.map((d) => ({ ...d, ...(DEST_COPY[d.name] || {}) }));
+
 /* Hand-tuned spans so the 8-card destination grid tiles with zero gaps. */
 const DEST_SPANS = ['tall', 'wide', 'tall', 'wide', 'normal', 'normal', 'normal', 'normal'];
 
@@ -283,6 +317,16 @@ const DEST_SPANS = ['tall', 'wide', 'tall', 'wide', 'normal', 'normal', 'normal'
 function Reveal({ children, className = '', delay = 0, y = 24, as = 'div' }) {
   const M = motion[as] || motion.div;
   const reduce = useReducedMotion();
+  if (!reduce) {
+    /* Light mode: a short opacity fade only. No blur, no travel: animated
+       blur filters on every block made scrolling stutter. */
+    return (
+      <M className={className} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '0px 0px -8% 0px' }} transition={{ duration: 0.5, ease: 'easeOut' }}>
+        {children}
+      </M>
+    );
+  }
   if (reduce) return <M className={className}>{children}</M>;
   return (
     <M
@@ -300,7 +344,7 @@ function Reveal({ children, className = '', delay = 0, y = 24, as = 'div' }) {
 /* ---- Word-by-word blur reveal for display headlines ---- */
 function WordReveal({ text, className = '', accent = [], delay = 0 }) {
   const words = text.split(' ');
-  const reduce = useReducedMotion();
+  const reduce = true; /* light: headlines are static, no word-by-word blur */
   return (
     <span className={className} aria-label={text}>
       {words.map((w, i) => (
@@ -558,7 +602,7 @@ const sizedUnsplash = (id, w = 1200) =>
 const TRUST_BADGES = [
   { icon: Star, stat: '4.9★', label: 'from 2,400+ verified reviews' },
   { icon: Award, stat: 'Condé Nast 2024', label: 'Readers’ Choice Award, India' },
-  { icon: ShieldCheck, stat: 'Since 1758', label: '267 years · financially protected' },
+  { icon: ShieldCheck, stat: 'Since 1758', label: `${YEARS} years · financially protected` },
   { icon: Globe2, stat: '100+ countries', label: 'on all seven continents' },
 ];
 
@@ -746,7 +790,7 @@ const REGION_PHOTOS = {
 };
 const GROUP_BY_STYLE = {
   'Group Tour': 'Small group · max 18',
-  'Bespoke Private': 'Private & tailor-made',
+  'Bespoke Private': 'Private, planned around you',
   Luxury: 'Private guiding',
   Family: 'Family-friendly',
   Honeymoon: 'Just the two of you',
@@ -779,8 +823,8 @@ const J = (o) => ({
 const RELAXED_JOURNEYS = [
   J({ id: 'jp-luxe', title: 'Japan: Ryokans & Art Islands', blurb: 'Slow luxury, with design hotels, private onsen and the Naoshima art islands.', regions: ['Japan'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 9, season: 'Year-round', price: 420000, image: U('1493976040374-85c8e12f0c0e'), to: '/tour-detail-japan-5' }),
   J({ id: 'ch-summer', title: 'Summer in Switzerland', blurb: 'Glacier trains and alpine lakes across Lucerne, Zermatt and the Jungfrau region.', regions: ['Switzerland', 'Europe'], style: 'Group Tour', pace: 'Relaxed', rating: 4.8, nights: 10, season: 'Jun–Sep', price: 245000, image: U('1530122037265-a5f1f91d3b99'), to: CALLBACK }),
-  J({ id: 'ch-rail', title: 'Swiss Alps Private Rail Journey', blurb: 'The Glacier Express and Bernina line, first-class, with elevated stays throughout.', regions: ['Switzerland', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 8, season: 'May–Oct', price: 360000, image: U('1530122037265-a5f1f91d3b99'), to: CALLBACK }),
-  J({ id: 'it-slow', title: 'Slow Italy: Coast to Art', blurb: 'Rome after-hours, a Tuscan villa and a hidden Amalfi cove, designed around you.', regions: ['Italy', 'Europe'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Apr–Oct', price: 240000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
+  J({ id: 'ch-rail', title: 'Swiss Alps Private Rail Journey', blurb: 'The Glacier Express and the Bernina line in first class, with a good hotel at every stop.', regions: ['Switzerland', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.9, nights: 8, season: 'May–Oct', price: 360000, image: U('1530122037265-a5f1f91d3b99'), to: CALLBACK }),
+  J({ id: 'it-slow', title: 'Slow Italy: Coast to Art', blurb: 'Rome after hours, a Tuscan villa and a quiet cove on the Amalfi Coast.', regions: ['Italy', 'Europe'], style: 'Bespoke Private', pace: 'Relaxed', rating: 4.8, nights: 9, season: 'Apr–Oct', price: 240000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
   J({ id: 'it-amalfi', title: 'Amalfi & the Southern Coast', blurb: 'A private skipper, cliffside stays and long lunches above the Tyrrhenian.', regions: ['Italy', 'Europe'], style: 'Luxury', pace: 'Relaxed', rating: 4.8, nights: 7, season: 'May–Sep', price: 280000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
   J({ id: 'it-family', title: 'Italy for Families', blurb: 'Gladiator schools in Rome, gelato trails and a slow Tuscan farmhouse week.', regions: ['Italy', 'Europe'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 10, season: 'Apr–Oct', price: 215000, image: U('1534445867742-43195f401b6c'), to: CALLBACK }),
   J({ id: 'au-family', title: 'Australia for Families', blurb: 'Reef, beaches and easy days, with snorkelling, Rotorua and time to breathe.', regions: ['Australia & NZ'], style: 'Family', pace: 'Relaxed', rating: 4.7, nights: 14, season: 'Year-round', price: 340000, image: U('1506973035872-a4ec16b8e8d9'), to: CALLBACK }),
@@ -789,8 +833,8 @@ const RELAXED_JOURNEYS = [
 ];
 const RELAXED_COL = {
   key: 'relaxed',
-  title: 'Relaxed pace, for a calm vacation',
-  sub: 'Slow mornings, gentle days and comfortable distances, easy on every generation.',
+  title: 'At an unhurried pace',
+  sub: 'Slow mornings, short distances and time to sit with a place. Built for every generation at the table.',
 };
 
 /* ---------- Theme discovery (arch carousel) ----------
@@ -802,33 +846,33 @@ const RELAXED_COL = {
    otherwise we open the full listing. */
 const THEMES = [
   { name: 'Adventure', tags: ['Trek & summit', 'Rapids & rides', 'Off the map'],
-    blurb: 'High passes at first light, white-water mornings and nights under canvas — journeys built for people who would rather earn the view.',
+    blurb: 'High passes at first light, white water before lunch and nights under canvas. For guests who would rather earn the view.',
     best: 'Oct – Mar', trips: '18 journeys', from: '₹1,45,000', id: '1527668752968-14dc70a27c95',
-    cta: 'Explore adventure trips', to: '/adventure' },
+    cta: 'See adventure journeys', to: '/adventure' },
   { name: 'Honeymoon', tags: ['Just the two of you', 'Private dinners', 'Overwater calm'],
-    blurb: 'Overwater villas, a sandbank dinner laid for two and long, unhurried mornings — the trip you take once, arranged exactly right.',
+    blurb: 'An overwater villa, a sandbank dinner laid for two and mornings with nowhere to be. This trip will be worth the wait.',
     best: 'Nov – Apr', trips: '14 journeys', from: '₹1,85,000', id: '1573843981267-be1999ff37cd',
-    cta: 'Explore honeymoons', to: '/vibe/honeymoon' },
+    cta: 'See honeymoon journeys', to: '/vibe/honeymoon' },
   { name: 'Relaxed & Slow', tags: ['Nothing to rush', 'Long lunches', 'Sea & shade'],
-    blurb: 'One town, one terrace and nowhere you have to be — slow itineraries with room to breathe between the beautiful bits.',
+    blurb: 'One town, one terrace and nowhere you have to be. Slow itineraries, with room to breathe between the sights.',
     best: 'Apr – Oct', trips: '16 journeys', from: '₹1,60,000', id: '1530841377377-3ff06c0ca713',
-    cta: 'Explore relaxed journeys', to: '/vibe/relaxed-slow' },
+    cta: 'See unhurried journeys', to: '/vibe/relaxed-slow' },
   { name: 'Pilgrimage', tags: ['Sacred routes', 'Quiet mornings', 'Guided rites'],
-    blurb: 'Temple towns at dawn, holy rivers and the old routes walked for centuries — travelled gently, with care for every ritual.',
+    blurb: 'Temple towns at dawn, holy rivers and routes walked for centuries. Travelled gently, with care for every ritual.',
     best: 'Year-round', trips: '12 journeys', from: '₹95,000', id: '1599661046289-e31897846e41',
-    cta: 'Explore pilgrimages', to: '/vibe/pilgrimage' },
+    cta: 'See pilgrimage journeys', to: '/vibe/pilgrimage' },
   { name: 'Staycation', tags: ['Close to home', 'Weekend-sized', 'A full reset'],
-    blurb: 'A short hop, a beautiful room and a full stop on the calendar — the reset that feels a world away without the long flight.',
+    blurb: 'A short flight, a good room and a full stop on the calendar. A world away, without the long journey.',
     best: 'Year-round', trips: '9 journeys', from: '₹45,000', id: '1506973035872-a4ec16b8e8d9',
-    cta: 'Explore staycations', to: '/vibe/staycation' },
+    cta: 'See short breaks', to: '/vibe/staycation' },
   { name: 'Wildlife & Safari', tags: ['Dawn game drives', 'Private reserves', 'Star beds'],
-    blurb: 'Track the great herds at sunrise, keep a conservancy to yourself, and sleep under the stars in camps moved just for your dates.',
+    blurb: 'The great herds at sunrise, a private conservancy and a camp under the stars. Ask us which reserve suits your dates.',
     best: 'Jun – Oct', trips: '11 journeys', from: '₹2,25,000', id: '1516426122078-c23e76319801',
-    cta: 'Explore safaris', to: '/vibe/wildlife-safari' },
+    cta: 'See safari journeys', to: '/vibe/wildlife-safari' },
   { name: 'Culture & Heritage', tags: ['Living history', 'Old cities', 'Local hands'],
-    blurb: 'Palaces you can sleep in, festivals timed to your visit and the makers behind the crafts — a place told by the people in it.',
+    blurb: 'Palaces you can sleep in, festivals timed to your visit and the makers behind the crafts. A place, told by its people.',
     best: 'Oct – Mar', trips: '20 journeys', from: '₹1,25,000', id: '1493976040374-85c8e12f0c0e',
-    cta: 'Explore heritage trips', to: '/vibe/culture-heritage' },
+    cta: 'See heritage journeys', to: '/vibe/culture-heritage' },
 ];
 
 /* WhatsApp glyph (lucide has no brand icon) — used on the enquiry CTA. */
@@ -859,12 +903,12 @@ function JourneyCard({ j, i }) {
   return (
     <Reveal className="jl-card" delay={(i % 3) * 0.05} y={24} as="article">
       <div className="jl-card-media">
-        <Link to={j.to} className="jl-card-media-link jl4-media-link" aria-label={`${j.title} — view itinerary`}>
+        <Link to={j.to} className="jl-card-media-link jl4-media-link" aria-label={`${j.title}: view itinerary`}>
           <AnimatePresence initial={false}>
             <motion.img
               key={shot}
               src={img(shots[shot], 800)}
-              alt={`${j.title}${many ? ` — photo ${shot + 1} of ${shots.length}` : ''}`}
+              alt={`${j.title}${many ? `, photo ${shot + 1} of ${shots.length}` : ''}`}
               loading="lazy"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -917,7 +961,7 @@ function JourneyCard({ j, i }) {
           </span>
           <div className="jl-card-ctas">
             <Link to={j.to} className="jl-cbtn jl-cbtn-view">
-              View Itinerary <ArrowRight size={15} aria-hidden="true" />
+              View itinerary <ArrowRight size={15} aria-hidden="true" />
             </Link>
             <a
               href={waHref}
@@ -926,7 +970,7 @@ function JourneyCard({ j, i }) {
               className="jl-cbtn jl-cbtn-wa"
               aria-label={`Enquire about ${j.title} on WhatsApp`}
             >
-              <WaIcon size={15} /> Enquire Now
+              <WaIcon size={15} /> Ask us
             </a>
           </div>
         </div>
@@ -981,7 +1025,7 @@ function Shelf({ col, list }) {
           </button>
         </div>
       </div>
-      <div className="jl-rail" ref={railRef} role="group" aria-label={`${col.title} — scroll for more`}>
+      <div className="jl-rail" ref={railRef} role="group" aria-label={`${col.title}: scroll for more`}>
         {list.map((j, i) => <JourneyCard key={j.id} j={j} i={i} />)}
       </div>
     </section>
@@ -1176,7 +1220,9 @@ export default function New3CampaignCards() {
   const reelsRef = useRef(null);
   useEffect(() => {
     const el = reelsRef.current;
-    if (!el || prefersReduced) return;
+    /* Light pages: no auto-advance. A smooth scrollTo every 3.2s fought the
+       row's scroll-snap and jerked the cards. */
+    if (!el || prefersReduced || true) return;
     const mq = window.matchMedia('(max-width: 680px)');
     if (!mq.matches) return;
     let paused = false; let resumeT;
@@ -1281,7 +1327,7 @@ export default function New3CampaignCards() {
         aria-pressed={whenAny}
         onClick={() => { setWhenAny(true); setWhenDate(null); setWhenFlex(0); setOpenField(null); }}
       >
-        <Sparkles size={15} /> <span>Any dates · show me all</span>
+        <Sparkles size={15} /> <span>Any dates · show every departure</span>
       </button>
 
       <div className="hi-cal-actions">
@@ -1362,7 +1408,7 @@ export default function New3CampaignCards() {
     <>
     {/* `n3` scopes New3.css — without it those rules would hit every other
         .h26 page (/, /new-homepage, /new2, /improved) too. */}
-    <div className="h26 new-typo n3">
+    <div className="h26 new-typo n3 n3cc">
       {/* The navbar, the mobile drawer and the skip link are the shared
           <SiteChrome> ones now. `solidAt={80}` keeps this page's threshold:
           the hero is tall, so the nav stays transparent well down it. */}
@@ -1382,17 +1428,21 @@ export default function New3CampaignCards() {
       <div className="lx2i n3-herowrap">
         <section className="lx2i-hero" id="top" ref={heroRef}>
           <div className="lx2i-hero__bgwrap" aria-hidden="true">
-            <div className="lx2i-hero__bg" style={{ backgroundImage: `url(${sizedUnsplash('1527668752968-14dc70a27c95', 2000)})` }} />
+            <div className="lx2i-hero__bg" style={{ backgroundImage: `url(${sizedUnsplash('1545569341-9eb8b30979d9', 2000)})` }} />
             <div className="lx2i-hero__veil" />
           </div>
 
           <div className="lx2i-hero__inner">
             <div className="lx2i-hero__left">
-              <span className="lx2i-eyebrow lx2i-eyebrow--light lx2i-fade" style={{ '--d': '.1s' }}>THE WORLD&apos;S MOST EXPERIENCED TRAVEL COMPANY · SINCE 1758</span>
+              <span className="lx2i-eyebrow lx2i-eyebrow--light lx2i-fade" style={{ '--d': '.1s' }}>COX &amp; KINGS · HOLIDAYS SINCE 1758</span>
               <h1 className="lx2i-hero__title">
-                <span className="lx2i-fade" style={{ '--d': '.2s' }}>Discover the World</span>
-                <em className="lx2i-fade" style={{ '--d': '.36s' }}>in Luxury &amp; Style.</em>
+                <span className="lx2i-fade" style={{ '--d': '.2s' }}>The world,</span>
+                <em className="lx2i-fade" style={{ '--d': '.36s' }}>beyond the obvious.</em>
               </h1>
+              <p className="lx2i-hero__sub lx2i-fade" style={{ '--d': '.5s' }}>
+                Group tours and private holidays to 100+ countries, planned by specialists
+                and confirmed in writing.
+              </p>
 
               {/* Glass search */}
               <form
@@ -1433,7 +1483,7 @@ export default function New3CampaignCards() {
                         aria-selected={tripValue === ANY_DEST}
                         onClick={() => { setTripValue(ANY_DEST); setTripActive(true); setOpenField(null); }}
                       >
-                        <Sparkles size={15} /> <span>Anywhere · show me all</span>
+                        <Sparkles size={15} /> <span>Anywhere · show every journey</span>
                       </button>
                     </div>
                   )}
@@ -1442,11 +1492,11 @@ export default function New3CampaignCards() {
                 <div className={`lx2i-search__field lx2i-search__field--who ${openField === 'who' ? 'is-open' : ''}`}>
                   <Users size={17} />
                   <button type="button" className="lx2i-search__trigger" aria-haspopup="listbox" aria-expanded={openField === 'who'} onClick={() => setOpenField(openField === 'who' ? null : 'who')}>
-                    <span className={whoValue ? '' : 'lx2i-search__ph'}>{whoValue?.label || "Who's travelling?"}</span>
+                    <span className={whoValue ? '' : 'lx2i-search__ph'}>{whoValue?.label || 'Who is travelling?'}</span>
                     <ChevronDown size={15} className="lx2i-search__chev" />
                   </button>
                   {openField === 'who' && (
-                    <div className="lx2i-search__drop" role="listbox" aria-label="Who's travelling">
+                    <div className="lx2i-search__drop" role="listbox" aria-label="Who is travelling">
                       {HERO_WHO_OPTS.map((o) => (
                         <button
                           key={o.label}
@@ -1466,7 +1516,7 @@ export default function New3CampaignCards() {
                         aria-selected={!!whoValue?.any}
                         onClick={() => { setWhoValue(ANY_WHO); setOpenField(null); }}
                       >
-                        <Sparkles size={15} /> <span>Anyone · show me all</span>
+                        <Sparkles size={15} /> <span>Anyone · show every journey</span>
                       </button>
                     </div>
                   )}
@@ -1511,8 +1561,8 @@ export default function New3CampaignCards() {
             </div>
           </div>
 
-          <a href="#paths" onClick={go('#paths')} className="lx2i-hero__scroll" aria-label="Scroll to explore">
-            <span>Scroll to explore</span>
+          <a href="#paths" onClick={go('#paths')} className="lx2i-hero__scroll" aria-label="Scroll to read on">
+            <span>Read on</span>
             <ChevronDown size={16} />
           </a>
         </section>
@@ -1536,23 +1586,26 @@ export default function New3CampaignCards() {
           ))}
 
           <div className="h26-intro-copy">
-            <Reveal className="h26-label" as="p">The Cox &amp; Kings way</Reveal>
+            <Reveal className="h26-label" as="p">Luxury travel since 1758</Reveal>
             <h2 className="h26-statement">
-              <WordReveal text="Specialists, not salespeople." accent={[0]} />
+              <WordReveal text="Planned around you." accent={[2]} />
               <br />
-              <WordReveal text="Every detail, handled." accent={[2]} delay={0.2} />
+              <WordReveal text="Refined since 1758." accent={[0]} delay={0.2} />
             </h2>
             <Reveal className="h26-intro-text" as="p" delay={0.3}>
-              Your journey is shaped by someone who has actually walked it. Then
-              flights, visas, hotels and transfers are coordinated end to end, with
-              one team you can reach on WhatsApp before, during and after the trip.
+              No two journeys we plan are alike. A specialist listens first, then shapes yours around how you like to travel: the pace, the hotels, the table. It is the same care we have given travellers since 1758, and every detail is confirmed in writing before you leave.
             </Reveal>
             <ul className="hi-spec-points">
-              {ASSURANCE.map((a, i) => (
+              {INTRO_POINTS.map((a, i) => (
                 <Reveal key={a} as="li" delay={0.36 + i * 0.06} y={0}>
                   <Check size={15} className="hi-spec-points-ic" aria-hidden="true" />
                   <span>{a}</span>
                 </Reveal>
+              ))}
+            </ul>
+            <ul className="n3-awards" aria-label="Awards">
+              {AWARDS.map((a) => (
+                <li key={a.title}><b>{a.title}</b><span>{a.by}, {a.years}</span></li>
               ))}
             </ul>
           </div>
@@ -1570,7 +1623,7 @@ export default function New3CampaignCards() {
             <Reveal className="hi-lane" y={0}>
               <Link to="/journeys4" className="hi-lane-link">
                 <div className="hi-lane-media">
-                  <img src={img('https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99', 800)} alt="An escorted small-group journey" loading="lazy" />
+                  <img src={img('https://images.unsplash.com/photo-1529156069898-49953e39b3ac', 800)} alt="A small group of travellers sitting together, looking out over the view" loading="lazy" />
                 </div>
                 <div className="hi-lane-body">
                   <span className="hi-lane-tag">Escorted small groups</span>
@@ -1586,7 +1639,7 @@ export default function New3CampaignCards() {
             <Reveal className="hi-lane is-featured" y={0}>
               <span className="hi-lane-badge">Recommended</span>
               <div className="hi-lane-media">
-                <img src={img('https://images.unsplash.com/photo-1488646953014-85cb44e25828', 800)} alt="Planning a trip together over a map" loading="lazy" />
+                <img src={img('https://images.unsplash.com/photo-1524661135-423995f22d0b', 800)} alt="An old world map, pinned and annotated" loading="lazy" />
               </div>
               <div className="hi-lane-body">
                 <span className="hi-lane-tag">Tailor-made &amp; private</span>
@@ -1601,7 +1654,7 @@ export default function New3CampaignCards() {
             </Reveal>
             <Reveal className="hi-lane" y={0}>
               <div className="hi-lane-media">
-                <img src={img('https://images.unsplash.com/photo-1521737604893-d14cc237f11d', 800)} alt="A travel specialist ready to talk" loading="lazy" />
+                <img src={img('https://images.unsplash.com/photo-1515169067868-5387ec356754', 800)} alt="A warm conversation around a table" loading="lazy" />
               </div>
               <div className="hi-lane-body">
                 <span className="hi-lane-tag">A real person</span>
@@ -1624,18 +1677,18 @@ export default function New3CampaignCards() {
           <div className="h26-head h26-head-row">
             <div>
               <Reveal className="h26-label" as="p">100+ countries</Reveal>
-              <Reveal as="h2" className="h26-h2" delay={0.05}>Where will you go?</Reveal>
+              <Reveal as="h2" className="h26-h2" delay={0.05}>Where have you been imagining?</Reveal>
             </div>
             <Reveal as="div" delay={0.1}>
               <Link to="/journeys4" className="h26-textlink">All destinations <ArrowUpRight size={16} /></Link>
             </Reveal>
           </div>
           <div className="h26-dest-grid" ref={destRef}>
-            {DESTINATIONS.slice(0, 8).map((d, i) => {
+            {DESTS.slice(0, 8).map((d, i) => {
               const page = destPage(d.name);
               const inner = (
                 <>
-                  <img src={img(d.image, 900)} alt={d.name} loading="lazy" />
+                  <img src={img(d.image, 900)} alt={d.alt || d.name} loading="lazy" style={{ objectPosition: d.pos }} />
                   <div className="h26-dest-veil" />
                   <div className="h26-dest-body">
                     <h3>{d.name}</h3>
@@ -1667,21 +1720,21 @@ export default function New3CampaignCards() {
           <section className="lx2i-heritage" id="heritage">
             <div className="lx2i-container lx2i-heritage__grid">
               <div className="lx2i-heritage__media lx2i-reveal">
-                <div className="lx2i-heritage__photo lx2i-heritage__photo--main" style={{ backgroundImage: `url(${sizedUnsplash('1599661046289-e31897846e41', 900)})` }} />
+                <div className="lx2i-heritage__photo lx2i-heritage__photo--main" style={{ backgroundImage: `url(${sizedUnsplash('1501785888041-af3ef285b470', 900)})` }} />
                 <div className="lx2i-heritage__card lx2i-glass">
-                  <span className="lx2i-eyebrow">SINCE 1758</span>
-                  <h4>Bespoke Itineraries</h4>
-                  <p>Each journey we curate is a masterpiece, crafted with care and precision to reflect you alone.</p>
+                  <span className="lx2i-eyebrow">THE WRITTEN PROMISE</span>
+                  <h4>In writing, before you travel</h4>
+                  <p>Everything we put in your itinerary is our word to you. What we put in writing is what you receive.</p>
                   <div className="lx2i-heritage__photo lx2i-heritage__photo--inset" style={{ backgroundImage: `url(${sizedUnsplash('1523906834658-6e24ef2386f9', 600)})` }} />
                 </div>
               </div>
 
               <div className="lx2i-heritage__text lx2i-reveal">
                 <span className="lx2i-eyebrow">OUR HERITAGE</span>
-                <h2 className="lx2i-h2">Crafting <strong>unforgettable<br />journeys</strong> since 1758</h2>
+                <h2 className="lx2i-h2">Discovering <strong>the world</strong><br />since 1758</h2>
                 <p className="lx2i-heritage__copy">
-                  From the age of sail to the era of bespoke travel, Cox &amp; Kings has guided generations
-                  of explorers across the globe, under the same name and the same standard, for over a quarter of a millennium.
+                  We have spent {YEARS} years discovering the world for you. What we put in writing
+                  is what you receive. Every time, without exception.
                 </p>
 
                 <ul className="lx2i-trust" aria-label="Why travellers trust Cox & Kings">
@@ -1700,13 +1753,13 @@ export default function New3CampaignCards() {
                 </ul>
 
                 <div className="lx2i-statband" ref={statsRef}>
-                  <Stat value={267} suffix="" label="Years of journeys" run={statsRun} />
+                  <Stat value={YEARS} suffix="" label="Years of journeys" run={statsRun} />
                   <span className="lx2i-statband__div" />
                   <Stat value={100} suffix="+" label="Countries" run={statsRun} />
                   <span className="lx2i-statband__div" />
                   <Stat value={98} suffix="%" label="Would travel again" run={statsRun} />
                 </div>
-                <Link to="/about-us2" className="lx2i-btn lx2i-btn--primary">Discover our story <ArrowRight size={16} /></Link>
+                <Link to="/about-us2" className="lx2i-btn lx2i-btn--primary">Read our story <ArrowRight size={16} /></Link>
               </div>
             </div>
           </section>
@@ -1745,8 +1798,8 @@ export default function New3CampaignCards() {
                 display:contents reorder in New3.css). */}
             <div className="n3d__intro">
               <div className="n3d__head lx2i-reveal">
-                <span className="n3d__eyebrow">// EXPLORE &amp; DISCOVER</span>
-                <h2 className="n3d__title">What&apos;s your<br />vibe?</h2>
+                <span className="n3d__eyebrow">By the kind of journey</span>
+                <h2 className="n3d__title">What are you<br />imagining?</h2>
                 <p className="n3d__copy">{theme.blurb}</p>
               </div>
               <div className="n3d__meta lx2i-reveal">
@@ -1823,16 +1876,18 @@ export default function New3CampaignCards() {
           <div className="h26-head h26-head-row">
             <div>
               <Reveal className="h26-label" as="p">Clips</Reveal>
-              <Reveal as="h2" className="h26-h2" delay={0.05}>Real moments, in 30 seconds.</Reveal>
+              <Reveal as="h2" className="h26-h2" delay={0.05}>Thirty seconds, somewhere else.</Reveal>
             </div>
             <Reveal as="div" delay={0.1}>
-              <Link to="/journeys4" className="h26-textlink">Explore journeys <ArrowUpRight size={16} /></Link>
+              <Link to="/journeys4" className="h26-textlink">All journeys <ArrowUpRight size={16} /></Link>
             </Reveal>
           </div>
-          <Reveal as="p" className="h26-reels-hint" delay={0.05}>Swipe through traveller films. Tap any to watch the full journey.</Reveal>
+          <Reveal as="p" className="h26-reels-hint" delay={0.05}>Short films from the places we send guests. Tap one to watch.</Reveal>
           <div className="h26-reels" ref={reelsRef}>
             {REELS.map((r, i) => (
-              <Reveal key={r.id} className="h26-reel" delay={(i % 4) * 0.05} y={0}>
+              /* Plain card: a reveal per card inside a sideways scroller made
+                 cards pop in and out as the row moved. */
+              <div key={r.id} className="h26-reel">
                 <button type="button" className="h26-reel-link" onClick={() => setActiveReel(i)} aria-label={`Play clip: ${r.title}`}>
                   <img src={img(r.poster, 700)} alt={r.title} loading="lazy" />
                   <div className="h26-reel-veil" />
@@ -1844,7 +1899,7 @@ export default function New3CampaignCards() {
                     <span className="h26-reel-views"><TiPlay size={11} /> {r.views} views</span>
                   </div>
                 </button>
-              </Reveal>
+              </div>
             ))}
           </div>
           <CarouselDots scrollRef={reelsRef} count={REELS.length} label="clips" />
@@ -1856,8 +1911,8 @@ export default function New3CampaignCards() {
             <div className="lx2i-container">
               <div className="lx2i-reviews__head lx2i-reveal">
                 <div>
-                  <span className="lx2i-eyebrow">TRAVELLER STORIES</span>
-                  <h2 className="lx2i-h2">Real journeys, captured<br />by <strong>real travellers</strong></h2>
+                  <span className="lx2i-eyebrow">FROM OUR GUESTS</span>
+                  <h2 className="lx2i-h2">In our guests’<br /><strong>own words</strong></h2>
                 </div>
                 <div className="lx2i-reviews__agg lx2i-glass">
                   <span className="lx2i-stars lx2i-stars--lg">{[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}</span>
@@ -1877,7 +1932,7 @@ export default function New3CampaignCards() {
               </div>
 
               <div className="lx2i-reviews__more lx2i-reveal">
-                <Link to="/testimonials" className="lx2i-btn lx2i-btn--outline lx2i-btn--lg">View all 2,400+ reviews <ArrowRight size={16} /></Link>
+                <Link to="/testimonials" className="lx2i-btn lx2i-btn--outline lx2i-btn--lg">Read all 2,400+ reviews <ArrowRight size={16} /></Link>
               </div>
             </div>
           </section>
@@ -1887,7 +1942,7 @@ export default function New3CampaignCards() {
         <section className="h26-contact" id="contact">
           <img
             className="h26-contact-bg"
-            src={img('https://images.unsplash.com/photo-1534445867742-43195f401b6c', 1600)}
+            src={img('https://images.unsplash.com/photo-1488085061387-422e29b40080', 1600)}
             alt="" aria-hidden="true" loading="lazy"
           />
           <div className="h26-contact-scrim" aria-hidden="true" />
@@ -1897,13 +1952,13 @@ export default function New3CampaignCards() {
               <span className="h26-contact-rule" aria-hidden="true" /> Talk to us
             </Reveal>
             <h2 className="h26-contact-title">
-              <WordReveal text="Let's plan" />
+              <WordReveal text="Tell us what" />
               <br />
-              <WordReveal text="your next journey." accent={[2]} delay={0.18} />
+              <WordReveal text="you are imagining." accent={[2]} delay={0.18} />
             </h2>
             <Reveal as="p" className="h26-contact-sub" delay={0.2}>
-              Speak to a specialist who's actually walked the route. Message us now, or
-              pick a time and we'll call you. No scripts, no call centres, no obligation.
+              A specialist who has walked the route will listen first. Message us on
+              WhatsApp, or choose a time and we will call you. No obligation.
             </Reveal>
             <Reveal as="div" className="h26-contact-ctas" delay={0.3} y={0}>
               <button type="button" className="h26-btn h26-btn-accent h26-btn-lg" onClick={openCallback}>
@@ -1914,7 +1969,7 @@ export default function New3CampaignCards() {
               </a>
             </Reveal>
             <Reveal as="p" className="h26-contact-alt" delay={0.38}>
-              <Clock size={14} aria-hidden="true" /> Travel experts available 9am–9pm IST, every day
+              <Clock size={14} aria-hidden="true" /> Specialists available 9am to 9pm IST, every day
             </Reveal>
           </div>
         </section>
@@ -1925,7 +1980,7 @@ export default function New3CampaignCards() {
       {/* Mobile thumb-reach bar — chat + Einaya (AI) + schedule-a-callback */}
       <div className={`h26-thumbbar${activeReel !== null || !pastHero ? ' is-hidden' : ''}`} aria-hidden={activeReel !== null || !pastHero}>
         <button type="button" className="h26-thumbbar-cta" onClick={() => setChatOpen(true)}>
-          <MessageCircle size={18} /> Chat with an expert
+          <MessageCircle size={18} /> Ask a specialist
         </button>
         <button type="button" className="h26-thumbbar-call" aria-label="Schedule a callback" onClick={openCallback}>
           <Phone size={20} />

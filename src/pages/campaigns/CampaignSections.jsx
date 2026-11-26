@@ -565,7 +565,26 @@ export function BookingRoute() {
    with a next/previous button and dots. Each card has its own small motif:
    petals fall inside the Japan photo, the Europe card carries the live
    early-bird countdown, lanterns sway over the Vietnam photo.
+
+   Card copy is the brand-voice cut (Cox & Kings tone guide): it names the
+   specific place, states only what each lander's data.js prints, and falls
+   back to the shared CAMPAIGNS line where no override is set. These
+   overrides apply to the cards only; the /new3-campaigns features keep
+   their own lines.
    ======================================================================== */
+const CARD_COPY = {
+  japan: {
+    line: 'Tokyo, Mt Fuji and Kyoto in cherry-blossom season. Your tour manager meets you at Narita and stays with you to the last day.',
+    img: '/sakura/heritage-chureito-flip.jpg', pos: '50% 46%',
+    alt: 'The Chureito Pagoda at sunrise, with Mt Fuji behind it',
+  },
+  europe: {
+    line: `Paris from the Eiffel Tower’s third level, the Jungfraujoch, then south to Rome. The early-bird price holds until ${EU.OFFER.earlyBy}.`,
+    pos: '50% 38%',
+  },
+  vietnam: { pos: '50% 55%' },
+};
+
 export function CampaignCards() {
   const root = useRef(null);
   const row = useRef(null);
@@ -592,29 +611,12 @@ export function CampaignCards() {
 
   useLayoutEffect(() => {
     if (!motionOK()) return undefined;
+    /* Light: one short fade for the cards, nothing else. No split-word
+       headings, petals, swinging lanterns or photo parallax. */
     const ctx = gsap.context(() => {
-      arrive(root.current);
-      animatePetals(root.current);
-      gsap.fromTo('.n3c-card', { y: 90, opacity: 0, rotation: (i) => [-3, 0, 3][i] }, {
-        y: 0, opacity: 1, rotation: 0, duration: 1.2, ease: 'expo.out', stagger: 0.13,
-        scrollTrigger: { trigger: '.n3c-cards__row', start: 'top 85%', once: true },
-      });
-      gsap.fromTo('.n3c-card__photo', { clipPath: 'inset(100% 0% 0% 0% round 22px)' }, {
-        clipPath: 'inset(0% 0% 0% 0% round 22px)', duration: 1.3, ease: 'expo.inOut', stagger: 0.13, delay: 0.1,
-        scrollTrigger: { trigger: '.n3c-cards__row', start: 'top 85%', once: true },
-      });
-      gsap.utils.toArray('.n3c-card__photo > img').forEach((im) => {
-        gsap.fromTo(im, { yPercent: -7 }, {
-          yPercent: 7, ease: 'none',
-          scrollTrigger: { trigger: im.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
-        });
-      });
-      gsap.fromTo('.n3c-card .n3c-lantern__drop', { yPercent: -150, opacity: 0 }, {
-        yPercent: 0, opacity: 1, duration: 2, ease: 'elastic.out(1, 0.42)', stagger: 0.18, delay: 0.6,
-        scrollTrigger: { trigger: '.n3c-cards__row', start: 'top 80%', once: true },
-      });
-      gsap.utils.toArray('.n3c-card .n3c-lantern__swing').forEach((el, i) => {
-        gsap.fromTo(el, { rotation: -(4 + i) }, { rotation: 4 + i, duration: 2.2 + i * 0.4, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.fromTo('.n3c-card', { opacity: 0 }, {
+        opacity: 1, duration: 0.5, ease: 'power1.out', stagger: 0.06,
+        scrollTrigger: { trigger: '.n3c-cards__row', start: 'top 90%', once: true },
       });
     }, root);
     return () => ctx.revert();
@@ -630,8 +632,8 @@ export function CampaignCards() {
         </div>
         <div className="n3c-cards__side">
           <p className="n3c-feat__line" data-in>
-            One price covers flights, 4-star hotels, every meal and your visa. Hold your seat online and
-            pay the rest only after your visa comes through.
+            Return flights, hotels and guided sightseeing are in every price below. Each detail is
+            confirmed in writing, before you travel.
           </p>
           <div className="n3c-cards__nav" data-in>
             <button type="button" className="n3c-iconbtn" onClick={() => go(idx - 1)} disabled={idx === 0} aria-label="Previous journey"><ArrowLeft size={18} /></button>
@@ -645,7 +647,7 @@ export function CampaignCards() {
           <li key={c.key} className={`n3c-card is-${c.key}`}>
             <Link to={c.to} className="n3c-card__link" aria-label={`${c.title}: ${c.season} ${c.year}, from ${c.from} per person`}>
               <figure className="n3c-card__photo">
-                <img src={c.key === 'vietnam' ? c.tall : c.img} alt="" />
+                <img src={CARD_COPY[c.key]?.img || (c.key === 'vietnam' ? c.tall : c.img)} alt="" style={{ objectPosition: CARD_COPY[c.key]?.pos }} />
                 <span className="n3c-card__veil" />
                 <span className="n3c-card__chip">{c.season} {c.year}</span>
                 <span className="n3c-card__n" aria-hidden="true">0{i + 1}</span>
@@ -662,13 +664,13 @@ export function CampaignCards() {
               </figure>
               <span className="n3c-card__body">
                 <span className="n3c-card__t">{c.title}</span>
-                <span className="n3c-card__line">{c.line}</span>
+                <span className="n3c-card__line">{CARD_COPY[c.key]?.line || c.line}</span>
                 <span className="n3c-card__facts">
                   <span><small>From</small><b>{c.from}</b></span>
                   <span><small>Hold a seat</small><b>{c.deposit}</b></span>
                   <span><small>Departures</small><b>{c.window}</b></span>
                 </span>
-                <span className={`n3c-card__go is-${c.key}`}>See the tours <ArrowUpRight size={16} aria-hidden="true" /></span>
+                <span className={`n3c-card__go is-${c.key}`}>See the itineraries <ArrowUpRight size={16} aria-hidden="true" /></span>
               </span>
             </Link>
           </li>

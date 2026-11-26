@@ -6,24 +6,21 @@
    become the page's third section: a row of wide cards that scrolls
    sideways on its own, right after the intro. Everything below keeps v2's live coxandkings.com copy.
    /new3-marketing and /new3-marketing-v2 stay as they are.
+   Copy and photographs: new3marketing/voiceV3.jsx (the brand-voice pass that
+   runs through the whole page, not only the cards).
    ========================================================================== */
 
 import New3 from './New3';
 import OfferCards from './new3marketing/OfferCards';
-import { CAMPAIGNS_V2, HERO_COPY_V2, NEW3_COPY_V2 } from './new3marketing/voice';
-import { useSectionMotion } from './New3Marketing';
+import { CAMPAIGNS_V3, OFFER_COPY_V3, NEW3_COPY_V3 } from './new3marketing/voiceV3';
 import './New3Marketing.css';
 
 function OfferBanners() {
-  return <OfferCards campaigns={CAMPAIGNS_V2} copy={HERO_COPY_V2} />;
+  return <OfferCards campaigns={CAMPAIGNS_V3} copy={OFFER_COPY_V3} />;
 }
 
+/* motion="light": no GSAP scroll layer, no blur reveals, no parallax; each
+   block just fades in once. The user found the heavier motion glitchy. */
 export default function New3MarketingV3() {
-  useSectionMotion();
-  return (
-    <>
-      <div className="n3m-progress" aria-hidden="true" />
-      <New3 AfterIntro={OfferBanners} rootClass="n3m n3m--orighero" motion="gsap" copy={NEW3_COPY_V2} />
-    </>
-  );
+  return <New3 AfterIntro={OfferBanners} rootClass="n3m n3m--orighero" motion="light" copy={NEW3_COPY_V3} />;
 }
