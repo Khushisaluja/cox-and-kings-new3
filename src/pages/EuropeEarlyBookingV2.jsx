@@ -722,7 +722,7 @@ function BookingSheet({ open, initial, onClose }) {
         <div className="skj-sheet__head">
           <div>
             <Eyebrow>Book now</Eyebrow>
-            <h2 id="skj-sheet-h" className="skj-sheet__title">Book at {inr(BOOK)} each</h2>
+            <h2 id="skj-sheet-h" className="skj-sheet__title">Book at <s className="eu2-was"><span className="v2-sr">was </span>{inr(OFFER.booking)}</s> <span className="eu2-now"><span className="v2-sr">now </span>{inr(BOOK)}</span> each</h2>
           </div>
           <button type="button" className="skj-iconbtn" onClick={onClose} aria-label="Close"><X size={18} /></button>
         </div>
@@ -1061,7 +1061,7 @@ export default function EuropeEarlyBookingV2() {
                 (as Japan v3): no pill, no fill, so it can't read as a third CTA. */}
             <p className="eu2-hero-dep" data-hero-in>
               <span className="eu2-hero-dep__k">Early-bird booking</span>
-              <span className="eu2-hero-dep__v"><s>{inr(OFFER.booking)}</s> <b>{inr(BOOK)}</b> <small>per person, online only · pay the rest after your visa, in full or in EMIs</small></span>
+              <span className="eu2-hero-dep__v"><s><span className="v2-sr">was </span>{inr(OFFER.booking)}</s> <b><span className="v2-sr">now </span>{inr(BOOK)}</b> <small>per person, online only · pay the rest after your visa, in full or in EMIs</small></span>
             </p>
           </div>
         </section>
@@ -1310,7 +1310,7 @@ export default function EuropeEarlyBookingV2() {
       {/* ------------------------------------------------ STICKY CTA BAR */}
       <div className={`skj-sticky${showSticky ? ' is-on' : ''}`} aria-hidden={!showSticky}>
         <div className="skj-sticky__info">
-          <b>{inr(BOOK)} <small>to book</small></b>
+          <b><s className="eu2-was"><span className="v2-sr">was </span>{inr(OFFER.booking)}</s> <span className="v2-sr">now </span>{inr(BOOK)} <small>to book</small></b>
           <span>Tours from {inr(CHEAPEST.price)} or {inr(emiFor(CHEAPEST, MAX_TENURE))}/month</span>
         </div>
         <button type="button" className="skj-btn skj-btn--primary" onClick={() => openBook()} tabIndex={showSticky ? 0 : -1}>

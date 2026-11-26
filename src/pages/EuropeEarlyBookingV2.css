@@ -342,3 +342,10 @@
 /* Map fills its half of the panel edge to edge (sliced, not letterboxed). */
 .skj.eu2 .eu2-trip .skj-map { height: 100%; }
 @media (min-width: 900px) { .skj.eu2 .eu2-trip .skj-map > svg { width: 100%; height: 100%; min-height: 190px; aspect-ratio: auto; } }
+/* Struck ₹55,000 before ₹45,000: sticky bar and the booking popup heading */
+.skj.eu2 .eu2-was {
+  font-weight: 400; color: var(--skj-n700); text-decoration-thickness: 1.5px;
+  font-size: .72em; margin-right: 2px;
+}
+.skj.eu2 .skj-sheet__title .eu2-was { font-size: .8em; }
+.skj.eu2 .skj-sheet__title .eu2-now { color: var(--skj-blue); }
